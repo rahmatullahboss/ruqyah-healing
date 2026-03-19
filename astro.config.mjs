@@ -5,4 +5,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   output: 'static',
   site: 'https://ruqyah-healing.pages.dev',
+  build: {
+    inlineStylesheets: 'always',
+  },
 });
