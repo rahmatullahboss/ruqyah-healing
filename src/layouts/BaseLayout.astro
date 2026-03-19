@@ -1,0 +1,30 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'রুকইয়াহ হিলিং সেন্টার | Ruqyah Healing Center',
+  description = 'ইসলামী রুকইয়ার মাধ্যমে হালাল হিলিং সার্ভিস। কুরআন এবং সুন্নাহ ভিত্তিক চিকিৎসা পদ্ধতিতে আপনার আধ্যাত্মিক ও শারীরিক সুস্থতা নিশ্চিত করুন।',
+} = Astro.props;
+---
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0D7CFF" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <!-- Preconnect to Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

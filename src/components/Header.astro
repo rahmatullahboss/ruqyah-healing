@@ -1,0 +1,177 @@
+---
+const navItems = [
+  { label: 'এ্যাপয়নমেন্ট', href: '/appointment', highlight: true },
+  { label: 'হোম', href: '/' },
+  { label: 'সিমটম ডায়াগনোসিস', href: '/symptom-diagnosis' },
+  { label: 'রুকইয়াহ ডায়গোনিসিস', href: '/ruqyah-diagnosis' },
+  { label: 'সেলফ রুকইয়া', href: '/self-ruqyah' },
+  { label: 'রুকইয়া সাপ্লিমেন্ট', href: '/supplements' },
+  { label: 'রুকইয়া ব্লগ', href: '/blog' },
+  { label: 'পিডিএফ', href: '/pdf' },
+  { label: 'কোর্স', href: '/courses' },
+  { label: 'রাকী পরিচয়', href: '/team' },
+  { label: 'নোটিশ', href: '/notices' },
+  { label: 'প্রোফাইল', href: '/profile' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-name">Ruqyah</span>
+        <span class="logo-sub">Healing</span>
+      </div>
+    </a>
+
+    <nav class="main-nav" id="main-nav">
+      {navItems.map(item => (
+        <a
+          href={item.href}
+          class:list={[
+            'nav-link',
+            item.highlight && 'nav-highlight',
+            currentPath === item.href && !item.highlight && 'nav-active',
+          ]}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <button class="menu-toggle" id="menu-toggle" aria-label="মেনু খুলুন">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<style>
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 100%;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.logo-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.logo-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Nav */
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.main-nav::-webkit-scrollbar { display: none; }
+
+.nav-link {
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-medium);
+  padding: 7px 12px;
+  border-radius: var(--radius-xl);
+  transition: all 0.2s;
+}
+.nav-link:hover { color: var(--primary); background: var(--primary-light); }
+.nav-active { color: var(--primary); background: var(--primary-light); }
+.nav-highlight {
+  background: var(--primary);
+  color: #fff !important;
+  font-weight: 600;
+}
+.nav-highlight:hover { background: var(--primary-dark); }
+
+/* Mobile toggle */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px;
+  flex-shrink: 0;
+}
+.menu-toggle span {
+  width: 22px;
+  height: 2px;
+  background: var(--text-dark);
+  border-radius: 2px;
+  transition: all 0.2s;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .menu-toggle { display: flex; }
+  .main-nav {
+    display: none;
+    position: absolute;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    background: #fff;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    overflow-x: visible;
+  }
+  .main-nav.open { display: flex; }
+  .nav-link { width: 100%; }
+}
+</style>
+
+<script>
+const toggle = document.getElementById('menu-toggle');
+const nav = document.getElementById('main-nav');
+toggle?.addEventListener('click', () => nav?.classList.toggle('open'));
+</script>

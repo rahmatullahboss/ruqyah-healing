@@ -1,0 +1,214 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const raqi = {
+  name: 'মাওলানা আব্দুল্লাহ আল মামুন',
+  title: 'প্রধান রাকী ও ইসলামিক হিলিং বিশেষজ্ঞ',
+  intro: '১৫ বছরের অভিজ্ঞতা সম্পন্ন রুকইয়াহ বিশেষজ্ঞ। কুরআন এবং সুন্নাহর আলোকে হাজারো মানুষের চিকিৎসা সেবা প্রদান করেছেন।',
+  bio: 'মাওলানা আব্দুল্লাহ আল মামুন একজন প্রখ্যাত রুকইয়াহ বিশেষজ্ঞ এবং ইসলামিক হিলিং প্র্যাকটিশনার। তিনি জামেয়া আরাবিয়্যা থেকে উচ্চতর ইসলামিক শিক্ষা সম্পন্ন করেন এবং কুরআন হিফজ করেছেন।\n\nগত ১৫ বছর ধরে তিনি কুরআন এবং সুন্নাহর আলোকে হাজারো মানুষের চিকিৎসা সেবা প্রদান করেছেন। বিশেষ করে জিন, কালো জাদু এবং আধ্যাত্মিক সমস্যার চিকিৎসায় তার দক্ষতা সুপরিচিত।',
+  stats: [
+    { val: '১,০০০+', label: 'চিকিৎসাকৃত রোগী' },
+    { val: '১৫+', label: 'বছরের অভিজ্ঞতা' },
+    { val: '৫০+', label: 'সেমিনার পরিচালনা' },
+    { val: '৩০০+', label: 'সফল কেস স্ট্যাডি' },
+  ],
+  education: [
+    { degree: 'দাওরায়ে হাদিস (কামিল)', institution: 'জামেয়া আরাবিয়্যা, ঢাকা', year: '২০০৫' },
+    { degree: 'কুরআন হিফজ', institution: 'মাদ্রাসাতুল কুরআন, সৌদি আরব', year: '২০০২' },
+    { degree: 'ইসলামিক হিলিং সার্টিফিকেট', institution: 'আন্তর্জাতিক রুকইয়াহ সেন্টার', year: '২০০৮' },
+  ],
+  specializations: ['জিন ও কালো জাদুর চিকিৎসা', 'মানসিক ও আধ্যাত্মিক রোগ', 'বিবাহ ও পারিবারিক সমস্যা', 'শিশুর চিকিৎসা', 'দূরত্বে রুকইয়াহ'],
+};
+
+const teamMembers = [
+  { name: 'ডা. ফাতিমা রহমান', role: 'সিনিয়র রাকী', exp: '১০ বছরের অভিজ্ঞতা' },
+  { name: 'শায়েখ মুহাম্মাদ', role: 'রুকইয়াহ বিশেষজ্ঞ', exp: '৮ বছরের অভিজ্ঞতা' },
+  { name: 'উস্তাদ করিম', role: 'কুরআন বিশেষজ্ঞ', exp: '১২ বছরের অভিজ্ঞতা' },
+];
+---
+
+<BaseLayout title="রাকী পরিচয় | Ruqyah Healing Center" description="আমাদের অভিজ্ঞ রাকীদের পরিচিতি। ইসলামিক রুকইয়াহ বিশেষজ্ঞ দলের সাথে পরিচিত হন।">
+  <Header />
+
+  <main>
+    <!-- Lead Raqi Hero -->
+    <section class="raqi-hero">
+      <div class="container">
+        <div class="raqi-hero-inner">
+          <div class="raqi-avatar">
+            <div class="avatar-img">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          </div>
+          <div class="raqi-hero-text">
+            <h1>{raqi.name}</h1>
+            <p class="raqi-title">{raqi.title}</p>
+            <p class="raqi-intro">{raqi.intro}</p>
+            <div class="raqi-actions">
+              <a href="/appointment" class="btn-white">এ্যাপয়নমেন্ট নিন</a>
+              <a href="#contact" class="btn-outline-white">যোগাযোগ করুন</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-section">
+      <div class="container">
+        <div class="stats-grid">
+          {raqi.stats.map(stat => (
+            <div class="stat-card">
+              <div class="stat-val">{stat.val}</div>
+              <div class="stat-label">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Bio & Info -->
+    <section class="bio-section">
+      <div class="container">
+        <div class="bio-grid">
+          <div class="bio-main">
+            <h2>জীবনী</h2>
+            {raqi.bio.split('\n\n').map(para => <p>{para}</p>)}
+
+            <h3>বিশেষায়ন</h3>
+            <ul class="spec-list">
+              {raqi.specializations.map(spec => <li>{spec}</li>)}
+            </ul>
+
+            <h3>শিক্ষা</h3>
+            <div class="edu-list">
+              {raqi.education.map(edu => (
+                <div class="edu-item">
+                  <div class="edu-year">{edu.year}</div>
+                  <div class="edu-content">
+                    <strong>{edu.degree}</strong>
+                    <span>{edu.institution}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div class="bio-side" id="contact">
+            <div class="contact-card">
+              <h3>যোগাযোগ</h3>
+              <div class="contact-list">
+                <div class="contact-item">
+                  <span class="icon">📞</span>
+                  <span>+880 1XXX-XXXXXX</span>
+                </div>
+                <div class="contact-item">
+                  <span class="icon">✉️</span>
+                  <span>al@ruqyahhealing.com</span>
+                </div>
+                <div class="contact-item">
+                  <span class="icon">📍</span>
+                  <span>ঢাকা, বাংলাদেশ</span>
+                </div>
+              </div>
+              <a href="/appointment" class="appt-btn">এ্যাপয়নমেন্ট নিন</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team -->
+    <section class="team-section">
+      <div class="container">
+        <h2>আমাদের দল</h2>
+        <p class="section-sub">আমাদের অভিজ্ঞ রাকীদের সাথে পরিচিত হন</p>
+        <div class="team-grid">
+          {teamMembers.map(member => (
+            <div class="team-card">
+              <div class="team-avatar"></div>
+              <h3>{member.name}</h3>
+              <p class="team-role">{member.role}</p>
+              <p class="team-exp">{member.exp}</p>
+              <a href="/appointment" class="btn-appt">এ্যাপয়নমেন্ট নিন</a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.raqi-hero { background: var(--primary); color: #fff; padding: 64px 0; }
+.raqi-hero-inner { display: flex; align-items: center; gap: 40px; }
+.raqi-avatar { flex-shrink: 0; }
+.avatar-img { width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 4px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; }
+.raqi-hero-text h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+.raqi-title { font-size: 1.1rem; opacity: 0.9; margin-bottom: 14px; }
+.raqi-intro { opacity: 0.85; line-height: 1.7; margin-bottom: 24px; max-width: 600px; }
+.raqi-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+.btn-white { display: inline-block; background: #fff; color: var(--primary); padding: 11px 28px; border-radius: 40px; font-weight: 600; font-size: 15px; text-decoration: none; transition: background 0.2s; }
+.btn-white:hover { background: #f0f4ff; }
+.btn-outline-white { display: inline-block; background: transparent; color: #fff; padding: 11px 28px; border-radius: 40px; font-weight: 600; font-size: 15px; text-decoration: none; border: 2px solid rgba(255,255,255,0.5); transition: all 0.2s; }
+.btn-outline-white:hover { background: rgba(255,255,255,0.15); }
+
+.stats-section { padding: 48px 0; background: #fff; border-bottom: 1px solid var(--border); }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.stat-card { text-align: center; padding: 20px; border: 1px solid var(--border); border-radius: 16px; }
+.stat-val { font-size: 2rem; font-weight: 800; color: var(--primary); }
+.stat-label { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+.bio-section { padding: 64px 0; }
+.bio-grid { display: grid; grid-template-columns: 1fr 320px; gap: 40px; }
+.bio-main h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 16px; }
+.bio-main p { color: var(--text-medium); line-height: 1.8; margin-bottom: 16px; }
+.bio-main h3 { font-size: 1.25rem; font-weight: 700; margin: 32px 0 16px; }
+.spec-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.spec-list li { padding: 10px 16px; background: var(--primary-light); border-radius: 8px; color: var(--text-medium); font-size: 14px; }
+.spec-list li::before { content: '✓ '; color: var(--primary); font-weight: 700; }
+.edu-list { display: flex; flex-direction: column; gap: 16px; }
+.edu-item { display: flex; gap: 16px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; }
+.edu-year { font-size: 13px; color: var(--primary); font-weight: 600; min-width: 40px; }
+.edu-content { display: flex; flex-direction: column; }
+.edu-content strong { font-size: 15px; font-weight: 600; }
+.edu-content span { font-size: 13px; color: var(--text-muted); }
+
+.contact-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; position: sticky; top: 80px; }
+.contact-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+.contact-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+.contact-item { display: flex; gap: 12px; align-items: center; font-size: 14px; }
+.icon { width: 28px; text-align: center; }
+.appt-btn { display: block; text-align: center; background: var(--primary); color: #fff; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; transition: background 0.2s; }
+.appt-btn:hover { background: var(--primary-dark); }
+
+.team-section { padding: 64px 0; background: var(--bg-light); }
+.team-section h2 { font-size: 1.75rem; font-weight: 700; text-align: center; margin-bottom: 8px; }
+.section-sub { text-align: center; color: var(--text-muted); margin-bottom: 32px; }
+.team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.team-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; }
+.team-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--primary-light); margin: 0 auto 16px; }
+.team-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.team-role { color: var(--primary); font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.team-exp { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; }
+.btn-appt { display: inline-block; border: 1px solid var(--primary); color: var(--primary); padding: 8px 22px; border-radius: 40px; font-size: 14px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+.btn-appt:hover { background: var(--primary); color: #fff; }
+
+@media (max-width: 900px) {
+  .raqi-hero-inner { flex-direction: column; text-align: center; }
+  .bio-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .team-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .team-grid { grid-template-columns: 1fr; }
+}
+</style>

@@ -1,0 +1,115 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const courses = [
+  { title: 'রুকইয়া প্র্যাকটিশনার কোর্স', instructor: 'মাওলানা আব্দুল্লাহ', students: 156, lessons: 24, hours: '৮ সপ্তাহ', level: 'শুরুর স্তর', price: null, rating: 4.8, desc: 'সম্পূর্ণ রুকইয়াহ শেখার জন্য বিস্তারিত কোর্স' },
+  { title: 'ইসলামিক হিলিং থেরাপি', instructor: 'ডা. ফাতিমা রহমান', students: 203, lessons: 18, hours: '৬ সপ্তাহ', level: 'মধ্যম স্তর', price: 2000, rating: 4.9, desc: 'কুরআন এবং সুন্নাহ ভিত্তিক হিলিং পদ্ধতি' },
+  { title: 'জিন ও শয়তান থেকে সুরক্ষা', instructor: 'শায়েখ মুহাম্মাদ', students: 89, lessons: 12, hours: '৮ সপ্তাহ', level: 'শুরুর স্তর', price: null, rating: 4.7, desc: 'সুরক্ষার পদ্ধতি এবং প্রতিরোধ ব্যবস্থা' },
+  { title: 'কুরআনিক হিলিং ম্যাস্টারক্লাস', instructor: 'মাওলানা আব্দুল্লাহ', students: 312, lessons: 30, hours: '১২ সপ্তাহ', level: 'উন্নত স্তর', price: 4500, rating: 5.0, desc: 'কুরআনের আয়াত দিয়ে সম্পূর্ণ চিকিৎসা পদ্ধতি' },
+  { title: 'পারিবারিক রুকইয়াহ', instructor: 'ডা. ফাতিমা রহমান', students: 178, lessons: 15, hours: '৫ সপ্তাহ', level: 'শুরুর স্তর', price: 3000, rating: 4.6, desc: 'পরিবারের সুরক্ষার জন্য সম্পূর্ণ গাইড' },
+  { title: 'সেলফ রুকইয়াহ সার্টিফিকেট', instructor: 'শায়েখ মুহাম্মাদ', students: 245, lessons: 20, hours: '৭ সপ্তাহ', level: 'মধ্যম স্তর', price: 2500, rating: 4.8, desc: 'নিজেই রুকইয়াহ করার দক্ষতা অর্জন করুন' },
+];
+---
+
+<BaseLayout title="কোর্সসমূহ | Ruqyah Healing Center" description="ইসলামিক হিলিং এবং রুকইয়াহ সম্পর্কে বিস্তারিত জ্ঞান অর্জন করুন আমাদের কোর্সগুলো থেকে।">
+  <Header />
+
+  <main>
+    <div class="page-header">
+      <div class="container">
+        <nav class="breadcrumb">
+          <a href="/">হোম</a><span>/</span><span>কোর্স</span>
+        </nav>
+      </div>
+    </div>
+
+    <section class="courses-hero">
+      <div class="container">
+        <h1>আমাদের কোর্সসমূহ</h1>
+        <p>ইসলামিক হিলিং এবং রুকইয়াহ সম্পর্কে বিস্তারিত জ্ঞান অর্জন করুন</p>
+      </div>
+    </section>
+
+    <section class="courses-section">
+      <div class="container">
+        <div class="courses-grid">
+          {courses.map((course) => (
+            <div class="course-card">
+              <div class="course-img">
+                <div class="course-bg"></div>
+                <div class:list={['price-badge', course.price === null && 'free']}>
+                  {course.price === null ? 'ফ্রি' : `৳${course.price.toLocaleString()} টাকা`}
+                </div>
+              </div>
+              <div class="course-body">
+                <div class="course-meta">
+                  <span class="level-badge">{course.level}</span>
+                  <span class="rating">⭐ {course.rating}</span>
+                </div>
+                <h3>{course.title}</h3>
+                <p>{course.desc}</p>
+                <div class="course-stats">
+                  <span>⏱ {course.hours}</span>
+                  <span>📚 {course.lessons} লেসন</span>
+                </div>
+                <div class="course-footer">
+                  <div class="instructor">
+                    <div class="instructor-avatar"></div>
+                    <div>
+                      <div class="instructor-name">{course.instructor}</div>
+                      <div class="instructor-students">{course.students} জন শিক্ষার্থী</div>
+                    </div>
+                  </div>
+                  <button class="enroll-btn">ভর্তি হন</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.page-header { padding: 16px 0; border-bottom: 1px solid var(--border); }
+.breadcrumb { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text-muted); }
+.breadcrumb a { color: var(--primary); text-decoration: none; }
+
+.courses-hero { padding: 48px 0 32px; text-align: center; }
+.courses-hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
+.courses-hero p { color: var(--text-muted); }
+
+.courses-section { padding: 32px 0 64px; }
+.courses-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+.course-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.2s; }
+.course-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
+.course-img { height: 180px; position: relative; background: linear-gradient(135deg, #667eea, #764ba2); }
+.course-bg { position: absolute; inset: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 180"><rect fill="%23667eea" width="300" height="180"/></svg>') center/cover; }
+.price-badge { position: absolute; top: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 5px 14px; font-size: 13px; font-weight: 700; color: var(--primary); }
+.price-badge.free { background: #dcfce7; color: #16a34a; }
+
+.course-body { padding: 16px 20px 20px; }
+.course-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.level-badge { font-size: 12px; background: var(--primary-light); color: var(--primary); padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.rating { font-size: 13px; color: var(--text-muted); }
+.course-body h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; line-height: 1.4; }
+.course-body p { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5; }
+.course-stats { display: flex; gap: 16px; font-size: 13px; color: var(--text-muted); margin-bottom: 16px; padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+.course-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; }
+.instructor { display: flex; align-items: center; gap: 10px; }
+.instructor-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-light); }
+.instructor-name { font-size: 13px; font-weight: 600; }
+.instructor-students { font-size: 12px; color: var(--text-muted); }
+.enroll-btn { padding: 8px 18px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+.enroll-btn:hover { background: var(--primary-dark); }
+
+@media (max-width: 900px) { .courses-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .courses-grid { grid-template-columns: 1fr; } }
+</style>

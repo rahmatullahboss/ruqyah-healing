@@ -1,0 +1,67 @@
+---
+interface Props {
+  image: string;
+  date: string;
+  category: string;
+  title: string;
+  excerpt: string;
+  href?: string;
+}
+const { image, date, category, title, excerpt, href = '#' } = Astro.props;
+---
+<a href={href} class="blog-card">
+  <div class="blog-img-wrap">
+    <img src={image} alt={title} loading="lazy" />
+    <span class="blog-category">{category}</span>
+  </div>
+  <div class="blog-body">
+    <p class="blog-date">{date}</p>
+    <h3 class="blog-title">{title}</h3>
+    <p class="blog-excerpt">{excerpt}</p>
+  </div>
+</a>
+
+<style>
+.blog-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: all 0.25s;
+  text-decoration: none;
+  color: inherit;
+}
+.blog-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+.blog-img-wrap {
+  position: relative;
+  overflow: hidden;
+  height: 200px;
+}
+.blog-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.blog-card:hover .blog-img-wrap img { transform: scale(1.05); }
+.blog-category {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-xl);
+}
+
+.blog-body { padding: 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.blog-date { font-size: 13px; color: var(--text-muted); }
+.blog-title { font-size: 16px; font-weight: 700; color: var(--text-dark); line-height: 1.4; }
+.blog-excerpt { font-size: 14px; color: var(--text-medium); line-height: 1.6; }
+</style>

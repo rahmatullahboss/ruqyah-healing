@@ -1,0 +1,177 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const audioList = [
+  { title: 'সূরা ফাতিহা', arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', duration: '2:30' },
+  { title: 'আয়াতুল কুরসি', arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ', duration: '3:15' },
+  { title: 'সূরা ইখলাস', arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ', duration: '1:45' },
+  { title: 'সূরা ফালাক', arabic: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ', duration: '1:30' },
+  { title: 'সূরা নাস', arabic: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ', duration: '1:40' },
+  { title: 'সূরা বাকারা (শেষ ২ আয়াত)', arabic: 'آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ', duration: '4:00' },
+];
+
+const steps = [
+  { num: '১', title: 'পবিত্রতা অর্জন', desc: 'অযু করুন এবং পবিত্র স্থানে বসুন' },
+  { num: '২', title: 'নিয়ত করুন', desc: 'আল্লাহর কাছে সুস্থতার নিয়ত করুন' },
+  { num: '৩', title: 'দোয়া পড়ুন', desc: 'নিচের অডিও চালু করে একসাথে পড়ুন' },
+  { num: '৪', title: 'নিয়মিত আমল', desc: 'প্রতিদিন সকাল-সন্ধ্যা আমল করুন' },
+];
+---
+
+<BaseLayout title="সেলফ রুকইয়া | Ruqyah Healing Center" description="অডিও প্লে করুন এবং একসাথে পাঠ করুন। ঘরে বসেই ইসলামিক রুকইয়াহ পদ্ধতিতে নিজের চিকিৎসা করুন।">
+  <Header />
+
+  <main>
+    <div class="page-header">
+      <div class="container">
+        <nav class="breadcrumb">
+          <a href="/">হোম</a><span>/</span><span>সেলফ রুকইয়া</span>
+        </nav>
+      </div>
+    </div>
+
+    <section class="self-hero">
+      <div class="container">
+        <h1>সেলফ রুকইয়া</h1>
+        <p>অডিও প্লে করুন এবং একসাথে পাঠ করুন</p>
+      </div>
+    </section>
+
+    <section class="steps-section">
+      <div class="container">
+        <h2>কিভাবে করবেন</h2>
+        <div class="steps-grid">
+          {steps.map(step => (
+            <div class="step-card">
+              <div class="step-num">{step.num}</div>
+              <h3>{step.title}</h3>
+              <p>{step.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="audio-section">
+      <div class="container">
+        <div class="audio-card">
+          <h2>রুকইয়াহ অডিও পাঠ</h2>
+          <p>অডিও চালু করুন এবং একসাথে পাঠ করুন</p>
+          <div class="audio-list">
+            {audioList.map((audio, i) => (
+              <div class="audio-item">
+                <button class="play-btn" data-index={i} aria-label={`${audio.title} প্লে করুন`}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                    <polygon points="5,3 19,12 5,21"/>
+                  </svg>
+                </button>
+                <div class="audio-info">
+                  <div class="audio-title">{audio.title}</div>
+                  <div class="audio-arabic">{audio.arabic}</div>
+                  <div class="audio-duration">{audio.duration}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tips-section">
+      <div class="container">
+        <div class="tips-grid">
+          <div class="tip-card important">
+            <div class="tip-icon">📌</div>
+            <h3>গুরুত্বপূর্ণ নির্দেশনা</h3>
+            <ul>
+              <li>প্রতিদিন সকাল ও সন্ধ্যায় আমল করুন</li>
+              <li>বিশুদ্ধ নিয়তে পড়ুন</li>
+              <li>ধৈর্য ধরুন ও নিয়মিত থাকুন</li>
+              <li>আল্লাহর উপর তাওয়াক্কুল রাখুন</li>
+            </ul>
+          </div>
+          <div class="tip-card warning">
+            <div class="tip-icon">⚠️</div>
+            <h3>সতর্কতা</h3>
+            <ul>
+              <li>গুরুতর সমস্যায় রাকীর পরামর্শ নিন</li>
+              <li>একা না করে পরিবারকে সাথে রাখুন</li>
+              <li>শিরক থেকে সম্পূর্ণ বিরত থাকুন</li>
+              <li>নামাজ ও ইবাদত কখনো বাদ দেবেন না</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-ruqyah">
+      <div class="container">
+        <div class="cta-box">
+          <h2>পেশাদার সাহায্য দরকার?</h2>
+          <p>অভিজ্ঞ রাকীর সাথে এ্যাপয়নমেন্ট নিন</p>
+          <a href="/appointment" class="btn-white">এ্যাপয়নমেন্ট নিন</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.page-header { padding: 16px 0; border-bottom: 1px solid var(--border); }
+.breadcrumb { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text-muted); }
+.breadcrumb a { color: var(--primary); text-decoration: none; }
+
+.self-hero { padding: 48px 0 32px; text-align: center; }
+.self-hero h1 { font-size: 2rem; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+.self-hero p { color: var(--text-muted); font-size: 1rem; }
+
+.steps-section { padding: 40px 0; }
+.steps-section h2 { font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 24px; }
+.steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.step-card { text-align: center; padding: 24px 16px; background: #fff; border: 1px solid var(--border); border-radius: 16px; }
+.step-num { width: 44px; height: 44px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; margin: 0 auto 12px; }
+.step-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.step-card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+.audio-section { padding: 32px 0 48px; }
+.audio-card { max-width: 680px; margin: 0 auto; background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 32px; }
+.audio-card h2 { font-size: 1.25rem; font-weight: 700; text-align: center; margin-bottom: 6px; }
+.audio-card > p { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+.audio-list { display: flex; flex-direction: column; gap: 2px; }
+.audio-item { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.audio-item:last-child { border-bottom: none; }
+.play-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+.play-btn:hover { background: var(--primary-dark); }
+.audio-info { flex: 1; }
+.audio-title { font-size: 15px; font-weight: 600; color: var(--text-dark); }
+.audio-arabic { font-size: 14px; color: var(--text-muted); direction: rtl; margin: 2px 0; }
+.audio-duration { font-size: 12px; color: var(--text-muted); }
+
+.tips-section { padding: 32px 0 48px; }
+.tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.tip-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+.tip-card.important { border-color: #93c5fd; background: #eff6ff; }
+.tip-card.warning { border-color: #fcd34d; background: #fffbeb; }
+.tip-icon { font-size: 24px; margin-bottom: 12px; }
+.tip-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+.tip-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.tip-card li { font-size: 14px; color: var(--text-medium); padding-left: 16px; position: relative; }
+.tip-card li::before { content: '•'; position: absolute; left: 0; color: var(--primary); }
+
+.cta-ruqyah { padding: 48px 0; }
+.cta-box { background: var(--primary); border-radius: 20px; padding: 48px; text-align: center; color: #fff; }
+.cta-box h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 10px; }
+.cta-box p { opacity: 0.9; margin-bottom: 24px; }
+.btn-white { display: inline-block; background: #fff; color: var(--primary); padding: 12px 32px; border-radius: 40px; font-weight: 600; font-size: 15px; text-decoration: none; transition: background 0.2s; }
+.btn-white:hover { background: #f0f4ff; }
+
+@media (max-width: 768px) {
+  .steps-grid { grid-template-columns: repeat(2, 1fr); }
+  .tips-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) { .steps-grid { grid-template-columns: 1fr; } }
+</style>

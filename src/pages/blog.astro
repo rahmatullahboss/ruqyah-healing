@@ -1,0 +1,137 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const featuredPost = {
+  title: 'জিন এবং শয়তান থেকে সুরক্ষার সম্পূর্ণ গাইড',
+  category: 'সুরক্ষা',
+  readTime: '৮ মিনিট',
+  date: '১৫ নভেম্বর, ২০২৫',
+  author: 'মাওলানা আব্দুল্লাহ',
+  excerpt: 'ইসলামিক শিক্ষা অনুযায়ী সুরক্ষার উপায় এবং দোয়া। জিন এবং শয়তান থেকে রক্ষার জন্য বিস্তারিত পদ্ধতি...',
+};
+
+const posts = [
+  { title: 'জিন এবং কালো জাদু থেকে সুরক্ষা', category: 'সুরক্ষা', readTime: '৬ মিনিট', excerpt: 'ইসলামিক শিক্ষা অনুযায়ী সুরক্ষার উপায় এবং দোয়া' },
+  { title: 'হালাল হিলিং এর গুরুত্ব', category: 'স্বাস্থ্য', readTime: '৫ মিনিট', excerpt: 'কেন আমাদের হালাল পদ্ধতিতে চিকিৎসা গ্রহণ করা উচিত এবং এর ফজিলত' },
+  { title: 'সকাল-সন্ধ্যার জিকির ও দোয়া', category: 'দোয়া', readTime: '৮ মিনিট', excerpt: 'নবী (সা.) থেকে রক্ষা করেছেন এমন গুরুত্বপূর্ণ আমল' },
+  { title: 'রুকইয়াহ কি এবং কীভাবে কাজ করে', category: 'রুকইয়াহ', readTime: '৭ মিনিট', excerpt: 'ইসলামিক হিলিং পদ্ধতির বৈজ্ঞানিক ও আধ্যাত্মিক দিক' },
+  { title: 'শিশুদের জন্য রুকইয়াহ', category: 'পরিবার', readTime: '৫ মিনিট', excerpt: 'ছোট শিশুদের নজর ও কু-দৃষ্টি থেকে রক্ষার উপায়' },
+  { title: 'কুরআনের সুস্থতার আয়াতসমূহ', category: 'কুরআন', readTime: '১০ মিনিট', excerpt: 'কুরআনে বর্ণিত শিফার আয়াত এবং তাদের প্রয়োগ পদ্ধতি' },
+];
+
+const categories = ['সব', 'রুকইয়াহ', 'দোয়া', 'সুরক্ষা', 'স্বাস্থ্য', 'কুরআন', 'পরিবার'];
+---
+
+<BaseLayout title="রুকইয়া ব্লগ | Ruqyah Healing Center" description="ইসলামিক হিলিং, রুকইয়াহ এবং আধ্যাত্মিক সুস্থতা সম্পর্কিত জ্ঞান ও গাইড।">
+  <Header />
+
+  <main>
+    <section class="blog-hero">
+      <div class="container">
+        <h1>রুকইয়া ব্লগ</h1>
+        <p>ইসলামিক হিলিং ও আধ্যাত্মিক সুস্থতা সম্পর্কিত জ্ঞান</p>
+
+        <div class="cat-tabs">
+          {categories.map((cat, i) => (
+            <button class:list={['cat-btn', i === 0 && 'active']}>{cat}</button>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="blog-content">
+      <div class="container">
+        <!-- Featured post -->
+        <div class="featured-post">
+          <div class="featured-img">
+            <div class="featured-bg"></div>
+          </div>
+          <div class="featured-body">
+            <div class="post-meta">
+              <span class="post-cat">{featuredPost.category}</span>
+              <span class="post-time">{featuredPost.readTime}</span>
+            </div>
+            <h2>{featuredPost.title}</h2>
+            <p>{featuredPost.excerpt}</p>
+            <div class="post-info">
+              <span>🗓 {featuredPost.date}</span>
+              <span>👤 {featuredPost.author}</span>
+            </div>
+            <a href="/blog/1" class="read-btn">বিস্তারিত পড়ুন →</a>
+          </div>
+        </div>
+
+        <!-- Posts grid -->
+        <div class="posts-grid">
+          {posts.map((post, i) => (
+            <a href={`/blog/${i + 2}`} class="post-card">
+              <div class="post-card-img">
+                <div class="post-card-bg" style={`filter: hue-rotate(${i * 45}deg)`}></div>
+              </div>
+              <div class="post-card-body">
+                <div class="post-meta">
+                  <span class="post-cat">{post.category}</span>
+                  <span class="post-time">{post.readTime}</span>
+                </div>
+                <h3>{post.title}</h3>
+                <p>{post.excerpt}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <div class="load-more-wrapper">
+          <button class="load-more-btn">আরও পোস্ট দেখুন</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.blog-hero { padding: 48px 0 32px; text-align: center; }
+.blog-hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
+.blog-hero p { color: var(--text-muted); margin-bottom: 24px; }
+.cat-tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.cat-btn { padding: 8px 20px; border: 1px solid var(--border); border-radius: 20px; background: #fff; font-size: 14px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.cat-btn:hover, .cat-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.blog-content { padding: 32px 0 64px; }
+
+/* Featured */
+.featured-post { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; background: #fff; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 40px; }
+.featured-img { min-height: 300px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); position: relative; }
+.featured-bg { position: absolute; inset: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect fill="%23667eea" width="200" height="200"/><circle fill="%23764ba2" opacity="0.4" cx="100" cy="100" r="80"/></svg>') center/cover; }
+.featured-body { padding: 32px; display: flex; flex-direction: column; justify-content: center; }
+.post-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.post-cat { background: var(--primary-light); color: var(--primary); font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.post-time { font-size: 13px; color: var(--text-muted); }
+.featured-body h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; line-height: 1.4; }
+.featured-body p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+.post-info { display: flex; gap: 16px; font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+.read-btn { display: inline-block; color: var(--primary); font-weight: 600; font-size: 14px; }
+
+/* Posts grid */
+.posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.post-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; text-decoration: none; color: inherit; transition: all 0.2s; display: block; }
+.post-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
+.post-card-img { height: 160px; position: relative; }
+.post-card-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #667eea, #764ba2); }
+.post-card-body { padding: 16px; }
+.post-card-body h3 { font-size: 15px; font-weight: 600; margin: 8px 0 6px; line-height: 1.4; }
+.post-card-body p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+.load-more-wrapper { text-align: center; margin-top: 32px; }
+.load-more-btn { padding: 12px 36px; border: 1px solid var(--border); border-radius: 40px; background: #fff; font-size: 15px; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+.load-more-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+@media (max-width: 900px) {
+  .featured-post { grid-template-columns: 1fr; }
+  .posts-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) { .posts-grid { grid-template-columns: 1fr; } }
+</style>

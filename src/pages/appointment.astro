@@ -1,0 +1,294 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="এ্যাপয়নমেন্ট নিন | Ruqyah Healing Center"
+  description="আমাদের অভিজ্ঞ রাকীদের সাথে পরামর্শের জন্য এ্যাপয়নমেন্ট বুক করুন।"
+>
+  <Header />
+
+  <main class="appt-main">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+        <a href="/">হোম</a>
+        <span>/</span>
+        <span>এ্যাপয়নমেন্ট</span>
+      </div>
+
+      <!-- Page Title -->
+      <div class="appt-page-header">
+        <h1>এ্যাপয়েনমেন্ট নিন</h1>
+        <p>আমাদের অভিজ্ঞ রাকীদের সাথে পরামর্শের জন্য এ্যাপয়নমেন্ট বুক করুন</p>
+      </div>
+
+      <!-- Content Grid -->
+      <div class="appt-grid">
+        <!-- Form -->
+        <div class="appt-form-wrap">
+          <form class="appt-form" id="appt-form">
+            <!-- Name -->
+            <div class="form-group">
+              <label for="name">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                নাম <span class="required">*</span>
+              </label>
+              <input type="text" id="name" name="name" placeholder="আপনার পূর্ণ নাম লিখুন" required />
+            </div>
+
+            <!-- Age + Phone -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="age">বয়স <span class="required">*</span></label>
+                <input type="number" id="age" name="age" placeholder="আপনার বয়স" min="1" max="120" required />
+              </div>
+              <div class="form-group">
+                <label for="phone">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                  ফোন নম্বর <span class="required">*</span>
+                </label>
+                <input type="tel" id="phone" name="phone" placeholder="+880 1XXX-XXXXXX" required />
+              </div>
+            </div>
+
+            <!-- Date + Time -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="date">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  তারিখ <span class="required">*</span>
+                </label>
+                <input type="date" id="date" name="date" required />
+              </div>
+              <div class="form-group">
+                <label for="time">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  সময় <span class="required">*</span>
+                </label>
+                <select id="time" name="time" required>
+                  <option value="">সময় নির্বাচন করুন</option>
+                  <option>সকাল ৯:০০</option>
+                  <option>সকাল ১০:০০</option>
+                  <option>সকাল ১১:০০</option>
+                  <option>দুপুর ১২:০০</option>
+                  <option>দুপুর ২:০০</option>
+                  <option>বিকেল ৩:০০</option>
+                  <option>বিকেল ৪:০০</option>
+                  <option>বিকেল ৫:০০</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Treatment type -->
+            <div class="form-group">
+              <label for="type">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                চিকিৎসার ধরণ <span class="required">*</span>
+              </label>
+              <select id="type" name="type" required>
+                <option value="">নির্বাচন করুন</option>
+                <option>সিমটম ডায়াগনোসিস</option>
+                <option>রুকইয়াহ ডায়াগনোসিস</option>
+                <option>সেলফ রুকইয়া পরামর্শ</option>
+                <option>রুকইয়া সাপ্লিমেন্ট</option>
+                <option>অন্যান্য</option>
+              </select>
+            </div>
+
+            <!-- Problem details -->
+            <div class="form-group">
+              <label for="problem">সমস্যা বিস্তারিত <span class="required">*</span></label>
+              <textarea id="problem" name="problem" placeholder="আপনার সমস্যা বিস্তারিত লিখুন..." rows="5" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px;">
+              এ্যাপয়নমেন্ট বুক করুন
+            </button>
+          </form>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="appt-sidebar">
+          <!-- Contact Info -->
+          <div class="sidebar-card">
+            <h3>যোগাযোগ তথ্য</h3>
+            <div class="contact-item">
+              <div class="contact-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              </div>
+              <div>
+                <p class="contact-label">ফোন</p>
+                <p class="contact-value">+880 1XXX-XXXXXX</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+              <div>
+                <p class="contact-label">সময়সূচী</p>
+                <p class="contact-value">রবি - বৃহস্পতি</p>
+                <p class="contact-value">৯:০০ - ৬:০০</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Instructions -->
+          <div class="sidebar-card">
+            <h3>নির্দেশনা</h3>
+            <ul class="instruction-list">
+              <li>
+                <span class="bullet">•</span>
+                এ্যাপয়নমেন্টের আগে ওযু করে নিন
+              </li>
+              <li>
+                <span class="bullet">•</span>
+                পরিষ্কার পোশাক পরিধান করুন
+              </li>
+              <li>
+                <span class="bullet">•</span>
+                সময়মতো উপস্থিত হন
+              </li>
+              <li>
+                <span class="bullet">•</span>
+                প্রয়োজনীয় কাগজপত্র সাথে আনুন
+              </li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.appt-main {
+  padding: 48px 0 80px;
+  background: var(--bg-light);
+  min-height: calc(100vh - var(--nav-height));
+}
+
+.appt-page-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.appt-page-header h1 {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+}
+.appt-page-header p {
+  font-size: 16px;
+  color: var(--text-medium);
+}
+
+.appt-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Form */
+.appt-form-wrap {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  box-shadow: var(--shadow-sm);
+}
+.appt-form { display: flex; flex-direction: column; gap: 20px; }
+
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+label svg { color: var(--text-muted); }
+.required { color: var(--primary); }
+
+input, select, textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text-dark);
+  background: var(--bg-white);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+input::placeholder, textarea::placeholder { color: var(--text-muted); }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(13,124,255,0.1);
+}
+textarea { resize: vertical; min-height: 120px; }
+select { cursor: pointer; }
+
+/* Sidebar */
+.appt-sidebar { display: flex; flex-direction: column; gap: 20px; }
+.sidebar-card {
+  background: var(--primary-light);
+  border-radius: var(--radius-md);
+  padding: 24px;
+}
+.sidebar-card h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+}
+
+.contact-item {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.contact-item:last-child { margin-bottom: 0; }
+.contact-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: white;
+}
+.contact-icon svg { stroke: white; }
+.contact-label { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
+.contact-value { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+
+.instruction-list { display: flex; flex-direction: column; gap: 10px; }
+.instruction-list li {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-medium);
+  line-height: 1.5;
+}
+.bullet { color: var(--primary); font-weight: 700; flex-shrink: 0; }
+
+@media (max-width: 900px) {
+  .appt-grid { grid-template-columns: 1fr; }
+  .appt-sidebar { order: -1; }
+}
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  .appt-form-wrap { padding: 24px 16px; }
+}
+</style>

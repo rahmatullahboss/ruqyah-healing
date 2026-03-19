@@ -1,0 +1,66 @@
+---
+interface Props {
+  icon: string;  // SVG path data
+  title: string;
+  description: string;
+  link: string;
+  bgColor?: string;  // CSS custom property or color
+}
+const { icon, title, description, link, bgColor = 'var(--primary-light)' } = Astro.props;
+---
+<a href={link} class="service-card" style={`--card-bg: ${bgColor}`}>
+  <div class="service-icon">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icon}></svg>
+  </div>
+  <h3>{title}</h3>
+  <p>{description}</p>
+  <span class="service-link">বিস্তারিত দেখুন →</span>
+</a>
+
+<style>
+.service-card {
+  background: var(--card-bg, var(--primary-light));
+  border-radius: var(--radius-md);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid transparent;
+}
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(13,124,255,0.15);
+}
+.service-icon {
+  width: 52px;
+  height: 52px;
+  background: var(--primary);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.service-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.4;
+}
+.service-card p {
+  font-size: 14px;
+  color: var(--text-medium);
+  line-height: 1.6;
+  flex: 1;
+}
+.service-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-top: 4px;
+}
+</style>

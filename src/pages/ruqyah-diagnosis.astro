@@ -1,0 +1,263 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const questions = [
+  { category: 'ধর্মীয় অভ্যাস', question: 'আপনি কি নিয়মিত নামাজ পড়েন?' },
+  { category: 'ধর্মীয় অভ্যাস', question: 'আপনি কি নিয়মিত কুরআন তেলাওয়াত করেন?' },
+  { category: 'শারীরিক লক্ষণ', question: 'আপনি কি ঘুমের মধ্যে অস্বাভাবিক স্বপ্ন দেখেন?' },
+  { category: 'শারীরিক লক্ষণ', question: 'আপনি কি শরীরে অস্বাভাবিক ব্যথা অনুভব করেন?' },
+  { category: 'ধর্মীয় প্রতিক্রিয়া', question: 'আপনি কি কুরআন তেলাওয়াত শুনলে অস্বস্তি বোধ করেন?' },
+  { category: 'মানসিক লক্ষণ', question: 'আপনি কি হঠাৎ মেজাজ পরিবর্তন অনুভব করেন?' },
+  { category: 'মানসিক লক্ষণ', question: 'আপনার কি একা থাকতে ভয় লাগে?' },
+  { category: 'সামাজিক লক্ষণ', question: 'আপনার কি সম্পর্ক বা বিবাহে অস্বাভাবিক সমস্যা হচ্ছে?' },
+];
+---
+
+<BaseLayout title="রুকইয়াহ ডায়াগনোসিস | Ruqyah Healing Center" description="ধাপে ধাপে রুকইয়াহ ডায়াগনোসিস প্রক্রিয়া সম্পন্ন করুন।">
+  <Header />
+
+  <main>
+    <div class="page-header">
+      <div class="container">
+        <nav class="breadcrumb">
+          <a href="/">হোম</a>
+          <span>/</span>
+          <span>রুকইয়াহ ডায়াগনোসিস</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="quiz-section" id="quizSection">
+      <div class="container">
+        <div class="quiz-wrapper">
+          <div class="quiz-progress">
+            <div class="progress-top">
+              <span class="progress-label" id="progressLabel">প্রশ্ন 1 / 8</span>
+              <span class="progress-percent" id="progressPercent">13% সম্পন্ন</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill" style="width: 13%"></div>
+            </div>
+          </div>
+
+          <div class="question-card" id="questionCard">
+            <div class="question-category" id="questionCategory">ধর্মীয় অভ্যাস</div>
+            <h2 id="questionText">আপনি কি নিয়মিত নামাজ পড়েন?</h2>
+
+            <div class="answer-options">
+              <button class="answer-btn yes-btn" id="yesBtn" onclick="selectAnswer(true)">
+                <span class="answer-icon yes-icon">✓</span>
+                <span>হ্যাঁ</span>
+              </button>
+              <button class="answer-btn no-btn" id="noBtn" onclick="selectAnswer(false)">
+                <span class="answer-icon no-icon">✕</span>
+                <span>না</span>
+              </button>
+            </div>
+
+            <div class="quiz-nav">
+              <button class="nav-btn prev-btn" id="prevBtn" onclick="prevQuestion()">
+                ‹ পূর্ববর্তী
+              </button>
+              <div class="dots" id="dotsContainer"></div>
+              <button class="nav-btn next-btn" id="nextBtn" onclick="nextQuestion()">
+                পরবর্তী ›
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Result Section (hidden initially) -->
+    <section class="result-section hidden" id="resultSection">
+      <div class="container">
+        <div class="result-card">
+          <div class="result-icon">✓</div>
+          <h2>ডায়াগনোসিস সম্পন্ন</h2>
+          <p>আপনার উত্তরের উপর ভিত্তি করে আমাদের প্রাথমিক মূল্যায়ন</p>
+
+          <div class="result-stats">
+            <div class="stat-item">
+              <div class="stat-value">8</div>
+              <div class="stat-label">মোট প্রশ্ন</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value primary" id="yesCount">0</div>
+              <div class="stat-label">হ্যাঁ উত্তর</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="riskLevel" style="color: #22c55e">নিম্ন</div>
+              <div class="stat-label">ঝুঁকির স্তর</div>
+            </div>
+          </div>
+
+          <div class="recommendations" id="recommendations">
+            <h3>সুপারিশ</h3>
+            <ul id="recList">
+              <li>নিয়মিত ইবাদত চালিয়ে যান</li>
+              <li>প্রতিরক্ষামূলক দোয়া পড়ুন</li>
+              <li>ইসলামিক জীবনযাত্রা মেনে চলুন</li>
+            </ul>
+          </div>
+
+          <div class="result-actions">
+            <button class="btn btn-outline" onclick="restartQuiz()">পুনরায় শুরু করুন</button>
+            <a href="/appointment" class="btn btn-primary">এ্যাপয়নমেন্ট নিন</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.page-header { padding: 16px 0; border-bottom: 1px solid var(--border); }
+.breadcrumb { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text-muted); }
+.breadcrumb a { color: var(--primary); text-decoration: none; }
+
+.quiz-section { padding: 48px 0 80px; min-height: 70vh; }
+.quiz-wrapper { max-width: 760px; margin: 0 auto; }
+
+.quiz-progress { margin-bottom: 32px; }
+.progress-top { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted); margin-bottom: 10px; }
+.progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--primary); border-radius: 3px; transition: width 0.4s ease; }
+
+.question-card { background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 40px; }
+.question-category { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: 13px; font-weight: 600; padding: 5px 14px; border-radius: 20px; margin-bottom: 16px; }
+.question-card h2 { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); margin-bottom: 32px; line-height: 1.4; }
+
+.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+.answer-btn { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px; border: 2px solid var(--border); border-radius: 16px; background: #fff; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; color: var(--text-dark); }
+.answer-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+.answer-btn.selected { border-color: var(--primary); background: var(--primary-light); }
+.answer-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.yes-icon { background: #dcfce7; color: #16a34a; }
+.no-icon { background: #fee2e2; color: #dc2626; }
+
+.quiz-nav { display: flex; align-items: center; justify-content: space-between; }
+.nav-btn { background: none; border: none; font-size: 15px; font-weight: 500; color: var(--text-muted); cursor: pointer; padding: 8px 4px; font-family: inherit; transition: color 0.2s; }
+.nav-btn:hover { color: var(--primary); }
+.nav-btn:disabled { opacity: 0.3; cursor: default; }
+.prev-btn { color: var(--text-muted); }
+.next-btn { color: var(--primary); }
+
+.dots { display: flex; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
+.dot.answered { background: #22c55e; }
+.dot.current { background: var(--primary); }
+
+/* Result */
+.result-section { padding: 80px 0; }
+.result-section.hidden { display: none; }
+.result-card { max-width: 640px; margin: 0 auto; text-align: center; background: #fff; border: 1px solid var(--border); border-radius: 24px; padding: 48px; }
+.result-icon { width: 72px; height: 72px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #16a34a; margin: 0 auto 24px; }
+.result-card h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 12px; }
+.result-card > p { color: var(--text-muted); margin-bottom: 32px; }
+
+.result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; background: var(--bg-light); border-radius: 16px; padding: 24px; }
+.stat-item { text-align: center; }
+.stat-value { font-size: 2rem; font-weight: 700; color: var(--text-dark); }
+.stat-value.primary { color: var(--primary); }
+.stat-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+.recommendations { background: #eff6ff; border-radius: 12px; padding: 20px 24px; text-align: left; margin-bottom: 28px; }
+.recommendations h3 { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-dark); }
+.recommendations ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.recommendations li { font-size: 14px; color: var(--text-medium); padding-left: 16px; position: relative; }
+.recommendations li::before { content: '•'; position: absolute; left: 0; color: var(--primary); }
+
+.result-actions { display: flex; gap: 16px; justify-content: center; }
+.btn { padding: 12px 28px; border-radius: 40px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; border: 2px solid transparent; font-family: inherit; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-outline { background: transparent; color: var(--text-dark); border-color: var(--border); }
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+</style>
+
+<script define:vars={{ questions }}>
+let currentQ = 0;
+let answers = new Array(questions.length).fill(null);
+
+function updateUI() {
+  const q = questions[currentQ];
+  document.getElementById('questionCategory').textContent = q.category;
+  document.getElementById('questionText').textContent = q.question;
+  document.getElementById('progressLabel').textContent = `প্রশ্ন ${currentQ + 1} / ${questions.length}`;
+  const pct = Math.round(((currentQ + 1) / questions.length) * 100);
+  document.getElementById('progressPercent').textContent = `${pct}% সম্পন্ন`;
+  document.getElementById('progressFill').style.width = `${pct}%`;
+
+  // Dots
+  const dotsEl = document.getElementById('dotsContainer');
+  dotsEl.innerHTML = '';
+  answers.forEach((ans, i) => {
+    const dot = document.createElement('span');
+    dot.className = 'dot' + (ans !== null ? ' answered' : '') + (i === currentQ ? ' current' : '');
+    dotsEl.appendChild(dot);
+  });
+
+  // Buttons highlight
+  document.getElementById('yesBtn').classList.toggle('selected', answers[currentQ] === true);
+  document.getElementById('noBtn').classList.toggle('selected', answers[currentQ] === false);
+  document.getElementById('prevBtn').disabled = currentQ === 0;
+}
+
+window.selectAnswer = function(val) {
+  answers[currentQ] = val;
+  updateUI();
+  setTimeout(() => {
+    if (currentQ < questions.length - 1) {
+      currentQ++;
+      updateUI();
+    } else {
+      showResult();
+    }
+  }, 300);
+};
+
+window.nextQuestion = function() {
+  if (currentQ < questions.length - 1) { currentQ++; updateUI(); }
+};
+window.prevQuestion = function() {
+  if (currentQ > 0) { currentQ--; updateUI(); }
+};
+
+function showResult() {
+  document.getElementById('quizSection').classList.add('hidden');
+  document.getElementById('resultSection').classList.remove('hidden');
+  const yesCount = answers.filter(a => a === true).length;
+  document.getElementById('yesCount').textContent = yesCount;
+  let risk = 'নিম্ন';
+  let color = '#22c55e';
+  if (yesCount >= 6) { risk = 'উচ্চ'; color = '#ef4444'; }
+  else if (yesCount >= 3) { risk = 'মাঝারি'; color = '#f59e0b'; }
+  const riskEl = document.getElementById('riskLevel');
+  riskEl.textContent = risk;
+  riskEl.style.color = color;
+
+  const recs = [];
+  if (yesCount >= 5) { recs.push('অবিলম্বে রাকীর সাথে যোগাযোগ করুন'); recs.push('নিয়মিত রুকইয়াহ সেশন নিন'); }
+  recs.push('নিয়মিত ইবাদত চালিয়ে যান');
+  recs.push('প্রতিরক্ষামূলক দোয়া পড়ুন');
+  recs.push('ইসলামিক জীবনযাত্রা মেনে চলুন');
+  document.getElementById('recList').innerHTML = recs.map(r => `<li>${r}</li>`).join('');
+}
+
+window.restartQuiz = function() {
+  currentQ = 0;
+  answers = new Array(questions.length).fill(null);
+  document.getElementById('quizSection').classList.remove('hidden');
+  document.getElementById('resultSection').classList.add('hidden');
+  updateUI();
+};
+
+// Init
+updateUI();
+</script>

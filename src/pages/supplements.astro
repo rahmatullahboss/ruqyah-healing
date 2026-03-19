@@ -1,0 +1,133 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const products = [
+  { name: 'জমজম পানি', desc: 'পবিত্র জমজম কূপের পানি', price: 500, rating: 5, benefit: 'আধ্যাত্মিক ও শারীরিক নিরাময়', img: 'water' },
+  { name: 'কালো জিরা তেল', desc: 'খাঁটি কালো জিরার তেল', price: 350, rating: 4.5, benefit: 'রোগ প্রতিরোধ ক্ষমতা বৃদ্ধি', img: 'oil' },
+  { name: 'মধু', desc: 'প্রাকৃতিক খাঁটি মধু', price: 600, rating: 4, benefit: 'সুস্বাস্থ্য ও শক্তি বৃদ্ধি', img: 'honey' },
+  { name: 'জাফরান', desc: 'উরতমানের জাফরান', price: 1200, rating: 5, benefit: 'মানসিক সুস্থতা ও শক্তি', img: 'saffron' },
+  { name: 'খেজুর', desc: 'আজওয়া খেজুর', price: 800, rating: 5, benefit: 'শক্তিবর্ধক ও নিরাময়', img: 'dates' },
+  { name: 'জলপাই তেল', desc: 'অলিভ অয়েল', price: 450, rating: 4, benefit: 'ত্বক ও শরীরের যত্ন', img: 'olive' },
+];
+
+function starRating(rating: number) {
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5;
+  return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(5 - full - (half ? 1 : 0));
+}
+---
+
+<BaseLayout title="রুকইয়া সাপ্লিমেন্ট | Ruqyah Healing Center" description="ইসলামিক সুন্নত পণ্য ও হালাল সাপ্লিমেন্ট। রুকইয়াহ চিকিৎসায় ব্যবহৃত প্রাকৃতিক পণ্য সংগ্রহ।">
+  <Header />
+
+  <main>
+    <div class="page-header">
+      <div class="container">
+        <nav class="breadcrumb">
+          <a href="/">হোম</a><span>/</span><span>রুকইয়া সাপ্লিমেন্ট</span>
+        </nav>
+      </div>
+    </div>
+
+    <section class="supp-hero">
+      <div class="container">
+        <h1>রুকইয়া সাপ্লিমেন্ট</h1>
+        <p>ইসলামিক সুন্নত পণ্য ও হালাল সাপ্লিমেন্ট সংগ্রহ</p>
+
+        <div class="filter-row">
+          <button class="cat-btn active">সব পণ্য</button>
+          <button class="cat-btn">পানি</button>
+          <button class="cat-btn">তেল</button>
+          <button class="cat-btn">মসলা</button>
+          <button class="cat-btn">ফল</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="products-section">
+      <div class="container">
+        <div class="products-grid">
+          {products.map((p, i) => (
+            <div class="product-card">
+              <div class="product-img">
+                <button class="wishlist-btn" aria-label="উইশলিস্টে যোগ করুন">♡</button>
+                <div class="product-placeholder">
+                  <span class="product-emoji">
+                    {p.img === 'water' ? '💧' : p.img === 'oil' ? '🫙' : p.img === 'honey' ? '🍯' : p.img === 'saffron' ? '🌸' : p.img === 'dates' ? '🌴' : '🫒'}
+                  </span>
+                </div>
+              </div>
+              <div class="product-body">
+                <div class="product-rating">
+                  <span class="stars">{'★'.repeat(Math.floor(p.rating))}</span>
+                  <span class="rating-val">{p.rating}</span>
+                </div>
+                <h3>{p.name}</h3>
+                <p class="product-desc">{p.desc}</p>
+                <div class="product-benefit">
+                  <strong>উপকারিতা:</strong> {p.benefit}
+                </div>
+                <div class="product-footer">
+                  <span class="product-price">৳{p.price.toLocaleString()} টাকা</span>
+                  <button class="add-cart-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    কার্টে যোগ করুন
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.page-header { padding: 16px 0; border-bottom: 1px solid var(--border); }
+.breadcrumb { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text-muted); }
+.breadcrumb a { color: var(--primary); text-decoration: none; }
+
+.supp-hero { padding: 48px 0 32px; text-align: center; }
+.supp-hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
+.supp-hero p { color: var(--text-muted); margin-bottom: 24px; }
+
+.filter-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.cat-btn { padding: 8px 22px; border: 1px solid var(--border); border-radius: 20px; background: #fff; font-size: 14px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.cat-btn:hover, .cat-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.products-section { padding: 32px 0 64px; }
+.products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+.product-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.2s; }
+.product-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
+
+.product-img { position: relative; height: 200px; background: var(--bg-light); display: flex; align-items: center; justify-content: center; }
+.wishlist-btn { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: #fff; border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.wishlist-btn:hover { color: var(--primary); border-color: var(--primary); }
+.product-emoji { font-size: 56px; }
+
+.product-body { padding: 16px 20px 20px; }
+.product-rating { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.stars { color: #f59e0b; font-size: 14px; letter-spacing: -1px; }
+.rating-val { font-size: 13px; color: var(--text-muted); }
+.product-body h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.product-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+.product-benefit { font-size: 13px; color: var(--text-medium); background: #f0fdf4; border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; }
+.product-benefit strong { color: #16a34a; }
+
+.product-footer { display: flex; align-items: center; justify-content: space-between; }
+.product-price { font-size: 16px; font-weight: 700; color: var(--text-dark); }
+.add-cart-btn { display: flex; align-items: center; gap: 8px; background: var(--primary); color: #fff; border: none; border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+.add-cart-btn:hover { background: var(--primary-dark); }
+
+@media (max-width: 900px) { .products-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .products-grid { grid-template-columns: 1fr; } }
+</style>

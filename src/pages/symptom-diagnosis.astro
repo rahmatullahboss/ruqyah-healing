@@ -1,0 +1,191 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const symptoms = [
+  { icon: '🌙', title: 'ঘুমের সমস্যা', desc: 'রাতে ঘুম না আসা, দুঃস্বপ্ন দেখা', type: 'মানসিক' },
+  { icon: '🧠', title: 'মাথা ব্যথা', desc: 'নিয়মিত মাথা ব্যথা, মাইগ্রেন', type: 'শারীরিক' },
+  { icon: '❤️', title: 'হৃদপিণ্ডের সমস্যা', desc: 'বুক ধড়ফড় করা, অস্বস্তি অনুভব', type: 'শারীরিক' },
+  { icon: '⚡', title: 'অস্বাভাবিক ক্লান্তি', desc: 'সব সময় ক্লান্ত লাগা, শক্তির অভাব', type: 'শারীরিক' },
+  { icon: '👁️', title: 'চোখের সমস্যা', desc: 'চোখ ঝাপসা দেখা, অস্বাভাবিক লক্ষণ', type: 'শারীরিক' },
+  { icon: '😰', title: 'মানসিক অস্থিরতা', desc: 'উদ্বেগ, ভয়, অস্থির মন', type: 'মানসিক' },
+  { icon: '💔', title: 'দাম্পত্য সমস্যা', desc: 'বিবাহে বাধা, সম্পর্কে সমস্যা', type: 'সামাজিক' },
+  { icon: '🎭', title: 'ব্যক্তিত্বের পরিবর্তন', desc: 'আচরণে হঠাৎ পরিবর্তন', type: 'মানসিক' },
+  { icon: '🌀', title: 'মাথা ঘোরা', desc: 'হঠাৎ মাথা ঘোরা, ভারসাম্য হারানো', type: 'শারীরিক' },
+  { icon: '😈', title: 'অদ্ভুত অনুভূতি', desc: 'শরীরে অস্বাভাবিক স্পর্শ বা অনুভূতি', type: 'মানসিক' },
+  { icon: '🔥', title: 'শরীরে জ্বালাপোড়া', desc: 'কারণ ছাড়া শরীরে জ্বালা', type: 'শারীরিক' },
+  { icon: '🌊', title: 'বিষণ্নতা', desc: 'দীর্ঘস্থায়ী হতাশা ও বিষণ্নতা', type: 'মানসিক' },
+];
+---
+
+<BaseLayout title="সিমটম ডায়াগনোসিস | Ruqyah Healing Center" description="আপনার লক্ষণগুলি চিহ্নিত করুন এবং উপযুক্ত চিকিৎসা পদ্ধতি সম্পর্কে জানুন।">
+  <Header />
+
+  <main>
+    <div class="page-header">
+      <div class="container">
+        <nav class="breadcrumb">
+          <a href="/">হোম</a>
+          <span>/</span>
+          <span>সিমটম ডায়াগনোসিস</span>
+        </nav>
+      </div>
+    </div>
+
+    <section class="symptom-hero">
+      <div class="container">
+        <h1>সিমটম ডায়াগনোসিস</h1>
+        <p>আপনার লক্ষণগুলি চিহ্নিত করুন এবং উপযুক্ত চিকিৎসা পদ্ধতি সম্পর্কে জানুন</p>
+
+        <div class="search-filter">
+          <div class="search-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" placeholder="লক্ষণ খুঁজুন..." id="symptomSearch" />
+          </div>
+          <div class="filter-tabs">
+            <button class="filter-btn active" data-filter="all">সব</button>
+            <button class="filter-btn" data-filter="শারীরিক">শারীরিক</button>
+            <button class="filter-btn" data-filter="মানসিক">মানসিক</button>
+            <button class="filter-btn" data-filter="সামাজিক">সামাজিক</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="symptoms-grid-section">
+      <div class="container">
+        <div class="symptoms-grid" id="symptomsGrid">
+          {symptoms.map(symptom => (
+            <div class="symptom-card" data-type={symptom.type}>
+              <div class="symptom-icon">{symptom.icon}</div>
+              <div class="symptom-content">
+                <h3>{symptom.title}</h3>
+                <p>{symptom.desc}</p>
+                <span class="symptom-badge">{symptom.type}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="container">
+        <div class="cta-box">
+          <h2>ডায়াগনোসিস শুরু করুন</h2>
+          <p>আমাদের বিস্তারিত ডায়াগনোসিস প্রক্রিয়ার মাধ্যমে আপনার সমস্যা চিহ্নিত করুন</p>
+          <div class="cta-buttons">
+            <a href="/ruqyah-diagnosis" class="btn btn-outline">ডায়াগনোসিস শুরু করুন</a>
+            <a href="/appointment" class="btn btn-primary">এ্যাপয়নমেন্ট নিন</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="gallery-section">
+      <div class="container">
+        <h2>গ্যালারি</h2>
+        <p class="section-sub">আমাদের কার্যক্রমের ছবি</p>
+        <div class="gallery-grid">
+          <div class="gallery-item" style="background: linear-gradient(135deg, #f39c12, #e67e22)"></div>
+          <div class="gallery-item" style="background: linear-gradient(135deg, #27ae60, #2ecc71)"></div>
+          <div class="gallery-item" style="background: linear-gradient(135deg, #8e44ad, #9b59b6)"></div>
+          <div class="gallery-item" style="background: linear-gradient(135deg, #e74c3c, #c0392b)"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.page-header { padding: 16px 0; border-bottom: 1px solid var(--border); }
+.breadcrumb { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text-muted); }
+.breadcrumb a { color: var(--primary); text-decoration: none; }
+.breadcrumb span { color: var(--text-muted); }
+
+.symptom-hero { padding: 48px 0 32px; text-align: center; }
+.symptom-hero h1 { font-size: 2rem; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
+.symptom-hero p { color: var(--text-muted); font-size: 1rem; margin-bottom: 32px; }
+
+.search-filter { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.search-box { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; width: 100%; max-width: 600px; }
+.search-box svg { color: var(--text-muted); flex-shrink: 0; }
+.search-box input { flex: 1; border: none; outline: none; font-size: 15px; font-family: inherit; color: var(--text-dark); }
+.search-box input::placeholder { color: var(--text-muted); }
+
+.filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.filter-btn { padding: 8px 20px; border: 1px solid var(--border); border-radius: 20px; background: #fff; color: var(--text-medium); font-size: 14px; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+.filter-btn:hover, .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.symptoms-grid-section { padding: 32px 0 48px; }
+.symptoms-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+.symptom-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; align-items: flex-start; gap: 16px; transition: all 0.2s; cursor: pointer; }
+.symptom-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.symptom-icon { font-size: 28px; flex-shrink: 0; }
+.symptom-content h3 { font-size: 16px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; }
+.symptom-content p { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5; }
+.symptom-badge { font-size: 12px; padding: 3px 10px; border-radius: 20px; background: var(--primary-light); color: var(--primary); font-weight: 500; }
+
+.cta-section { padding: 48px 0; }
+.cta-box { background: var(--primary); border-radius: 20px; padding: 48px; text-align: center; color: #fff; }
+.cta-box h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 12px; }
+.cta-box p { opacity: 0.9; margin-bottom: 28px; font-size: 1rem; }
+.cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.btn { padding: 12px 28px; border-radius: 40px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+.btn-primary { background: #fff; color: var(--primary); }
+.btn-primary:hover { background: #f0f4ff; }
+.btn-outline { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.6); }
+.btn-outline:hover { background: rgba(255,255,255,0.15); }
+
+.gallery-section { padding: 48px 0; }
+.gallery-section h2 { font-size: 1.75rem; font-weight: 700; text-align: center; margin-bottom: 8px; }
+.section-sub { text-align: center; color: var(--text-muted); margin-bottom: 28px; }
+.gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.gallery-item { height: 160px; border-radius: 12px; }
+
+@media (max-width: 900px) {
+  .symptoms-grid { grid-template-columns: repeat(2, 1fr); }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .symptoms-grid { grid-template-columns: 1fr; }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  .symptom-hero h1 { font-size: 1.5rem; }
+}
+</style>
+
+<script>
+const search = document.getElementById('symptomSearch') as HTMLInputElement;
+const filterBtns = document.querySelectorAll('.filter-btn');
+const cards = document.querySelectorAll('.symptom-card') as NodeListOf<HTMLElement>;
+
+let activeFilter = 'all';
+
+function filterCards() {
+  const query = search.value.toLowerCase();
+  cards.forEach(card => {
+    const type = card.dataset.type || '';
+    const text = card.textContent?.toLowerCase() || '';
+    const matchFilter = activeFilter === 'all' || type === activeFilter;
+    const matchSearch = !query || text.includes(query);
+    card.style.display = (matchFilter && matchSearch) ? '' : 'none';
+  });
+}
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = (btn as HTMLElement).dataset.filter || 'all';
+    filterCards();
+  });
+});
+
+search?.addEventListener('input', filterCards);
+</script>

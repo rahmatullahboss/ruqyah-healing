@@ -1,17 +1,239 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Footer from '../components/Footer.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import BlogCard from '../components/BlogCard.astro';
 
+const services = [
+  {
+    title: 'সিমটম ডায়াগনোসিস',
+    description: 'আপনার লক্ষণগুলি চিহ্নিত করুন এবং সঠিক চিকিৎসা পান',
+    link: '/symptom-diagnosis',
+    bgColor: 'var(--primary-light)',
+    icon: `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline>`,
+  },
+  {
+    title: 'রুকইয়াহ ডায়াগনোসিস',
+    description: 'ধাপে ধাপে রুকইয়াহ ডায়াগনোসিস প্রক্রিয়া',
+    link: '/ruqyah-diagnosis',
+    bgColor: 'var(--green-light)',
+    icon: `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>`,
+  },
+  {
+    title: 'সেলফ রুকইয়া ডায়াগনোসিস',
+    description: 'নিজে নিজে রুকইয়া করার নির্দেশনা',
+    link: '/self-ruqyah',
+    bgColor: '#EEF2FF',
+    icon: `<line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line>`,
+  },
+  {
+    title: 'রুকইয়া সাপ্লিমেন্ট',
+    description: 'প্রাকৃতিক ও হালাল সাপ্লিমেন্ট',
+    link: '/supplements',
+    bgColor: 'var(--pink-light)',
+    icon: `<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>`,
+  },
+];
+
+const blogs = [
+  {
+    image: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=600&q=80',
+    date: '১৫ নভেম্বর ২০২৫',
+    category: 'রুকইয়াহ',
+    title: 'রুকইয়াহ কি এবং কিভাবে করতে হয়',
+    excerpt: 'ইসলামিক চিকিৎসা পদ্ধতি হিসেবে রুকইয়াহর বিস্তারিত গাইড এবং কোরআনের আয়াত দিয়ে রুকইয়া করার নিয়ম।',
+    href: '/blog/1',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=600&q=80',
+    date: '১০ নভেম্বর ২০২৫',
+    category: 'সিমটম',
+    title: 'জিনের আছর চেনার উপায়',
+    excerpt: 'জিনের আছরের লক্ষণ, কারণ এবং কিভাবে সঠিক ডায়াগনোসিস করে চিকিৎসা নিতে হয়।',
+    href: '/blog/2',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1471879832106-c7ab9e0cee23?w=600&q=80',
+    date: '৫ নভেম্বর ২০২৫',
+    category: 'সাপ্লিমেন্ট',
+    title: 'হালাল সাপ্লিমেন্ট — কালোজিরার উপকারিতা',
+    excerpt: 'কালোজিরা সুন্নাহর আলোকে একটি বিশেষ ওষুধ। এর ব্যবহার ও উপকারিতা সম্পর্কে বিস্তারিত।',
+    href: '/blog/3',
+  },
+];
+
+const galleryImages = [
+  { src: 'https://images.unsplash.com/photo-1585036156171-384164a8c675?w=400&q=80', alt: 'রুকইয়া সেশন' },
+  { src: 'https://images.unsplash.com/photo-1564121211835-e88c852648ab?w=400&q=80', alt: 'ইসলামিক আর্কিটেকচার' },
+  { src: 'https://images.unsplash.com/photo-1606819717115-9159c900370b?w=400&q=80', alt: 'হার্বাল সাপ্লিমেন্ট' },
+  { src: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=400&q=80', alt: 'সূর্যের আলো' },
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout>
+  <Header />
+
+  <main>
+    <!-- Hero -->
+    <Hero />
+
+    <!-- Services -->
+    <section class="section" style="background: var(--bg-light);">
+      <div class="container">
+        <div class="section-header">
+          <h2>আমাদের সেবাসমূহ</h2>
+          <p>ইসলামিক পদ্ধতিতে আপনার সুস্থতার জন্য আমাদের বিশেষ সেবাসমূহ</p>
+        </div>
+        <div class="grid-4">
+          {services.map(service => (
+            <ServiceCard {...service} />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Blog -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header-row">
+          <div>
+            <h2>রুকইয়া ব্লগ</h2>
+            <p>সর্বশেষ নিবন্ধ এবং তথ্য</p>
+          </div>
+          <a href="/blog" class="btn btn-outline btn-sm">সব দেখুন</a>
+        </div>
+        <div class="grid-3">
+          {blogs.map(post => (
+            <BlogCard {...post} />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- PDF & Courses -->
+    <section class="section" style="background: var(--bg-light);">
+      <div class="container">
+        <div class="section-header">
+          <h2>পিডিএফ ও কোর্স</h2>
+          <p>রুকইয়াহ সংক্রান্ত গাইড এবং কোর্সসমূহ</p>
+        </div>
+        <div class="grid-2">
+          <div class="resource-card resource-card--blue">
+            <div class="resource-card-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            </div>
+            <h3>পিডিএফ গাইড</h3>
+            <p>রুকইয়া সম্পর্কিত বই এবং গাইড ডাউনলোড করুন</p>
+            <a href="/pdf" class="btn btn-primary">ডাউনলোড করুন</a>
+          </div>
+          <div class="resource-card resource-card--purple">
+            <div class="resource-card-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+            </div>
+            <h3>কোর্সসমূহ</h3>
+            <p>রুকইয়া এবং ইসলামিক হিলিং শিখুন</p>
+            <a href="/courses" class="btn btn-primary">কোর্স দেখুন</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team & Notices (dark bg) -->
+    <section class="section dark-section">
+      <div class="container">
+        <div class="grid-2">
+          <div class="dark-card">
+            <h3>রাকী পরিচয়</h3>
+            <p>আমাদের অভিজ্ঞ রাকীদের সাথে পরিচিত হন</p>
+            <a href="/team" class="btn btn-outline-white btn-sm" style="margin-top: 16px; display: inline-flex;">রাকীদের দেখুন</a>
+          </div>
+          <div class="dark-card">
+            <h3>নোটিশ ও সুযোগ</h3>
+            <p>সর্বশেষ ঘোষণা এবং সুযোগ দেখুন</p>
+            <a href="/notices" class="btn btn-outline-white btn-sm" style="margin-top: 16px; display: inline-flex;">সব নোটিশ দেখুন</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header" style="text-align: center;">
+          <h2>গ্যালারি</h2>
+          <p>আমাদের কার্যক্রমের ছবি</p>
+        </div>
+        <div class="gallery-grid">
+          {galleryImages.map(img => (
+            <div class="gallery-item">
+              <img src={img.src} alt={img.alt} loading="lazy" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+/* Resource Cards */
+.resource-card {
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.resource-card--blue { background: var(--primary-light); }
+.resource-card--purple { background: var(--purple-light); }
+.resource-card-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--primary);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.resource-card h3 { font-size: 22px; font-weight: 700; color: var(--text-dark); }
+.resource-card p { font-size: 15px; color: var(--text-medium); }
+
+/* Dark section */
+.dark-section { background: var(--dark-section); }
+.dark-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  color: #fff;
+}
+.dark-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+.dark-card p { font-size: 15px; color: rgba(255,255,255,0.6); }
+
+/* Gallery */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.gallery-item {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 1;
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+.gallery-item:hover img { transform: scale(1.06); }
+
+@media (max-width: 768px) {
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>

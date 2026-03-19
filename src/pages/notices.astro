@@ -1,0 +1,156 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const notices = [
+  { icon: '🆓', title: 'বিনামূল্যে স্বাস্থ্য পরীক্ষা ক্যাম্প', date: '১৫ নভেম্বর, ২০২৫', badge: 'ইভেন্ট', badgeColor: 'event', urgent: true, desc: 'আগামী শুক্রবার বিনামূল্যে স্বাস্থ্য পরীক্ষা এবং পরামর্শ ক্যাম্প অনুষ্ঠিত হবে।' },
+  { icon: '🔔', title: 'সেমিনার: জিন থেকে সুরক্ষা', date: '১০ নভেম্বর, ২০২৫', badge: 'সেমিনার', badgeColor: 'seminar', urgent: false, desc: 'আগামী রবিবার বিশেষ সেমিনারের আয়োজন করা হয়েছে। সবাই আমন্ত্রিত।' },
+  { icon: '📚', title: 'নতুন কোর্স ব্যাচ শুরু', date: '৬ ডিসেম্বর, ২০২৫', badge: 'কোর্স', badgeColor: 'course', urgent: false, desc: 'রুকইয়াহ প্র্যাকটিশনার কোর্সের নতুন ব্যাচ শুরু হচ্ছে। আজই ভর্তি হন।' },
+  { icon: '📅', title: 'মাসিক সেমিনার', date: '১০ ডিসেম্বর, ২০২৫', badge: 'ইভেন্ট', badgeColor: 'event', urgent: false, desc: 'প্রতি মাসের বিশেষ সেমিনারে অংশগ্রহণ করুন। বিষয়: কুরআনিক হিলিং।' },
+  { icon: '💼', title: 'কাউন্সেলর পদে আবেদনের শেষ তারিখ', date: '১৫ ডিসেম্বর, ২০২৫', badge: 'চাকরি', badgeColor: 'job', urgent: false, desc: 'রুকইয়াহ কাউন্সেলর পদে আবেদনের শেষ তারিখ ১৫ ডিসেম্বর। আবেদন করুন।' },
+  { icon: '🆕', title: 'অনলাইন রুকইয়াহ সেশন চালু', date: '৫ নভেম্বর, ২০২৫', badge: 'নতুন', badgeColor: 'new', urgent: false, desc: 'এখন থেকে অনলাইনে রুকইয়াহ সেশন নেওয়া সম্ভব। ঘরে বসেই সেবা পান।' },
+];
+
+const upcomingEvents = [
+  { date: '৬ ডিসেম্বর', title: 'নতুন কোর্স ব্যাচ শুরু', type: 'কোর্স' },
+  { date: '১০ ডিসেম্বর', title: 'মাসিক সেমিনার', type: 'ইভেন্ট' },
+  { date: '১৫ ডিসেম্বর', title: 'কাউন্সেলর পদে আবেদনের শেষ তারিখ', type: 'চাকরি' },
+];
+
+const badgeStyles: Record<string, string> = {
+  event: 'background: #eff6ff; color: #1d4ed8;',
+  seminar: 'background: #f0fdf4; color: #15803d;',
+  course: 'background: #fdf4ff; color: #7e22ce;',
+  job: 'background: #fff7ed; color: #c2410c;',
+  new: 'background: #f0fdf4; color: #15803d;',
+};
+---
+
+<BaseLayout title="নোটিশ ও চাকরির বিজ্ঞপ্তি | Ruqyah Healing Center" description="সর্বশেষ ঘোষণা, ইভেন্ট এবং চাকরির সুযোগ দেখুন।">
+  <Header />
+
+  <main>
+    <div class="page-header">
+      <div class="container">
+        <nav class="breadcrumb">
+          <a href="/">হোম</a><span>/</span><span>নোটিশ ও চাকরির বিজ্ঞপ্তি</span>
+        </nav>
+      </div>
+    </div>
+
+    <section class="notice-hero">
+      <div class="container">
+        <h1>নোটিশ ও চাকরির বিজ্ঞপ্তি</h1>
+        <p>সর্বশেষ ঘোষণা এবং সুযোগ দেখুন</p>
+      </div>
+    </section>
+
+    <section class="notices-section">
+      <div class="container">
+        <div class="notices-layout">
+          <div class="notices-main">
+            <div class="notices-list">
+              {notices.map(notice => (
+                <div class:list={['notice-card', notice.urgent && 'urgent']}>
+                  <div class="notice-icon-wrap">
+                    <span class="notice-icon">{notice.icon}</span>
+                  </div>
+                  <div class="notice-body">
+                    <div class="notice-top">
+                      <h3>{notice.title}</h3>
+                      <div class="notice-meta">
+                        <span class="notice-date">🗓 {notice.date}</span>
+                        <span class="notice-badge" style={badgeStyles[notice.badgeColor]}>{notice.badge}</span>
+                        {notice.urgent && <span class="urgent-badge">জরুরি</span>}
+                      </div>
+                    </div>
+                    <p>{notice.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div class="notices-sidebar">
+            <div class="upcoming-card">
+              <h3>আসন্ন ইভেন্ট</h3>
+              <div class="upcoming-list">
+                {upcomingEvents.map(ev => (
+                  <div class="upcoming-item">
+                    <div class="upcoming-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                    </div>
+                    <div class="upcoming-body">
+                      <div class="upcoming-date">{ev.date}</div>
+                      <div class="upcoming-title">{ev.title}</div>
+                      <div class="upcoming-type">{ev.type}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div class="job-cta-card">
+              <h3>চাকরিতে আগ্রহী?</h3>
+              <p>আমাদের দলে যোগ দিন এবং মানুষের সেবায় অবদান রাখুন</p>
+              <a href="/appointment" class="job-btn">আবেদন করুন</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.page-header { padding: 16px 0; border-bottom: 1px solid var(--border); }
+.breadcrumb { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text-muted); }
+.breadcrumb a { color: var(--primary); text-decoration: none; }
+
+.notice-hero { padding: 48px 0 32px; text-align: center; }
+.notice-hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
+.notice-hero p { color: var(--text-muted); }
+
+.notices-section { padding: 32px 0 64px; }
+.notices-layout { display: grid; grid-template-columns: 1fr 300px; gap: 32px; }
+
+.notices-list { display: flex; flex-direction: column; gap: 16px; }
+.notice-card { display: flex; gap: 16px; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+.notice-card.urgent { border-color: var(--primary); border-left: 4px solid var(--primary); }
+.notice-icon-wrap { flex-shrink: 0; }
+.notice-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.notice-body { flex: 1; }
+.notice-top { margin-bottom: 8px; }
+.notice-top h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.notice-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.notice-date { font-size: 13px; color: var(--text-muted); }
+.notice-badge { font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.urgent-badge { font-size: 12px; padding: 3px 10px; border-radius: 20px; background: #fee2e2; color: #dc2626; font-weight: 600; }
+.notice-body p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+.upcoming-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+.upcoming-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+.upcoming-list { display: flex; flex-direction: column; gap: 14px; }
+.upcoming-item { display: flex; gap: 12px; align-items: flex-start; }
+.upcoming-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0; }
+.upcoming-date { font-size: 12px; color: var(--primary); font-weight: 600; }
+.upcoming-title { font-size: 13px; font-weight: 500; }
+.upcoming-type { font-size: 11px; color: var(--text-muted); }
+
+.job-cta-card { background: var(--primary); border-radius: 16px; padding: 20px; color: #fff; }
+.job-cta-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.job-cta-card p { font-size: 13px; opacity: 0.9; margin-bottom: 16px; line-height: 1.5; }
+.job-btn { display: block; text-align: center; background: #fff; color: var(--primary); padding: 10px; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; transition: background 0.2s; }
+.job-btn:hover { background: #f0f4ff; }
+
+@media (max-width: 768px) {
+  .notices-layout { grid-template-columns: 1fr; }
+}
+</style>

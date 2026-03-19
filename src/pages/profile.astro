@@ -1,0 +1,240 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const user = {
+  name: 'মোহাম্মদ রহিম',
+  email: 'rahim@email.com',
+  phone: '+880 1XXX-XXXXXX',
+  address: 'মিরপুর, ঢাকা',
+  dob: '১৯৯০-০৬-১৫',
+  gender: 'পুরুষ',
+};
+
+const stats = [
+  { label: 'মোট এ্যাপয়নমেন্ট', value: 3, color: 'var(--primary)' },
+  { label: 'সম্পন্ন সেশন', value: 2, color: '#22c55e' },
+  { label: 'আসর সেশন', value: 1, color: '#f59e0b' },
+];
+
+const appointments = [
+  { title: 'রুকইয়াহ চিকিৎসা', raqi: 'মাওলানা আব্দুল্লাহ', date: '১৫ নভেম্বর, ২০২৫', time: 'সকাল ১০:০০', status: 'সম্পন্ন', statusClass: 'done' },
+  { title: 'সিমটম ডায়াগনোসিস', raqi: 'ডা. ফাতিমা রহমান', date: '২০ নভেম্বর, ২০২৫', time: 'দুপুর ২:০০', status: 'সম্পন্ন', statusClass: 'done' },
+  { title: 'ফলো-আপ সেশন', raqi: 'মাওলানা আব্দুল্লাহ', date: '৫ ডিসেম্বর, ২০২৫', time: 'সকাল ১১:০০', status: 'আসন্ন', statusClass: 'upcoming' },
+];
+---
+
+<BaseLayout title="প্রোফাইল | Ruqyah Healing Center" description="আপনার তথ্য এবং এ্যাপয়নমেন্ট ইতিহাস দেখুন।">
+  <Header />
+
+  <main>
+    <section class="profile-hero">
+      <div class="container">
+        <h1>প্রোফাইল</h1>
+        <p>আপনার তথ্য এবং এ্যাপয়নমেন্ট ইতিহাস দেখুন</p>
+      </div>
+    </section>
+
+    <section class="profile-section">
+      <div class="container">
+        <div class="profile-layout">
+
+          <!-- Main content -->
+          <div class="profile-main">
+
+            <!-- Personal Info -->
+            <div class="info-card">
+              <div class="card-top">
+                <h2>ব্যক্তিগত তথ্য</h2>
+                <button class="edit-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  সম্পাদনা
+                </button>
+              </div>
+
+              <div class="info-grid">
+                <div class="info-field">
+                  <label>নাম</label>
+                  <div class="info-value">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    {user.name}
+                  </div>
+                </div>
+                <div class="info-field">
+                  <label>ইমেইল</label>
+                  <div class="info-value">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    {user.email}
+                  </div>
+                </div>
+                <div class="info-field">
+                  <label>ফোন</label>
+                  <div class="info-value">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.5 2 2 0 0 1 3.6 1.32h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16a1 1 0 0 1 .27-.08z"/>
+                    </svg>
+                    {user.phone}
+                  </div>
+                </div>
+                <div class="info-field">
+                  <label>ঠিকানা</label>
+                  <div class="info-value">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    {user.address}
+                  </div>
+                </div>
+                <div class="info-field">
+                  <label>জন্ম তারিখ</label>
+                  <div class="info-value">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    {user.dob}
+                  </div>
+                </div>
+                <div class="info-field">
+                  <label>লিঙ্গ</label>
+                  <div class="info-value">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    {user.gender}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Appointment History -->
+            <div class="appt-card">
+              <h2>এ্যাপয়নমেন্ট ইতিহাস</h2>
+              <div class="appt-list">
+                {appointments.map(appt => (
+                  <div class="appt-item">
+                    <div class="appt-body">
+                      <h3>{appt.title}</h3>
+                      <p class="appt-raqi">{appt.raqi}</p>
+                      <div class="appt-meta">
+                        <span>🗓 {appt.date}</span>
+                        <span>⏰ {appt.time}</span>
+                      </div>
+                    </div>
+                    <span class:list={['appt-status', appt.statusClass]}>{appt.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="profile-sidebar">
+            <div class="avatar-card">
+              <div class="avatar-wrap">
+                <div class="avatar-big">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
+              </div>
+              <h3>{user.name}</h3>
+              <p>{user.email}</p>
+              <button class="upload-btn">ছবি আপলোড করুন</button>
+            </div>
+
+            <div class="stats-card">
+              <h3>পরিসংখ্যান</h3>
+              <div class="stats-list">
+                {stats.map(stat => (
+                  <div class="stat-row">
+                    <span class="stat-label">{stat.label}</span>
+                    <span class="stat-val" style={`color: ${stat.color}`}>{stat.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <a href="/appointment" class="new-appt-btn">
+              + নতুন এ্যাপয়নমেন্ট
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.profile-hero { padding: 40px 0 24px; }
+.profile-hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 6px; }
+.profile-hero p { color: var(--text-muted); }
+
+.profile-section { padding: 24px 0 64px; }
+.profile-layout { display: grid; grid-template-columns: 1fr 280px; gap: 24px; }
+
+/* Info card */
+.info-card, .appt-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+.card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.card-top h2, .appt-card h2 { font-size: 1.1rem; font-weight: 700; }
+.edit-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; background: #fff; font-size: 13px; color: var(--primary); font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.edit-btn:hover { background: var(--primary-light); }
+
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.info-field label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
+.info-value { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; color: var(--text-dark); }
+.info-value svg { color: var(--text-muted); flex-shrink: 0; }
+
+/* Appointment list */
+.appt-card h2 { margin-bottom: 16px; }
+.appt-list { display: flex; flex-direction: column; gap: 12px; }
+.appt-item { display: flex; align-items: flex-start; justify-content: space-between; padding: 16px; border: 1px solid var(--border); border-radius: 12px; gap: 12px; }
+.appt-body h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.appt-raqi { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+.appt-meta { display: flex; gap: 16px; font-size: 13px; color: var(--text-muted); }
+.appt-status { padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+.appt-status.done { background: #dcfce7; color: #16a34a; }
+.appt-status.upcoming { background: #fef9c3; color: #a16207; }
+
+/* Sidebar */
+.avatar-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 16px; }
+.avatar-wrap { margin-bottom: 16px; }
+.avatar-big { width: 96px; height: 96px; border-radius: 50%; background: var(--bg-light); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+.avatar-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.avatar-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+.upload-btn { width: 100%; padding: 10px; border: 1px solid var(--primary); border-radius: 10px; background: #fff; color: var(--primary); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.upload-btn:hover { background: var(--primary-light); }
+
+.stats-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+.stats-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+.stats-list { display: flex; flex-direction: column; gap: 12px; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; }
+.stat-label { font-size: 14px; color: var(--text-medium); }
+.stat-val { font-size: 1.25rem; font-weight: 700; }
+
+.new-appt-btn { display: block; text-align: center; background: var(--primary); color: #fff; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.2s; }
+.new-appt-btn:hover { background: var(--primary-dark); }
+
+@media (max-width: 900px) {
+  .profile-layout { grid-template-columns: 1fr; }
+  .profile-sidebar { order: -1; }
+  .avatar-card { display: flex; align-items: center; gap: 20px; text-align: left; }
+  .avatar-wrap { margin-bottom: 0; }
+}
+@media (max-width: 560px) {
+  .info-grid { grid-template-columns: 1fr; }
+  .avatar-card { flex-direction: column; text-align: center; }
+}
+</style>
