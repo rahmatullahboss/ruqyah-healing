@@ -150,3 +150,104 @@ ul { list-style: none; }
   .container { padding: 0 16px; }
   .section-header-row { flex-direction: column; align-items: flex-start; gap: 16px; }
 }
+
+/* ─── Prose (Article Content) ───────────────────────────────── */
+.prose {
+  color: var(--text-dark);
+  line-height: 1.85;
+  font-size: 16px;
+}
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+  line-height: 1.35;
+}
+.prose h2 { font-size: 1.5rem; }
+.prose h3 { font-size: 1.25rem; }
+.prose h4 { font-size: 1.1rem; color: var(--primary); }
+.prose p { margin-bottom: 1.2em; color: var(--text-medium); }
+.prose ul, .prose ol { margin: 1em 0 1.2em 1.5em; display: flex; flex-direction: column; gap: 6px; }
+.prose li { color: var(--text-medium); }
+.prose strong { color: var(--text-dark); font-weight: 700; }
+.prose a { color: var(--primary); text-decoration: underline; }
+.prose a:hover { color: var(--primary-dark); }
+.prose blockquote {
+  border-left: 4px solid var(--primary);
+  margin: 1.5em 0;
+  padding: 12px 20px;
+  background: var(--primary-light);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--text-medium);
+  font-style: italic;
+}
+.prose hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+
+/* Arabic text block */
+.arabic {
+  font-size: 1.5rem;
+  line-height: 2.2;
+  text-align: right;
+  direction: rtl;
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+  color: var(--text-dark);
+  background: var(--bg-light);
+  border-right: 4px solid var(--primary);
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  margin: 1em 0;
+}
+
+/* Dua card */
+.dua-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin: 1.5em 0;
+  box-shadow: var(--shadow-sm);
+}
+.dua-number {
+  display: inline-block;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+.dua-ref {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.uccharon {
+  font-size: 14px;
+  color: var(--text-medium);
+  background: var(--green-light);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  margin-top: 8px;
+}
+.meaning {
+  font-size: 14px;
+  color: var(--text-medium);
+  background: var(--purple-light);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  margin-top: 6px;
+}
+
+/* Category badge */
+.cat-badge {
+  display: inline-block;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 20px;
+}
+

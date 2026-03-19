@@ -1,0 +1,67 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  const categories = [...new Set(posts.map((p) => p.data.category))];
+  return categories.map((cat) => ({
+    params: { category: cat },
+    props: {
+      category: cat,
+      posts: posts.filter((p) => p.data.category === cat),
+    },
+  }));
+}
+
+const { category, posts } = Astro.props;
+---
+
+
+
+<BaseLayout title={`${category} — রুকইয়াহ হিলিং`} description={`${category} বিভাগের সকল ব্লগ পোস্ট`}>
+  <!-- Header -->
+  <section class="cat-hero">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="/">হোম</a>
+        <span>›</span>
+        <a href="/blog">ব্লগ</a>
+        <span>›</span>
+        <span>{category}</span>
+      </div>
+      <h1>{category}</h1>
+      <p>{posts.length}টি পোস্ট পাওয়া গেছে</p>
+    </div>
+  </section>
+
+  <!-- Posts Grid -->
+  <section class="section">
+    <div class="container">
+      <div class="grid-3">
+        {posts.map((post) => (
+          <BlogCard
+            title={post.data.title}
+            excerpt={post.data.excerpt}
+            category={post.data.category}
+            date={new Date(post.data.date).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}
+            href={`/posts/${post.slug}`}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .cat-hero {
+    background: linear-gradient(135deg, var(--primary) 0%, #0A62CC 100%);
+    color: #fff;
+    padding: 56px 0 48px;
+  }
+  .cat-hero .breadcrumb { color: rgba(255,255,255,0.6); margin-bottom: 20px; }
+  .cat-hero .breadcrumb a { color: rgba(255,255,255,0.7); }
+  .cat-hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; margin-bottom: 10px; }
+  .cat-hero p { color: rgba(255,255,255,0.7); font-size: 16px; }
+</style>

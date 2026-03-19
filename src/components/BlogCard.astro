@@ -1,6 +1,6 @@
 ---
 interface Props {
-  image: string;
+  image?: string;
   date: string;
   category: string;
   title: string;
@@ -11,7 +11,10 @@ const { image, date, category, title, excerpt, href = '#' } = Astro.props;
 ---
 <a href={href} class="blog-card">
   <div class="blog-img-wrap">
-    <img src={image} alt={title} loading="lazy" decoding="async" fetchpriority="low" width="400" height="200" />
+    {image
+      ? <img src={image} alt={title} loading="lazy" decoding="async" fetchpriority="low" width="400" height="200" />
+      : <div class="blog-img-placeholder"></div>
+    }
     <span class="blog-category">{category}</span>
   </div>
   <div class="blog-body">
@@ -48,6 +51,11 @@ const { image, date, category, title, excerpt, href = '#' } = Astro.props;
   transition: transform 0.3s;
 }
 .blog-card:hover .blog-img-wrap img { transform: scale(1.05); }
+.blog-img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1A1A2E 0%, #0D3060 50%, #0d7cff22 100%);
+}
 .blog-category {
   position: absolute;
   top: 12px;

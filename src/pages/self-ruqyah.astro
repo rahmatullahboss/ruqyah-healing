@@ -4,12 +4,42 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
 const audioList = [
-  { title: 'সূরা ফাতিহা', arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', duration: '2:30' },
-  { title: 'আয়াতুল কুরসি', arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ', duration: '3:15' },
-  { title: 'সূরা ইখলাস', arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ', duration: '1:45' },
-  { title: 'সূরা ফালাক', arabic: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ', duration: '1:30' },
-  { title: 'সূরা নাস', arabic: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ', duration: '1:40' },
-  { title: 'সূরা বাকারা (শেষ ২ আয়াত)', arabic: 'آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ', duration: '4:00' },
+  {
+    title: 'সূরা ফাতিহা',
+    arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+    duration: '2:30',
+    src: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/1.mp3',
+  },
+  {
+    title: 'আয়াতুল কুরসি',
+    arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ',
+    duration: '3:15',
+    src: 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/262.mp3',
+  },
+  {
+    title: 'সূরা ইখলাস',
+    arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ',
+    duration: '1:45',
+    src: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/112.mp3',
+  },
+  {
+    title: 'সূরা ফালাক',
+    arabic: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ',
+    duration: '1:30',
+    src: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/113.mp3',
+  },
+  {
+    title: 'সূরা নাস',
+    arabic: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ',
+    duration: '1:40',
+    src: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/114.mp3',
+  },
+  {
+    title: 'সূরা বাকারা (শেষ ২ আয়াত)',
+    arabic: 'آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ',
+    duration: '4:00',
+    src: 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/293.mp3',
+  },
 ];
 
 const steps = [
@@ -62,9 +92,13 @@ const steps = [
           <div class="audio-list">
             {audioList.map((audio, i) => (
               <div class="audio-item">
-                <button class="play-btn" data-index={i} aria-label={`${audio.title} প্লে করুন`}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                <button class="play-btn" data-index={i} data-src={audio.src} aria-label={`${audio.title} প্লে করুন`}>
+                  <svg class="icon-play" width="18" height="18" viewBox="0 0 24 24" fill="white">
                     <polygon points="5,3 19,12 5,21"/>
+                  </svg>
+                  <svg class="icon-pause" width="18" height="18" viewBox="0 0 24 24" fill="white" style="display:none">
+                    <rect x="6" y="4" width="4" height="16"/>
+                    <rect x="14" y="4" width="4" height="16"/>
                   </svg>
                 </button>
                 <div class="audio-info">
@@ -175,3 +209,57 @@ const steps = [
 }
 @media (max-width: 480px) { .steps-grid { grid-template-columns: 1fr; } }
 </style>
+
+<script>
+  let currentAudio: HTMLAudioElement | null = null;
+  let currentBtn: HTMLButtonElement | null = null;
+
+  function resetBtn(btn: HTMLButtonElement) {
+    btn.querySelector<SVGElement>('.icon-play')!.style.display = '';
+    btn.querySelector<SVGElement>('.icon-pause')!.style.display = 'none';
+    btn.classList.remove('playing');
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.play-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const src = btn.dataset.src!;
+
+      // Same button clicked – toggle pause
+      if (currentBtn === btn && currentAudio) {
+        if (currentAudio.paused) {
+          currentAudio.play();
+          btn.querySelector<SVGElement>('.icon-play')!.style.display = 'none';
+          btn.querySelector<SVGElement>('.icon-pause')!.style.display = '';
+          btn.classList.add('playing');
+        } else {
+          currentAudio.pause();
+          btn.querySelector<SVGElement>('.icon-play')!.style.display = '';
+          btn.querySelector<SVGElement>('.icon-pause')!.style.display = 'none';
+          btn.classList.remove('playing');
+        }
+        return;
+      }
+
+      // Stop previous track
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+      if (currentBtn) resetBtn(currentBtn);
+
+      // Play new track
+      currentAudio = new Audio(src);
+      currentBtn = btn;
+      currentAudio.play();
+      btn.querySelector<SVGElement>('.icon-play')!.style.display = 'none';
+      btn.querySelector<SVGElement>('.icon-pause')!.style.display = '';
+      btn.classList.add('playing');
+
+      currentAudio.addEventListener('ended', () => {
+        resetBtn(btn);
+        currentAudio = null;
+        currentBtn = null;
+      });
+    });
+  });
+</script>
