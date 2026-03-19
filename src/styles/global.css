@@ -2,26 +2,50 @@
 
 /* ─── Design Tokens ─────────────────────────────────────────── */
 :root {
-  --primary: #0D7CFF;
-  --primary-dark: #0A62CC;
-  --primary-light: #EBF4FF;
+  /* Primary — Emerald Wellness Green */
+  --primary: #10B981;
+  --primary-dark: #059669;
+  --primary-light: #ECFDF5;
+
+  /* Accent — Purple for CTAs */
+  --accent: #8B5CF6;
+  --accent-dark: #7C3AED;
+  --accent-light: #EDE9FE;
+
+  /* Supporting palette */
   --purple-light: #F3EEFF;
   --green-light: #EDFFF5;
   --pink-light: #FFF0F0;
-  --bg-white: #FFFFFF;
-  --bg-light: #F8FAFC;
-  --dark-section: #1A1A2E;
-  --text-dark: #1E293B;
-  --text-medium: #475569;
-  --text-muted: #94A3B8;
-  --border: #E2E8F0;
+  --teal-light: #E0F7FA;
+
+  /* Backgrounds */
+  --bg-white: #FAFFFE;
+  --bg-light: #F0FDF4;
+
+  /* Dark sections */
+  --dark-section: #064E3B;
+  --dark-section-card: rgba(255,255,255,0.06);
+
+  /* Typography */
+  --text-dark: #064E3B;
+  --text-medium: #374151;
+  --text-muted: #6B7280;
+
+  /* Borders */
+  --border: #D1FAE5;
+  --border-light: #ECFDF5;
+
+  /* Radii */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+
+  /* Shadows — soft, wellness-feel */
+  --shadow-sm: 0 1px 4px rgba(16,185,129,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(16,185,129,0.10);
+  --shadow-lg: 0 8px 32px rgba(16,185,129,0.14);
+
   --max-width: 1280px;
   --nav-height: 72px;
 }
@@ -35,7 +59,7 @@ html {
 }
 
 body {
-  font-family: 'Hind Siliguri', 'Inter', sans-serif;
+  font-family: 'Hind Siliguri', 'Raleway', 'Inter', sans-serif;
   color: var(--text-dark);
   background: var(--bg-white);
   line-height: 1.6;
@@ -97,14 +121,21 @@ ul { list-style: none; }
   color: #fff;
   border: 2px solid var(--primary);
 }
-.btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,124,255,0.3); }
+.btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(16,185,129,0.35); }
+
+.btn-accent {
+  background: var(--accent);
+  color: #fff;
+  border: 2px solid var(--accent);
+}
+.btn-accent:hover { background: var(--accent-dark); border-color: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(139,92,246,0.35); }
 
 .btn-outline-white {
   background: transparent;
   color: #fff;
   border: 2px solid rgba(255,255,255,0.7);
 }
-.btn-outline-white:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+.btn-outline-white:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
 
 .btn-outline {
   background: transparent;
@@ -201,7 +232,7 @@ ul { list-style: none; }
 
 /* Dua card */
 .dua-card {
-  background: #fff;
+  background: var(--bg-white);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 20px 24px;
@@ -251,3 +282,56 @@ ul { list-style: none; }
   border-radius: 20px;
 }
 
+/* ─── Fade-in Entrance Animations ───────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeInUp 0.55s ease forwards;
+}
+
+.fade-in.visible {
+  opacity: 1;
+}
+
+/* Stagger children */
+.fade-in:nth-child(1) { animation-delay: 0s; }
+.fade-in:nth-child(2) { animation-delay: 0.08s; }
+.fade-in:nth-child(3) { animation-delay: 0.16s; }
+.fade-in:nth-child(4) { animation-delay: 0.24s; }
+
+/* Stagger sections */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Accessibility: Reduced Motion ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal, .fade-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+  html { scroll-behavior: auto; }
+}

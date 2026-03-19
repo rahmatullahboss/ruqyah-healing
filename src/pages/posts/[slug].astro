@@ -71,7 +71,7 @@ const related = allPosts
         <h2 class="related-title">আরও পড়ুন</h2>
         <div class="grid-3">
           {related.map((rel) => (
-            <a href={`/posts/${rel.slug}`} class="rel-card">
+            <a href={`/posts/${rel.id.replace(/\.md$/, '')}`} class="rel-card">
               <span class="cat-badge small">{rel.data.category}</span>
               <h3>{rel.data.title}</h3>
               <p>{rel.data.excerpt.substring(0, 100)}...</p>

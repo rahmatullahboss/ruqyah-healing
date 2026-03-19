@@ -6,120 +6,498 @@ import { getCollection } from 'astro:content';
 import BlogCard from '../components/BlogCard.astro';
 
 const allPosts = await getCollection('posts');
-// Sort by date descending
-const posts = allPosts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+// Sort newest first
+const posts = allPosts.sort((a, b) =>
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
 
 const featuredPost = posts[0];
-const otherPosts = posts.slice(1);
+const gridPosts   = posts.slice(1);
 
-// Build unique categories
+// Unique categories
 const categories = ['সব', ...new Set(posts.map(p => p.data.category))];
+
+const POSTS_PER_PAGE = 12;
 ---
 
-
-<BaseLayout title="রুকইয়া ব্লগ | Ruqyah Healing Center" description="ইসলামিক হিলিং, রুকইয়াহ এবং আধ্যাত্মিক সুস্থতা সম্পর্কিত জ্ঞান ও গাইড।">
+<BaseLayout
+  title="রুকইয়া ব্লগ | Ruqyah Healing Center"
+  description="ইসলামিক হিলিং, রুকইয়াহ এবং আধ্যাত্মিক সুস্থতা সম্পর্কিত জ্ঞান ও গাইড।"
+>
   <Header />
 
   <main>
+    <!-- ── Hero ── -->
     <section class="blog-hero">
       <div class="container">
+        <p class="blog-eyebrow">ইসলামিক হিলিং</p>
         <h1>রুকইয়া ব্লগ</h1>
-        <p>ইসলামিক হিলিং ও আধ্যাত্মিক সুস্থতা সম্পর্কিত জ্ঞান</p>
-
-        <div class="cat-tabs">
-          {categories.map((cat, i) => (
-            <button class:list={['cat-btn', i === 0 && 'active']}>{cat}</button>
-          ))}
+        <p class="blog-sub">কুরআন, সুন্নাহ ও অভিজ্ঞতার আলোকে আধ্যাত্মিক সুস্থতার জ্ঞান</p>
+        <div class="stats-row">
+          <span>📝 {posts.length}টি প্রবন্ধ</span>
+          <span>📂 {categories.length - 1}টি বিভাগ</span>
         </div>
       </div>
     </section>
 
+    <!-- ── Category Tabs ── -->
+    <div class="cat-bar">
+      <div class="container">
+        <div class="cat-tabs" id="cat-tabs">
+          {categories.map((cat, i) => (
+            <button
+              class:list={['cat-btn', i === 0 && 'active']}
+              data-cat={cat}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+
     <section class="blog-content">
       <div class="container">
-        <!-- Featured post -->
+
+        <!-- Featured Post -->
         {featuredPost && (
-          <div class="featured-post">
+          <div
+            class="featured-post"
+            data-category={featuredPost.data.category}
+            data-featured="true"
+          >
             <div class="featured-img">
-              <div class="featured-bg"></div>
+              <div class="featured-overlay"></div>
+              <div class="featured-icon">📖</div>
             </div>
             <div class="featured-body">
-              <div class="post-meta">
-                <span class="post-cat">{featuredPost.data.category}</span>
+              <div class="feat-top">
+                <span class="badge badge-featured">✨ বৈশিষ্ট্যমূলক</span>
+                <span class="cat-pill">{featuredPost.data.category}</span>
               </div>
               <h2>{featuredPost.data.title}</h2>
               <p>{featuredPost.data.excerpt}</p>
-              <div class="post-info">
-                <span>🗓 {new Date(featuredPost.data.date).toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' })}</span>
+              <div class="feat-meta">
+                <span style="display:inline-flex;align-items:center;gap:5px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                {new Date(featuredPost.data.date).toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' })}
+              </span>
               </div>
-              <a href={`/posts/${featuredPost.id.replace(/\.md$/, '')}`} class="read-btn">বিস্তারিত পড়ুন →</a>
+              <a href={`/posts/${featuredPost.id.replace(/\.md$/, '')}`} class="btn btn-primary read-btn">
+                বিস্তারিত পড়ুন →
+              </a>
             </div>
           </div>
         )}
 
-        <!-- Posts grid -->
-        <div class="posts-grid">
-          {otherPosts.map((post) => (
-            <BlogCard
-              title={post.data.title}
-              excerpt={post.data.excerpt}
-              category={post.data.category}
-              date={new Date(post.data.date).toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' })}
-              href={`/posts/${post.id.replace(/\.md$/, '')}`}
-            />
+        <!-- Posts Grid -->
+        <div class="posts-grid" id="posts-grid">
+          {gridPosts.map((post) => (
+            <div
+              class="post-item"
+              data-category={post.data.category}
+            >
+              <BlogCard
+                title={post.data.title}
+                excerpt={post.data.excerpt}
+                category={post.data.category}
+                date={new Date(post.data.date).toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' })}
+                href={`/posts/${post.id.replace(/\.md$/, '')}`}
+              />
+            </div>
           ))}
         </div>
 
-        <div class="load-more-wrapper">
-          <a href="/blog" class="load-more-btn">সব পোস্ট দেখুন ({posts.length}টি)</a>
+        <!-- No results message -->
+        <div class="no-results" id="no-results" style="display:none">
+          <div class="no-results-icon">🔍</div>
+          <h3>কোনো পোস্ট পাওয়া যায়নি</h3>
+          <p>এই বিভাগে এখনো কোনো পোস্ট নেই।</p>
         </div>
+
+        <!-- Pagination -->
+        <div class="pagination-wrap" id="pagination-wrap">
+          <nav class="pagination" id="pagination" aria-label="ব্লগ পেজিনেশন"></nav>
+          <p class="pagination-info" id="pagination-info"></p>
+        </div>
+
       </div>
     </section>
   </main>
 
   <Footer />
-
 </BaseLayout>
 
 <style>
-.blog-hero { padding: 48px 0 32px; text-align: center; }
-.blog-hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
-.blog-hero p { color: var(--text-muted); margin-bottom: 24px; }
-.cat-tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-.cat-btn { padding: 8px 20px; border: 1px solid var(--border); border-radius: 20px; background: #fff; font-size: 14px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
-.cat-btn:hover, .cat-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+/* ── Hero ── */
+.blog-hero {
+  background: linear-gradient(160deg, var(--dark-section) 0%, #065f46 100%);
+  color: #fff;
+  padding: 72px 0 56px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.blog-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+}
+.blog-eyebrow {
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--primary);
+  font-weight: 700;
+  margin-bottom: 12px;
+  position: relative;
+}
+.blog-hero h1 {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 16px;
+  position: relative;
+}
+.blog-sub {
+  color: rgba(255,255,255,0.7);
+  font-size: 16px;
+  margin-bottom: 24px;
+  max-width: 560px;
+  margin-inline: auto;
+  line-height: 1.6;
+  position: relative;
+}
+.stats-row {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+  position: relative;
+}
 
-.blog-content { padding: 32px 0 64px; }
+/* ── Category Bar ── */
+.cat-bar {
+  background: var(--bg-white);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: var(--nav-height, 72px);
+  z-index: 100;
+  padding: 12px 0;
+  box-shadow: 0 2px 8px rgba(16,185,129,0.06);
+}
+.cat-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 2px;
+}
+.cat-tabs::-webkit-scrollbar { display: none; }
+.cat-btn {
+  white-space: nowrap;
+  padding: 7px 18px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: transparent;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.18s;
+  color: var(--text-medium);
+  font-weight: 500;
+}
+.cat-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+.cat-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+}
 
-/* Featured */
-.featured-post { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; background: #fff; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 40px; }
-.featured-img { min-height: 300px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); position: relative; }
-.featured-bg { position: absolute; inset: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect fill="%23667eea" width="200" height="200"/><circle fill="%23764ba2" opacity="0.4" cx="100" cy="100" r="80"/></svg>') center/cover; }
-.featured-body { padding: 32px; display: flex; flex-direction: column; justify-content: center; }
-.post-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
-.post-cat { background: var(--primary-light); color: var(--primary); font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
-.post-time { font-size: 13px; color: var(--text-muted); }
-.featured-body h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; line-height: 1.4; }
-.featured-body p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
-.post-info { display: flex; gap: 16px; font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
-.read-btn { display: inline-block; color: var(--primary); font-weight: 600; font-size: 14px; }
+/* ── Blog Content ── */
+.blog-content { padding: 40px 0 80px; }
 
-/* Posts grid */
-.posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.post-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; text-decoration: none; color: inherit; transition: all 0.2s; display: block; }
-.post-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
-.post-card-img { height: 160px; position: relative; }
-.post-card-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #667eea, #764ba2); }
-.post-card-body { padding: 16px; }
-.post-card-body h3 { font-size: 15px; font-weight: 600; margin: 8px 0 6px; line-height: 1.4; }
-.post-card-body p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+/* ── Featured ── */
+.featured-post {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 0;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 48px;
+  box-shadow: var(--shadow-md);
+  transition: box-shadow 0.2s;
+}
+.featured-post:hover { box-shadow: var(--shadow-lg); }
+.featured-post.hidden { display: none; }
+.featured-img {
+  background: linear-gradient(145deg, var(--dark-section) 0%, #065f46 60%, #10b981 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+}
+.featured-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 50%, rgba(16,185,129,0.25), transparent 70%);
+}
+.featured-icon {
+  font-size: 64px;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 4px 16px rgba(255,255,255,0.2));
+}
+.featured-body { padding: 36px 40px; display: flex; flex-direction: column; justify-content: center; }
+.feat-top { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.badge-featured {
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+.cat-pill {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+.featured-body h2 {
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  font-weight: 800;
+  margin-bottom: 12px;
+  line-height: 1.35;
+  color: var(--text-dark);
+}
+.featured-body > p {
+  color: var(--text-medium);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.feat-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+.read-btn { align-self: flex-start; padding: 10px 28px; font-size: 15px; font-weight: 700; }
 
-.load-more-wrapper { text-align: center; margin-top: 32px; }
-.load-more-btn { padding: 12px 36px; border: 1px solid var(--border); border-radius: 40px; background: #fff; font-size: 15px; font-family: inherit; cursor: pointer; transition: all 0.2s; }
-.load-more-btn:hover { border-color: var(--primary); color: var(--primary); }
+/* ── Posts Grid ── */
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.post-item { transition: opacity 0.2s, transform 0.2s; }
+.post-item.hidden { display: none; }
 
-@media (max-width: 900px) {
+/* ── No results ── */
+.no-results {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-muted);
+}
+.no-results-icon { font-size: 48px; margin-bottom: 16px; }
+.no-results h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--text-dark); }
+.no-results p { font-size: 14px; }
+
+/* ── Pagination ── */
+.pagination-wrap {
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.pagination {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.page-btn {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-white);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.18s;
+  color: var(--text-medium);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.page-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+.page-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+}
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.page-ellipsis {
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.pagination-info {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ── Responsive ── */
+@media (max-width: 960px) {
   .featured-post { grid-template-columns: 1fr; }
+  .featured-img { min-height: 200px; }
+  .featured-body { padding: 24px 28px; }
   .posts-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-width: 560px) { .posts-grid { grid-template-columns: 1fr; } }
+@media (max-width: 580px) {
+  .posts-grid { grid-template-columns: 1fr; }
+  .featured-body { padding: 20px; }
+}
 </style>
+
+<script define:vars={{ postsPerPage: POSTS_PER_PAGE }}>
+  const POSTS_PER_PAGE_JS = postsPerPage;
+
+  // ── State ──
+  let currentCat = 'সব';
+  let currentPage = 1;
+
+  // ── Elements ──
+  const catButtons    = document.querySelectorAll('.cat-btn');
+  const postItems     = document.querySelectorAll('.post-item');
+  const featuredPost  = document.querySelector('.featured-post');
+  const noResults     = document.getElementById('no-results');
+  const pagination    = document.getElementById('pagination');
+  const paginationInfo= document.getElementById('pagination-info');
+
+  function getVisibleItems() {
+    if (currentCat === 'সব') return [...postItems];
+    return [...postItems].filter(el => el.dataset.category === currentCat);
+  }
+
+  function isFeaturedVisible() {
+    if (!featuredPost) return false;
+    return currentCat === 'সব' || featuredPost.dataset.category === currentCat;
+  }
+
+  function updateFeatured() {
+    if (featuredPost) {
+      if (isFeaturedVisible()) {
+        featuredPost.classList.remove('hidden');
+      } else {
+        featuredPost.classList.add('hidden');
+      }
+    }
+  }
+
+  function renderPagination(totalItems) {
+    if (!pagination) return;
+    const totalPages = Math.ceil(totalItems / POSTS_PER_PAGE_JS);
+    if (totalPages <= 1) {
+      pagination.innerHTML = '';
+      paginationInfo.textContent = '';
+      return;
+    }
+
+    let html = '';
+    // Prev
+    html += `<button class="page-btn" id="prev-btn" ${currentPage === 1 ? 'disabled' : ''}>← আগে</button>`;
+
+    // Page numbers with ellipsis
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+        pages.push(i);
+      } else if (pages[pages.length - 1] !== '...') {
+        pages.push('...');
+      }
+    }
+    pages.forEach(p => {
+      if (p === '...') {
+        html += `<span class="page-ellipsis">…</span>`;
+      } else {
+        html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" data-page="${p}">${p}</button>`;
+      }
+    });
+
+    // Next
+    html += `<button class="page-btn" id="next-btn" ${currentPage === totalPages ? 'disabled' : ''}>পরে →</button>`;
+
+    pagination.innerHTML = html;
+
+    const start = (currentPage - 1) * POSTS_PER_PAGE_JS + 1;
+    const end   = Math.min(currentPage * POSTS_PER_PAGE_JS, totalItems);
+    paginationInfo.textContent = `${totalItems}টির মধ্যে ${start}–${end}টি দেখাচ্ছে`;
+
+    // Attach events
+    pagination.querySelectorAll('[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentPage = parseInt(btn.dataset.page);
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    if (prevBtn) prevBtn.addEventListener('click', () => { currentPage--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { currentPage++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+
+  function render() {
+    const visible = getVisibleItems();
+    updateFeatured();
+
+    // Hide all
+    postItems.forEach(el => el.classList.add('hidden'));
+
+    // Show only this page
+    const start = (currentPage - 1) * POSTS_PER_PAGE_JS;
+    const end   = start + POSTS_PER_PAGE_JS;
+    visible.slice(start, end).forEach(el => el.classList.remove('hidden'));
+
+    noResults.style.display = visible.length === 0 ? 'block' : 'none';
+    renderPagination(visible.length);
+  }
+
+  // ── Category click ──
+  catButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      catButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCat = btn.dataset.cat;
+      currentPage = 1;
+      render();
+    });
+  });
+
+  // ── Initial render ──
+  render();
+</script>

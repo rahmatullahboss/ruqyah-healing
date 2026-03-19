@@ -12,20 +12,23 @@ const services = [
     description: 'আপনার লক্ষণগুলি চিহ্নিত করুন এবং সঠিক চিকিৎসা পান',
     link: '/symptom-diagnosis',
     bgColor: 'var(--primary-light)',
+    iconColor: 'var(--primary)',
     icon: `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline>`,
   },
   {
     title: 'রুকইয়াহ ডায়াগনোসিস',
     description: 'ধাপে ধাপে রুকইয়াহ ডায়াগনোসিস প্রক্রিয়া',
     link: '/ruqyah-diagnosis',
-    bgColor: 'var(--green-light)',
+    bgColor: '#E0F7FA',
+    iconColor: '#0288D1',
     icon: `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>`,
   },
   {
     title: 'সেলফ রুকইয়া ডায়াগনোসিস',
     description: 'নিজে নিজে রুকইয়া করার নির্দেশনা',
     link: '/self-ruqyah',
-    bgColor: '#EEF2FF',
+    bgColor: 'var(--purple-light)',
+    iconColor: '#7C3AED',
     icon: `<line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line>`,
   },
   {
@@ -33,6 +36,7 @@ const services = [
     description: 'প্রাকৃতিক ও হালাল সাপ্লিমেন্ট',
     link: '/supplements',
     bgColor: 'var(--pink-light)',
+    iconColor: '#E53E3E',
     icon: `<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>`,
   },
 ];
@@ -80,7 +84,7 @@ const galleryImages = [
     <Hero />
 
     <!-- Services -->
-    <section class="section" style="background: var(--bg-light);">
+    <section class="section reveal" style="background: var(--bg-light);">
       <div class="container">
         <div class="section-header">
           <h2>আমাদের সেবাসমূহ</h2>
@@ -95,7 +99,7 @@ const galleryImages = [
     </section>
 
     <!-- Blog -->
-    <section class="section">
+    <section class="section reveal">
       <div class="container">
         <div class="section-header-row">
           <div>
@@ -113,7 +117,7 @@ const galleryImages = [
     </section>
 
     <!-- PDF & Courses -->
-    <section class="section" style="background: var(--bg-light);">
+    <section class="section reveal" style="background: var(--bg-light);">
       <div class="container">
         <div class="section-header">
           <h2>পিডিএফ ও কোর্স</h2>
@@ -141,7 +145,7 @@ const galleryImages = [
     </section>
 
     <!-- Team & Notices (dark bg) -->
-    <section class="section dark-section">
+    <section class="section dark-section reveal">
       <div class="container">
         <div class="grid-2">
           <div class="dark-card">
@@ -159,7 +163,7 @@ const galleryImages = [
     </section>
 
     <!-- Gallery -->
-    <section class="section">
+    <section class="section reveal">
       <div class="container">
         <div class="section-header" style="text-align: center;">
           <h2>গ্যালারি</h2>
@@ -178,6 +182,28 @@ const galleryImages = [
 
   <Footer />
 </BaseLayout>
+
+<script>
+  // Scroll-reveal IntersectionObserver
+  const revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08 }
+    );
+    revealEls.forEach(el => observer.observe(el));
+  } else {
+    // Fallback: show all immediately
+    revealEls.forEach(el => el.classList.add('is-visible'));
+  }
+</script>
 
 <style>
 /* Resource Cards */
