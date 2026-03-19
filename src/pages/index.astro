@@ -39,7 +39,7 @@ const services = [
 
 const blogs = [
   {
-    image: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=600&q=70&fm=webp',
     date: '১৫ নভেম্বর ২০২৫',
     category: 'রুকইয়াহ',
     title: 'রুকইয়াহ কি এবং কিভাবে করতে হয়',
@@ -47,7 +47,7 @@ const blogs = [
     href: '/blog/1',
   },
   {
-    image: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=600&q=70&fm=webp',
     date: '১০ নভেম্বর ২০২৫',
     category: 'সিমটম',
     title: 'জিনের আছর চেনার উপায়',
@@ -55,7 +55,7 @@ const blogs = [
     href: '/blog/2',
   },
   {
-    image: 'https://images.unsplash.com/photo-1471879832106-c7ab9e0cee23?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1471879832106-c7ab9e0cee23?w=600&q=70&fm=webp',
     date: '৫ নভেম্বর ২০২৫',
     category: 'সাপ্লিমেন্ট',
     title: 'হালাল সাপ্লিমেন্ট — কালোজিরার উপকারিতা',
@@ -65,10 +65,10 @@ const blogs = [
 ];
 
 const galleryImages = [
-  { src: 'https://images.unsplash.com/photo-1585036156171-384164a8c675?w=400&q=80', alt: 'রুকইয়া সেশন' },
-  { src: 'https://images.unsplash.com/photo-1564121211835-e88c852648ab?w=400&q=80', alt: 'ইসলামিক আর্কিটেকচার' },
-  { src: 'https://images.unsplash.com/photo-1606819717115-9159c900370b?w=400&q=80', alt: 'হার্বাল সাপ্লিমেন্ট' },
-  { src: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=400&q=80', alt: 'সূর্যের আলো' },
+  { src: 'https://images.unsplash.com/photo-1585036156171-384164a8c675?w=400&q=70&fm=webp', alt: 'রুকইয়া সেশন' },
+  { src: 'https://images.unsplash.com/photo-1564121211835-e88c852648ab?w=400&q=70&fm=webp', alt: 'ইসলামিক আর্কিটেকচার' },
+  { src: 'https://images.unsplash.com/photo-1606819717115-9159c900370b?w=400&q=70&fm=webp', alt: 'হার্বাল সাপ্লিমেন্ট' },
+  { src: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=400&q=70&fm=webp', alt: 'সূর্যের আলো' },
 ];
 ---
 
@@ -168,7 +168,7 @@ const galleryImages = [
         <div class="gallery-grid">
           {galleryImages.map(img => (
             <div class="gallery-item">
-              <img src={img.src} alt={img.alt} loading="lazy" />
+              <img src={img.src} alt={img.alt} loading="lazy" decoding="async" width="400" height="400" />
             </div>
           ))}
         </div>

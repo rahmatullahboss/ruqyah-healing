@@ -11,7 +11,7 @@ const { image, date, category, title, excerpt, href = '#' } = Astro.props;
 ---
 <a href={href} class="blog-card">
   <div class="blog-img-wrap">
-    <img src={image} alt={title} loading="lazy" />
+    <img src={image} alt={title} loading="lazy" decoding="async" width="600" height="400" />
     <span class="blog-category">{category}</span>
   </div>
   <div class="blog-body">
