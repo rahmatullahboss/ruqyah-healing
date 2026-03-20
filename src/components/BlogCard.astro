@@ -12,28 +12,31 @@ const { image, date, category, title, excerpt, href = '#' } = Astro.props;
 
 // Category → image mapping
 const categoryImages: Record<string, string> = {
-  'রুকইয়াহ':       '/images/categories/cat_ruqyah.jpg',
-  'যাদু':           '/images/categories/cat_jadu.jpg',
-  'বদনজর':          '/images/categories/cat_badnazar.jpg',
-  'হাসাদ':          '/images/categories/cat_badnazar.jpg',
-  'জ্বীন':           '/images/categories/cat_jinn.jpg',
-  'দোয়া ও আমল':   '/images/categories/cat_dua.jpg',
-  'মাসনুন দোয়া':   '/images/categories/cat_dua.jpg',
-  'মাসনূন দোয়া':   '/images/categories/cat_dua.jpg',
-  'ফাতওয়া':        '/images/categories/cat_fatwa.jpg',
-  'তাফসীর':        '/images/categories/cat_fatwa.jpg',
-  'আয়াত লিস্ট':   '/images/categories/cat_fatwa.jpg',
-  'ওয়াসওয়াসা':    '/images/categories/cat_mental.jpg',
-  'মানসিক রোগ':    '/images/categories/cat_mental.jpg',
-  'বাচ্চাদের রুকইয়াহ': '/images/categories/cat_ruqyah.jpg',
-  'হেফাজত':        '/images/categories/cat_ruqyah.jpg',
-  'তিব্বে নববী':   '/images/categories/cat_dua.jpg',
-  'বিবাহ':          '/images/categories/cat_default.jpg',
+  'রুকইয়াহ':       '/images/categories/cat_ruqyah.webp',
+  'যাদু':           '/images/categories/cat_jadu.webp',
+  'বদনজর':          '/images/categories/cat_badnazar.webp',
+  'হাসাদ':          '/images/categories/cat_badnazar.webp',
+  'জ্বীন':           '/images/categories/cat_jinn.webp',
+  'দোয়া ও আমল':   '/images/categories/cat_dua.webp',
+  'মাসনুন দোয়া':   '/images/categories/cat_dua.webp',
+  'মাসনূন দোয়া':   '/images/categories/cat_dua.webp',
+  'ফাতওয়া':        '/images/categories/cat_fatwa.webp',
+  'তাফসীর':        '/images/categories/cat_fatwa.webp',
+  'আয়াত লিস্ট':   '/images/categories/cat_fatwa.webp',
+  'ওয়াসওয়াসা':    '/images/categories/cat_mental.webp',
+  'মানসিক রোগ':    '/images/categories/cat_mental.webp',
+  'বাচ্চাদের রুকইয়াহ': '/images/categories/cat_ruqyah.webp',
+  'হেফাজত':        '/images/categories/cat_ruqyah.webp',
+  'তিব্বে নববী':   '/images/categories/cat_dua.webp',
+  'বিবাহ':          '/images/categories/cat_default.webp',
+  'কেস স্টাডি':    '/images/categories/cat_ruqyah.webp',
+  'প্রবন্ধ':        '/images/categories/cat_default.webp',
+  'বিবিধ':          '/images/categories/cat_default.webp',
 };
 
 const resolvedImage = image
   ?? categoryImages[category]
-  ?? '/images/categories/cat_default.jpg';
+  ?? '/images/categories/cat_default.webp';
 ---
 
 <a href={href} class="blog-card">

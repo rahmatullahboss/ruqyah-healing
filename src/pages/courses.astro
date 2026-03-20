@@ -4,12 +4,12 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
 const courses = [
-  { title: 'রুকইয়া প্র্যাকটিশনার কোর্স', instructor: 'মাওলানা আব্দুল্লাহ', students: 156, lessons: 24, hours: '৮ সপ্তাহ', level: 'শুরুর স্তর', price: null, rating: 4.8, desc: 'সম্পূর্ণ রুকইয়াহ শেখার জন্য বিস্তারিত কোর্স' },
-  { title: 'ইসলামিক হিলিং থেরাপি', instructor: 'ডা. ফাতিমা রহমান', students: 203, lessons: 18, hours: '৬ সপ্তাহ', level: 'মধ্যম স্তর', price: 2000, rating: 4.9, desc: 'কুরআন এবং সুন্নাহ ভিত্তিক হিলিং পদ্ধতি' },
-  { title: 'জিন ও শয়তান থেকে সুরক্ষা', instructor: 'শায়েখ মুহাম্মাদ', students: 89, lessons: 12, hours: '৮ সপ্তাহ', level: 'শুরুর স্তর', price: null, rating: 4.7, desc: 'সুরক্ষার পদ্ধতি এবং প্রতিরোধ ব্যবস্থা' },
-  { title: 'কুরআনিক হিলিং ম্যাস্টারক্লাস', instructor: 'মাওলানা আব্দুল্লাহ', students: 312, lessons: 30, hours: '১২ সপ্তাহ', level: 'উন্নত স্তর', price: 4500, rating: 5.0, desc: 'কুরআনের আয়াত দিয়ে সম্পূর্ণ চিকিৎসা পদ্ধতি' },
-  { title: 'পারিবারিক রুকইয়াহ', instructor: 'ডা. ফাতিমা রহমান', students: 178, lessons: 15, hours: '৫ সপ্তাহ', level: 'শুরুর স্তর', price: 3000, rating: 4.6, desc: 'পরিবারের সুরক্ষার জন্য সম্পূর্ণ গাইড' },
-  { title: 'সেলফ রুকইয়াহ সার্টিফিকেট', instructor: 'শায়েখ মুহাম্মাদ', students: 245, lessons: 20, hours: '৭ সপ্তাহ', level: 'মধ্যম স্তর', price: 2500, rating: 4.8, desc: 'নিজেই রুকইয়াহ করার দক্ষতা অর্জন করুন' },
+  { title: 'রুকইয়া প্র্যাকটিশনার কোর্স', instructor: 'মাওলানা আব্দুল্লাহ', students: 156, lessons: 24, hours: '৮ সপ্তাহ', level: 'শুরুর স্তর', price: null, rating: 4.8, desc: 'সম্পূর্ণ রুকইয়াহ শেখার জন্য বিস্তারিত কোর্স', image: '/images/courses/course_ruqyah_practitioner.webp' },
+  { title: 'ইসলামিক হিলিং থেরাপি', instructor: 'ডা. ফাতিমা রহমান', students: 203, lessons: 18, hours: '৬ সপ্তাহ', level: 'মধ্যম স্তর', price: 2000, rating: 4.9, desc: 'কুরআন এবং সুন্নাহ ভিত্তিক হিলিং পদ্ধতি', image: '/images/courses/course_islamic_healing.webp' },
+  { title: 'জিন ও শয়তান থেকে সুরক্ষা', instructor: 'শায়েখ মুহাম্মাদ', students: 89, lessons: 12, hours: '৮ সপ্তাহ', level: 'শুরুর স্তর', price: null, rating: 4.7, desc: 'সুরক্ষার পদ্ধতি এবং প্রতিরোধ ব্যবস্থা', image: '/images/courses/course_jinn_protection.webp' },
+  { title: 'কুরআনিক হিলিং ম্যাস্টারক্লাস', instructor: 'মাওলানা আব্দুল্লাহ', students: 312, lessons: 30, hours: '১২ সপ্তাহ', level: 'উন্নত স্তর', price: 4500, rating: 5.0, desc: 'কুরআনের আয়াত দিয়ে সম্পূর্ণ চিকিৎসা পদ্ধতি', image: '/images/courses/course_quranic_masterclass.webp' },
+  { title: 'পারিবারিক রুকইয়াহ', instructor: 'ডা. ফাতিমা রহমান', students: 178, lessons: 15, hours: '৫ সপ্তাহ', level: 'শুরুর স্তর', price: 3000, rating: 4.6, desc: 'পরিবারের সুরক্ষার জন্য সম্পূর্ণ গাইড', image: '/images/courses/course_family_ruqyah.webp' },
+  { title: 'সেলফ রুকইয়াহ সার্টিফিকেট', instructor: 'শায়েখ মুহাম্মাদ', students: 245, lessons: 20, hours: '৭ সপ্তাহ', level: 'মধ্যম স্তর', price: 2500, rating: 4.8, desc: 'নিজেই রুকইয়াহ করার দক্ষতা অর্জন করুন', image: '/images/courses/course_self_ruqyah_certificate.webp' },
 ];
 ---
 
@@ -38,7 +38,7 @@ const courses = [
           {courses.map((course) => (
             <div class="course-card">
               <div class="course-img">
-                <div class="course-bg"></div>
+                <img src={course.image} alt={course.title} class="course-bg" loading="lazy" decoding="async" />
                 <div class:list={['price-badge', course.price === null && 'free']}>
                   {course.price === null ? 'ফ্রি' : `৳${course.price.toLocaleString()} টাকা`}
                 </div>
@@ -89,8 +89,9 @@ const courses = [
 
 .course-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.2s; }
 .course-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
-.course-img { height: 180px; position: relative; background: linear-gradient(135deg, #667eea, #764ba2); }
-.course-bg { position: absolute; inset: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 180"><rect fill="%23667eea" width="300" height="180"/></svg>') center/cover; }
+.course-img { height: 180px; position: relative; overflow: hidden; background: #e5e7eb; }
+.course-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.course-card:hover .course-bg { transform: scale(1.05); }
 .price-badge { position: absolute; top: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 5px 14px; font-size: 13px; font-weight: 700; color: var(--primary); }
 .price-badge.free { background: #dcfce7; color: #16a34a; }
 
