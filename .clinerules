@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — ruqyah-healing
-> 4 obs | 1 sessions | Score threshold: >40
+> 6 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 

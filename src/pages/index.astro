@@ -210,58 +210,64 @@ const galleryImages = [
 </BaseLayout>
 
 <script>
-  // ── Scroll-reveal IntersectionObserver (fallback for non-scroll-timeline browsers)
-  const revealEls = document.querySelectorAll('.reveal');
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.08 }
-    );
-    revealEls.forEach(el => observer.observe(el));
-  } else {
-    revealEls.forEach(el => el.classList.add('is-visible'));
+  function initHomePage() {
+    // ── Scroll-reveal IntersectionObserver
+    const revealEls = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.08 }
+      );
+      revealEls.forEach(el => observer.observe(el));
+    } else {
+      revealEls.forEach(el => el.classList.add('is-visible'));
+    }
+
+    // ── Stats Counter Animation
+    function animateCounter(el: Element, target: number, suffix: string, duration = 1200) {
+      let start = 0;
+      const step = (timestamp: number) => {
+        if (!start) start = timestamp;
+        const progress = Math.min((timestamp - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.floor(eased * target) + suffix;
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target as HTMLElement;
+        const raw = el.dataset.count ?? '';
+        const target = parseInt(raw, 10);
+        const suffix = el.dataset.suffix ?? '';
+        if (!isNaN(target)) animateCounter(el, target, suffix);
+        statsObserver.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('[data-count]').forEach(el => statsObserver.observe(el));
+
+    // ── Swipe hint
+    const swipeHint = document.querySelector('.swipe-hint') as HTMLElement | null;
+    if (swipeHint) {
+      swipeHint.classList.remove('faded');
+      setTimeout(() => swipeHint.classList.add('faded'), 2500);
+    }
   }
 
-  // ── Stats Counter Animation in Hero (trigger on viewport entry)
-  function animateCounter(el: Element, target: number, suffix: string, duration = 1200) {
-    let start = 0;
-    const step = (timestamp: number) => {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / duration, 1);
-      // Ease-out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
-      el.textContent = Math.floor(eased * target) + suffix;
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }
-
-  const statsObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      const el = entry.target as HTMLElement;
-      const raw = el.dataset.count ?? '';
-      const target = parseInt(raw, 10);
-      const suffix = el.dataset.suffix ?? '';
-      if (!isNaN(target)) animateCounter(el, target, suffix);
-      statsObserver.unobserve(el);
-    });
-  }, { threshold: 0.5 });
-
-  document.querySelectorAll('[data-count]').forEach(el => statsObserver.observe(el));
-
-  // ── Show swipe hint briefly then fade out
-  const swipeHint = document.querySelector('.swipe-hint') as HTMLElement | null;
-  if (swipeHint) {
-    setTimeout(() => swipeHint.classList.add('faded'), 2500);
-  }
+  // Run on first load AND on every View Transition navigation
+  initHomePage();
+  document.addEventListener('astro:page-load', initHomePage);
 </script>
 
 <style>

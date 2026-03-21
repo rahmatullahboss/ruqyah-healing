@@ -75,57 +75,37 @@
 (function () {
   'use strict';
 
-  // --- Skip on reduced-motion or very small screens ---
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const canvas = document.getElementById('hero-canvas');
-  if (!canvas || prefersReduced) return;
+  // Cache Three.js module globally to avoid re-importing on each navigation
+  // window.__THREE__ is set after first successful import
+  function initThree(THREE) {
+    const canvas = document.getElementById('hero-canvas');
+    if (!canvas) return;
 
-  // Dynamically load Three.js from CDN
-  const script = document.createElement('script');
-  script.src = 'https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.min.js';
-  script.type = 'module';
-  script.onload = initThree;
-  document.head.appendChild(script);
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
 
-  function initThree() {
-    if (typeof THREE === 'undefined' && !window.THREE) return;
-    // THREE may not be on window with ES module CDN — use direct import
-    start();
-  }
+    const { Scene, PerspectiveCamera, WebGLRenderer, BufferGeometry, BufferAttribute, PointsMaterial, Points, AdditiveBlending } = THREE;
 
-  // Use import() since three@0.162 is ESM only
-  import('https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.min.js')
-    .then(({ Scene, PerspectiveCamera, WebGLRenderer, BufferGeometry, BufferAttribute, PointsMaterial, Points, AdditiveBlending }) => {
-      start({ Scene, PerspectiveCamera, WebGLRenderer, BufferGeometry, BufferAttribute, PointsMaterial, Points, AdditiveBlending });
-    })
-    .catch(() => {
-      // Silent fail — canvas stays hidden
-    });
-
-  function start({ Scene, PerspectiveCamera, WebGLRenderer, BufferGeometry, BufferAttribute, PointsMaterial, Points, AdditiveBlending }) {
     const section = canvas.closest('.hero');
+    if (!section) return;
     const W = section.offsetWidth;
     const H = section.offsetHeight;
 
-    // Renderer
     const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: false });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(W, H);
 
-    // Scene
     const scene = new Scene();
     const camera = new PerspectiveCamera(60, W / H, 0.1, 100);
     camera.position.z = 30;
 
-    // ── Islamic Star Particle Field ──────────────────────
     const COUNT = window.innerWidth < 768 ? 60 : 140;
     const positions = new Float32Array(COUNT * 3);
     const sizes = new Float32Array(COUNT);
-
     for (let i = 0; i < COUNT; i++) {
-      positions[i * 3]     = (Math.random() - 0.5) * 60; // x
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 35; // y
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 20; // z
+      positions[i * 3]     = (Math.random() - 0.5) * 60;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 35;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
       sizes[i] = Math.random() * 2.5 + 0.8;
     }
 
@@ -134,7 +114,7 @@
     geo.setAttribute('size', new BufferAttribute(sizes, 1));
 
     const mat = new PointsMaterial({
-      color: 0x6ee7b7,       // emerald-300 — matches brand
+      color: 0x6ee7b7,
       size: 0.35,
       transparent: true,
       opacity: 0.55,
@@ -146,22 +126,17 @@
     const points = new Points(geo, mat);
     scene.add(points);
 
-    // ── Animate ──────────────────────────────────────────
     let frame;
     let elapsed = 0;
-
     function animate() {
       frame = requestAnimationFrame(animate);
       elapsed += 0.004;
-      // Gentle drift rotation — like celestial motion
       points.rotation.y = elapsed * 0.15;
       points.rotation.x = Math.sin(elapsed * 0.08) * 0.06;
       renderer.render(scene, camera);
     }
-
     animate();
 
-    // ── Resize ───────────────────────────────────────────
     const ro = new ResizeObserver(() => {
       const nw = section.offsetWidth;
       const nh = section.offsetHeight;
@@ -171,13 +146,32 @@
     });
     ro.observe(section);
 
-    // ── Cleanup on page transition (Astro View Transitions) ──
+    // Cleanup before next page swap
     document.addEventListener('astro:before-swap', () => {
       cancelAnimationFrame(frame);
       ro.disconnect();
       renderer.dispose();
     }, { once: true });
   }
+
+  function tryInit() {
+    if (window.__THREE__) {
+      // Module already loaded — just re-init
+      initThree(window.__THREE__);
+    } else {
+      import('https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.min.js')
+        .then((THREE) => {
+          window.__THREE__ = THREE; // Cache for future navigations
+          initThree(THREE);
+        })
+        .catch(() => {}); // Silent fail
+    }
+  }
+
+  // Run immediately on first load
+  tryInit();
+  // Re-run after every View Transition navigation to homepage
+  document.addEventListener('astro:page-load', tryInit);
 })();
 </script>
 
