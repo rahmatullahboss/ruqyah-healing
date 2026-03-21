@@ -13,8 +13,6 @@ const navItems = [
   { label: 'নোটিশ', href: '/notices' },
   { label: 'প্রোফাইল', href: '/profile' },
 ];
-
-const currentPath = Astro.url.pathname;
 ---
 
 <header class="site-header" transition:persist>
@@ -38,8 +36,9 @@ const currentPath = Astro.url.pathname;
           class:list={[
             'nav-link',
             item.highlight && 'nav-highlight',
-            currentPath === item.href && !item.highlight && 'nav-active',
           ]}
+          data-nav-href={item.href}
+          data-nav-highlight={item.highlight ? 'true' : undefined}
         >
           {item.label}
         </a>
@@ -247,6 +246,21 @@ const toggle  = document.getElementById('menu-toggle') as HTMLButtonElement | nu
 const nav     = document.getElementById('main-nav');
 const overlay = document.getElementById('nav-overlay');
 
+function updateHeaderActive() {
+  const path = window.location.pathname;
+  document.querySelectorAll<HTMLAnchorElement>('[data-nav-href]').forEach(link => {
+    const href = link.dataset.navHref ?? '';
+    const isHighlight = link.dataset.navHighlight === 'true';
+    if (isHighlight) return; // highlight (appointment) never gets nav-active
+
+    // Exact match for '/', startsWith for others
+    const active = href === '/' ? path === '/' : path.startsWith(href);
+    link.classList.toggle('nav-active', active);
+    link.setAttribute('aria-current', active ? 'page' : '');
+    if (!active) link.removeAttribute('aria-current');
+  });
+}
+
 function openMenu() {
   nav?.classList.add('open');
   toggle?.classList.add('is-open');
@@ -282,4 +296,8 @@ nav?.querySelectorAll('.nav-link').forEach(link => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && nav?.classList.contains('open')) closeMenu();
 });
+
+// Update active link on load and after every View Transition
+updateHeaderActive();
+document.addEventListener('astro:page-load', updateHeaderActive);
 </script>
