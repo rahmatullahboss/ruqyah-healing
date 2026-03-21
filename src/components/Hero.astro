@@ -60,7 +60,8 @@
   display: flex;
   align-items: center;
   background:
-    linear-gradient(135deg, #059669 0%, #065f46 50%, #047857 100%);
+    linear-gradient(135deg, rgba(5,150,105,0.88) 0%, rgba(6,95,70,0.92) 50%, rgba(4,120,87,0.88) 100%),
+    url('/images/hero-bg.webp') center center / cover no-repeat;
   overflow: hidden;
 }
 
@@ -247,12 +248,29 @@
 
 @media (max-width: 768px) {
   .hero-geometric { display: none; }
-  .hero-stats { gap: 20px; padding: 14px 20px; }
+  .hero-stats { gap: 16px; padding: 12px 16px; }
   .hero-stat-num { font-size: 18px; }
+  .hero-content { padding-top: 56px; padding-bottom: 56px; }
 }
 
 @media (max-width: 480px) {
-  .hero-stats { flex-wrap: wrap; justify-content: center; }
+  .hero { min-height: min(520px, 90svh); }
+  .hero-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .hero-actions .btn,
+  .hero-actions .btn-hero-primary,
+  .hero-actions .btn-outline-white {
+    width: 100%;
+    justify-content: center;
+  }
+  .hero-stats {
+    width: 100%;
+    justify-content: space-around;
+    gap: 8px;
+    padding: 12px;
+  }
   .hero-stat-divider { display: none; }
 }
 </style>

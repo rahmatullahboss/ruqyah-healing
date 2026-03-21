@@ -31,7 +31,7 @@ const currentPath = Astro.url.pathname;
       </div>
     </a>
 
-    <nav class="main-nav" id="main-nav">
+    <nav class="main-nav" id="main-nav" aria-label="প্রধান নেভিগেশন">
       {navItems.map(item => (
         <a
           href={item.href}
@@ -46,11 +46,22 @@ const currentPath = Astro.url.pathname;
       ))}
     </nav>
 
-    <button class="menu-toggle" id="menu-toggle" aria-label="মেনু খুলুন">
-      <span></span><span></span><span></span>
+    <button
+      class="menu-toggle"
+      id="menu-toggle"
+      aria-label="মেনু খুলুন"
+      aria-expanded="false"
+      aria-controls="main-nav"
+    >
+      <span class="bar bar-1"></span>
+      <span class="bar bar-2"></span>
+      <span class="bar bar-3"></span>
     </button>
   </div>
 </header>
+
+<!-- Dark overlay for mobile menu -->
+<div class="nav-overlay" id="nav-overlay" aria-hidden="true"></div>
 
 <style>
 .site-header {
@@ -77,6 +88,7 @@ const currentPath = Astro.url.pathname;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  min-height: 44px;
 }
 .logo-icon {
   width: 40px;
@@ -122,6 +134,9 @@ const currentPath = Astro.url.pathname;
   padding: 7px 12px;
   border-radius: var(--radius-xl);
   transition: all 0.2s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 .nav-link:hover { color: var(--primary); background: var(--primary-light); }
 .nav-active { color: var(--primary); background: var(--primary-light); }
@@ -132,46 +147,139 @@ const currentPath = Astro.url.pathname;
 }
 .nav-highlight:hover { background: var(--primary-dark); }
 
-/* Mobile toggle */
+/* Hamburger button */
 .menu-toggle {
   display: none;
   flex-direction: column;
+  justify-content: center;
   gap: 5px;
-  padding: 8px;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
   flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
 }
-.menu-toggle span {
+.menu-toggle:hover { background: var(--primary-light); }
+
+.bar {
   width: 22px;
   height: 2px;
   background: var(--text-dark);
   border-radius: 2px;
-  transition: all 0.2s;
+  transition: all 0.25s ease;
   display: block;
+  transform-origin: center;
 }
+
+/* Hamburger → X animation */
+.menu-toggle.is-open .bar-1 {
+  transform: translateY(7px) rotate(45deg);
+}
+.menu-toggle.is-open .bar-2 {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.menu-toggle.is-open .bar-3 {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Overlay */
+.nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 99;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.nav-overlay.active { display: block; }
 
 @media (max-width: 768px) {
   .menu-toggle { display: flex; }
+
   .main-nav {
     display: none;
-    position: absolute;
+    position: fixed;
     top: var(--nav-height);
     left: 0;
     right: 0;
     background: #fff;
     flex-direction: column;
-    align-items: flex-start;
-    padding: 16px;
+    align-items: stretch;
+    padding: 12px 16px 24px;
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow-md);
     overflow-x: visible;
+    overflow-y: auto;
+    max-height: calc(100dvh - var(--nav-height) - 64px);
+    z-index: 100;
+    /* Slide-down animation */
+    transform: translateY(-8px);
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
   }
-  .main-nav.open { display: flex; }
-  .nav-link { width: 100%; }
+
+  .main-nav.open {
+    display: flex;
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 15px;
+    border-radius: var(--radius-md);
+  }
+
+  .nav-highlight {
+    margin-top: 8px;
+    justify-content: center;
+    border-radius: var(--radius-xl);
+  }
 }
 </style>
 
 <script>
-const toggle = document.getElementById('menu-toggle');
-const nav = document.getElementById('main-nav');
-toggle?.addEventListener('click', () => nav?.classList.toggle('open'));
+const toggle  = document.getElementById('menu-toggle') as HTMLButtonElement | null;
+const nav     = document.getElementById('main-nav');
+const overlay = document.getElementById('nav-overlay');
+
+function openMenu() {
+  nav?.classList.add('open');
+  toggle?.classList.add('is-open');
+  overlay?.classList.add('active');
+  toggle?.setAttribute('aria-expanded', 'true');
+  toggle?.setAttribute('aria-label', 'মেনু বন্ধ করুন');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMenu() {
+  nav?.classList.remove('open');
+  toggle?.classList.remove('is-open');
+  overlay?.classList.remove('active');
+  toggle?.setAttribute('aria-expanded', 'false');
+  toggle?.setAttribute('aria-label', 'মেনু খুলুন');
+  document.body.style.overflow = '';
+}
+
+toggle?.addEventListener('click', () => {
+  const isOpen = nav?.classList.contains('open');
+  isOpen ? closeMenu() : openMenu();
+});
+
+// Close on overlay click
+overlay?.addEventListener('click', closeMenu);
+
+// Close on nav link click (mobile)
+nav?.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', closeMenu);
+});
+
+// Close on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && nav?.classList.contains('open')) closeMenu();
+});
 </script>

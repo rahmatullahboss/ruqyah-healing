@@ -148,5 +148,22 @@ const resolvedImage = image
   color: var(--primary);
   font-weight: 600;
   margin-top: 4px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Mobile touch feedback */
+@media (hover: none) {
+  .blog-card:active {
+    transform: scale(0.985);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.1s ease;
+  }
+}
+
+@media (max-width: 480px) {
+  .blog-img-wrap { height: 170px; }
+  .blog-body { padding: 14px 16px 16px; }
 }
 </style>

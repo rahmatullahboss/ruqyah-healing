@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import BottomNav from '../components/BottomNav.astro';
 
 interface Props {
   title?: string;
@@ -93,10 +94,14 @@ const siteName = 'রুকইয়াহ হিলিং সেন্টার
       />
     </noscript>
 
+    <!-- Preload hero background image for fast LCP -->
+    <link rel="preload" as="image" href="/images/hero-bg.webp" type="image/webp" fetchpriority="high" />
+
     <!-- Slot for page-specific head content (e.g. JSON-LD) -->
     <slot name="head" />
   </head>
   <body>
     <slot />
+    <BottomNav />
   </body>
 </html>

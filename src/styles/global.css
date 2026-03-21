@@ -115,6 +115,8 @@ ul { list-style: none; }
   transition: all 0.2s ease;
   cursor: pointer;
   font-family: inherit;
+  /* Minimum touch target */
+  min-height: 44px;
 }
 .btn-primary {
   background: var(--primary);
@@ -177,9 +179,13 @@ ul { list-style: none; }
 
 @media (max-width: 768px) {
   .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
-  .section { padding: 48px 0; }
-  .container { padding: 0 16px; }
+  .section { padding: 36px 0; }
+  .section-sm { padding: 24px 0; }
+  .container { padding: 0 20px; }
   .section-header-row { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .section-header h2 { font-size: 22px; }
+  /* Body padding for fixed bottom nav on mobile */
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* ─── Prose (Article Content) ───────────────────────────────── */
@@ -228,6 +234,16 @@ ul { list-style: none; }
   padding: 16px 20px;
   border-radius: var(--radius-sm);
   margin: 1em 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .arabic {
+    font-size: 1.25rem;
+    padding: 14px 16px;
+  }
 }
 
 /* Dua card */
