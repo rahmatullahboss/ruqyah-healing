@@ -1,6 +1,4 @@
 ---
-const currentPath = Astro.url.pathname;
-
 const items = [
   {
     href: '/',
@@ -29,11 +27,6 @@ const items = [
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
   },
 ];
-
-function isActive(href: string, path: string): boolean {
-  if (href === '/') return path === '/';
-  return path.startsWith(href);
-}
 ---
 
 <nav class="bottom-nav" aria-label="মোবাইল নেভিগেশন" transition:persist>
@@ -43,19 +36,40 @@ function isActive(href: string, path: string): boolean {
       class:list={[
         'bottom-nav-item',
         item.cta && 'bottom-nav-cta',
-        isActive(item.href, currentPath) && !item.cta && 'is-active',
       ]}
+      data-nav-href={item.href}
+      data-nav-cta={item.cta ? 'true' : undefined}
       aria-label={item.label}
-      aria-current={isActive(item.href, currentPath) ? 'page' : undefined}
     >
       <span class="bottom-nav-icon" set:html={item.icon} />
       <span class="bottom-nav-label">{item.label}</span>
-      {isActive(item.href, currentPath) && !item.cta && (
-        <span class="active-dot" aria-hidden="true"></span>
-      )}
+      {!item.cta && <span class="active-dot" aria-hidden="true"></span>}
     </a>
   ))}
 </nav>
+
+<script>
+  function updateBottomNav() {
+    const path = window.location.pathname;
+    const links = document.querySelectorAll<HTMLAnchorElement>('[data-nav-href]');
+
+    links.forEach(link => {
+      const href = link.dataset.navHref ?? '';
+      const isCta = link.dataset.navCta === 'true';
+      if (isCta) return; // CTA never gets active state
+
+      const active = href === '/' ? path === '/' : path.startsWith(href);
+
+      link.classList.toggle('is-active', active);
+      link.setAttribute('aria-current', active ? 'page' : '');
+      if (!active) link.removeAttribute('aria-current');
+    });
+  }
+
+  // Run on first load and after every View Transition navigation
+  updateBottomNav();
+  document.addEventListener('astro:page-load', updateBottomNav);
+</script>
 
 <style>
 .bottom-nav {
