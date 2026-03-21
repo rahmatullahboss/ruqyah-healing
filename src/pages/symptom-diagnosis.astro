@@ -4,96 +4,278 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
 const symptoms = [
-  { icon: '🌙', title: 'ঘুমের সমস্যা', desc: 'রাতে ঘুম না আসা, দুঃস্বপ্ন দেখা', type: 'মানসিক' },
-  { icon: '🧠', title: 'মাথা ব্যথা', desc: 'নিয়মিত মাথা ব্যথা, মাইগ্রেন', type: 'শারীরিক' },
-  { icon: '❤️', title: 'হৃদপিণ্ডের সমস্যা', desc: 'বুক ধড়ফড় করা, অস্বস্তি অনুভব', type: 'শারীরিক' },
-  { icon: '⚡', title: 'অস্বাভাবিক ক্লান্তি', desc: 'সব সময় ক্লান্ত লাগা, শক্তির অভাব', type: 'শারীরিক' },
-  { icon: '👁️', title: 'চোখের সমস্যা', desc: 'চোখ ঝাপসা দেখা, অস্বাভাবিক লক্ষণ', type: 'শারীরিক' },
-  { icon: '😰', title: 'মানসিক অস্থিরতা', desc: 'উদ্বেগ, ভয়, অস্থির মন', type: 'মানসিক' },
-  { icon: '💔', title: 'দাম্পত্য সমস্যা', desc: 'বিবাহে বাধা, সম্পর্কে সমস্যা', type: 'সামাজিক' },
-  { icon: '🎭', title: 'ব্যক্তিত্বের পরিবর্তন', desc: 'আচরণে হঠাৎ পরিবর্তন', type: 'মানসিক' },
-  { icon: '🌀', title: 'মাথা ঘোরা', desc: 'হঠাৎ মাথা ঘোরা, ভারসাম্য হারানো', type: 'শারীরিক' },
-  { icon: '😈', title: 'অদ্ভুত অনুভূতি', desc: 'শরীরে অস্বাভাবিক স্পর্শ বা অনুভূতি', type: 'মানসিক' },
-  { icon: '🔥', title: 'শরীরে জ্বালাপোড়া', desc: 'কারণ ছাড়া শরীরে জ্বালা', type: 'শারীরিক' },
-  { icon: '🌊', title: 'বিষণ্নতা', desc: 'দীর্ঘস্থায়ী হতাশা ও বিষণ্নতা', type: 'মানসিক' },
+  // শারীরিক
+  {
+    id: 'sleep',
+    title: 'ঘুমের সমস্যা',
+    desc: 'রাতে ঘুম না আসা, দুঃস্বপ্ন দেখা',
+    type: 'শারীরিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
+  },
+  {
+    id: 'headache',
+    title: 'মাথা ব্যথা',
+    desc: 'নিয়মিত মাথা ব্যথা, মাইগ্রেন',
+    type: 'শারীরিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="6"/><path d="M9 13H6a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-3"/></svg>`,
+  },
+  {
+    id: 'heart',
+    title: 'বুক ধড়ফড়',
+    desc: 'বুক ধড়ফড় করা, অস্বস্তি অনুভব',
+    type: 'শারীরিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
+  },
+  {
+    id: 'fatigue',
+    title: 'অস্বাভাবিক ক্লান্তি',
+    desc: 'সব সময় ক্লান্ত লাগা, শক্তির অভাব',
+    type: 'শারীরিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+  },
+  {
+    id: 'eye',
+    title: 'চোখের সমস্যা',
+    desc: 'চোখ ঝাপসা দেখা, অস্বাভাবিক লক্ষণ',
+    type: 'শারীরিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  },
+  {
+    id: 'burning',
+    title: 'শরীরে জ্বালাপোড়া',
+    desc: 'কারণ ছাড়া শরীরে জ্বালা অনুভব',
+    type: 'শারীরিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2s-2 6-2 9c0 1.66.89 3.13 2.23 4A6 6 0 0 0 18 9.5C18 5.91 15.5 3 13 2z"/><path d="M7 13c0 3.31 2.69 6 6 6s6-2.69 6-6c0-2-1.5-4-3-5.5-1.5 2-2 3-2 5.5 0 1.1-.9 2-2 2s-2-.9-2-2"/></svg>`,
+  },
+  {
+    id: 'dizziness',
+    title: 'মাথা ঘোরা',
+    desc: 'হঠাৎ মাথা ঘোরা, ভারসাম্য হারানো',
+    type: 'শারীরিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>`,
+  },
+  {
+    id: 'pain',
+    title: 'শরীরে ব্যথা',
+    desc: 'কারণহীন শরীরের বিভিন্ন অংশে ব্যথা',
+    type: 'শারীরিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  },
+  // মানসিক
+  {
+    id: 'anxiety',
+    title: 'মানসিক অস্থিরতা',
+    desc: 'উদ্বেগ, ভয়, অস্থির মন',
+    type: 'মানসিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  },
+  {
+    id: 'personality',
+    title: 'ব্যক্তিত্বের পরিবর্তন',
+    desc: 'আচরণে হঠাৎ পরিবর্তন, রাগ বৃদ্ধি',
+    type: 'মানসিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  },
+  {
+    id: 'feeling',
+    title: 'অদ্ভুত অনুভূতি',
+    desc: 'শরীরে অস্বাভাবিক স্পর্শ বা অনুভূতি',
+    type: 'মানসিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
+  },
+  {
+    id: 'depression',
+    title: 'বিষণ্নতা',
+    desc: 'দীর্ঘস্থায়ী হতাশা, বাঁচতে ইচ্ছা করে না',
+    type: 'মানসিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
+  },
+  {
+    id: 'fear',
+    title: 'একা থাকতে ভয়',
+    desc: 'অন্ধকারে বা একা থাকলে ভয় লাগে',
+    type: 'মানসিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  },
+  // সামাজিক
+  {
+    id: 'marriage',
+    title: 'দাম্পত্য সমস্যা',
+    desc: 'বিবাহে বাধা, সম্পর্কে সমস্যা',
+    type: 'সামাজিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
+  },
+  {
+    id: 'business',
+    title: 'কাজে/ব্যবসায় বাধা',
+    desc: 'বারবার ব্যর্থতা, অপ্রত্যাশিত সমস্যা',
+    type: 'সামাজিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`,
+  },
+  {
+    id: 'social',
+    title: 'সামাজিক সম্পর্কে বাধা',
+    desc: 'বন্ধুত্ব/ সম্পর্কে অস্বাভাবিক সমস্যা',
+    type: 'সামাজিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  },
+  {
+    id: 'child',
+    title: 'সন্তান না হওয়া',
+    desc: 'দীর্ঘদিন ধরে সন্তান না হওয়া',
+    type: 'সামাজিক',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+  },
+  {
+    id: 'quran',
+    title: 'কুরআনে অস্বস্তি',
+    desc: 'কুরআন শুনলে বা পড়লে অস্বস্তি লাগে',
+    type: 'ধর্মীয়',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+  },
+  {
+    id: 'prayer',
+    title: 'ইবাদতে মনোযোগ নেই',
+    desc: 'নামাজে বা দোয়ায় একদম মনোযোগ নেই',
+    type: 'ধর্মীয়',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="3"/><path d="M6 22v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3"/><line x1="4" y1="12" x2="20" y2="12"/></svg>`,
+  },
 ];
+
+const steps = [
+  { num: '১', title: 'লক্ষণ বেছে নিন', desc: 'আপনার সাথে মিলে এমন লক্ষণগুলো সিলেক্ট করুন' },
+  { num: '২', title: 'ডায়াগনোসিস করুন', desc: 'ইসলামিক প্রশ্নের মাধ্যমে গভীর মূল্যায়ন' },
+  { num: '৩', title: 'সমাধান পান', desc: 'ব্যক্তিগত সুপারিশ ও প্রয়োজনীয় পদক্ষেপ' },
+];
+
+const typeColors: Record<string, { bg: string; border: string; badge: string; text: string }> = {
+  শারীরিক: { bg: '#fff7ed', border: '#fed7aa', badge: '#fff7ed', text: '#c2410c' },
+  মানসিক:  { bg: '#eff6ff', border: '#bfdbfe', badge: '#eff6ff', text: '#1d4ed8' },
+  সামাজিক: { bg: '#f0fdf4', border: '#bbf7d0', badge: '#f0fdf4', text: '#15803d' },
+  ধর্মীয়:  { bg: '#faf5ff', border: '#e9d5ff', badge: '#faf5ff', text: '#7e22ce' },
+};
 ---
 
-<BaseLayout title="সিমটম ডায়াগনোসিস | Ruqyah Healing Center" description="আপনার লক্ষণগুলি চিহ্নিত করুন এবং উপযুক্ত চিকিৎসা পদ্ধতি সম্পর্কে জানুন।">
+<BaseLayout
+  title="সিমটম ডায়াগনোসিস | Ruqyah Healing Center"
+  description="আপনার লক্ষণগুলি চিহ্নিত করুন এবং উপযুক্ত চিকিৎসা পদ্ধতি সম্পর্কে জানুন।"
+>
   <Header />
 
   <main>
+    <!-- Breadcrumb -->
     <div class="page-header">
       <div class="container">
-        <nav class="breadcrumb">
+        <nav class="breadcrumb" aria-label="breadcrumb">
           <a href="/">হোম</a>
-          <span>/</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           <span>সিমটম ডায়াগনোসিস</span>
         </nav>
       </div>
     </div>
 
+    <!-- Hero -->
     <section class="symptom-hero">
       <div class="container">
+        <div class="hero-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          লক্ষণ পরীক্ষা করুন
+        </div>
         <h1>সিমটম ডায়াগনোসিস</h1>
-        <p>আপনার লক্ষণগুলি চিহ্নিত করুন এবং উপযুক্ত চিকিৎসা পদ্ধতি সম্পর্কে জানুন</p>
+        <p>আপনার সাথে মিলে যাওয়া লক্ষণগুলো সিলেক্ট করুন, তারপর ডায়াগনোসিস শুরু করুন</p>
 
+        <!-- Search + Filter -->
         <div class="search-filter">
           <div class="search-box">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-            <input type="text" placeholder="লক্ষণ খুঁজুন..." id="symptomSearch" />
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="লক্ষণ খুঁজুন..." id="symptomSearch" autocomplete="off" />
           </div>
-          <div class="filter-tabs">
+          <div class="filter-tabs" role="group" aria-label="ক্যাটাগরি ফিল্টার">
             <button class="filter-btn active" data-filter="all">সব</button>
             <button class="filter-btn" data-filter="শারীরিক">শারীরিক</button>
             <button class="filter-btn" data-filter="মানসিক">মানসিক</button>
             <button class="filter-btn" data-filter="সামাজিক">সামাজিক</button>
+            <button class="filter-btn" data-filter="ধর্মীয়">ধর্মীয়</button>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- Symptoms Grid -->
     <section class="symptoms-grid-section">
       <div class="container">
+        <!-- Selection counter -->
+        <div class="selection-bar" id="selectionBar" aria-live="polite">
+          <span id="selectionCount">কোনো লক্ষণ সিলেক্ট করা হয়নি</span>
+          <button class="clear-btn" id="clearBtn" style="display:none">সব বাদ দিন</button>
+        </div>
+
         <div class="symptoms-grid" id="symptomsGrid">
-          {symptoms.map(symptom => (
-            <div class="symptom-card" data-type={symptom.type}>
-              <div class="symptom-icon">{symptom.icon}</div>
-              <div class="symptom-content">
-                <h3>{symptom.title}</h3>
-                <p>{symptom.desc}</p>
-                <span class="symptom-badge">{symptom.type}</span>
-              </div>
+          {symptoms.map(symptom => {
+            const colors = typeColors[symptom.type] ?? typeColors['শারীরিক'];
+            return (
+              <button
+                class="symptom-card"
+                data-id={symptom.id}
+                data-type={symptom.type}
+                aria-pressed="false"
+                style={`--card-bg:${colors.bg};--card-border:${colors.border};--badge-bg:${colors.badge};--badge-text:${colors.text}`}
+              >
+                <div class="symptom-icon-wrap" aria-hidden="true" set:html={symptom.icon} />
+                <div class="symptom-content">
+                  <h3>{symptom.title}</h3>
+                  <p>{symptom.desc}</p>
+                  <span class="symptom-badge">{symptom.type}</span>
+                </div>
+                <div class="check-mark" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <!-- No results -->
+        <div class="no-results" id="noResults" style="display:none">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <p>কোনো লক্ষণ পাওয়া যায়নি</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fixed bottom CTA -->
+    <div class="bottom-cta" id="bottomCta" aria-hidden="true">
+      <div class="container">
+        <div class="bottom-cta-inner">
+          <div class="cta-selected-info">
+            <strong id="ctaCount">০</strong> টি লক্ষণ সিলেক্ট করা হয়েছে
+          </div>
+          <a href="/ruqyah-diagnosis" class="btn-cta" id="diagnosisBtn">
+            ডায়াগনোসিস শুরু করুন
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- How it works -->
+    <section class="how-it-works">
+      <div class="container">
+        <h2>কীভাবে কাজ করে?</h2>
+        <p class="section-sub">তিনটি সহজ ধাপে আপনার সমস্যা চিহ্নিত করুন</p>
+        <div class="steps-row">
+          {steps.map((step, i) => (
+            <div class="step-item">
+              <div class="step-num">{step.num}</div>
+              <h3>{step.title}</h3>
+              <p>{step.desc}</p>
+              {i < steps.length - 1 && (
+                <div class="step-arrow" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              )}
             </div>
           ))}
-        </div>
-      </div>
-    </section>
-
-    <section class="cta-section">
-      <div class="container">
-        <div class="cta-box">
-          <h2>ডায়াগনোসিস শুরু করুন</h2>
-          <p>আমাদের বিস্তারিত ডায়াগনোসিস প্রক্রিয়ার মাধ্যমে আপনার সমস্যা চিহ্নিত করুন</p>
-          <div class="cta-buttons">
-            <a href="/ruqyah-diagnosis" class="btn btn-outline">ডায়াগনোসিস শুরু করুন</a>
-            <a href="/appointment" class="btn btn-primary">এ্যাপয়নমেন্ট নিন</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="gallery-section">
-      <div class="container">
-        <h2>গ্যালারি</h2>
-        <p class="section-sub">আমাদের কার্যক্রমের ছবি</p>
-        <div class="gallery-grid">
-          <div class="gallery-item" style="background: linear-gradient(135deg, #f39c12, #e67e22)"></div>
-          <div class="gallery-item" style="background: linear-gradient(135deg, #27ae60, #2ecc71)"></div>
-          <div class="gallery-item" style="background: linear-gradient(135deg, #8e44ad, #9b59b6)"></div>
-          <div class="gallery-item" style="background: linear-gradient(135deg, #e74c3c, #c0392b)"></div>
         </div>
       </div>
     </section>
@@ -103,89 +285,239 @@ const symptoms = [
 </BaseLayout>
 
 <style>
-.page-header { padding: 16px 0; border-bottom: 1px solid var(--border); }
-.breadcrumb { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text-muted); }
+.page-header { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.breadcrumb { display: flex; gap: 6px; align-items: center; font-size: 14px; color: var(--text-muted); }
 .breadcrumb a { color: var(--primary); text-decoration: none; }
-.breadcrumb span { color: var(--text-muted); }
 
-.symptom-hero { padding: 48px 0 32px; text-align: center; }
-.symptom-hero h1 { font-size: 2rem; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
-.symptom-hero p { color: var(--text-muted); font-size: 1rem; margin-bottom: 32px; }
+/* Hero */
+.symptom-hero { padding: 48px 0 32px; text-align: center; background: linear-gradient(180deg, var(--primary-light, #ecfdf5) 0%, #fff 100%); }
+.hero-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--primary); color: #fff; font-size: 13px; font-weight: 600; padding: 5px 14px; border-radius: 20px; margin-bottom: 16px; }
+.symptom-hero h1 { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
+.symptom-hero > .container > p { color: var(--text-muted); font-size: 1rem; margin-bottom: 28px; }
 
-.search-filter { display: flex; flex-direction: column; gap: 16px; align-items: center; }
-.search-box { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; width: 100%; max-width: 600px; }
+.search-filter { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.search-box { display: flex; align-items: center; gap: 10px; background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 11px 18px; width: 100%; max-width: 520px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .search-box svg { color: var(--text-muted); flex-shrink: 0; }
-.search-box input { flex: 1; border: none; outline: none; font-size: 15px; font-family: inherit; color: var(--text-dark); }
+.search-box input { flex: 1; border: none; outline: none; font-size: 15px; font-family: inherit; color: var(--text-dark); background: transparent; }
 .search-box input::placeholder { color: var(--text-muted); }
 
 .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-.filter-btn { padding: 8px 20px; border: 1px solid var(--border); border-radius: 20px; background: #fff; color: var(--text-medium); font-size: 14px; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+.filter-btn { padding: 7px 18px; border: 1.5px solid var(--border); border-radius: 20px; background: #fff; color: var(--text-medium); font-size: 14px; font-family: inherit; cursor: pointer; transition: all 0.18s; font-weight: 500; }
 .filter-btn:hover, .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-.symptoms-grid-section { padding: 32px 0 48px; }
-.symptoms-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+/* Grid */
+.symptoms-grid-section { padding: 28px 0 100px; }
+.selection-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 14px; color: var(--text-muted); }
+.clear-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 13px; font-family: inherit; text-decoration: underline; }
 
-.symptom-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; align-items: flex-start; gap: 16px; transition: all 0.2s; cursor: pointer; }
-.symptom-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-.symptom-icon { font-size: 28px; flex-shrink: 0; }
-.symptom-content h3 { font-size: 16px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; }
-.symptom-content p { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5; }
-.symptom-badge { font-size: 12px; padding: 3px 10px; border-radius: 20px; background: var(--primary-light); color: var(--primary); font-weight: 500; }
+.symptoms-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 
-.cta-section { padding: 48px 0; }
-.cta-box { background: var(--primary); border-radius: 20px; padding: 48px; text-align: center; color: #fff; }
-.cta-box h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 12px; }
-.cta-box p { opacity: 0.9; margin-bottom: 28px; font-size: 1rem; }
-.cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-.btn { padding: 12px 28px; border-radius: 40px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; }
-.btn-primary { background: #fff; color: var(--primary); }
-.btn-primary:hover { background: #f0f4ff; }
-.btn-outline { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.6); }
-.btn-outline:hover { background: rgba(255,255,255,0.15); }
-
-.gallery-section { padding: 48px 0; }
-.gallery-section h2 { font-size: 1.75rem; font-weight: 700; text-align: center; margin-bottom: 8px; }
-.section-sub { text-align: center; color: var(--text-muted); margin-bottom: 28px; }
-.gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-.gallery-item { height: 160px; border-radius: 12px; }
-
-@media (max-width: 900px) {
-  .symptoms-grid { grid-template-columns: repeat(2, 1fr); }
-  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+.symptom-card {
+  background: var(--card-bg, #fff);
+  border: 2px solid var(--card-border, var(--border));
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
 }
+.symptom-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+.symptom-card[aria-pressed="true"] {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+  background: #f0fdf4;
+}
+.symptom-card[aria-pressed="true"] .check-mark { opacity: 1; transform: scale(1); }
+
+.symptom-icon-wrap { flex-shrink: 0; width: 36px; height: 36px; color: var(--badge-text, var(--primary)); }
+.symptom-icon-wrap svg { width: 100%; height: 100%; }
+
+.symptom-content { flex: 1; min-width: 0; }
+.symptom-content h3 { font-size: 15px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; }
+.symptom-content p { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5; }
+.symptom-badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 10px;
+  border-radius: 20px;
+  background: var(--badge-bg, var(--primary-light));
+  color: var(--badge-text, var(--primary));
+  font-weight: 600;
+}
+
+.check-mark {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.18s, transform 0.18s;
+}
+
+.no-results { text-align: center; padding: 48px 0; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+/* Floating bottom CTA */
+.bottom-cta {
+  position: fixed;
+  bottom: 70px; /* above bottom-nav */
+  left: 0; right: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+.bottom-cta.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.bottom-cta-inner {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.cta-selected-info { font-size: 14px; color: var(--text-dark); }
+.cta-selected-info strong { color: var(--primary); font-size: 18px; }
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary);
+  color: #fff;
+  padding: 11px 22px;
+  border-radius: 40px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.18s, transform 0.1s;
+  min-height: 44px;
+}
+.btn-cta:hover { background: var(--primary-dark, #059669); transform: translateY(-1px); }
+
+/* How it works */
+.how-it-works { padding: 60px 0 80px; background: var(--bg-light, #f9fafb); }
+.how-it-works h2 { text-align: center; font-size: 1.75rem; font-weight: 700; margin-bottom: 8px; }
+.section-sub { text-align: center; color: var(--text-muted); margin-bottom: 40px; }
+.steps-row { display: flex; align-items: flex-start; justify-content: center; gap: 0; max-width: 720px; margin: 0 auto; }
+.step-item { flex: 1; text-align: center; padding: 0 16px; position: relative; }
+.step-num { width: 52px; height: 52px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; margin: 0 auto 14px; }
+.step-item h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.step-item p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.step-arrow { position: absolute; right: -12px; top: 12px; }
+
+@media (max-width: 900px) { .symptoms-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) {
   .symptoms-grid { grid-template-columns: 1fr; }
-  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-  .symptom-hero h1 { font-size: 1.5rem; }
+  .steps-row { flex-direction: column; align-items: center; gap: 24px; }
+  .step-arrow { display: none; }
+  .bottom-cta { bottom: 70px; }
+  .bottom-cta-inner { margin: 0 12px; }
+}
+
+@media (min-width: 769px) {
+  .bottom-cta { bottom: 16px; }
 }
 </style>
 
 <script>
-const search = document.getElementById('symptomSearch') as HTMLInputElement;
-const filterBtns = document.querySelectorAll('.filter-btn');
-const cards = document.querySelectorAll('.symptom-card') as NodeListOf<HTMLElement>;
+const searchInput = document.getElementById('symptomSearch') as HTMLInputElement;
+const filterBtns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+const cards = document.querySelectorAll<HTMLButtonElement>('.symptom-card');
+const selectionBar = document.getElementById('selectionBar')!;
+const selectionCount = document.getElementById('selectionCount')!;
+const clearBtn = document.getElementById('clearBtn')!;
+const noResults = document.getElementById('noResults')!;
+const bottomCta = document.getElementById('bottomCta')!;
+const ctaCount = document.getElementById('ctaCount')!;
+const diagnosisBtn = document.getElementById('diagnosisBtn') as HTMLAnchorElement;
 
 let activeFilter = 'all';
+const selected = new Set<string>();
+
+function updateSelectionUI() {
+  const n = selected.size;
+  if (n === 0) {
+    selectionCount.textContent = 'কোনো লক্ষণ সিলেক্ট করা হয়নি';
+    clearBtn.style.display = 'none';
+    bottomCta.classList.remove('visible');
+    bottomCta.setAttribute('aria-hidden', 'true');
+  } else {
+    selectionCount.textContent = `${n}টি লক্ষণ সিলেক্ট করা হয়েছে`;
+    clearBtn.style.display = '';
+    ctaCount.textContent = n.toString();
+    bottomCta.classList.add('visible');
+    bottomCta.removeAttribute('aria-hidden');
+    // Pass symptom IDs as query param
+    diagnosisBtn.href = `/ruqyah-diagnosis?symptoms=${[...selected].join(',')}`;
+  }
+}
 
 function filterCards() {
-  const query = search.value.toLowerCase();
+  const query = searchInput.value.toLowerCase().trim();
+  let visible = 0;
   cards.forEach(card => {
-    const type = card.dataset.type || '';
-    const text = card.textContent?.toLowerCase() || '';
+    const type = card.dataset.type ?? '';
+    const text = (card.textContent ?? '').toLowerCase();
     const matchFilter = activeFilter === 'all' || type === activeFilter;
     const matchSearch = !query || text.includes(query);
-    card.style.display = (matchFilter && matchSearch) ? '' : 'none';
+    const show = matchFilter && matchSearch;
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
   });
+  noResults.style.display = visible === 0 ? 'flex' : 'none';
 }
+
+cards.forEach(card => {
+  card.addEventListener('click', () => {
+    const id = card.dataset.id!;
+    const pressed = card.getAttribute('aria-pressed') === 'true';
+    if (pressed) {
+      card.setAttribute('aria-pressed', 'false');
+      selected.delete(id);
+    } else {
+      card.setAttribute('aria-pressed', 'true');
+      selected.add(id);
+    }
+    updateSelectionUI();
+  });
+});
 
 filterBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     filterBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    activeFilter = (btn as HTMLElement).dataset.filter || 'all';
+    activeFilter = btn.dataset.filter ?? 'all';
     filterCards();
   });
 });
 
-search?.addEventListener('input', filterCards);
+searchInput.addEventListener('input', filterCards);
+
+clearBtn.addEventListener('click', () => {
+  selected.clear();
+  cards.forEach(c => c.setAttribute('aria-pressed', 'false'));
+  updateSelectionUI();
+});
+
+// Init
+updateSelectionUI();
 </script>
