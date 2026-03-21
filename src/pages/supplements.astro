@@ -4,12 +4,60 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
 const products = [
-  { name: 'জমজম পানি', desc: 'পবিত্র জমজম কূপের পানি', price: 500, rating: 5, benefit: 'আধ্যাত্মিক ও শারীরিক নিরাময়', img: 'water' },
-  { name: 'কালো জিরা তেল', desc: 'খাঁটি কালো জিরার তেল', price: 350, rating: 4.5, benefit: 'রোগ প্রতিরোধ ক্ষমতা বৃদ্ধি', img: 'oil' },
-  { name: 'মধু', desc: 'প্রাকৃতিক খাঁটি মধু', price: 600, rating: 4, benefit: 'সুস্বাস্থ্য ও শক্তি বৃদ্ধি', img: 'honey' },
-  { name: 'জাফরান', desc: 'উরতমানের জাফরান', price: 1200, rating: 5, benefit: 'মানসিক সুস্থতা ও শক্তি', img: 'saffron' },
-  { name: 'খেজুর', desc: 'আজওয়া খেজুর', price: 800, rating: 5, benefit: 'শক্তিবর্ধক ও নিরাময়', img: 'dates' },
-  { name: 'জলপাই তেল', desc: 'অলিভ অয়েল', price: 450, rating: 4, benefit: 'ত্বক ও শরীরের যত্ন', img: 'olive' },
+  {
+    name: 'জমজম পানি',
+    desc: 'পবিত্র জমজম কূপের পানি',
+    price: 500,
+    rating: 5,
+    benefit: 'আধ্যাত্মিক ও শারীরিক নিরাময়',
+    img: '/supplements/zamzam_water.png',
+    badge: 'বেস্টসেলার',
+  },
+  {
+    name: 'কালো জিরা তেল',
+    desc: 'খাঁটি কালো জিরার তেল',
+    price: 350,
+    rating: 4.5,
+    benefit: 'রোগ প্রতিরোধ ক্ষমতা বৃদ্ধি',
+    img: '/supplements/black_seed_oil.png',
+    badge: 'সুন্নাহ প্রস্তাবিত',
+  },
+  {
+    name: 'মধু',
+    desc: 'প্রাকৃতিক খাঁটি মধু',
+    price: 600,
+    rating: 4,
+    benefit: 'সুস্বাস্থ্য ও শক্তি বৃদ্ধি',
+    img: '/supplements/pure_honey.png',
+    badge: null,
+  },
+  {
+    name: 'জাফরান',
+    desc: 'প্রিমিয়াম জাফরান',
+    price: 1200,
+    rating: 5,
+    benefit: 'মানসিক সুস্থতা ও শক্তি',
+    img: '/supplements/saffron_spice.png',
+    badge: 'প্রিমিয়াম',
+  },
+  {
+    name: 'আজওয়া খেজুর',
+    desc: 'মদিনা থেকে আনা আজওয়া খেজুর',
+    price: 800,
+    rating: 5,
+    benefit: 'শক্তিবর্ধক ও নিরাময়',
+    img: '/supplements/ajwa_dates.png',
+    badge: 'বেস্টসেলার',
+  },
+  {
+    name: 'জলপাই তেল',
+    desc: 'এক্সট্রা ভার্জিন অলিভ অয়েল',
+    price: 450,
+    rating: 4,
+    benefit: 'ত্বক ও শরীরের যত্ন',
+    img: '/supplements/olive_oil.png',
+    badge: null,
+  },
 ];
 
 function starRating(rating: number) {
@@ -49,14 +97,20 @@ function starRating(rating: number) {
     <section class="products-section">
       <div class="container">
         <div class="products-grid">
-          {products.map((p, i) => (
+          {products.map((p) => (
             <div class="product-card">
               <div class="product-img">
+                {p.badge && <span class="product-badge">{p.badge}</span>}
                 <button class="wishlist-btn" aria-label="উইশলিস্টে যোগ করুন">♡</button>
-                <div class="product-placeholder">
-                  <span class="product-emoji">
-                    {p.img === 'water' ? '💧' : p.img === 'oil' ? '🫙' : p.img === 'honey' ? '🍯' : p.img === 'saffron' ? '🌸' : p.img === 'dates' ? '🌴' : '🫒'}
-                  </span>
+                <img
+                  src={p.img}
+                  alt={p.name}
+                  loading="lazy"
+                  decoding="async"
+                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                />
+                <div class="product-placeholder" style="display:none">
+                  <span class="product-emoji">🌿</span>
                 </div>
               </div>
               <div class="product-body">
@@ -109,7 +163,10 @@ function starRating(rating: number) {
 .product-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.2s; }
 .product-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
 
-.product-img { position: relative; height: 200px; background: var(--bg-light); display: flex; align-items: center; justify-content: center; }
+.product-img { position: relative; height: 200px; background: var(--bg-light); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.product-img img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; transition: transform 0.35s ease; }
+.product-card:hover .product-img img { transform: scale(1.06); }
+.product-badge { position: absolute; top: 12px; left: 12px; background: var(--primary); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; z-index: 1; }
 .wishlist-btn { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: #fff; border: 1px solid var(--border); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
 .wishlist-btn:hover { color: var(--primary); border-color: var(--primary); }
 .product-emoji { font-size: 56px; }
