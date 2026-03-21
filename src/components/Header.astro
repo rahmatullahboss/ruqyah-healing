@@ -17,7 +17,7 @@ const navItems = [
 const currentPath = Astro.url.pathname;
 ---
 
-<header class="site-header">
+<header class="site-header" transition:persist>
   <div class="container header-inner">
     <a href="/" class="logo">
       <div class="logo-icon">

@@ -336,6 +336,57 @@ ul { list-style: none; }
   transform: translateY(0);
 }
 
+/* ─── CSS Scroll-Driven Animations (Native, Chrome 115+) ────── */
+@supports (animation-timeline: view()) {
+
+  @keyframes scrollReveal {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Progressive: only applies if scroll-timeline is supported.
+     Falls back to the existing .reveal IntersectionObserver. */
+  .scroll-reveal {
+    animation: scrollReveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 28%;
+  }
+
+  /* Staggered children via --delay CSS var */
+  .scroll-reveal-child {
+    animation: scrollReveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 32%;
+    animation-delay: var(--stagger-delay, 0ms);
+  }
+}
+
+/* ─── View Transitions — Page-level style ───────────────────── */
+/* Default page fade via ::view-transition pseudo-elements */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.25s;
+  animation-timing-function: ease;
+}
+
+::view-transition-old(root) {
+  animation-name: vtFadeOut;
+}
+
+::view-transition-new(root) {
+  animation-name: vtFadeIn;
+}
+
+@keyframes vtFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes vtFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 /* ─── Accessibility: Reduced Motion ─────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

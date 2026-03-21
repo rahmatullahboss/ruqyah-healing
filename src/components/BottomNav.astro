@@ -36,7 +36,7 @@ function isActive(href: string, path: string): boolean {
 }
 ---
 
-<nav class="bottom-nav" aria-label="মোবাইল নেভিগেশন">
+<nav class="bottom-nav" aria-label="মোবাইল নেভিগেশন" transition:persist>
   {items.map(item => (
     <a
       href={item.href}

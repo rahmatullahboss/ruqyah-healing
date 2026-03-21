@@ -83,35 +83,58 @@ const galleryImages = [
     <!-- Hero -->
     <Hero />
 
-    <!-- Services -->
+    <!-- Services — CSS Scroll-Driven staggered reveal -->
     <section class="section reveal" style="background: var(--bg-light);">
       <div class="container">
-        <div class="section-header">
+        <div class="section-header scroll-reveal">
           <h2>আমাদের সেবাসমূহ</h2>
           <p>ইসলামিক পদ্ধতিতে আপনার সুস্থতার জন্য আমাদের বিশেষ সেবাসমূহ</p>
         </div>
         <div class="grid-4">
-          {services.map(service => (
-            <ServiceCard {...service} />
+          {services.map((service, i) => (
+            <div
+              class="scroll-reveal-child"
+              style={`--stagger-delay: ${i * 60}ms`}
+            >
+              <ServiceCard {...service} />
+            </div>
           ))}
         </div>
       </div>
     </section>
 
-    <!-- Blog -->
+    <!-- Blog — Horizontal swipe on mobile, grid on desktop -->
     <section class="section reveal">
       <div class="container">
-        <div class="section-header-row">
+        <div class="section-header-row scroll-reveal">
           <div>
             <h2>রুকইয়া ব্লগ</h2>
             <p>সর্বশেষ নিবন্ধ এবং তথ্য</p>
           </div>
           <a href="/blog" class="btn btn-outline btn-sm">সব দেখুন</a>
         </div>
-        <div class="grid-3">
+
+        <!-- Desktop: normal grid -->
+        <div class="blog-grid-desktop">
           {blogs.map(post => (
-            <BlogCard {...post} />
+            <div class="scroll-reveal-child">
+              <BlogCard {...post} />
+            </div>
           ))}
+        </div>
+
+        <!-- Mobile: horizontal swipe -->
+        <div class="blog-swipe-mobile" id="blog-swipe">
+          {blogs.map(post => (
+            <div class="blog-swipe-item">
+              <BlogCard {...post} />
+            </div>
+          ))}
+        </div>
+
+        <!-- Swipe hint — mobile only -->
+        <div class="swipe-hint" aria-hidden="true">
+          <span>← সোয়াইপ করুন →</span>
         </div>
       </div>
     </section>
@@ -119,12 +142,12 @@ const galleryImages = [
     <!-- PDF & Courses -->
     <section class="section reveal" style="background: var(--bg-light);">
       <div class="container">
-        <div class="section-header">
+        <div class="section-header scroll-reveal">
           <h2>পিডিএফ ও কোর্স</h2>
           <p>রুকইয়াহ সংক্রান্ত গাইড এবং কোর্সসমূহ</p>
         </div>
         <div class="grid-2">
-          <div class="resource-card resource-card--blue">
+          <div class="resource-card resource-card--blue scroll-reveal-child" style="--stagger-delay: 0ms">
             <div class="resource-card-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
             </div>
@@ -132,7 +155,7 @@ const galleryImages = [
             <p>রুকইয়া সম্পর্কিত বই এবং গাইড ডাউনলোড করুন</p>
             <a href="/pdf" class="btn btn-primary">ডাউনলোড করুন</a>
           </div>
-          <div class="resource-card resource-card--purple">
+          <div class="resource-card resource-card--purple scroll-reveal-child" style="--stagger-delay: 80ms">
             <div class="resource-card-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
             </div>
@@ -148,12 +171,12 @@ const galleryImages = [
     <section class="section dark-section reveal">
       <div class="container">
         <div class="grid-2">
-          <div class="dark-card">
+          <div class="dark-card scroll-reveal-child" style="--stagger-delay: 0ms">
             <h3>রাকী পরিচয়</h3>
             <p>আমাদের অভিজ্ঞ রাকীদের সাথে পরিচিত হন</p>
             <a href="/team" class="btn btn-outline-white btn-sm" style="margin-top: 16px; display: inline-flex;">রাকীদের দেখুন</a>
           </div>
-          <div class="dark-card">
+          <div class="dark-card scroll-reveal-child" style="--stagger-delay: 80ms">
             <h3>নোটিশ ও সুযোগ</h3>
             <p>সর্বশেষ ঘোষণা এবং সুযোগ দেখুন</p>
             <a href="/notices" class="btn btn-outline-white btn-sm" style="margin-top: 16px; display: inline-flex;">সব নোটিশ দেখুন</a>
@@ -165,13 +188,16 @@ const galleryImages = [
     <!-- Gallery -->
     <section class="section reveal">
       <div class="container">
-        <div class="section-header" style="text-align: center;">
+        <div class="section-header scroll-reveal" style="text-align: center;">
           <h2>গ্যালারি</h2>
           <p>আমাদের কার্যক্রমের ছবি</p>
         </div>
         <div class="gallery-grid">
-          {galleryImages.map(img => (
-            <div class="gallery-item">
+          {galleryImages.map((img, i) => (
+            <div
+              class="gallery-item scroll-reveal-child"
+              style={`--stagger-delay: ${i * 50}ms`}
+            >
               <img src={img.src} alt={img.alt} loading="lazy" decoding="async" fetchpriority="low" width="300" height="300" />
             </div>
           ))}
@@ -184,7 +210,7 @@ const galleryImages = [
 </BaseLayout>
 
 <script>
-  // Scroll-reveal IntersectionObserver
+  // ── Scroll-reveal IntersectionObserver (fallback for non-scroll-timeline browsers)
   const revealEls = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window) {
     const observer = new IntersectionObserver(
@@ -200,8 +226,41 @@ const galleryImages = [
     );
     revealEls.forEach(el => observer.observe(el));
   } else {
-    // Fallback: show all immediately
     revealEls.forEach(el => el.classList.add('is-visible'));
+  }
+
+  // ── Stats Counter Animation in Hero (trigger on viewport entry)
+  function animateCounter(el: Element, target: number, suffix: string, duration = 1200) {
+    let start = 0;
+    const step = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      // Ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.floor(eased * target) + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target as HTMLElement;
+      const raw = el.dataset.count ?? '';
+      const target = parseInt(raw, 10);
+      const suffix = el.dataset.suffix ?? '';
+      if (!isNaN(target)) animateCounter(el, target, suffix);
+      statsObserver.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('[data-count]').forEach(el => statsObserver.observe(el));
+
+  // ── Show swipe hint briefly then fade out
+  const swipeHint = document.querySelector('.swipe-hint') as HTMLElement | null;
+  if (swipeHint) {
+    setTimeout(() => swipeHint.classList.add('faded'), 2500);
   }
 </script>
 
@@ -240,6 +299,15 @@ const galleryImages = [
 .dark-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
 .dark-card p { font-size: 15px; color: rgba(255,255,255,0.6); }
 
+/* ── Blog layout ── */
+.blog-grid-desktop {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.blog-swipe-mobile { display: none; }
+.swipe-hint { display: none; }
+
 /* Gallery */
 .gallery-grid {
   display: grid;
@@ -259,7 +327,49 @@ const galleryImages = [
 }
 .gallery-item:hover img { transform: scale(1.06); }
 
+/* ── Mobile: horizontal swipe blog ── */
 @media (max-width: 768px) {
+  .blog-grid-desktop { display: none; }
+
+  .blog-swipe-mobile {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 14px;
+    padding-bottom: 12px;
+    /* Hide scrollbar visually */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .blog-swipe-mobile::-webkit-scrollbar { display: none; }
+
+  .blog-swipe-item {
+    flex: 0 0 82vw;
+    scroll-snap-align: start;
+  }
+
+  /* Swipe hint pill */
+  .swipe-hint {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+  }
+  .swipe-hint span {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg-light);
+    padding: 4px 14px;
+    border-radius: 20px;
+    transition: opacity 0.6s ease;
+  }
+  .swipe-hint.faded span { opacity: 0; }
+
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .resource-card { padding: 24px; }
+  .dark-card { padding: 24px; }
 }
 </style>

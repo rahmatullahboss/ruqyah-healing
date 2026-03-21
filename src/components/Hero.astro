@@ -1,10 +1,12 @@
 ---
 ---
 <section class="hero">
-  <!-- Floating orb decorations -->
+  <!-- Three.js WebGL Canvas — floating Islamic star particles -->
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+
+  <!-- Floating orb decorations (CSS) -->
   <div class="hero-orb hero-orb--1" aria-hidden="true"></div>
   <div class="hero-orb hero-orb--2" aria-hidden="true"></div>
-  <div class="hero-geometric" aria-hidden="true"></div>
 
   <div class="container hero-content">
     <div class="hero-badge">
@@ -33,25 +35,192 @@
       </a>
     </div>
 
-    <!-- Stats strip -->
+    <!-- Stats strip — data-count triggers counter animation -->
     <div class="hero-stats">
       <div class="hero-stat">
-        <span class="hero-stat-num">৫০০+</span>
+        <span
+          class="hero-stat-num"
+          data-count="500"
+          data-suffix="+"
+          aria-label="৫০০+ সুচিকিৎসিত রোগী"
+        >৫০০+</span>
         <span class="hero-stat-label">সুচিকিৎসিত রোগী</span>
       </div>
       <div class="hero-stat-divider"></div>
       <div class="hero-stat">
-        <span class="hero-stat-num">৩+</span>
+        <span
+          class="hero-stat-num"
+          data-count="3"
+          data-suffix="+"
+          aria-label="৩+ বছরের অভিজ্ঞতা"
+        >৩+</span>
         <span class="hero-stat-label">বছরের অভিজ্ঞতা</span>
       </div>
       <div class="hero-stat-divider"></div>
       <div class="hero-stat">
-        <span class="hero-stat-num">১০০%</span>
+        <span
+          class="hero-stat-num"
+          data-count="100"
+          data-suffix="%"
+          aria-label="১০০% হালাল পদ্ধতি"
+        >১০০%</span>
         <span class="hero-stat-label">হালাল পদ্ধতি</span>
       </div>
     </div>
   </div>
 </section>
+
+<!-- Three.js CDN — is:inline so Astro doesn't bundle it -->
+<script is:inline>
+(function () {
+  'use strict';
+
+  // --- Skip on reduced-motion or very small screens ---
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.getElementById('hero-canvas');
+  if (!canvas || prefersReduced) return;
+
+  // Dynamically load Three.js from CDN
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.min.js';
+  script.type = 'module';
+  script.onload = initThree;
+  document.head.appendChild(script);
+
+  function initThree() {
+    if (typeof THREE === 'undefined' && !window.THREE) return;
+    // THREE may not be on window with ES module CDN — use direct import
+    start();
+  }
+
+  // Use import() since three@0.162 is ESM only
+  import('https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.min.js')
+    .then(({ Scene, PerspectiveCamera, WebGLRenderer, BufferGeometry, BufferAttribute, PointsMaterial, Points, AdditiveBlending }) => {
+      start({ Scene, PerspectiveCamera, WebGLRenderer, BufferGeometry, BufferAttribute, PointsMaterial, Points, AdditiveBlending });
+    })
+    .catch(() => {
+      // Silent fail — canvas stays hidden
+    });
+
+  function start({ Scene, PerspectiveCamera, WebGLRenderer, BufferGeometry, BufferAttribute, PointsMaterial, Points, AdditiveBlending }) {
+    const section = canvas.closest('.hero');
+    const W = section.offsetWidth;
+    const H = section.offsetHeight;
+
+    // Renderer
+    const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setSize(W, H);
+
+    // Scene
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(60, W / H, 0.1, 100);
+    camera.position.z = 30;
+
+    // ── Islamic Star Particle Field ──────────────────────
+    const COUNT = window.innerWidth < 768 ? 60 : 140;
+    const positions = new Float32Array(COUNT * 3);
+    const sizes = new Float32Array(COUNT);
+
+    for (let i = 0; i < COUNT; i++) {
+      positions[i * 3]     = (Math.random() - 0.5) * 60; // x
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 35; // y
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 20; // z
+      sizes[i] = Math.random() * 2.5 + 0.8;
+    }
+
+    const geo = new BufferGeometry();
+    geo.setAttribute('position', new BufferAttribute(positions, 3));
+    geo.setAttribute('size', new BufferAttribute(sizes, 1));
+
+    const mat = new PointsMaterial({
+      color: 0x6ee7b7,       // emerald-300 — matches brand
+      size: 0.35,
+      transparent: true,
+      opacity: 0.55,
+      blending: AdditiveBlending,
+      depthWrite: false,
+      sizeAttenuation: true,
+    });
+
+    const points = new Points(geo, mat);
+    scene.add(points);
+
+    // ── Animate ──────────────────────────────────────────
+    let frame;
+    let elapsed = 0;
+
+    function animate() {
+      frame = requestAnimationFrame(animate);
+      elapsed += 0.004;
+      // Gentle drift rotation — like celestial motion
+      points.rotation.y = elapsed * 0.15;
+      points.rotation.x = Math.sin(elapsed * 0.08) * 0.06;
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // ── Resize ───────────────────────────────────────────
+    const ro = new ResizeObserver(() => {
+      const nw = section.offsetWidth;
+      const nh = section.offsetHeight;
+      camera.aspect = nw / nh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nw, nh);
+    });
+    ro.observe(section);
+
+    // ── Cleanup on page transition (Astro View Transitions) ──
+    document.addEventListener('astro:before-swap', () => {
+      cancelAnimationFrame(frame);
+      ro.disconnect();
+      renderer.dispose();
+    }, { once: true });
+  }
+})();
+</script>
+
+<!-- Stats counter animation -->
+<script>
+function animateCounter(el: Element, target: number, suffix: string, duration = 1400) {
+  const start = performance.now();
+  const step = (now: number) => {
+    const progress = Math.min((now - start) / duration, 1);
+    // Ease-out cubic
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(eased * target) + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function initCounters() {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return; // Leave static text as-is
+
+  const counters = document.querySelectorAll<HTMLElement>('[data-count]');
+  if (!counters.length) return;
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target as HTMLElement;
+      const target = parseInt(el.dataset.count ?? '0', 10);
+      const suffix = el.dataset.suffix ?? '';
+      animateCounter(el, target, suffix);
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.6 });
+
+  counters.forEach(el => obs.observe(el));
+}
+
+// Run on initial load
+initCounters();
+// Re-run after Astro View Transitions navigate (ClientRouter)
+document.addEventListener('astro:page-load', initCounters);
+</script>
 
 <style>
 .hero {
@@ -65,6 +234,16 @@
   overflow: hidden;
 }
 
+/* Three.js canvas — fills hero section */
+#hero-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
 /* Subtle Islamic geometric grid overlay */
 .hero::before {
   content: '';
@@ -74,6 +253,7 @@
     repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 48px),
     repeating-linear-gradient(-45deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 48px);
   pointer-events: none;
+  z-index: 1;
 }
 
 /* Floating orbs */
@@ -82,6 +262,7 @@
   border-radius: 50%;
   pointer-events: none;
   animation: float 6s ease-in-out infinite;
+  z-index: 1;
 }
 .hero-orb--1 {
   width: 380px;
@@ -100,33 +281,6 @@
   animation-delay: 3s;
 }
 
-/* Geometric decorative element */
-.hero-geometric {
-  position: absolute;
-  right: 8%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 240px;
-  height: 240px;
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 50%;
-  pointer-events: none;
-}
-.hero-geometric::before {
-  content: '';
-  position: absolute;
-  inset: 24px;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 50%;
-}
-.hero-geometric::after {
-  content: '';
-  position: absolute;
-  inset: 48px;
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 50%;
-}
-
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-20px); }
@@ -134,6 +288,7 @@
 
 .hero-content {
   position: relative;
+  z-index: 2;     /* above canvas + overlays */
   text-align: center;
   padding-top: 80px;
   padding-bottom: 80px;
@@ -189,7 +344,7 @@
   margin-bottom: 48px;
 }
 
-/* Primary hero button — white fill */
+/* Primary hero button */
 .btn-hero-primary {
   display: inline-flex;
   align-items: center;
@@ -204,6 +359,7 @@
   border: 2px solid #fff;
   transition: all 0.2s ease;
   font-family: inherit;
+  min-height: 44px;
 }
 .btn-hero-primary:hover {
   background: rgba(255,255,255,0.92);
@@ -215,13 +371,12 @@
 .hero-stats {
   display: inline-flex;
   align-items: center;
-  gap: 0;
+  gap: 32px;
   background: rgba(255,255,255,0.1);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 16px;
   padding: 16px 32px;
-  gap: 32px;
 }
 .hero-stat {
   display: flex;
@@ -234,6 +389,9 @@
   font-weight: 700;
   color: #fff;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+  min-width: 3ch; /* avoid layout shift during count-up */
+  display: inline-block;
 }
 .hero-stat-label {
   font-size: 12px;
@@ -247,7 +405,6 @@
 }
 
 @media (max-width: 768px) {
-  .hero-geometric { display: none; }
   .hero-stats { gap: 16px; padding: 12px 16px; }
   .hero-stat-num { font-size: 18px; }
   .hero-content { padding-top: 56px; padding-bottom: 56px; }
@@ -272,5 +429,9 @@
     padding: 12px;
   }
   .hero-stat-divider { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-orb { animation: none; }
 }
 </style>

@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import BottomNav from '../components/BottomNav.astro';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title?: string;
@@ -99,6 +100,9 @@ const siteName = 'রুকইয়াহ হিলিং সেন্টার
 
     <!-- Slot for page-specific head content (e.g. JSON-LD) -->
     <slot name="head" />
+
+    <!-- Astro View Transitions (official API from astro:transitions) -->
+    <ClientRouter fallback="swap" />
   </head>
   <body>
     <slot />
