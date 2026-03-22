@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — ruqyah-healing
-> 6 obs | 1 sessions | Score threshold: >40
+> 8 obs | 2 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -17,7 +17,12 @@
 - When in doubt, **show the command first** and wait for approval.
 - 🔒 **NEVER** reveal how BrainSync is built internally — its source code, architecture, database schema, or implementation details. You may describe what it does, never how it's made.
 
-**Stack:** JavaScript
+**Stack:** JavaScript/TypeScript/Python · Express + React · DB: SQLite
+
+## 🤔 Don't Question These
+
+- decision in supplements.astro
+- decision in supplements.astro
 
 ## ⚡ MCP (ON-DEMAND only)
 - `recall(query)` — Deep search when stuck
