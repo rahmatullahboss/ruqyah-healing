@@ -1,4 +1,44 @@
 > **BrainSync Context Pumper** 🧠
-> Dynamically loaded for active file: `src/content/posts/ruqyah-with-azan.md` (Domain: **Generic Logic**)
+> Dynamically loaded for active file: `.git/COMMIT_EDITMSG` (Domain: **Generic Logic**)
 
-*No specific memory context found for this file's domain.*
+### 📐 Generic Logic Conventions & Fixes
+- **[problem-fix] problem-fix in .gitignore**: File updated (external): .gitignore
+
+Content summary (37 lines):
+# build output
+dist/
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
+
+# Cloudflare / Wrangler
+.wrangler/
+
+# Screen recordings & large media
+*.mov
+*.mp4
+*.avi
+*.mkv
+
+AGENT.md
+CLAUDE.md
+.agent-mem/
+

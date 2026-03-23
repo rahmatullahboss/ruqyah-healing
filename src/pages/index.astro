@@ -5,31 +5,60 @@ import Hero from '../components/Hero.astro';
 import Footer from '../components/Footer.astro';
 import ServiceCard from '../components/ServiceCard.astro';
 import BlogCard from '../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('posts');
+const blogs = allPosts
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, 3)
+  .map(post => ({
+    date: new Date(post.data.date).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }),
+    category: post.data.category ?? 'রুকইয়াহ',
+    title: post.data.title,
+    excerpt: post.data.excerpt ?? '',
+    href: `/posts/${post.id.replace(/\.md$/, '')}`,
+  }));
 
 const services = [
+  {
+    title: 'রুকইয়াহ',
+    description: 'কুরআন ও সুন্নাহ ভিত্তিক রুকইয়াহ চিকিৎসা। জিন, জাদু ও বদনজরের চিকিৎসায় বিশেষজ্ঞ সেবা।',
+    link: '/ruqyah-diagnosis',
+    bgColor: 'var(--primary-light)',
+    iconColor: 'var(--primary)',
+    icon: `<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>`,
+  },
+  {
+    title: 'হিজামা',
+    description: 'সুন্নাহ সম্মত হিজামা থেরাপি। শরীরের বিভিন্ন রোগ নিরাময়ে কার্যকর ইসলামিক চিকিৎসা পদ্ধতি।',
+    link: '/symptom-diagnosis',
+    bgColor: '#FFF3E0',
+    iconColor: '#F57C00',
+    icon: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`,
+  },
+  {
+    title: 'আকুপাংচার',
+    description: 'ইসলামী দৃষ্টিভঙ্গিতে আকুপাংচার চিকিৎসা। শারীরিক ব্যথা ও রোগ নিরাময়ে কার্যকর।',
+    link: '/symptom-diagnosis',
+    bgColor: '#E8F5E9',
+    iconColor: '#2E7D32',
+    icon: `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>`,
+  },
   {
     title: 'সিমটম ডায়াগনোসিস',
     description: 'আপনার লক্ষণগুলি চিহ্নিত করুন এবং সঠিক চিকিৎসা পান',
     link: '/symptom-diagnosis',
     bgColor: 'var(--primary-light)',
     iconColor: 'var(--primary)',
-    icon: `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline>`,
+    icon: `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line>`,
   },
   {
-    title: 'রুকইয়াহ ডায়াগনোসিস',
+    title: 'রুকইয়া ডায়াগনোসিস',
     description: 'ধাপে ধাপে রুকইয়াহ ডায়াগনোসিস প্রক্রিয়া',
     link: '/ruqyah-diagnosis',
     bgColor: '#E0F7FA',
     iconColor: '#0288D1',
-    icon: `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>`,
-  },
-  {
-    title: 'সেলফ রুকইয়া ডায়াগনোসিস',
-    description: 'নিজে নিজে রুকইয়া করার নির্দেশনা',
-    link: '/self-ruqyah',
-    bgColor: 'var(--purple-light)',
-    iconColor: '#7C3AED',
-    icon: `<line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line>`,
+    icon: `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>`,
   },
   {
     title: 'রুকইয়া সাপ্লিমেন্ট',
@@ -37,35 +66,60 @@ const services = [
     link: '/supplements',
     bgColor: 'var(--pink-light)',
     iconColor: '#E53E3E',
-    icon: `<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>`,
+    icon: `<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>`,
+  },
+  {
+    title: 'রুকইয়াহ ডাউনলোড',
+    description: 'রুকইয়াহ কিলোওয়াট ডাউনলোড করুন',
+    link: '/pdf',
+    bgColor: 'var(--purple-light)',
+    iconColor: '#7C3AED',
+    icon: `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>`,
+  },
+  {
+    title: 'কাউন্সেলিং',
+    description: 'মানসিক ও আধ্যাত্মিক কাউন্সেলিং সেবা',
+    link: '/appointment',
+    bgColor: '#FFF8E1',
+    iconColor: '#F9A825',
+    icon: `<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>`,
   },
 ];
 
-const blogs = [
+const rakis = [
+  { name: 'মাহমুদুল হাসান', role: 'প্রধান রাকী', href: '/team' },
+  { name: 'তাজুল ইসলাম', role: 'রুকইয়াহ বিশেষজ্ঞ', href: '/team' },
+  { name: 'আবদুল করিম', role: 'হিজামা বিশেষজ্ঞ', href: '/team' },
+];
+
+const packages = [
   {
-    image: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=400&h=200&fit=crop&q=40&fm=webp',
-    date: '১৫ নভেম্বর ২০২৫',
-    category: 'রুকইয়াহ',
-    title: 'রুকইয়াহ কি এবং কিভাবে করতে হয়',
-    excerpt: 'ইসলামিক চিকিৎসা পদ্ধতি হিসেবে রুকইয়াহর বিস্তারিত গাইড এবং কোরআনের আয়াত দিয়ে রুকইয়া করার নিয়ম।',
-    href: '/blog/1',
+    title: 'রুকইয়াহ',
+    desc: 'কুরআন ও সুন্নাহ ভিত্তিক রুকইয়াহ চিকিৎসা সেবা। জিন, জাদু ও বদনজরের চিকিৎসায় বিশেষজ্ঞ।',
+    link: '/appointment',
+    icon: '☪️',
   },
   {
-    image: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=400&h=200&fit=crop&q=40&fm=webp',
-    date: '১০ নভেম্বর ২০২৫',
-    category: 'সিমটম',
-    title: 'জিনের আছর চেনার উপায়',
-    excerpt: 'জিনের আছরের লক্ষণ, কারণ এবং কিভাবে সঠিক ডায়াগনোসিস করে চিকিৎসা নিতে হয়।',
-    href: '/blog/2',
+    title: 'হিজামা',
+    desc: 'সুন্নাহ সম্মত হিজামা থেরাপি। শরীরের বিভিন্ন রোগ নিরাময়ে কার্যকর।',
+    link: '/appointment',
+    icon: '🩸',
   },
   {
-    image: 'https://images.unsplash.com/photo-1471879832106-c7ab9e0cee23?w=400&h=200&fit=crop&q=40&fm=webp',
-    date: '৫ নভেম্বর ২০২৫',
-    category: 'সাপ্লিমেন্ট',
-    title: 'হালাল সাপ্লিমেন্ট — কালোজিরার উপকারিতা',
-    excerpt: 'কালোজিরা সুন্নাহর আলোকে একটি বিশেষ ওষুধ। এর ব্যবহার ও উপকারিতা সম্পর্কে বিস্তারিত।',
-    href: '/blog/3',
+    title: 'আকুপাংচার',
+    desc: 'ইসলামী দৃষ্টিভঙ্গিতে আকুপাংচার চিকিৎসা। শারীরিক ব্যথা নিরসনে দক্ষ।',
+    link: '/appointment',
+    icon: '🌿',
   },
+];
+
+const videos = [
+  { id: 'dQw4w9WgXcQ', title: 'রুকইয়াহ সেশন পরিচিতি' },
+  { id: 'dQw4w9WgXcQ', title: 'হিজামা থেরাপি গাইড' },
+  { id: 'dQw4w9WgXcQ', title: 'বদনজর থেকে মুক্তি' },
+  { id: 'dQw4w9WgXcQ', title: 'জাদু চিকিৎসার পদ্ধতি' },
+  { id: 'dQw4w9WgXcQ', title: 'রুকইয়াহ প্রশ্নোত্তর' },
+  { id: 'dQw4w9WgXcQ', title: 'আমাদের সেন্টার পরিচিতি' },
 ];
 
 const galleryImages = [
@@ -80,11 +134,81 @@ const galleryImages = [
   <Header />
 
   <main>
-    <!-- Hero -->
+    <!-- ① Hero -->
     <Hero />
 
-    <!-- Services — CSS Scroll-Driven staggered reveal -->
-    <section class="section reveal" style="background: var(--bg-light);">
+    <!-- ② রুকইয়াহ কি এবং কেনো করা হয়? -->
+    <section class="section info-section reveal">
+      <div class="container info-grid">
+        <div class="info-text scroll-reveal">
+          <h2>রুকইয়াহ কি এবং<br/>কেনো করা হয়?</h2>
+          <p>
+            রুকইয়াহ হলো কুরআনের আয়াত ও হাদিসে বর্ণিত দোয়ার মাধ্যমে আধ্যাত্মিক ও শারীরিক রোগের চিকিৎসা।
+            ইসলামে স্বীকৃত এই পদ্ধতিতে জিনের আছর, জাদু, বদনজর ও মানসিক সমস্যার কার্যকর চিকিৎসা করা হয়।
+          </p>
+          <ul class="info-bullets">
+            <li>শারীরিক রোগ, যেমন মাথাব্যথা, পেটের ব্যথা, অনিদ্রা নিরাময়</li>
+            <li>মানসিক অস্থিরতা, ভয়, উদ্বেগ ও বিষণ্নতা থেকে মুক্তি</li>
+            <li>বদনজর, হাসদ ও জাদুর প্রভাব থেকে রক্ষা</li>
+            <li>জিনের আছর ও ওয়াসওয়াসা দূর করা</li>
+            <li>বিয়ে, সন্তান ও রিজিকে বাধা দূর করা</li>
+          </ul>
+          <a class="whatsapp-cta" href="https://wa.me/8801992575874" target="_blank" rel="noopener">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            যোগাযোগ করুন: +880 1992 575874
+          </a>
+        </div>
+        <div class="info-media scroll-reveal" style="--stagger-delay:100ms">
+          <div class="info-img-wrap">
+            <img
+              src="/images/ruqyah-info.webp"
+              alt="রুকইয়াহ — কুরআন তেলাওয়াত"
+              width="600" height="600"
+              loading="lazy"
+              decoding="async"
+              class="info-img"
+            />
+          </div>
+          <a href="/appointment" class="btn btn-primary appt-btn" style="margin-top:16px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            অ্যাপয়েন্টমেন্ট বুক করুন
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ③ হিজামা কি এবং কেনো করা হয়? -->
+    <section class="section info-section info-section--alt reveal" style="background:var(--bg-light)">
+      <div class="container info-grid info-grid--reverse">
+        <div class="info-media scroll-reveal">
+          <div class="hijama-images">
+            <img src="/images/hijama-main.webp" alt="হিজামা কাপিং থেরাপি" class="hijama-img hijama-img--main" loading="lazy" width="400" height="500" />
+             <img src="/images/hijama-secondary.webp" alt="কুরআন ও তাসবিহ" class="hijama-img hijama-img--secondary" loading="lazy" width="200" height="200" />
+          </div>
+        </div>
+        <div class="info-text scroll-reveal" style="--stagger-delay:100ms">
+          <h2>হিজামা কি এবং<br/>কেনো করা হয়?</h2>
+          <p>
+            হিজামা বা কাপিং থেরাপি হলো নবী মুহাম্মদ (সা.) কর্তৃক অনুমোদিত একটি চিকিৎসা পদ্ধতি। শরীরের নির্দিষ্ট
+            স্থানে কাপ লাগিয়ে দূষিত রক্ত বের করে নেওয়া হয়।
+          </p>
+          <ul class="info-bullets">
+            <li>শারীরিক ব্যথা ও প্রদাহ কমায়</li>
+            <li>রক্ত সঞ্চালন উন্নত করে</li>
+            <li>রোগ প্রতিরোধ ক্ষমতা বাড়ায়</li>
+            <li>মাইগ্রেন, উচ্চ রক্তচাপ নিরাময়ে সহায়ক</li>
+            <li>মানসিক চাপ ও ক্লান্তি দূর করে</li>
+          </ul>
+          <a class="whatsapp-cta" href="https://wa.me/8801992575874" target="_blank" rel="noopener">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            যোগাযোগ করুন: +880 1992 575874
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ আমাদের সেবাসমূহ (8-card grid) -->
+    <section class="section reveal">
       <div class="container">
         <div class="section-header scroll-reveal">
           <h2>আমাদের সেবাসমূহ</h2>
@@ -92,10 +216,7 @@ const galleryImages = [
         </div>
         <div class="grid-4">
           {services.map((service, i) => (
-            <div
-              class="scroll-reveal-child"
-              style={`--stagger-delay: ${i * 60}ms`}
-            >
+            <div class="scroll-reveal-child" style={`--stagger-delay: ${i * 60}ms`}>
               <ServiceCard {...service} />
             </div>
           ))}
@@ -103,8 +224,8 @@ const galleryImages = [
       </div>
     </section>
 
-    <!-- Blog — Horizontal swipe on mobile, grid on desktop -->
-    <section class="section reveal">
+    <!-- ⑤ রুকইয়া ব্লগ -->
+    <section class="section reveal" style="background:var(--bg-light)">
       <div class="container">
         <div class="section-header-row scroll-reveal">
           <div>
@@ -113,61 +234,143 @@ const galleryImages = [
           </div>
           <a href="/blog" class="btn btn-outline btn-sm">সব দেখুন</a>
         </div>
-
-        <!-- Desktop: normal grid -->
         <div class="blog-grid-desktop">
           {blogs.map(post => (
-            <div class="scroll-reveal-child">
-              <BlogCard {...post} />
-            </div>
+            <div class="scroll-reveal-child"><BlogCard {...post} /></div>
           ))}
         </div>
-
-        <!-- Mobile: horizontal swipe -->
         <div class="blog-swipe-mobile" id="blog-swipe">
           {blogs.map(post => (
-            <div class="blog-swipe-item">
-              <BlogCard {...post} />
-            </div>
+            <div class="blog-swipe-item"><BlogCard {...post} /></div>
           ))}
         </div>
+        <div class="swipe-hint" aria-hidden="true"><span>← সোয়াইপ করুন →</span></div>
+      </div>
+    </section>
 
-        <!-- Swipe hint — mobile only -->
-        <div class="swipe-hint" aria-hidden="true">
-          <span>← সোয়াইপ করুন →</span>
+    <!-- ⑥ আমাদের ভিডিও -->
+    <section class="section reveal">
+      <div class="container">
+        <div class="section-header scroll-reveal">
+          <h2>আমাদের ভিডিও</h2>
+          <p>রুকইয়াহ ও হিজামা সম্পর্কিত শিক্ষামূলক ভিডিও</p>
+        </div>
+        <div class="video-grid">
+          {videos.map((v, i) => (
+            <div class="video-card scroll-reveal-child" style={`--stagger-delay:${i*60}ms`}>
+              <a href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noopener" class="video-thumb-link" aria-label={v.title}>
+                <img
+                  src={`https://img.youtube.com/vi/${v.id}/mqdefault.jpg`}
+                  alt={v.title}
+                  loading="lazy"
+                  width="320"
+                  height="180"
+                />
+                <div class="play-btn" aria-hidden="true">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="red"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.77 1.52V6.77a4.85 4.85 0 01-1-.08z"/></svg>
+                </div>
+              </a>
+              <p class="video-title">{v.title}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
 
-    <!-- PDF & Courses -->
+    <!-- ⑦ রাকী ক্যারোসেল -->
+    <section class="section reveal" style="background:var(--bg-light)">
+      <div class="container">
+        <div class="section-header scroll-reveal">
+          <h2>আমাদের রাকীগণ</h2>
+          <p>অভিজ্ঞ ও প্রশিক্ষিত রাকীদের সাথে পরিচিত হন</p>
+        </div>
+        <div class="raki-carousel" id="raki-carousel">
+          {rakis.map((r, i) => (
+            <div class="raki-card scroll-reveal-child" style={`--stagger-delay:${i*80}ms`}>
+              <div class="raki-avatar">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </div>
+              <h3>{r.name}</h3>
+              <p>{r.role}</p>
+              <a href={r.href} class="btn btn-outline btn-sm">বিস্তারিত</a>
+            </div>
+          ))}
+        </div>
+        <div class="raki-dots" aria-hidden="true">
+          {rakis.map((_, i) => <span class={`raki-dot ${i===0?'active':''}`} data-i={i}></span>)}
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑧ আমাদের প্যাকেজগুলি -->
+    <section class="section reveal">
+      <div class="container">
+        <div class="section-header scroll-reveal">
+          <h2>আমাদের প্যাকেজগুলি</h2>
+          <p>আপনার প্রয়োজন অনুযায়ী সেরা প্যাকেজ বেছে নিন</p>
+        </div>
+        <div class="grid-3">
+          {packages.map((pkg, i) => (
+            <div class="pkg-card scroll-reveal-child" style={`--stagger-delay:${i*80}ms`}>
+              <div class="pkg-icon">{pkg.icon}</div>
+              <h3>{pkg.title}</h3>
+              <p>{pkg.desc}</p>
+              <a href={pkg.link} class="btn btn-primary">বুক করুন</a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑨ পিডিএফ ও কোর্স -->
     <section class="section reveal" style="background: var(--bg-light);">
       <div class="container">
         <div class="section-header scroll-reveal">
-          <h2>পিডিএফ ও কোর্স</h2>
+          <h2>রুকইয়াহর কোর্সসমূহ</h2>
           <p>রুকইয়াহ সংক্রান্ত গাইড এবং কোর্সসমূহ</p>
         </div>
-        <div class="grid-2">
-          <div class="resource-card resource-card--blue scroll-reveal-child" style="--stagger-delay: 0ms">
-            <div class="resource-card-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        <div class="grid-3 course-grid">
+          <!-- Course 1: অনলাইন রুকইয়াহ কোর্স -->
+          <div class="course-card scroll-reveal-child" style="--stagger-delay: 0ms">
+            <div class="course-thumb">
+              <img src="/images/course-ruqyah-online.webp" alt="অনলাইন রুকইয়াহ কোর্স" loading="lazy" width="600" height="600" />
+              <span class="course-badge">অনলাইন</span>
             </div>
-            <h3>পিডিএফ গাইড</h3>
-            <p>রুকইয়া সম্পর্কিত বই এবং গাইড ডাউনলোড করুন</p>
-            <a href="/pdf" class="btn btn-primary">ডাউনলোড করুন</a>
+            <div class="course-body">
+              <h3>রুকইয়াহ অনলাইন কোর্স</h3>
+              <p>ঘরে বসে কুরআন ও সুন্নাহ ভিত্তিক রুকইয়াহ শিখুন</p>
+              <a href="https://wa.me/8801992575874?text=অনলাইন+রুকইয়াহ+কোর্সে+যোগ+দিতে+চাই" target="_blank" rel="noopener" class="btn btn-primary btn-sm">এনরোল করুন</a>
+            </div>
           </div>
-          <div class="resource-card resource-card--purple scroll-reveal-child" style="--stagger-delay: 80ms">
-            <div class="resource-card-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          <!-- Course 2: অফলাইন রুকইয়াহ কোর্স -->
+          <div class="course-card scroll-reveal-child" style="--stagger-delay: 80ms">
+            <div class="course-thumb">
+              <img src="/images/course-ruqyah-offline.webp" alt="অফলাইন রুকইয়াহ কোর্স" loading="lazy" width="600" height="600" />
+              <span class="course-badge course-badge--green">অফলাইন</span>
             </div>
-            <h3>কোর্সসমূহ</h3>
-            <p>রুকইয়া এবং ইসলামিক হিলিং শিখুন</p>
-            <a href="/courses" class="btn btn-primary">কোর্স দেখুন</a>
+            <div class="course-body">
+              <h3>রুকইয়াহ অফলাইন প্রশিক্ষণ</h3>
+              <p>সরাসরি শায়েখের কাছে থেকে রুকইয়াহ শিখুন</p>
+              <a href="https://wa.me/8801992575874?text=অফলাইন+রুকইয়াহ+কোর্সে+যোগ+দিতে+চাই" target="_blank" rel="noopener" class="btn btn-primary btn-sm">এনরোল করুন</a>
+            </div>
+          </div>
+          <!-- Course 3: হিজামা সার্টিফিকেট কোর্স -->
+          <div class="course-card scroll-reveal-child" style="--stagger-delay: 160ms">
+            <div class="course-thumb">
+              <img src="/images/course-hijama-online.webp" alt="হিজামা সার্টিফিকেট কোর্স" loading="lazy" width="600" height="600" />
+              <span class="course-badge course-badge--gold">সার্টিফিকেট</span>
+            </div>
+            <div class="course-body">
+              <h3>হিজামা সার্টিফিকেট কোর্স</h3>
+              <p>পেশাদার হিজামা থেরাপিস্ট হিসেবে প্রশিক্ষণ নিন</p>
+              <a href="https://wa.me/8801992575874?text=হিজামা+কোর্সে+যোগ+দিতে+চাই" target="_blank" rel="noopener" class="btn btn-primary btn-sm">এনরোল করুন</a>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Team & Notices (dark bg) -->
+    <!-- ⑩ রাকী পরিচয় ও নোটিশ (dark) -->
     <section class="section dark-section reveal">
       <div class="container">
         <div class="grid-2">
@@ -185,7 +388,7 @@ const galleryImages = [
       </div>
     </section>
 
-    <!-- Gallery -->
+    <!-- ⑪ গ্যালারি -->
     <section class="section reveal">
       <div class="container">
         <div class="section-header scroll-reveal" style="text-align: center;">
@@ -194,10 +397,7 @@ const galleryImages = [
         </div>
         <div class="gallery-grid">
           {galleryImages.map((img, i) => (
-            <div
-              class="gallery-item scroll-reveal-child"
-              style={`--stagger-delay: ${i * 50}ms`}
-            >
+            <div class="gallery-item scroll-reveal-child" style={`--stagger-delay: ${i * 50}ms`}>
               <img src={img.src} alt={img.alt} loading="lazy" decoding="async" fetchpriority="low" width="300" height="300" />
             </div>
           ))}
@@ -211,7 +411,7 @@ const galleryImages = [
 
 <script>
   function initHomePage() {
-    // ── Scroll-reveal IntersectionObserver
+    // ── Scroll-reveal
     const revealEls = document.querySelectorAll('.reveal');
     if ('IntersectionObserver' in window) {
       const observer = new IntersectionObserver(
@@ -223,14 +423,14 @@ const galleryImages = [
             }
           });
         },
-        { threshold: 0.08 }
+        { threshold: 0.07 }
       );
       revealEls.forEach(el => observer.observe(el));
     } else {
       revealEls.forEach(el => el.classList.add('is-visible'));
     }
 
-    // ── Stats Counter Animation
+    // ── Stats counter
     function animateCounter(el: Element, target: number, suffix: string, duration = 1200) {
       let start = 0;
       const step = (timestamp: number) => {
@@ -242,7 +442,6 @@ const galleryImages = [
       };
       requestAnimationFrame(step);
     }
-
     const statsObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
@@ -254,7 +453,6 @@ const galleryImages = [
         statsObserver.unobserve(el);
       });
     }, { threshold: 0.5 });
-
     document.querySelectorAll('[data-count]').forEach(el => statsObserver.observe(el));
 
     // ── Swipe hint
@@ -263,14 +461,228 @@ const galleryImages = [
       swipeHint.classList.remove('faded');
       setTimeout(() => swipeHint.classList.add('faded'), 2500);
     }
+
+    // ── Raki carousel dots
+    const dots = document.querySelectorAll('.raki-dot');
+    dots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        dots.forEach(d => d.classList.remove('active'));
+        dot.classList.add('active');
+      });
+    });
   }
 
-  // Run on first load AND on every View Transition navigation
   initHomePage();
   document.addEventListener('astro:page-load', initHomePage);
 </script>
 
 <style>
+/* ── Info sections (রুকইয়াহ কি / হিজামা কি) ── */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+.info-grid--reverse { direction: rtl; }
+.info-grid--reverse > * { direction: ltr; }
+
+.info-text h2 {
+  font-size: clamp(22px, 3.5vw, 34px);
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 18px;
+  line-height: 1.3;
+}
+.info-text p {
+  font-size: 15px;
+  color: var(--text-medium);
+  line-height: 1.8;
+  margin-bottom: 18px;
+}
+.info-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.info-bullets li {
+  font-size: 14px;
+  color: var(--text-medium);
+  padding-left: 22px;
+  position: relative;
+  line-height: 1.6;
+}
+.info-bullets li::before {
+  content: '✔';
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+  font-size: 12px;
+  top: 2px;
+}
+
+.whatsapp-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #25D366;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 24px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+.whatsapp-cta:hover { background: #1ebe5a; transform: translateY(-2px); }
+
+/* Video embed */
+.video-placeholder {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  margin-bottom: 16px;
+}
+.video-placeholder iframe { display: block; }
+.appt-btn { width: 100%; justify-content: center; margin-bottom: 10px; }
+.appt-btn-outline { width: 100%; justify-content: center; }
+
+/* Hijama images */
+.hijama-images {
+  position: relative;
+  height: 340px;
+}
+.hijama-img {
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+.hijama-img--main {
+  width: 75%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.hijama-img--secondary {
+  width: 45%;
+  height: 55%;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  border: 4px solid #fff;
+}
+
+/* ── Video grid ── */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.video-card { display: flex; flex-direction: column; gap: 10px; }
+.video-thumb-link {
+  position: relative;
+  display: block;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 16/9;
+}
+.video-thumb-link img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+.video-thumb-link:hover img { transform: scale(1.05); }
+.play-btn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.3);
+  transition: background 0.2s;
+}
+.video-thumb-link:hover .play-btn { background: rgba(0,0,0,0.5); }
+.video-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  line-height: 1.4;
+}
+
+/* ── Raki Carousel ── */
+.raki-carousel {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.raki-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  border: 1px solid var(--border);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.raki-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(0,0,0,0.12); }
+.raki-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+.raki-card h3 { font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+.raki-card p { font-size: 13px; color: var(--text-medium); margin-bottom: 16px; }
+.raki-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.raki-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.raki-dot.active { background: var(--primary); transform: scale(1.3); }
+
+/* ── Package cards ── */
+.pkg-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 36px 28px;
+  text-align: center;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.pkg-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
+.pkg-icon { font-size: 48px; line-height: 1; }
+.pkg-card h3 { font-size: 22px; font-weight: 700; color: var(--text-dark); }
+.pkg-card p { font-size: 14px; color: var(--text-medium); line-height: 1.7; flex: 1; }
+
+/* ── grid-3 ── */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
 /* Resource Cards */
 .resource-card {
   border-radius: var(--radius-lg);
@@ -293,6 +705,39 @@ const galleryImages = [
 .resource-card h3 { font-size: 22px; font-weight: 700; color: var(--text-dark); }
 .resource-card p { font-size: 15px; color: var(--text-medium); }
 
+/* ── Course cards ── */
+.course-grid { align-items: start; }
+.course-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.course-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.course-thumb { position: relative; overflow: hidden; aspect-ratio: 1/1; }
+.course-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.course-card:hover .course-thumb img { transform: scale(1.05); }
+.course-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+.course-badge--green { background: #059669; }
+.course-badge--gold { background: #D97706; }
+.course-body { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.course-body h3 { font-size: 18px; font-weight: 700; color: var(--text-dark); }
+.course-body p { font-size: 14px; color: var(--text-medium); }
+
+/* ── Info section real image ── */
+.info-img-wrap { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); }
+.info-img { width: 100%; height: auto; display: block; }
 /* Dark section */
 .dark-section { background: var(--dark-section); }
 .dark-card {
@@ -301,11 +746,13 @@ const galleryImages = [
   border-radius: var(--radius-lg);
   padding: 40px;
   color: #fff;
+  transition: background 0.3s;
 }
+.dark-card:hover { background: rgba(255,255,255,0.1); }
 .dark-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
 .dark-card p { font-size: 15px; color: rgba(255,255,255,0.6); }
 
-/* ── Blog layout ── */
+/* Blog layout */
 .blog-grid-desktop {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -333,10 +780,35 @@ const galleryImages = [
 }
 .gallery-item:hover img { transform: scale(1.06); }
 
-/* ── Mobile: horizontal swipe blog ── */
+/* ── Scroll-reveal transitions ── */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.scroll-reveal-child {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.55s ease calc(var(--stagger-delay, 0ms)), transform 0.55s ease calc(var(--stagger-delay, 0ms));
+}
+.is-visible .scroll-reveal,
+.is-visible .scroll-reveal-child {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Mobile ── */
+@media (max-width: 900px) {
+  .info-grid { grid-template-columns: 1fr; gap: 32px; }
+  .info-grid--reverse { direction: ltr; }
+  .hijama-images { height: 220px; }
+  .raki-carousel { grid-template-columns: 1fr 1fr; }
+  .video-grid { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+}
+
 @media (max-width: 768px) {
   .blog-grid-desktop { display: none; }
-
   .blog-swipe-mobile {
     display: flex;
     overflow-x: auto;
@@ -344,23 +816,12 @@ const galleryImages = [
     -webkit-overflow-scrolling: touch;
     gap: 14px;
     padding-bottom: 12px;
-    /* Hide scrollbar visually */
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
   .blog-swipe-mobile::-webkit-scrollbar { display: none; }
-
-  .blog-swipe-item {
-    flex: 0 0 82vw;
-    scroll-snap-align: start;
-  }
-
-  /* Swipe hint pill */
-  .swipe-hint {
-    display: flex;
-    justify-content: center;
-    margin-top: 12px;
-  }
+  .blog-swipe-item { flex: 0 0 82vw; scroll-snap-align: start; }
+  .swipe-hint { display: flex; justify-content: center; margin-top: 12px; }
   .swipe-hint span {
     font-size: 11px;
     color: var(--text-muted);
@@ -370,12 +831,22 @@ const galleryImages = [
     transition: opacity 0.6s ease;
   }
   .swipe-hint.faded span { opacity: 0; }
-
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  .raki-carousel { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .video-grid { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .resource-card, .dark-card { padding: 24px; }
 }
 
 @media (max-width: 480px) {
-  .resource-card { padding: 24px; }
-  .dark-card { padding: 24px; }
+  .info-grid { gap: 24px; }
+  .hijama-images { height: 200px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal, .scroll-reveal-child { transition: none; }
 }
 </style>
