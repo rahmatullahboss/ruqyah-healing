@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — ruqyah-healing
-> 61 obs | 6 sessions | Score threshold: >40
+> 63 obs | 6 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -19,38 +19,23 @@
 
 **Stack:** JavaScript/TypeScript/Python · Express + React · DB: SQLite
 
-## ⛔ STOP — WILL BREAK THINGS
-
-- **gotcha in [testId].astro** [63] — -   background: #fff; border: 1.5px solid var(--border);
--   border-ra
-- **gotcha in [testId].astro** [63] — - .result-card {
-+ <style is:global>
--   max-width: 720px; margin: 0 a
-- **gotcha in [testId].astro** [63] — - /* ── Result Section ── */
-+ 
-- .result-section { padding: 60px 0 80
-- **gotcha in [testId].astro** [63] — - /* Result Header */
-+ /* ── Result Section ── */
-- .result-header-bl
-- **gotcha in test-data.ts** [63] — - // ─── Result helpers ──────────────────────────────────────────────
-
 ## 📐 MUST FOLLOW
 
-- what-changed in scratchpad_ucjk93q3.md — confirmed 3x [54]
-- what-changed in content.d.ts — confirmed 3x [54]
-- what-changed in types.d.ts — confirmed 3x [54]
-- what-changed in posts.schema.json — confirmed 3x [54]
-- what-changed in scratchpad_tzo37eq3.md — confirmed 3x [54]
-- what-changed in scratchpad_tzo37eq3.md [54]
-- what-changed in scratchpad_tzo37eq3.md — confirmed 14x [54]
-- what-changed in scratchpad_tzo37eq3.md — confirmed 4x [54]
+- Strengthened types Package [54]
+- what-changed in index.astro — confirmed 3x [54]
+- decision in index.astro — confirmed 3x [54]
+- what-changed in scratchpad_ucjk93q3.md — confirmed 3x [49]
+- what-changed in content.d.ts — confirmed 3x [49]
+- what-changed in types.d.ts — confirmed 3x [49]
+- what-changed in posts.schema.json — confirmed 3x [49]
+- what-changed in scratchpad_tzo37eq3.md — confirmed 3x [49]
 
 ## 🤔 Don't Question These
 
 - decision in index.astro
 - decision in index.astro
-- decision in index.astro
 - decision in test-data.ts
+- decision in scratchpad_tlcifqmd.md
 
 ## 🎯 Skills
 

@@ -338,8 +338,121 @@ const galleryImages = [
       </div>
     </section>
 
+    <!-- ⑦.৫ নামাজের ওয়াক্ত -->
+    <section class="prayer-section reveal">
+      <div class="container">
+        <div class="prayer-widget scroll-reveal">
+
+          <!-- Left: landscape illustration -->
+          <div class="prayer-landscape" aria-hidden="true">
+            <svg viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg" class="landscape-svg">
+              <!-- Sky gradient -->
+              <defs>
+                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#e8f5e9"/>
+                  <stop offset="100%" stop-color="#c8e6c9"/>
+                </linearGradient>
+                <linearGradient id="sunGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#ffcc02"/>
+                  <stop offset="100%" stop-color="#ff8800"/>
+                </linearGradient>
+              </defs>
+              <rect width="260" height="160" fill="url(#skyGrad)"/>
+              <!-- Sun rising -->
+              <circle cx="90" cy="85" r="38" fill="url(#sunGrad)" opacity="0.9"/>
+              <!-- Rolling hills -->
+              <ellipse cx="0" cy="150" rx="80" ry="45" fill="#81c784"/>
+              <ellipse cx="80" cy="145" rx="90" ry="38" fill="#66bb6a"/>
+              <ellipse cx="200" cy="152" rx="100" ry="42" fill="#4caf50" opacity="0.7"/>
+              <!-- Water reflection -->
+              <ellipse cx="130" cy="148" rx="60" ry="10" fill="#a5d6a7" opacity="0.6"/>
+              <!-- Mosque silhouette -->
+              <rect x="175" y="112" width="28" height="30" fill="#388e3c"/>
+              <polygon points="189,100 178,114 200,114" fill="#2e7d32"/>
+              <rect x="187" y="95" width="4" height="20" fill="#1b5e20"/>
+              <rect x="184" y="106" width="10" height="4" fill="#1b5e20"/>
+              <!-- Minaret -->
+              <rect x="167" y="118" width="6" height="24" fill="#388e3c"/>
+              <rect x="165" y="116" width="10" height="4" fill="#2e7d32"/>
+              <circle cx="170" cy="114" r="3" fill="#1b5e20"/>
+              <!-- Trees -->
+              <ellipse cx="155" cy="132" rx="10" ry="16" fill="#43a047"/>
+              <rect x="153" y="140" width="4" height="14" fill="#388e3c"/>
+              <ellipse cx="218" cy="130" rx="8" ry="13" fill="#66bb6a"/>
+              <rect x="216" y="137" width="3" height="12" fill="#43a047"/>
+            </svg>
+          </div>
+
+          <!-- Middle: location + prayer list -->
+          <div class="prayer-info">
+            <div class="prayer-location">
+              <span class="loc-icon">📍</span>
+              <div>
+                <div class="loc-city" id="pt-city">ঢাকা</div>
+                <div class="loc-country" id="pt-country">বাংলাদেশ</div>
+              </div>
+            </div>
+
+            <div class="prayer-header">
+              <h2>নামাজের সময়</h2>
+              <div class="sunrise-row">
+                <span class="sunrise-icon">🌅</span>
+                <span class="sunrise-time" id="pt-sunrise">—</span>
+                <span class="sunrise-label">সূর্যোদয়</span>
+              </div>
+            </div>
+
+            <div class="prayers-row">
+              <div class="prayer-item" data-prayer="Fajr">
+                <span class="prayer-icon">🌙</span>
+                <span class="prayer-name">ফজর</span>
+                <span class="prayer-time" id="pt-fajr">—</span>
+              </div>
+              <div class="prayer-item" data-prayer="Dhuhr">
+                <span class="prayer-icon">☀️</span>
+                <span class="prayer-name">যোহর</span>
+                <span class="prayer-time" id="pt-dhuhr">—</span>
+              </div>
+              <div class="prayer-item" data-prayer="Asr">
+                <span class="prayer-icon">🌤️</span>
+                <span class="prayer-name">আছর</span>
+                <span class="prayer-time" id="pt-asr">—</span>
+              </div>
+              <div class="prayer-item" data-prayer="Maghrib">
+                <span class="prayer-icon">🌇</span>
+                <span class="prayer-name">মাগরিব</span>
+                <span class="prayer-time" id="pt-maghrib">—</span>
+              </div>
+              <div class="prayer-item" data-prayer="Isha">
+                <span class="prayer-icon">🌃</span>
+                <span class="prayer-name">ইশা</span>
+                <span class="prayer-time" id="pt-isha">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Islamic geometric decoration -->
+          <div class="prayer-deco" aria-hidden="true">
+            <svg viewBox="0 0 120 120" width="110" height="110" xmlns="http://www.w3.org/2000/svg" opacity="0.18">
+              <g fill="none" stroke="#2e7d32" stroke-width="1.5">
+                <circle cx="60" cy="60" r="55"/>
+                <circle cx="60" cy="60" r="42"/>
+                <circle cx="60" cy="60" r="28"/>
+                <polygon points="60,10 106.6,85 13.4,85" stroke-width="1"/>
+                <polygon points="60,110 13.4,35 106.6,35" stroke-width="1"/>
+                <rect x="25" y="25" width="70" height="70" transform="rotate(15 60 60)"/>
+                <rect x="25" y="25" width="70" height="70" transform="rotate(30 60 60)"/>
+              </g>
+            </svg>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
 
     <!-- ⑧ আমাদের প্যাকেজগুলি -->
+
     <section class="section reveal">
       <div class="container">
         <div class="section-header scroll-reveal">
@@ -605,8 +718,96 @@ const galleryImages = [
     }
   }
 
+  // ── Prayer Times (Aladhan API) ──────────────────────────
+  async function loadPrayerTimes() {
+    const set = (id: string, val: string) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    };
+
+    const fmt = (t: string) => {
+      // "16:30" → "4:30pm"
+      const [h, m] = t.split(':').map(Number);
+      const ampm = h >= 12 ? 'pm' : 'am';
+      const h12 = h % 12 || 12;
+      return `${h12}:${String(m).padStart(2,'0')}${ampm}`;
+    };
+
+    const highlightNext = (timings: Record<string,string>) => {
+      const keys: [string, string][] = [
+        ['Fajr','pt-fajr'],['Dhuhr','pt-dhuhr'],['Asr','pt-asr'],
+        ['Maghrib','pt-maghrib'],['Isha','pt-isha']
+      ];
+      const now = new Date();
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      let nextKey = keys[0][0];
+      for (const [k] of keys) {
+        const [h, m] = (timings[k] || '0:0').split(':').map(Number);
+        if (h * 60 + m > nowMin) { nextKey = k; break; }
+      }
+      document.querySelectorAll('.prayer-item').forEach(el => el.classList.remove('next-prayer'));
+      const nextEl = document.querySelector(`.prayer-item[data-prayer="${nextKey}"]`);
+      if (nextEl) nextEl.classList.add('next-prayer');
+    };
+
+    const apiFetch = async (lat: number, lng: number) => {
+      const url = `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=1`;
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('api fail');
+      return (await r.json()).data;
+    };
+
+    const geocode = async (lat: number, lng: number) => {
+      try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+        const d = await r.json();
+        const city = d.address?.city || d.address?.town || d.address?.village || 'N/A';
+        const country = d.address?.country || '';
+        (document.getElementById('pt-city') as HTMLElement).textContent = city;
+        (document.getElementById('pt-country') as HTMLElement).textContent = country;
+      } catch {}
+    };
+
+    const render = (data: any) => {
+      const t = data.timings;
+      set('pt-sunrise', fmt(t.Sunrise));
+      set('pt-fajr',    fmt(t.Fajr));
+      set('pt-dhuhr',   fmt(t.Dhuhr));
+      set('pt-asr',     fmt(t.Asr));
+      set('pt-maghrib', fmt(t.Maghrib));
+      set('pt-isha',    fmt(t.Isha));
+      highlightNext(t);
+    };
+
+    try {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async ({ coords: { latitude: lat, longitude: lng } }) => {
+            try {
+              const data = await apiFetch(lat, lng);
+              render(data);
+              geocode(lat, lng);
+            } catch {}
+          },
+          async () => {
+            // fallback → Dhaka
+            const data = await apiFetch(23.8103, 90.4125);
+            render(data);
+          },
+          { timeout: 6000 }
+        );
+      } else {
+        const data = await apiFetch(23.8103, 90.4125);
+        render(data);
+      }
+    } catch {}
+  }
+
+  loadPrayerTimes();
+
   initHomePage();
   document.addEventListener('astro:page-load', initHomePage);
+
 </script>
 
 <style>
@@ -934,8 +1135,71 @@ const galleryImages = [
 .resource-card h3 { font-size: 22px; font-weight: 700; color: var(--text-dark); }
 .resource-card p { font-size: 15px; color: var(--text-medium); }
 
+/* ── Prayer Time Widget ── */
+.prayer-section { background: linear-gradient(135deg, #f9fbe7 0%, #e8f5e9 100%); padding: 48px 0; }
+.prayer-widget {
+  display: grid;
+  grid-template-columns: 220px 1fr 110px;
+  align-items: center;
+  gap: 24px;
+  background: #fff;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(46,125,50,0.10);
+  border: 1px solid #c8e6c9;
+  min-height: 160px;
+}
+.prayer-landscape { flex-shrink: 0; height: 100%; display: flex; align-items: stretch; }
+.landscape-svg { width: 100%; height: 100%; display: block; object-fit: cover; }
+
+.prayer-info { padding: 24px 8px 24px 0; display: flex; flex-direction: column; gap: 14px; }
+.prayer-location { display: flex; align-items: center; gap: 8px; }
+.loc-icon { font-size: 16px; }
+.loc-city { font-size: 18px; font-weight: 800; color: #2e7d32; line-height: 1.2; }
+.loc-country { font-size: 12px; color: #66bb6a; font-weight: 500; }
+
+.prayer-header h2 { font-size: 22px; font-weight: 800; color: #1b5e20; margin: 0 0 4px; }
+.sunrise-row { display: flex; align-items: center; gap: 6px; }
+.sunrise-icon { font-size: 15px; }
+.sunrise-time { font-size: 18px; font-weight: 800; color: #ff8800; }
+.sunrise-label { font-size: 12px; color: #888; }
+
+.prayers-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+.prayer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: background 0.2s;
+  min-width: 60px;
+  cursor: default;
+}
+.prayer-item.next-prayer {
+  background: #e8f5e9;
+  outline: 2px solid #4caf50;
+}
+.prayer-icon { font-size: 18px; line-height: 1; }
+.prayer-name { font-size: 11px; font-weight: 700; color: #388e3c; text-transform: uppercase; letter-spacing: 0.5px; }
+.prayer-time { font-size: 15px; font-weight: 800; color: #1b5e20; }
+
+.prayer-deco {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 16px;
+  align-self: stretch;
+  overflow: hidden;
+}
+
 /* ── Course cards ── */
 .course-grid { align-items: start; }
+
 .course-card {
   background: #fff;
   border-radius: var(--radius-lg);
@@ -1038,6 +1302,11 @@ const galleryImages = [
   .video-grid { grid-template-columns: repeat(2, 1fr); }
   .grid-3 { grid-template-columns: 1fr 1fr; }
   .pkg-grid { grid-template-columns: repeat(2, 1fr); }
+  .prayer-widget { grid-template-columns: 1fr; }
+  .prayer-landscape { display: none; }
+  .prayer-deco { display: none; }
+  .prayer-info { padding: 20px 16px; }
+  .prayers-row { flex-wrap: wrap; gap: 6px; justify-content: center; }
 }
 
 @media (max-width: 768px) {
