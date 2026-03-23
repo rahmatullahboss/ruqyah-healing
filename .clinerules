@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — ruqyah-healing
-> 58 obs | 6 sessions | Score threshold: >40
+> 59 obs | 6 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -48,9 +48,9 @@
 ## 🤔 Don't Question These
 
 - decision in index.astro
+- decision in index.astro
 - decision in test-data.ts
 - decision in scratchpad_tlcifqmd.md
-- decision in supplements.astro
 
 ## 🎯 Skills
 

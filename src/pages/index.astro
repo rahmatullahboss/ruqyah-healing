@@ -805,6 +805,9 @@ const galleryImages = [
 @media (max-width: 900px) {
   .info-grid { grid-template-columns: 1fr; gap: 32px; }
   .info-grid--reverse { direction: ltr; }
+  /* image always first on mobile in both ruqyah and hijama sections */
+  .info-grid .info-media { order: -1; }
+  .info-grid .info-text  { order: 0; }
   .hijama-images { height: 220px; }
   .raki-carousel { grid-template-columns: 1fr 1fr; }
   .video-grid { grid-template-columns: repeat(2, 1fr); }
