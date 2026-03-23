@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import Footer from '../components/Footer.astro';
+import PrayerTimes from '../components/PrayerTimes.astro';
 import ServiceCard from '../components/ServiceCard.astro';
 import BlogCard from '../components/BlogCard.astro';
 import { getCollection } from 'astro:content';
@@ -339,116 +340,7 @@ const galleryImages = [
     </section>
 
     <!-- ⑦.৫ নামাজের ওয়াক্ত -->
-    <section class="prayer-section reveal">
-      <div class="container">
-        <div class="prayer-widget scroll-reveal">
-
-          <!-- Left: landscape illustration -->
-          <div class="prayer-landscape" aria-hidden="true">
-            <svg viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg" class="landscape-svg">
-              <!-- Sky gradient -->
-              <defs>
-                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#e8f5e9"/>
-                  <stop offset="100%" stop-color="#c8e6c9"/>
-                </linearGradient>
-                <linearGradient id="sunGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#ffcc02"/>
-                  <stop offset="100%" stop-color="#ff8800"/>
-                </linearGradient>
-              </defs>
-              <rect width="260" height="160" fill="url(#skyGrad)"/>
-              <!-- Sun rising -->
-              <circle cx="90" cy="85" r="38" fill="url(#sunGrad)" opacity="0.9"/>
-              <!-- Rolling hills -->
-              <ellipse cx="0" cy="150" rx="80" ry="45" fill="#81c784"/>
-              <ellipse cx="80" cy="145" rx="90" ry="38" fill="#66bb6a"/>
-              <ellipse cx="200" cy="152" rx="100" ry="42" fill="#4caf50" opacity="0.7"/>
-              <!-- Water reflection -->
-              <ellipse cx="130" cy="148" rx="60" ry="10" fill="#a5d6a7" opacity="0.6"/>
-              <!-- Mosque silhouette -->
-              <rect x="175" y="112" width="28" height="30" fill="#388e3c"/>
-              <polygon points="189,100 178,114 200,114" fill="#2e7d32"/>
-              <rect x="187" y="95" width="4" height="20" fill="#1b5e20"/>
-              <rect x="184" y="106" width="10" height="4" fill="#1b5e20"/>
-              <!-- Minaret -->
-              <rect x="167" y="118" width="6" height="24" fill="#388e3c"/>
-              <rect x="165" y="116" width="10" height="4" fill="#2e7d32"/>
-              <circle cx="170" cy="114" r="3" fill="#1b5e20"/>
-              <!-- Trees -->
-              <ellipse cx="155" cy="132" rx="10" ry="16" fill="#43a047"/>
-              <rect x="153" y="140" width="4" height="14" fill="#388e3c"/>
-              <ellipse cx="218" cy="130" rx="8" ry="13" fill="#66bb6a"/>
-              <rect x="216" y="137" width="3" height="12" fill="#43a047"/>
-            </svg>
-          </div>
-
-          <!-- Middle: location + prayer list -->
-          <div class="prayer-info">
-            <div class="prayer-location">
-              <span class="loc-icon">📍</span>
-              <div>
-                <div class="loc-city" id="pt-city">ঢাকা</div>
-                <div class="loc-country" id="pt-country">বাংলাদেশ</div>
-              </div>
-            </div>
-
-            <div class="prayer-header">
-              <h2>নামাজের সময়</h2>
-              <div class="sunrise-row">
-                <span class="sunrise-icon">🌅</span>
-                <span class="sunrise-time" id="pt-sunrise">—</span>
-                <span class="sunrise-label">সূর্যোদয়</span>
-              </div>
-            </div>
-
-            <div class="prayers-row">
-              <div class="prayer-item" data-prayer="Fajr">
-                <span class="prayer-icon">🌙</span>
-                <span class="prayer-name">ফজর</span>
-                <span class="prayer-time" id="pt-fajr">—</span>
-              </div>
-              <div class="prayer-item" data-prayer="Dhuhr">
-                <span class="prayer-icon">☀️</span>
-                <span class="prayer-name">যোহর</span>
-                <span class="prayer-time" id="pt-dhuhr">—</span>
-              </div>
-              <div class="prayer-item" data-prayer="Asr">
-                <span class="prayer-icon">🌤️</span>
-                <span class="prayer-name">আছর</span>
-                <span class="prayer-time" id="pt-asr">—</span>
-              </div>
-              <div class="prayer-item" data-prayer="Maghrib">
-                <span class="prayer-icon">🌇</span>
-                <span class="prayer-name">মাগরিব</span>
-                <span class="prayer-time" id="pt-maghrib">—</span>
-              </div>
-              <div class="prayer-item" data-prayer="Isha">
-                <span class="prayer-icon">🌃</span>
-                <span class="prayer-name">ইশা</span>
-                <span class="prayer-time" id="pt-isha">—</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Islamic geometric decoration -->
-          <div class="prayer-deco" aria-hidden="true">
-            <svg viewBox="0 0 120 120" width="110" height="110" xmlns="http://www.w3.org/2000/svg" opacity="0.18">
-              <g fill="none" stroke="#2e7d32" stroke-width="1.5">
-                <circle cx="60" cy="60" r="55"/>
-                <circle cx="60" cy="60" r="42"/>
-                <circle cx="60" cy="60" r="28"/>
-                <polygon points="60,10 106.6,85 13.4,85" stroke-width="1"/>
-                <polygon points="60,110 13.4,35 106.6,35" stroke-width="1"/>
-                <rect x="25" y="25" width="70" height="70" transform="rotate(15 60 60)"/>
-                <rect x="25" y="25" width="70" height="70" transform="rotate(30 60 60)"/>
-              </g>
-            </svg>
-          </div>
-
-        </div>
-      </div>
-    </section>
+    <PrayerTimes />
 
 
     <!-- ⑧ আমাদের প্যাকেজগুলি -->
