@@ -1,7 +1,7 @@
 {
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-03-23T16:10:59.368Z",
+    "lastGenerated": "2026-03-23T16:20:59.370Z",
     "observationCount": 10,
     "skillCount": 0,
     "domain": "typescript",
@@ -13,18 +13,18 @@
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-23T16:10:59.367Z",
-    "observationCount": 52,
+    "lastGenerated": "2026-03-23T16:20:59.370Z",
+    "observationCount": 54,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Project for ruqyah-healing. 4 gotchas, 9 conventions, 3 fixes."
+    "description": "Project for ruqyah-healing. 4 gotchas, 9 conventions, 5 fixes."
   },
   "config": {
     "enabled": true,
-    "lastGenerated": "2026-03-23T16:10:59.368Z",
+    "lastGenerated": "2026-03-23T16:20:59.370Z",
     "observationCount": 4,
     "skillCount": 0,
     "domain": "config",
@@ -38,7 +38,7 @@
   },
   "convention": {
     "enabled": true,
-    "lastGenerated": "2026-03-23T16:10:59.368Z",
+    "lastGenerated": "2026-03-23T16:20:59.370Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "convention",

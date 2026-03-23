@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — ruqyah-healing
-> 66 obs | 6 sessions | Score threshold: >40
+> 70 obs | 6 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -21,14 +21,18 @@
 
 ## 📐 MUST FOLLOW
 
+- Fixed null crash in Prayer — prevents null/undefined runtime crashes — confirmed 3x [54]
 - Strengthened types Package [54]
 - what-changed in index.astro — confirmed 3x [54]
 - decision in index.astro — confirmed 3x [54]
+- what-changed in posts.schema.json — confirmed 3x [53]
 - what-changed in scratchpad_ucjk93q3.md — confirmed 3x [49]
 - what-changed in content.d.ts — confirmed 3x [49]
 - what-changed in types.d.ts — confirmed 3x [49]
-- what-changed in posts.schema.json — confirmed 3x [49]
-- what-changed in scratchpad_tzo37eq3.md — confirmed 3x [49]
+
+## 🔁 Don't Re-Break
+
+- ❌ +       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
 
 ## 🤔 Don't Question These
 
