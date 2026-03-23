@@ -214,9 +214,9 @@ const galleryImages = [
           <h2>আমাদের সেবাসমূহ</h2>
           <p>ইসলামিক পদ্ধতিতে আপনার সুস্থতার জন্য আমাদের বিশেষ সেবাসমূহ</p>
         </div>
-        <div class="grid-4">
+        <div class="grid-4 services-grid">
           {services.map((service, i) => (
-            <div class="scroll-reveal-child" style={`--stagger-delay: ${i * 60}ms`}>
+            <div class="scroll-reveal-child svc-wrap" style={`--stagger-delay: ${i * 60}ms`}>
               <ServiceCard {...service} />
             </div>
           ))}
@@ -477,6 +477,10 @@ const galleryImages = [
 </script>
 
 <style>
+/* ── Services grid — equal height cards ── */
+.services-grid { align-items: stretch; }
+.svc-wrap { display: flex; flex-direction: column; }
+
 /* ── Info sections (রুকইয়াহ কি / হিজামা কি) ── */
 .info-grid {
   display: grid;
