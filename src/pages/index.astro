@@ -280,27 +280,64 @@ const galleryImages = [
     <!-- ⑦ রাকী ক্যারোসেল -->
     <section class="section reveal" style="background:var(--bg-light)">
       <div class="container">
-        <div class="section-header scroll-reveal">
-          <h2>আমাদের রাকীগণ</h2>
-          <p>অভিজ্ঞ ও প্রশিক্ষিত রাকীদের সাথে পরিচিত হন</p>
+        <div class="section-header-row scroll-reveal">
+          <div>
+            <h2>আমাদের রাকীগণ</h2>
+            <p>অভিজ্ঞ ও প্রশিক্ষিত রাকীদের সাথে পরিচিত হন</p>
+          </div>
+          <a href="/team" class="btn btn-outline btn-sm">সবাইকে দেখুন</a>
         </div>
-        <div class="raki-carousel" id="raki-carousel">
+
+        <!-- Desktop: 3-column grid -->
+        <div class="raki-grid-desktop">
           {rakis.map((r, i) => (
             <div class="raki-card scroll-reveal-child" style={`--stagger-delay:${i*80}ms`}>
-              <div class="raki-avatar">
-                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              <div class="raki-avatar-wrap">
+                <div class="raki-avatar">
+                  <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                  </svg>
+                </div>
               </div>
-              <h3>{r.name}</h3>
-              <p>{r.role}</p>
-              <a href={r.href} class="btn btn-outline btn-sm">বিস্তারিত</a>
+              <div class="raki-info">
+                <h3>{r.name}</h3>
+                <p>{r.role}</p>
+                <a href={r.href} class="btn btn-outline btn-sm" style="margin-top:12px">বিস্তারিত</a>
+              </div>
             </div>
           ))}
         </div>
-        <div class="raki-dots" aria-hidden="true">
-          {rakis.map((_, i) => <span class={`raki-dot ${i===0?'active':''}`} data-i={i}></span>)}
+
+        <!-- Mobile: snap-scroll carousel -->
+        <div class="raki-swipe-mobile" id="raki-swipe">
+          {rakis.map((r) => (
+            <div class="raki-swipe-item">
+              <div class="raki-card">
+                <div class="raki-avatar-wrap">
+                  <div class="raki-avatar">
+                    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5">
+                      <circle cx="12" cy="8" r="4"/>
+                      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="raki-info">
+                  <h3>{r.name}</h3>
+                  <p>{r.role}</p>
+                  <a href={r.href} class="btn btn-outline btn-sm" style="margin-top:12px">বিস্তারিত</a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <!-- Dots for mobile carousel -->
+        <div class="raki-dots" id="raki-dots" aria-hidden="true">
+          {rakis.map((_, i) => <span class={`raki-dot${i===0?' active':''}`} data-i={i}></span>)}
         </div>
       </div>
     </section>
+
 
     <!-- ⑧ আমাদের প্যাকেজগুলি -->
     <section class="section reveal">
@@ -462,14 +499,36 @@ const galleryImages = [
       setTimeout(() => swipeHint.classList.add('faded'), 2500);
     }
 
-    // ── Raki carousel dots
-    const dots = document.querySelectorAll('.raki-dot');
-    dots.forEach(dot => {
+    // ── Raki mobile carousel dots
+    const rakiSwipe = document.getElementById('raki-swipe') as HTMLElement | null;
+    const rakiDots  = document.querySelectorAll('#raki-dots .raki-dot');
+
+    function setRakiDot(i: number) {
+      rakiDots.forEach((d, idx) => d.classList.toggle('active', idx === i));
+    }
+
+    // Dots → scroll
+    rakiDots.forEach((dot, i) => {
       dot.addEventListener('click', () => {
-        dots.forEach(d => d.classList.remove('active'));
-        dot.classList.add('active');
+        if (!rakiSwipe) return;
+        const items = rakiSwipe.querySelectorAll('.raki-swipe-item');
+        if (items[i]) (items[i] as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+        setRakiDot(i);
       });
     });
+
+    // Scroll → dots
+    if (rakiSwipe) {
+      let rakiScrollTimer: ReturnType<typeof setTimeout>;
+      rakiSwipe.addEventListener('scroll', () => {
+        clearTimeout(rakiScrollTimer);
+        rakiScrollTimer = setTimeout(() => {
+          const itemW = (rakiSwipe.querySelector('.raki-swipe-item') as HTMLElement)?.offsetWidth ?? 1;
+          const idx = Math.round(rakiSwipe.scrollLeft / itemW);
+          setRakiDot(idx);
+        }, 80);
+      }, { passive: true });
+    }
   }
 
   initHomePage();
@@ -618,39 +677,69 @@ const galleryImages = [
   line-height: 1.4;
 }
 
-/* ── Raki Carousel ── */
-.raki-carousel {
+/* ── Raki Section ── */
+
+/* Desktop grid */
+.raki-grid-desktop {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   margin-bottom: 24px;
 }
+
+/* Mobile swipe carousel */
+.raki-swipe-mobile {
+  display: none; /* shown on mobile via media query */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  gap: 16px;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+.raki-swipe-mobile::-webkit-scrollbar { display: none; }
+.raki-swipe-item {
+  scroll-snap-align: start;
+  flex: 0 0 85%;
+  min-width: 0;
+}
+
+/* Raki card — used in both desktop and mobile */
 .raki-card {
   background: #fff;
   border-radius: var(--radius-lg);
-  padding: 32px 24px;
-  text-align: center;
+  padding: 28px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.07);
   border: 1px solid var(--border);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
 }
 .raki-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(0,0,0,0.12); }
+
+.raki-avatar-wrap { flex-shrink: 0; }
 .raki-avatar {
-  width: 80px;
-  height: 80px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
   background: var(--primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
 }
-.raki-card h3 { font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
-.raki-card p { font-size: 13px; color: var(--text-medium); margin-bottom: 16px; }
+.raki-info { display: flex; flex-direction: column; }
+.raki-info h3 { font-size: 17px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+.raki-info p  { font-size: 13px; color: var(--text-medium); }
+
+/* Dots — hidden on desktop */
 .raki-dots {
-  display: flex;
+  display: none;
   justify-content: center;
   gap: 8px;
+  margin-top: 4px;
 }
 .raki-dot {
   width: 8px;
@@ -661,6 +750,7 @@ const galleryImages = [
   transition: background 0.2s, transform 0.2s;
 }
 .raki-dot.active { background: var(--primary); transform: scale(1.3); }
+
 
 /* ── Package cards ── */
 .pkg-card {
@@ -809,7 +899,7 @@ const galleryImages = [
   .info-grid .info-media { order: -1; }
   .info-grid .info-text  { order: 0; }
   .hijama-images { height: 220px; }
-  .raki-carousel { grid-template-columns: 1fr 1fr; }
+  .raki-grid-desktop { grid-template-columns: 1fr 1fr; }
   .video-grid { grid-template-columns: repeat(2, 1fr); }
   .grid-3 { grid-template-columns: 1fr 1fr; }
 }
@@ -839,7 +929,11 @@ const galleryImages = [
   }
   .swipe-hint.faded span { opacity: 0; }
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-  .raki-carousel { grid-template-columns: 1fr; }
+  /* Raki: hide desktop grid, show mobile swipe carousel */
+  .raki-grid-desktop { display: none; }
+  .raki-swipe-mobile { display: flex; }
+  .raki-dots { display: flex; }
+  .raki-swipe-item { flex: 0 0 85vw; }
 }
 
 @media (max-width: 600px) {
