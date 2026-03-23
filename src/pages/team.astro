@@ -2,142 +2,37 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-
-const raqi = {
-  name: 'মাওলানা আব্দুল্লাহ আল মামুন',
-  title: 'প্রধান রাকী ও ইসলামিক হিলিং বিশেষজ্ঞ',
-  intro: '১৫ বছরের অভিজ্ঞতা সম্পন্ন রুকইয়াহ বিশেষজ্ঞ। কুরআন এবং সুন্নাহর আলোকে হাজারো মানুষের চিকিৎসা সেবা প্রদান করেছেন।',
-  bio: 'মাওলানা আব্দুল্লাহ আল মামুন একজন প্রখ্যাত রুকইয়াহ বিশেষজ্ঞ এবং ইসলামিক হিলিং প্র্যাকটিশনার। তিনি জামেয়া আরাবিয়্যা থেকে উচ্চতর ইসলামিক শিক্ষা সম্পন্ন করেন এবং কুরআন হিফজ করেছেন।\n\nগত ১৫ বছর ধরে তিনি কুরআন এবং সুন্নাহর আলোকে হাজারো মানুষের চিকিৎসা সেবা প্রদান করেছেন। বিশেষ করে জিন, কালো জাদু এবং আধ্যাত্মিক সমস্যার চিকিৎসায় তার দক্ষতা সুপরিচিত।',
-  stats: [
-    { val: '১,০০০+', label: 'চিকিৎসাকৃত রোগী' },
-    { val: '১৫+', label: 'বছরের অভিজ্ঞতা' },
-    { val: '৫০+', label: 'সেমিনার পরিচালনা' },
-    { val: '৩০০+', label: 'সফল কেস স্ট্যাডি' },
-  ],
-  education: [
-    { degree: 'দাওরায়ে হাদিস (কামিল)', institution: 'জামেয়া আরাবিয়্যা, ঢাকা', year: '২০০৫' },
-    { degree: 'কুরআন হিফজ', institution: 'মাদ্রাসাতুল কুরআন, সৌদি আরব', year: '২০০২' },
-    { degree: 'ইসলামিক হিলিং সার্টিফিকেট', institution: 'আন্তর্জাতিক রুকইয়াহ সেন্টার', year: '২০০৮' },
-  ],
-  specializations: ['জিন ও কালো জাদুর চিকিৎসা', 'মানসিক ও আধ্যাত্মিক রোগ', 'বিবাহ ও পারিবারিক সমস্যা', 'শিশুর চিকিৎসা', 'দূরত্বে রুকইয়াহ'],
-};
-
-const teamMembers = [
-  { name: 'ডা. ফাতিমা রহমান', role: 'সিনিয়র রাকী', exp: '১০ বছরের অভিজ্ঞতা' },
-  { name: 'শায়েখ মুহাম্মাদ', role: 'রুকইয়াহ বিশেষজ্ঞ', exp: '৮ বছরের অভিজ্ঞতা' },
-  { name: 'উস্তাদ করিম', role: 'কুরআন বিশেষজ্ঞ', exp: '১২ বছরের অভিজ্ঞতা' },
-];
 ---
 
-<BaseLayout title="রাকী পরিচয় | Ruqyah Healing Center" description="আমাদের অভিজ্ঞ রাকীদের পরিচিতি। ইসলামিক রুকইয়াহ বিশেষজ্ঞ দলের সাথে পরিচিত হন।">
+<BaseLayout title="রাকী পরিচয় | Ruqyah Healing Center" description="আমাদের অভিজ্ঞ রাকীদের পরিচিতি।">
   <Header />
 
   <main>
-    <!-- Lead Raqi Hero -->
-    <section class="raqi-hero">
+    <!-- Coming soon placeholder -->
+    <section class="team-placeholder">
       <div class="container">
-        <div class="raqi-hero-inner">
-          <div class="raqi-avatar">
-            <div class="avatar-img">
-              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-            </div>
+        <div class="placeholder-inner">
+          <div class="placeholder-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
           </div>
-          <div class="raqi-hero-text">
-            <h1>{raqi.name}</h1>
-            <p class="raqi-title">{raqi.title}</p>
-            <p class="raqi-intro">{raqi.intro}</p>
-            <div class="raqi-actions">
-              <a href="/appointment" class="btn-white">এ্যাপয়নমেন্ট নিন</a>
-              <a href="#contact" class="btn-outline-white">যোগাযোগ করুন</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Stats -->
-    <section class="stats-section">
-      <div class="container">
-        <div class="stats-grid">
-          {raqi.stats.map(stat => (
-            <div class="stat-card">
-              <div class="stat-val">{stat.val}</div>
-              <div class="stat-label">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <!-- Bio & Info -->
-    <section class="bio-section">
-      <div class="container">
-        <div class="bio-grid">
-          <div class="bio-main">
-            <h2>জীবনী</h2>
-            {raqi.bio.split('\n\n').map(para => <p>{para}</p>)}
-
-            <h3>বিশেষায়ন</h3>
-            <ul class="spec-list">
-              {raqi.specializations.map(spec => <li>{spec}</li>)}
-            </ul>
-
-            <h3>শিক্ষা</h3>
-            <div class="edu-list">
-              {raqi.education.map(edu => (
-                <div class="edu-item">
-                  <div class="edu-year">{edu.year}</div>
-                  <div class="edu-content">
-                    <strong>{edu.degree}</strong>
-                    <span>{edu.institution}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div class="bio-side" id="contact">
-            <div class="contact-card">
-              <h3>যোগাযোগ</h3>
-              <div class="contact-list">
-                <div class="contact-item">
-                  <span class="icon">📞</span>
-                  <span>+880 1XXX-XXXXXX</span>
-                </div>
-                <div class="contact-item">
-                  <span class="icon">✉️</span>
-                  <span>al@ruqyahhealing.com</span>
-                </div>
-                <div class="contact-item">
-                  <span class="icon">📍</span>
-                  <span>ঢাকা, বাংলাদেশ</span>
-                </div>
-              </div>
-              <a href="/appointment" class="appt-btn">এ্যাপয়নমেন্ট নিন</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Team -->
-    <section class="team-section">
-      <div class="container">
-        <h2>আমাদের দল</h2>
-        <p class="section-sub">আমাদের অভিজ্ঞ রাকীদের সাথে পরিচিত হন</p>
-        <div class="team-grid">
-          {teamMembers.map(member => (
-            <div class="team-card">
-              <div class="team-avatar"></div>
-              <h3>{member.name}</h3>
-              <p class="team-role">{member.role}</p>
-              <p class="team-exp">{member.exp}</p>
-              <a href="/appointment" class="btn-appt">এ্যাপয়নমেন্ট নিন</a>
-            </div>
-          ))}
+          <h1>আমাদের রাকীদের পরিচয়</h1>
+          <p>শীঘ্রই আমাদের অভিজ্ঞ রাকীদের বিস্তারিত পরিচিতি যুক্ত হবে।</p>
+          <a
+            href="https://wa.me/8801992575874?text=রাকীর+সাথে+যোগাযোগ+করতে+চাই"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="whatsapp-cta"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 8px;">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+            </svg>
+            WhatsApp-এ যোগাযোগ করুন
+          </a>
         </div>
       </div>
     </section>
@@ -147,68 +42,55 @@ const teamMembers = [
 </BaseLayout>
 
 <style>
-.raqi-hero { background: var(--primary); color: #fff; padding: 64px 0; }
-.raqi-hero-inner { display: flex; align-items: center; gap: 40px; }
-.raqi-avatar { flex-shrink: 0; }
-.avatar-img { width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 4px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; }
-.raqi-hero-text h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
-.raqi-title { font-size: 1.1rem; opacity: 0.9; margin-bottom: 14px; }
-.raqi-intro { opacity: 0.85; line-height: 1.7; margin-bottom: 24px; max-width: 600px; }
-.raqi-actions { display: flex; gap: 14px; flex-wrap: wrap; }
-.btn-white { display: inline-block; background: #fff; color: var(--primary); padding: 11px 28px; border-radius: 40px; font-weight: 600; font-size: 15px; text-decoration: none; transition: background 0.2s; }
-.btn-white:hover { background: #f0f4ff; }
-.btn-outline-white { display: inline-block; background: transparent; color: #fff; padding: 11px 28px; border-radius: 40px; font-weight: 600; font-size: 15px; text-decoration: none; border: 2px solid rgba(255,255,255,0.5); transition: all 0.2s; }
-.btn-outline-white:hover { background: rgba(255,255,255,0.15); }
-
-.stats-section { padding: 48px 0; background: #fff; border-bottom: 1px solid var(--border); }
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-.stat-card { text-align: center; padding: 20px; border: 1px solid var(--border); border-radius: 16px; }
-.stat-val { font-size: 2rem; font-weight: 800; color: var(--primary); }
-.stat-label { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
-
-.bio-section { padding: 64px 0; }
-.bio-grid { display: grid; grid-template-columns: 1fr 320px; gap: 40px; }
-.bio-main h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 16px; }
-.bio-main p { color: var(--text-medium); line-height: 1.8; margin-bottom: 16px; }
-.bio-main h3 { font-size: 1.25rem; font-weight: 700; margin: 32px 0 16px; }
-.spec-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-.spec-list li { padding: 10px 16px; background: var(--primary-light); border-radius: 8px; color: var(--text-medium); font-size: 14px; }
-.spec-list li::before { content: '✓ '; color: var(--primary); font-weight: 700; }
-.edu-list { display: flex; flex-direction: column; gap: 16px; }
-.edu-item { display: flex; gap: 16px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; }
-.edu-year { font-size: 13px; color: var(--primary); font-weight: 600; min-width: 40px; }
-.edu-content { display: flex; flex-direction: column; }
-.edu-content strong { font-size: 15px; font-weight: 600; }
-.edu-content span { font-size: 13px; color: var(--text-muted); }
-
-.contact-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; position: sticky; top: 80px; }
-.contact-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
-.contact-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
-.contact-item { display: flex; gap: 12px; align-items: center; font-size: 14px; }
-.icon { width: 28px; text-align: center; }
-.appt-btn { display: block; text-align: center; background: var(--primary); color: #fff; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; transition: background 0.2s; }
-.appt-btn:hover { background: var(--primary-dark); }
-
-.team-section { padding: 64px 0; background: var(--bg-light); }
-.team-section h2 { font-size: 1.75rem; font-weight: 700; text-align: center; margin-bottom: 8px; }
-.section-sub { text-align: center; color: var(--text-muted); margin-bottom: 32px; }
-.team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.team-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; }
-.team-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--primary-light); margin: 0 auto 16px; }
-.team-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-.team-role { color: var(--primary); font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-.team-exp { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; }
-.btn-appt { display: inline-block; border: 1px solid var(--primary); color: var(--primary); padding: 8px 22px; border-radius: 40px; font-size: 14px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
-.btn-appt:hover { background: var(--primary); color: #fff; }
-
-@media (max-width: 900px) {
-  .raqi-hero-inner { flex-direction: column; text-align: center; }
-  .bio-grid { grid-template-columns: 1fr; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .team-grid { grid-template-columns: repeat(2, 1fr); }
+.team-placeholder {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-light);
+  padding: 80px 0;
 }
-@media (max-width: 480px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .team-grid { grid-template-columns: 1fr; }
+.placeholder-inner {
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
+.placeholder-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.placeholder-inner h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.placeholder-inner p {
+  font-size: 1rem;
+  color: var(--text-medium);
+  line-height: 1.7;
+}
+.whatsapp-cta {
+  display: inline-flex;
+  align-items: center;
+  background: #25D366;
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 40px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+  margin-top: 8px;
+}
+.whatsapp-cta:hover { background: #128C7E; transform: translateY(-2px); }
 </style>
