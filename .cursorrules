@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — ruqyah-healing
-> 70 obs | 6 sessions | Score threshold: >40
+> 72 obs | 6 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -19,13 +19,18 @@
 
 **Stack:** JavaScript/TypeScript/Python · Express + React · DB: SQLite
 
+## ⛔ STOP — WILL BREAK THINGS
+
+- **⚠️ GOTCHA: Fixed null crash in ServiceCard — prevents null/undefined runtime crashes** [63] — - import PrayerTimes from '../components/PrayerTimes.astro';
++ import 
+
 ## 📐 MUST FOLLOW
 
+- Fixed null crash in Left — prevents null/undefined runtime crashes — confirmed 3x [54]
 - Fixed null crash in Prayer — prevents null/undefined runtime crashes — confirmed 3x [54]
 - Strengthened types Package [54]
 - what-changed in index.astro — confirmed 3x [54]
 - decision in index.astro — confirmed 3x [54]
-- what-changed in posts.schema.json — confirmed 3x [53]
 - what-changed in scratchpad_ucjk93q3.md — confirmed 3x [49]
 - what-changed in content.d.ts — confirmed 3x [49]
 - what-changed in types.d.ts — confirmed 3x [49]
@@ -33,6 +38,7 @@
 ## 🔁 Don't Re-Break
 
 - ❌ +       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
+- ❌ -       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in Left — prevents null/undefined runtime crashes
 
 ## 🤔 Don't Question These
 
