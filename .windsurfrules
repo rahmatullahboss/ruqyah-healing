@@ -1,5 +1,5 @@
 # ruqyah-healing — Project Memory
-# Auto-synced by BrainSync | 72 observations
+# Auto-synced by BrainSync | 76 observations
 
 **Stack:** JavaScript/TypeScript/Python · Express + React · DB: SQLite
 
@@ -23,10 +23,10 @@
 > ℹ️ DO NOT call get_context() or get_gotchas() at startup — context above IS your context.
 
 ---
-*Auto-synced by BrainSync 🧠 | 2026-03-23*
+*Auto-synced by BrainSync 🧠 | 2026-03-24*
 
 # 🧠 BrainSync Memory — ruqyah-healing
-> 72 obs | 6 sessions | Score threshold: >40
+> 76 obs | 6 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -51,6 +51,7 @@
 
 ## 📐 MUST FOLLOW
 
+- how-it-works in index.astro — confirmed 3x [54]
 - Fixed null crash in Left — prevents null/undefined runtime crashes — confirmed 3x [54]
 - Fixed null crash in Prayer — prevents null/undefined runtime crashes — confirmed 3x [54]
 - Strengthened types Package [54]
@@ -58,7 +59,6 @@
 - decision in index.astro — confirmed 3x [54]
 - what-changed in scratchpad_ucjk93q3.md — confirmed 3x [49]
 - what-changed in content.d.ts — confirmed 3x [49]
-- what-changed in types.d.ts — confirmed 3x [49]
 
 ## 🔁 Don't Re-Break
 
@@ -70,7 +70,7 @@
 - decision in index.astro
 - decision in index.astro
 - decision in index.astro
-- decision in test-data.ts
+- decision in index.astro
 
 ## 🎯 Skills
 
