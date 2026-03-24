@@ -1,7 +1,7 @@
 {
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-03-24T00:02:17.605Z",
+    "lastGenerated": "2026-03-24T00:22:17.614Z",
     "observationCount": 10,
     "skillCount": 0,
     "domain": "typescript",
@@ -13,7 +13,7 @@
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-24T00:02:17.605Z",
+    "lastGenerated": "2026-03-24T00:22:17.614Z",
     "observationCount": 58,
     "skillCount": 0,
     "domain": "project",
@@ -24,7 +24,7 @@
   },
   "config": {
     "enabled": true,
-    "lastGenerated": "2026-03-24T00:02:17.605Z",
+    "lastGenerated": "2026-03-24T00:22:17.614Z",
     "observationCount": 4,
     "skillCount": 0,
     "domain": "config",
@@ -38,7 +38,7 @@
   },
   "convention": {
     "enabled": true,
-    "lastGenerated": "2026-03-24T00:02:17.605Z",
+    "lastGenerated": "2026-03-24T00:22:17.614Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "convention",
