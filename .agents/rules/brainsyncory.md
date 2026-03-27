@@ -1,7 +1,7 @@
 
 
 # Project Memory — ruqyah-healing
-> 185 notes | Score threshold: >40
+> 187 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -46,6 +46,7 @@ Content summary (161 lines):
 
 ## Recent Decisions
 
+- decision in chat.ts
 - decision in chat.ts
 
 ## Learned Patterns

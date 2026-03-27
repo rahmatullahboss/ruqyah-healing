@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **159 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **160 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
