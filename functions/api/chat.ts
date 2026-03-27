@@ -31,7 +31,7 @@ INSPECTION & ROUTING (Your strictly enforced workflow):
 `;
 
 const MODELS = [
-  "nvidia/nemotron-3-super-120b-a12b:free",
+  "openai/gpt-oss-120b:free",
   "qwen/qwen3-next-80b-a3b-instruct:free",
   "meta-llama/llama-3.3-70b-instruct:free",
 ];
