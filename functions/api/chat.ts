@@ -31,7 +31,7 @@ INSPECTION & ROUTING (Your strictly enforced workflow):
 `;
 
 const MODELS = [
-  "nvidia/nemotron-3-super-120b-a12b:free",
+  "minimax/minimax-m2.5:free",
   "google/gemma-3-27b-it:free",
   "meta-llama/llama-3.3-70b-instruct:free",
 ];
