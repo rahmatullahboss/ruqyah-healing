@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ruqyah-healing. 37 gotchas, 58 conventions, 8 fixes."
+description: "Project for ruqyah-healing. 37 gotchas, 59 conventions, 8 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **146 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **155 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -250,6 +250,10 @@ pnpm-debug.log*
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
+- 📐 **what-changed in astro.config.mjs — confirmed 3x** — -   adapter: cloudflare(),
++   adapter: cloudflare({ mode: 'directory' }),
+-     client: './dist',
++
 - 📐 **Fixed null crash in Error — prevents null/undefined runtime crashes — confirmed 3x** — -     if (window._aiAgentInitialized) return;
 +     if ((window as any)._aiAgentInitialized) return;
 - 📐 **convention in astro.config.mjs** — -   adapter: cloudflare({
@@ -272,8 +276,6 @@ pnpm-debug.log*
 - 📐 **Use virtual environments (venv, poetry, or conda)** — Use virtual environments (venv, poetry, or conda)
 - 📐 **Use f-strings for string formatting, not .format() or %** — Use f-strings for string formatting, not .format() or %
 - 📐 **Use context managers (with) for file and resource operations** — Use context managers (with) for file and resource operations
-- 📐 **Use type hints for function arguments and return types** — Use type hints for function arguments and return types
-- 📐 **Enable strict mode in tsconfig.json** — Enable strict mode in tsconfig.json
-- 📐 **Prefer Array methods (map
+- 📐 **Use type hints for function arguments and return types** — Use type h
 
 ... [Truncated — see individual observations for full content]

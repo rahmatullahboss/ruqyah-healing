@@ -1,7 +1,7 @@
 
 
 # Project Memory — ruqyah-healing
-> 165 notes | Score threshold: >40
+> 178 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -29,14 +29,14 @@ Content summary (161 lines):
 
 ## Project Standards
 
+- what-changed in config.json — confirmed 3x
+- what-changed in astro.config.mjs — confirmed 3x
 - Fixed null crash in Error — prevents null/undefined runtime crashes — confirmed 3x
 - convention in astro.config.mjs
 - convention in astro.config.mjs
 - Rate limit API endpoints to prevent abuse
 - Validate request body with a schema validator (Joi, Zod)
 - Use helmet for security headers
-- Use Suspense and Error Boundaries for async operations
-- Don't prop-drill more than 2 levels — use Context or state management
 
 ## Known Fixes
 
