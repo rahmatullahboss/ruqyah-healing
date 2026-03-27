@@ -1,7 +1,7 @@
 
 
 # Project Memory — ruqyah-healing
-> 178 notes | Score threshold: >40
+> 180 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 

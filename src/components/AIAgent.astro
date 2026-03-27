@@ -232,7 +232,12 @@
 
       } catch (error) {
         console.error(error);
-        aiBubble.innerHTML = 'Sorry, there was an error processing your request. Please try again.';
+        // Try to show the server's Bengali error message if available
+        let errMsg = 'দুঃখিত, আপনার অনুরোধ প্রক্রিয়া করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।';
+        if (error instanceof Error && error.message.includes('API Error')) {
+          errMsg = 'AI সার্ভিসে সাময়িক সমস্যা হচ্ছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+        }
+        aiBubble.innerHTML = errMsg;
         aiBubble.classList.add('ai-bubble-error');
         messages.pop(); // remove failed user message from context
       } finally {
