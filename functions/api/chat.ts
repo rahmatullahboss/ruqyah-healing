@@ -119,16 +119,10 @@ export async function onRequestPost(context: any) {
         });
       }
 
-      // 402 or 429 → try next model
-      if (result.status === 402 || result.status === 429) {
-        console.log(`[AI Chat] ${model} → ${result.status}, trying next...`);
-        continue;
-      }
-
-      // Other error → report
+      // Any error → log and try next model
       const errBody = await result.text().catch(() => "");
-      console.error(`[AI Chat] ${model} → ${result.status}: ${errBody}`);
-      return json({ error: "AI সার্ভিসে সমস্যা হচ্ছে।" }, 502);
+      console.log(`[AI Chat] ${model} → ${result.status}: ${errBody.slice(0, 200)}, trying next...`);
+      continue;
     }
 
     // All models exhausted
