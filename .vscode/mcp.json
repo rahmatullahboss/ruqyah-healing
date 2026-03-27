@@ -3,7 +3,7 @@
     "brainsync": {
       "command": "node",
       "args": [
-        "/Users/rahmatullahzisan/.antigravity/extensions/dawoodahmad.brainsync-1.9.9-universal/dist/mcp-server.js",
+        "/Users/rahmatullahzisan/.antigravity/extensions/dawoodahmad.brainsync-2.2.5-universal/dist/mcp-server.js",
         "--db",
         "/Users/rahmatullahzisan/.brainsync/ruqyah-healing/memory.db"
       ],

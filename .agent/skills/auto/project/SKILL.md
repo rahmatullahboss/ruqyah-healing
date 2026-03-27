@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ruqyah-healing. 5 gotchas, 11 conventions, 5 fixes."
+description: "Project for ruqyah-healing. 37 gotchas, 58 conventions, 8 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **61 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **146 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -18,6 +18,38 @@ Auto-compiled from **61 real patterns** in **ruqyah-healing**. This skill is aut
 
 | ❌ Don't | Details |
 |----------|----------|
+| gotcha in check.log | File updated (external): check.log  Content summary (161 lines): 13:03:01 [@astrojs/cloudflare] Enab |
+| ⚠️ GOTCHA: Fixed null crash in Left — prevents nul | -     <!-- ② রুকইয়াহ কি এবং কেনো করা হয়? --> +     <!-- ⑦.৫ নামাজের ওয়াক্ত --> -     <section cla |
+| Use async error handler middleware — don't let err | Use async error handler middleware — don't let errors crash server |
+| Clean up effects — return cleanup function from us | Clean up effects — return cleanup function from useEffect |
+| Don't create components inside other components —  | Don't create components inside other components — causes remount on every render |
+| Always use key prop when rendering lists — use uni | Always use key prop when rendering lists — use unique ID, not array index |
+| Don't call setState directly inside render or useE | Don't call setState directly inside render or useEffect without deps array |
+| Handle exceptions specifically — not bare except: | Handle exceptions specifically — not bare except: |
+| Don't use mutable default arguments — def f(items= | Don't use mutable default arguments — def f(items=[]) is a bug |
+| Don't mix CommonJS (require) and ESM (import) in s | Don't mix CommonJS (require) and ESM (import) in same project |
+| Don't use "any" type in TypeScript — define proper | Don't use "any" type in TypeScript — define proper types/interfaces |
+| Handle Promise rejections — always .catch() or try | Handle Promise rejections — always .catch() or try/catch with await |
+| Use === not == — strict equality prevents type coe | Use === not == — strict equality prevents type coercion bugs |
+| Agent: follow existing project patterns — don't in | Agent: follow existing project patterns — don't introduce a different style |
+| Agent: don't generate code with "any" type — defin | Agent: don't generate code with "any" type — define proper TypeScript types |
+| Agent: always handle loading/error states — don't  | Agent: always handle loading/error states — don't just render data |
+| Agent: don't use deprecated APIs — check library v | Agent: don't use deprecated APIs — check library version, use current API |
+| Agent: check existing code before creating utility | Agent: check existing code before creating utility functions — avoid duplicates |
+| Don't expose database errors to clients — map to u | Don't expose database errors to clients — map to user-friendly messages |
+| Always validate data on the SERVER — client valida | Always validate data on the SERVER — client validation is for UX only |
+| Don't fetch data inside render loops or hot paths | Don't fetch data inside render loops or hot paths |
+| Don't swallow errors silently — empty catch blocks | Don't swallow errors silently — empty catch blocks hide bugs |
+| Never store session tokens in localStorage — use h | Never store session tokens in localStorage — use httpOnly cookies |
+| Use parameterized queries — never string concatena | Use parameterized queries — never string concatenation for SQL |
+| Don't store passwords in plain text — use bcrypt,  | Don't store passwords in plain text — use bcrypt, argon2, or scrypt |
+| Don't use innerHTML — use textContent or sanitized | Don't use innerHTML — use textContent or sanitized rendering |
+| Sanitize ALL user input before database queries —  | Sanitize ALL user input before database queries — prevent SQL injection |
+| Never use eval(), exec(), or Function() with user  | Never use eval(), exec(), or Function() with user input |
+| Don't hardcode API keys, passwords, database URLs, | Don't hardcode API keys, passwords, database URLs, or secrets anywhere |
+| Don't leave console.log, print(), debugger, or TOD | Don't leave console.log, print(), debugger, or TODO in production code |
+| Don't commit .env, secrets, API keys, or credentia | Don't commit .env, secrets, API keys, or credentials — add to .gitignore |
+| Never force push to main, master, or production br | Never force push to main, master, or production branches |
 | ⚠️ GOTCHA: Fixed null crash in ServiceCard — preve | - import PrayerTimes from '../components/PrayerTimes.astro'; + import ServiceCard from '../component |
 | gotcha in [testId].astro | -   background: #fff; border: 1.5px solid var(--border); -   border-radius: 24px; -   box-shadow: 0  |
 | gotcha in [testId].astro | - .result-card { + <style is:global> -   max-width: 720px; margin: 0 auto; + /* ════════════════════ |
@@ -25,6 +57,77 @@ Auto-compiled from **61 real patterns** in **ruqyah-healing**. This skill is aut
 | gotcha in [testId].astro | - /* Result Header */ + /* ── Result Section ── */ - .result-header-block { + .result-section { padd |
 
 ## 🔧 Problem Playbooks
+
+### Patched security issue Helper — prevents XSS injection attacks
+-     // Simple markdown to HTML parser for basic output (bold, lists, links)
++     // Helper to escape HTML to prevent XSS
+-     const parseMarkdown = (text: string) => {
++     const escapeHTML = (str: string) => {
+-       let html = text
++       return str
+-         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
++         .replace(/&/g, '&amp;')
+-         .replace(/\*(.*?)\*/g, '<em>$1</em>')
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Helper
+3. identifier: HTML
+4. identifier: XSS
+5. identifier: Simple
+
+### Fixed null crash in Component — prevents null/undefined runtime crashes
+-   import { marked } from 'marked'; // Optional: Use marked if you want to render markdown out of the box. Assuming not installed yet, we'll write a lightweight parser or install marked. Wait, let's use a simple renderer.
++   // Component setup
+- 
++   document.addEventListener('DOMContentLoaded', () => {
+-   // Component setup
++     const toggleBtn = document.getElementById('ai-toggle-btn');
+-   
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Component
+3. identifier: DOMContentLoaded
+4. identifier: HTMLFormElement
+5. identifier: HTMLInputElement
+
+### problem-fix in .gitignore
+File updated (external): .gitignore
+
+Content summary (40 lines):
+# build output
+dist/
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
+
+# Cloudflare / Wrangler
+.wrangler/
+
+# Screen recordings & large media
+*
+
+**Actionable Steps:**
+1. Modified 1 files
 
 ### Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
 -     <section class="prayer-section reveal">
@@ -147,69 +250,30 @@ pnpm-debug.log*
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
-- 📐 **how-it-works in index.astro — confirmed 3x** — -   .prayer-landscape { display: none; }
-+   .pw-landscape { display: none; }
--   .prayer-deco { dis
-- 📐 **Fixed null crash in Left — prevents null/undefined runtime crashes — confirmed 3x** — -     <PrayerTimes />
-+     <section class="prayer-section reveal">
-- 
-+       <div class="container
-- 📐 **Fixed null crash in Prayer — prevents null/undefined runtime crashes — confirmed 3x** — -   initHomePage();
-+   // ── Prayer Times (Aladhan API) ──────────────────────────
--   document.add
-- 📐 **Strengthened types Package** — - /* ── Package cards ── */
-+ /* ── Package cards (old emoji style — kept as fallback) ── */
-- /* ──
-- 📐 **what-changed in index.astro — confirmed 3x** — -   .raki-carousel { grid-template-columns: 1fr 1fr; }
-+   .raki-grid-desktop { grid-template-column
-- 📐 **decision in index.astro — confirmed 3x** — - /* ── Raki Carousel ── */
-+ /* ── Raki Section ── */
-- .raki-carousel {
-+ 
--   display: grid;
-+ /*
-- 📐 **what-changed in scratchpad_ucjk93q3.md — confirmed 3x** — - - [ ] Visit `http://localhost:4321/ruqyah-test/kids` and verify age selector.
-+ - [x] Visit `http:
+- 📐 **Fixed null crash in Error — prevents null/undefined runtime crashes — confirmed 3x** — -     if (window._aiAgentInitialized) return;
++     if ((window as any)._aiAgentInitialized) return;
+- 📐 **convention in astro.config.mjs** — -   adapter: cloudflare({
++   adapter: cloudflare(),
+-     platformProxy: {
++   site: 'https://ruqya
+- 📐 **convention in astro.config.mjs** — -   output: 'hybrid',
++   output: 'static',
+-   adapter: cloudflare(),
++   adapter: cloudflare({
+-  
+- 📐 **Rate limit API endpoints to prevent abuse** — Rate limit API endpoints to prevent abuse
+- 📐 **Validate request body with a schema validator (Joi, Zod)** — Validate request body with a schema validator (Joi, Zod)
+- 📐 **Use helmet for security headers** — Use helmet for security headers
+- 📐 **Use Suspense and Error Boundaries for async operations** — Use Suspense and Error Boundaries for async operations
+- 📐 **Don't prop-drill more than 2 levels — use Context or state management** — Don't prop-drill more than 2 levels — use Context or state management
+- 📐 **Use useMemo for expensive computations, useCallback for stable references** — Use useMemo for expensive computations, useCallback for stable references
+- 📐 **Follow PEP 8 style guide** — Follow PEP 8 style guide
+- 📐 **Use pathlib for file paths, not os.path string manipulation** — Use pathlib for file paths, not os.path string manipulation
+- 📐 **Use virtual environments (venv, poetry, or conda)** — Use virtual environments (venv, poetry, or conda)
+- 📐 **Use f-strings for string formatting, not .format() or %** — Use f-strings for string formatting, not .format() or %
+- 📐 **Use context managers (with) for file and resource operations** — Use context managers (with) for file and resource operations
+- 📐 **Use type hints for function arguments and return types** — Use type hints for function arguments and return types
+- 📐 **Enable strict mode in tsconfig.json** — Enable strict mode in tsconfig.json
+- 📐 **Prefer Array methods (map
 
-## 🔵 Architecture
-
-### how-it-works in index.astro
-- }
-+   .prayer-widget { grid-template-columns: 1fr; }
-- 
-+   .prayer-landscape { display: none; }
-- @media (max-width: 768px) {
-+   .prayer-deco { display: none; }
--   .blog-grid-desktop { display: n
-
-### how-it-works in index.astro
-- }
-+   .pkg-grid { grid-template-columns: repeat(2, 1fr); }
-- 
-+ }
-- @media (max-width: 768px) {
-+ 
--   .blog-grid-desktop { display: none; }
-+ @media (max-width: 768px) {
--   .blog-swipe-mobile {
-+ 
-
-## 🤔 Decisions & Trade-offs
-
-- **decision in index.astro** — - /* ── Prayer Time Widget ── */
-+ /* ── Prayer Time Widget (v2 – reference match) ── */
-- .prayer-s
-- **decision in index.astro** — - /* ── Course cards ── */
-+ /* ── Prayer Time Widget ── */
-- .course-grid { align-items: start; }
-+
-- **decision in index.astro** — - /* ── Info sections (রুকইয়াহ কি / হিজামা কি) ── */
-+ /* ── Services grid — equal height cards ── 
-- **decision in index.astro** — - /* Dark section */
-+ /* ── Course cards ── */
-- .dark-section { background: var(--dark-section); }
-- **decision in scratchpad_tlcifqmd.md** — - - [ ] Open the site and observe the landing page.
-+ - [x] Open the site and observe the landing pa
-
----
-*Auto-generated by BrainSync 🧠 | 61 patterns | 2026-03-24*
+... [Truncated — see individual observations for full content]

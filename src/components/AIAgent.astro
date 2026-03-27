@@ -1,0 +1,257 @@
+---
+// AIAgent.astro - A floating AI chat widget
+---
+
+<div id="ai-agent-widget" transition:persist="ai-agent" class="fixed bottom-24 left-6 z-50 flex flex-col items-start font-sans">
+  
+  <!-- Chat Window -->
+  <div id="ai-chat-window" class="hidden flex-col w-[350px] sm:w-[380px] h-[500px] max-h-[70vh] bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 mb-4 transition-all duration-300 transform scale-95 opacity-0 origin-bottom-left">
+    <!-- Header -->
+    <div class="bg-emerald-600 text-white p-4 flex justify-between items-center shadow-sm">
+      <div class="flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <h3 class="font-bold text-lg m-0">AI হিলিং অ্যাসিস্ট্যান্ট</h3>
+      </div>
+      <button id="ai-close-btn" class="text-white hover:bg-emerald-700 p-1 rounded-md transition-colors" aria-label="Close Chat">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Message Area -->
+    <div id="ai-message-list" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 bg-gray-50 text-sm">
+      <!-- Welcome Message -->
+      <div class="flex flex-col items-start gap-1">
+        <div class="bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm max-w-[85%]">
+          আসসালামু আলাইকুম! রুকইয়াহ এবং ইসলামিক হিলিং সম্পর্কিত কোনো বিষয়ে আমার সাহায্য প্রয়োজন?
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="p-3 bg-white border-t border-gray-200">
+      <form id="ai-chat-form" class="flex gap-2">
+        <input 
+          type="text" 
+          id="ai-chat-input" 
+          class="flex-1 bg-gray-100 border border-gray-300 text-gray-800 text-sm rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all" 
+          placeholder="আপনার প্রশ্ন লিখুন..." 
+          required 
+          autocomplete="off"
+        />
+        <button type="submit" id="ai-send-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full p-2 h-10 w-10 flex items-center justify-center transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toggle Button (Floating Action Button) -->
+  <button id="ai-toggle-btn" class="bg-emerald-600 hover:bg-emerald-700 hover:shadow-lg text-white rounded-full p-3 shadow-md flex items-center justify-center transition-all duration-300 transform hover:-translate-y-1 group" aria-label="Open AI Assistant">
+    <div class="relative">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 transition-transform duration-300 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+      </svg>
+      <!-- Notification dot -->
+      <span class="absolute top-0 right-0 h-3 w-3 bg-red-500 border-2 border-white rounded-full animate-pulse"></span>
+    </div>
+  </button>
+</div>
+
+<script>
+  // Component setup
+  document.addEventListener('astro:page-load', () => {
+    // Prevent multiple initializations if the component persists
+    if ((window as any)._aiAgentInitialized) return;
+    (window as any)._aiAgentInitialized = true;
+    const toggleBtn = document.getElementById('ai-toggle-btn');
+    const closeBtn = document.getElementById('ai-close-btn');
+    const chatWindow = document.getElementById('ai-chat-window');
+    const chatForm = document.getElementById('ai-chat-form') as HTMLFormElement;
+    const chatInput = document.getElementById('ai-chat-input') as HTMLInputElement;
+    const messageList = document.getElementById('ai-message-list');
+    const sendBtn = document.getElementById('ai-send-btn') as HTMLButtonElement;
+
+    // Chat State
+    let messages = [];
+    let isChatOpen = false;
+
+    // Toggle logic
+    const toggleChat = () => {
+      isChatOpen = !isChatOpen;
+      if (isChatOpen) {
+        chatWindow?.classList.remove('hidden');
+        // trigger animation
+        setTimeout(() => {
+          chatWindow?.classList.remove('scale-95', 'opacity-0');
+          chatWindow?.classList.add('scale-100', 'opacity-100');
+          chatInput?.focus();
+        }, 10);
+      } else {
+        chatWindow?.classList.remove('scale-100', 'opacity-100');
+        chatWindow?.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+          chatWindow?.classList.add('hidden');
+        }, 300);
+      }
+    };
+
+    toggleBtn?.addEventListener('click', toggleChat);
+    closeBtn?.addEventListener('click', toggleChat);
+
+    // Helper to escape HTML to prevent XSS
+    const escapeHTML = (str: string) => {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    };
+
+    // Simple markdown to HTML parser for basic output (bold, lists, links)
+    const parseMarkdown = (text: string) => {
+      let escaped = escapeHTML(text);
+      let html = escaped
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code class="bg-gray-200 px-1 rounded text-pink-600">$1</code>')
+        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-emerald-600 underline" target="_blank">$1</a>')
+        .replace(/\n\n/g, '<br><br>')
+        .replace(/\n/g, '<br>');
+      return html;
+    };
+
+    // UI Builders
+    const appendUserMessage = (text: string) => {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = "flex flex-col items-end gap-1 mb-2 animate-fade-in";
+      msgDiv.innerHTML = `
+        <div class="bg-gray-800 text-white border border-gray-700 rounded-2xl rounded-tr-sm px-4 py-2 shadow-sm max-w-[85%] break-words">
+          ${escapeHTML(text)}
+        </div>
+      `;
+      messageList?.appendChild(msgDiv);
+      scrollToBottom();
+    };
+
+    const appendAiPlaceholder = () => {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = "flex flex-col items-start gap-1 mb-2 animate-fade-in ai-response-container";
+      msgDiv.innerHTML = `
+        <div class="bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm max-w-[85%] break-words">
+          <div class="flex gap-1 items-center h-5">
+            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"></span>
+          </div>
+        </div>
+      `;
+      messageList?.appendChild(msgDiv);
+      scrollToBottom();
+      return msgDiv;
+    };
+
+    const scrollToBottom = () => {
+      if (messageList) {
+        messageList.scrollTop = messageList.scrollHeight;
+      }
+    };
+
+    // Form Handling
+    chatForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      // 1. Add user message
+      appendUserMessage(text);
+      messages.push({ role: 'user', content: text });
+      chatInput.value = '';
+      sendBtn.disabled = true;
+
+      // 2. Add AI Placeholder
+      const aiContainer = appendAiPlaceholder();
+      const aiBubble = aiContainer.querySelector('div.bg-emerald-100') as HTMLDivElement;
+
+      try {
+        // 3. Fetch API
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages })
+        });
+
+        if (!res.ok) {
+          throw new Error('API Error: ' + res.statusText);
+        }
+
+        // 4. Stream reading
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error("No response body.");
+        
+        const decoder = new TextDecoder();
+        let aiText = '';
+        let buffer = '';
+        aiBubble.innerHTML = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const dataStr = line.slice(6).trim();
+              if (dataStr === '[DONE]') break;
+              if (!dataStr) continue;
+
+              try {
+                const data = JSON.parse(dataStr);
+                const delta = data.choices?.[0]?.delta?.content;
+                if (delta) {
+                  aiText += delta;
+                  aiBubble.innerHTML = parseMarkdown(aiText);
+                  scrollToBottom();
+                }
+              } catch (parseError) {
+                // partial chunk or invalid json
+              }
+            }
+          }
+        }
+
+        // Finalize message
+        messages.push({ role: 'assistant', content: aiText });
+
+      } catch (error) {
+        console.error(error);
+        aiBubble.innerHTML = 'Sorry, there was an error processing your request. Please try again.';
+        aiBubble.classList.add('text-red-600', 'bg-red-50', 'border-red-200');
+        messages.pop(); // remove failed user message from context
+      } finally {
+        sendBtn.disabled = false;
+        chatInput.focus();
+      }
+    });
+  });
+</script>
+
+<style>
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>

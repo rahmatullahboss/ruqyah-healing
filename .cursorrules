@@ -55,3 +55,58 @@
 - `recall(query)` — Deep search when stuck
 - `search(query)` — Full-text lookup
 > Context above IS your context. Do NOT call get_context() at startup.
+
+# Project Memory — ruqyah-healing
+> 76 notes | Score threshold: >40
+
+## Safety — Never Run Destructive Commands
+
+> Dangerous commands are actively monitored.
+> Critical/high risk commands trigger error notifications in real-time.
+
+- **NEVER** run `rm -rf`, `del /s`, `rmdir`, `format`, or any command that deletes files/directories without EXPLICIT user approval.
+- **NEVER** run `DROP TABLE`, `DELETE FROM`, `TRUNCATE`, or any destructive database operation.
+- **NEVER** run `git push --force`, `git reset --hard`, or any command that rewrites history.
+- **NEVER** run `npm publish`, `docker rm`, `terraform destroy`, or any irreversible deployment/infrastructure command.
+- **NEVER** pipe remote scripts to shell (`curl | bash`, `wget | sh`).
+- **ALWAYS** ask the user before running commands that modify system state, install packages, or make network requests.
+- When in doubt, **show the command first** and wait for approval.
+
+**Stack:** JavaScript/TypeScript/Python · React + Express · DB: SQLite
+
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
+
+- **⚠️ GOTCHA: Fixed null crash in ServiceCard — prevents null/undefined runtime crashes** — - import PrayerTimes from '../components/PrayerTimes.astro';
++ import 
+
+## Project Standards
+
+- how-it-works in index.astro — confirmed 3x
+- Fixed null crash in Left — prevents null/undefined runtime crashes — confirmed 3x
+- Fixed null crash in Prayer — prevents null/undefined runtime crashes — confirmed 3x
+- Strengthened types Package
+- what-changed in index.astro — confirmed 3x
+- decision in index.astro — confirmed 3x
+- what-changed in scratchpad_ucjk93q3.md — confirmed 3x
+- what-changed in content.d.ts — confirmed 3x
+
+## Known Fixes
+
+- ❌ +       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
+- ❌ -       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in Left — prevents null/undefined runtime crashes
+
+## Recent Decisions
+
+- decision in index.astro
+- decision in index.astro
+- decision in index.astro
+- decision in index.astro
+
+## Learned Patterns
+
+- Always: what-changed in scratchpad_tzo37eq3.md — confirmed 3x (seen 2x)
+
+## Available Tools (ON-DEMAND only)
+- `query(q)` — Deep search when stuck
+- `find(query)` — Full-text lookup
+> Context above IS your context. Do NOT call load() at startup.

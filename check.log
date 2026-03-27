@@ -1,0 +1,160 @@
+13:03:01 [@astrojs/cloudflare] Enabling image processing with Cloudflare Images for production with the "IMAGES" Images binding.
+13:03:01 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
+13:03:01 [WARN] [vite] Default inspector port 9229 not available, using 9230 instead
+
+13:03:02 [vite] Re-optimizing dependencies because vite config has changed
+13:03:02 [vite] Re-optimizing dependencies because vite config has changed
+13:03:03 [content] Syncing content
+13:03:03 [content] Synced content
+13:03:03 [types] Generated 1.88s
+13:03:03 [check] Getting diagnostics for Astro files in /Users/rahmatullahzisan/Desktop/Dev/ruqyah-healing...
+[96msrc/content.config.ts[0m:[93m11[0m:[93m11[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m11[0m     date: z.string(),
+[7m  [0m [93m          ~[0m
+[96msrc/content.config.ts[0m:[93m10[0m:[93m19[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m10[0m     tags: z.array(z.string()).default([]),
+[7m  [0m [93m                  ~[0m
+[96msrc/content.config.ts[0m:[93m10[0m:[93m11[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m10[0m     tags: z.array(z.string()).default([]),
+[7m  [0m [93m          ~[0m
+[96msrc/content.config.ts[0m:[93m9[0m:[93m15[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m9[0m     category: z.string(),
+[7m [0m [93m              ~[0m
+[96msrc/content.config.ts[0m:[93m8[0m:[93m14[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m8[0m     excerpt: z.string(),
+[7m [0m [93m             ~[0m
+[96msrc/content.config.ts[0m:[93m7[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m7[0m     title: z.string(),
+[7m [0m [93m           ~[0m
+[96msrc/content.config.ts[0m:[93m6[0m:[93m11[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m6[0m   schema: z.object({
+[7m [0m [93m          ~[0m
+[96msrc/content.config.ts[0m:[93m1[0m:[93m28[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m1[0m import { defineCollection, z } from 'astro:content';
+[7m [0m [93m                           ~[0m
+
+[96msrc/layouts/BaseLayout.astro[0m:[93m90[0m:[93m37[0m - [93mwarning[0m[90m ts(6133): [0m'rel' is declared but its value is never read.
+
+[7m90[0m       onload="this.onload=null;this.rel='stylesheet'"
+[7m  [0m [93m                                    ~~~[0m
+[96msrc/layouts/BaseLayout.astro[0m:[93m90[0m:[93m20[0m - [93mwarning[0m[90m ts(6133): [0m'onload' is declared but its value is never read.
+
+[7m90[0m       onload="this.onload=null;this.rel='stylesheet'"
+[7m  [0m [93m                   ~~~~~~[0m
+
+[96msrc/pages/blog.astro[0m:[93m386[0m:[93m9[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m386[0m <script define:vars={{ postsPerPage: POSTS_PER_PAGE }}>
+[7m   [0m [93m        ~~~~~~~~~~~[0m
+
+[96msrc/pages/index.astro[0m:[93m95[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'packages' is declared but its value is never read.
+
+[7m95[0m const packages = [
+[7m  [0m [93m      ~~~~~~~~[0m
+[96msrc/pages/index.astro[0m:[93m739[0m:[93m21[0m - [91merror[0m[90m ts(7006): [0mParameter 'data' implicitly has an 'any' type.
+
+[7m739[0m     const render = (data) => {
+[7m   [0m [91m                    ~~~~[0m
+[96msrc/pages/index.astro[0m:[93m724[0m:[93m33[0m - [91merror[0m[90m ts(7006): [0mParameter 'lng' implicitly has an 'any' type.
+
+[7m724[0m     const geocode = async (lat, lng) => {
+[7m   [0m [91m                                ~~~[0m
+[96msrc/pages/index.astro[0m:[93m724[0m:[93m28[0m - [91merror[0m[90m ts(7006): [0mParameter 'lat' implicitly has an 'any' type.
+
+[7m724[0m     const geocode = async (lat, lng) => {
+[7m   [0m [91m                           ~~~[0m
+[96msrc/pages/index.astro[0m:[93m717[0m:[93m34[0m - [91merror[0m[90m ts(7006): [0mParameter 'lng' implicitly has an 'any' type.
+
+[7m717[0m     const apiFetch = async (lat, lng) => {
+[7m   [0m [91m                                 ~~~[0m
+[96msrc/pages/index.astro[0m:[93m717[0m:[93m29[0m - [91merror[0m[90m ts(7006): [0mParameter 'lat' implicitly has an 'any' type.
+
+[7m717[0m     const apiFetch = async (lat, lng) => {
+[7m   [0m [91m                            ~~~[0m
+[96msrc/pages/index.astro[0m:[93m695[0m:[93m28[0m - [91merror[0m[90m ts(7006): [0mParameter 'timings' implicitly has an 'any' type.
+
+[7m695[0m     const highlightNext = (timings) => {
+[7m   [0m [91m                           ~~~~~~~[0m
+[96msrc/pages/index.astro[0m:[93m682[0m:[93m18[0m - [91merror[0m[90m ts(7006): [0mParameter 't' implicitly has an 'any' type.
+
+[7m682[0m     const fmt = (t) => {
+[7m   [0m [91m                 ~[0m
+[96msrc/pages/index.astro[0m:[93m677[0m:[93m22[0m - [91merror[0m[90m ts(7006): [0mParameter 'val' implicitly has an 'any' type.
+
+[7m677[0m     const set = (id, val) => {
+[7m   [0m [91m                     ~~~[0m
+[96msrc/pages/index.astro[0m:[93m677[0m:[93m18[0m - [91merror[0m[90m ts(7006): [0mParameter 'id' implicitly has an 'any' type.
+
+[7m677[0m     const set = (id, val) => {
+[7m   [0m [91m                 ~~[0m
+
+[96msrc/pages/ruqyah-diagnosis.astro[0m:[93m300[0m:[93m9[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m300[0m <script define:vars={{ questions, questionsLen: questions.length }}>
+[7m   [0m [93m        ~~~~~~~~~~~[0m
+
+[96msrc/pages/supplements.astro[0m:[93m63[0m:[93m10[0m - [93mwarning[0m[90m ts(6133): [0m'starRating' is declared but its value is never read.
+
+[7m63[0m function starRating(rating: number) {
+[7m  [0m [93m         ~~~~~~~~~~[0m
+
+[96msrc/pages/symptom-diagnosis.astro[0m:[93m445[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'selectionBar' is declared but its value is never read.
+
+[7m445[0m const selectionBar = document.getElementById('selectionBar')!;
+[7m   [0m [93m      ~~~~~~~~~~~~[0m
+
+[96msrc/pages/posts/[slug].astro[0m:[93m91[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m91[0m   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
+[7m  [0m [93m          ~~~~[0m
+[96msrc/pages/posts/[slug].astro[0m:[93m90[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m90[0m   <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+[7m  [0m [93m          ~~~~[0m
+
+[96msrc/pages/ruqyah-test/[testId].astro[0m:[93m279[0m:[93m10[0m - [93mwarning[0m[90m ts(6133): [0m'answerLabel' is declared but its value is never read.
+
+[7m279[0m function answerLabel(val) {
+[7m   [0m [93m         ~~~~~~~~~~~[0m
+[96msrc/pages/ruqyah-test/[testId].astro[0m:[93m184[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'nextBtn' is declared but its value is never read.
+
+[7m184[0m   const nextBtn   = document.getElementById('nextBtn');
+[7m   [0m [93m        ~~~~~~~[0m
+[96msrc/pages/ruqyah-test/[testId].astro[0m:[93m142[0m:[93m9[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m142[0m <script define:vars={{
+[7m   [0m [93m        ~~~~~~~~~~~[0m
+
+Result (30 files): 
+- 9 errors
+- 0 warnings
+- 20 hints
+
