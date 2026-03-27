@@ -8,7 +8,7 @@ const SYSTEM_PROMPT =
   "Bengali (Bangla). Keep responses short and to the point. Output nicely formatted markdown.";
 
 const MODELS = [
-  "stepfun/step-3.5-flash:free",
+  "nvidia/nemotron-3-nano-30b-a3b:free",
   "google/gemma-3-27b-it:free",
   "meta-llama/llama-3.3-70b-instruct:free",
 ];

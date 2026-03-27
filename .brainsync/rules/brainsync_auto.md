@@ -1,7 +1,7 @@
 
 
 # Project Memory — ruqyah-healing
-> 180 notes | Score threshold: >40
+> 185 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -43,6 +43,10 @@ Content summary (161 lines):
 - ❌ +       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
 - ❌ yarn-error.log* → ✅ problem-fix in .gitignore
 - ❌ -       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in Left — prevents null/undefined runtime crashes
+
+## Recent Decisions
+
+- decision in chat.ts
 
 ## Learned Patterns
 
