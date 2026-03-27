@@ -32,7 +32,7 @@ INSPECTION & ROUTING (Your strictly enforced workflow):
 
 const MODELS = [
   "minimax/minimax-m2.5:free",
-  "google/gemma-3-27b-it:free",
+  "qwen/qwen3-next-80b-a3b-instruct:free",
   "meta-llama/llama-3.3-70b-instruct:free",
 ];
 
