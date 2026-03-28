@@ -17,6 +17,7 @@
     "@astrojs/cloudflare": "^13.1.4",
     "@astrojs/mdx": "^5.0.2",
     "astro": "^6.0.6",
+    "ollama": "^0.6.3",
     "typescript": "^5.9.3",
     "wrangler": "^4.75.0"
   },

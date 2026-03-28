@@ -1,6 +1,6 @@
 ---
 name: typescript
-description: "Typescript for ruqyah-healing. 1 gotchas, 2 conventions, 3 fixes."
+description: "Typescript for ruqyah-healing. 1 gotchas, 5 conventions, 8 fixes."
 domain: typescript
 triggers:
   - glob: "**/*.ts"
@@ -11,7 +11,7 @@ enabled: true
 
 # Typescript
 
-Auto-compiled from **15 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on typescript files.
+Auto-compiled from **29 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on typescript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -26,6 +26,79 @@ Auto-compiled from **15 real patterns** in **ruqyah-healing**. This skill is aut
 
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in Check — hardens HTTP security headers
+-     // By default, assume local Ollama running on default port.
++     // Check for Ollama Cloud API Key
+-     // Ensure you set OLLAMA_BASE_URL in Cloudflare Pages for production!
++     const apiKey = env.OLLAMA_API_KEY;
+-     const baseURL = env.OLLAMA_BASE_URL || "http://127.0.0.1:11434/v1";
++     if (!apiKey) {
+- 
++       return json({ error: "OLLAMA_API_KEY not configured for Ollama Cloud AP
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Check
+3. identifier: Ollama
+4. identifier: Cloud
+5. identifier: API
+
+### Fixed null crash in Chat
+-       // 402 or 429 → try next model
++       // Any error → log and try next model
+-       if (result.status === 402 || result.status === 429) {
++       const errBody = await result.text().catch(() => "");
+-         console.log(`[AI Chat] ${model} → ${result.status}, trying next...`);
++       console.log(`[AI Chat] ${model} → ${result.status}: ${errBody.slice(0, 200)}, trying next...`);
+-       
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Any
+3. identifier: Chat
+4. identifier: All
+5. identifier: Unhandled
+
+### Fixed null crash in Ruqyah — hardens HTTP security headers
+- const SYSTEM_PROMPT = `You are 'Ruqyah Assistant', a polite, empathetic, and highly knowledgeable AI diagnostic bot for the "Ruqyah Healing Center".
++ const SYSTEM_PROMPT = `You are 'Ruqyah Assistant', a polite, empathetic, and knowledgeable AI bot for the "Ruqyah Healing Center".
+- - Act as a diagnostic helper: Listen to their symptoms, identify possible issues using the knowledge base, give ba
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: You
+3. identifier: Ruqyah
+4. identifier: Assistant
+5. identifier: Healing
+
+### Fixed null crash in ALWAYS — hardens HTTP security headers
+- Your primary language for responding to users is Bengali (Bangla).
++ You must ALWAYS respond in accurate Bengali (Bangla/বাংলা).
+- - Use authentic Islamic references (Quran and Sunnah) when discussing spiritual matters.
++ - Keep answers concise and well-formatted using markdown (bullet points, bold text).
+- - Keep answers concise, well-formatted using markdown (bullet points, bold text), and eas
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: You
+3. identifier: ALWAYS
+4. identifier: Bengali
+5. identifier: Bangla
+
+### Fixed null crash in Ruqyah — hardens HTTP security headers
+- const SYSTEM_PROMPT =
++ const SYSTEM_PROMPT = `You are 'Ruqyah Assistant', a polite, empathetic, and knowledgeable AI bot for the "Ruqyah Healing Center".
+-   "You are a helpful AI assistant for the 'Ruqyah Healing Center' website. " +
++ Your primary language for responding to users is Bengali (Bangla).
+-   "You guide users about Ruqyah, Islamic healing, evil eye (Nazar), black magic (Sihr), " +
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: You
+3. identifier: Ruqyah
+4. identifier: Assistant
+5. identifier: Healing
 
 ### Fixed null crash in Cloudflare — hardens HTTP security headers
 - interface Env {
@@ -98,6 +171,13 @@ Auto-compiled from **15 real patterns** in **ruqyah-healing**. This skill is aut
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
+- 📐 **Fixed null crash in Uses — hardens HTTP security headers — confirmed 3x** — - // Uses OpenRouter free-tier models with automatic fallback.
++ // Uses Ollama local/hosted models 
+- 📐 **decision in chat.ts — confirmed 5x** — -   "minimax/minimax-m2.5:free",
++   "nvidia/nemotron-3-super-120b-a12b:free",
+
+📌 IDE AST Context: 
+- 📐 **Fixed null crash in Ruqyah — hardens HTTP security headers — confirmed 5x** — - const SYSTEM_PROMPT = `You are 'Ruqyah Assistant', a polite, empathetic, and knowledgeable AI bot 
 - 📐 **what-changed in content.d.ts — confirmed 3x** — File updated (external): .astro/content.d.ts
 
 Content summary (174 lines):
@@ -109,6 +189,18 @@ Content summary (2 lines):
 
 ## 🤔 Decisions & Trade-offs
 
+- **decision in chat.ts** — -   "nvidia/nemotron-3-super-120b-a12b:free",
++   "openai/gpt-oss-120b:free",
+
+📌 IDE AST Context: M
+- **decision in chat.ts** — -   "google/gemma-3-27b-it:free",
++   "qwen/qwen3-next-80b-a3b-instruct:free",
+
+📌 IDE AST Context: 
+- **decision in chat.ts** — -   "nvidia/nemotron-3-super-120b-a12b:free",
++   "minimax/minimax-m2.5:free",
+
+📌 IDE AST Context: 
 - **decision in chat.ts** — -   "stepfun/step-3.5-flash:free",
 +   "nvidia/nemotron-3-nano-30b-a3b:free",
 
@@ -116,9 +208,6 @@ Content summary (2 lines):
 - **decision in chat.ts** — -   "google/gemma-3-27b-it:free",
 +   "stepfun/step-3.5-flash:free",
 -   "meta-llama/llama-3.3-70b-i
-- **decision in test-data.ts** — -     protocol: detoxProtocol,
-+     protocol: customProtocol ?? detoxProtocol,
-- function highResul
 
 ---
-*Auto-generated by BrainSync 🧠 | 15 patterns | 2026-03-27*
+*Auto-generated by BrainSync 🧠 | 29 patterns | 2026-03-28*

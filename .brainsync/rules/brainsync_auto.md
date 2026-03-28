@@ -1,7 +1,7 @@
 
 
 # Project Memory — ruqyah-healing
-> 187 notes | Score threshold: >40
+> 211 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -24,19 +24,17 @@
 
 Content summary (161 lines):
 13:03
-- **⚠️ GOTCHA: Fixed null crash in Left — prevents null/undefined runtime crashes** — -     <!-- ② রুকইয়াহ কি এবং কেনো করা হয়? -->
-+     <!-- ⑦.৫ নামাজের 
 
 ## Project Standards
 
+- Fixed null crash in Uses — hardens HTTP security headers — confirmed 3x
+- what-changed in package.json — confirmed 3x
+- decision in chat.ts — confirmed 5x
+- Fixed null crash in Ruqyah — hardens HTTP security headers — confirmed 5x
 - what-changed in config.json — confirmed 3x
 - what-changed in astro.config.mjs — confirmed 3x
 - Fixed null crash in Error — prevents null/undefined runtime crashes — confirmed 3x
 - convention in astro.config.mjs
-- convention in astro.config.mjs
-- Rate limit API endpoints to prevent abuse
-- Validate request body with a schema validator (Joi, Zod)
-- Use helmet for security headers
 
 ## Known Fixes
 
@@ -46,6 +44,8 @@ Content summary (161 lines):
 
 ## Recent Decisions
 
+- decision in chat.ts
+- decision in chat.ts
 - decision in chat.ts
 - decision in chat.ts
 

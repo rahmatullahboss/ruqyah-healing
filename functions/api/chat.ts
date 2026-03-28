@@ -1,5 +1,5 @@
 // Cloudflare Pages Function — POST /api/chat
-// Uses OpenRouter free-tier models with automatic fallback.
+// Uses Ollama local/hosted models with automatic fallback.
 
 const SYSTEM_PROMPT = `You are 'Ruqyah Assistant', a polite, empathetic, and knowledgeable AI bot for the "Ruqyah Healing Center".
 You must ALWAYS respond in accurate Bengali (Bangla/বাংলা).
@@ -31,9 +31,8 @@ INSPECTION & ROUTING (Your strictly enforced workflow):
 `;
 
 const MODELS = [
-  "openai/gpt-oss-120b:free",
-  "qwen/qwen3-next-80b-a3b-instruct:free",
-  "meta-llama/llama-3.3-70b-instruct:free",
+  "minimax-m2.7:cloud",
+  "llama3-8b-instruct", // optional fallback if previous fails
 ];
 
 const CORS = {
@@ -42,6 +41,10 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+export function onRequestOptions() {
+  return new Response(null, { status: 204, headers: CORS });
+}
+
 function json(obj: any, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
@@ -49,24 +52,21 @@ function json(obj: any, status = 200) {
   });
 }
 
-// CORS preflight
-export function onRequestOptions() {
-  return new Response(null, { status: 204, headers: CORS });
-}
-
 // Main handler
 export async function onRequestPost(context: any) {
   try {
-    // Safely extract request and env from context
     const request = context.request;
     const env = context.env || {};
-    const apiKey = env.OPENROUTER_API_KEY;
-
+    
+    // Check for Ollama Cloud API Key
+    const apiKey = env.OLLAMA_API_KEY;
     if (!apiKey) {
-      return json({ error: "OPENROUTER_API_KEY not configured" }, 500);
+      return json({ error: "OLLAMA_API_KEY not configured for Ollama Cloud API" }, 500);
     }
 
-    // Parse body with detailed error handling
+    // Default to Ollama Cloud OpenAI-compatible endpoint
+    const baseURL = env.OLLAMA_BASE_URL || "https://ollama.com/v1";
+
     let body: any;
     try {
       body = await request.json();
@@ -78,15 +78,14 @@ export async function onRequestPost(context: any) {
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return json({
         error: "Invalid request: 'messages' must be a non-empty array",
-        received: JSON.stringify(body).slice(0, 200),
       }, 400);
     }
 
-    // Try each free model in order
+    // Try each model in order
     for (const model of MODELS) {
       let result: Response;
       try {
-        result = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        result = await fetch(`${baseURL}/chat/completions`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -105,10 +104,11 @@ export async function onRequestPost(context: any) {
         });
       } catch (fetchErr) {
         console.error(`[AI Chat] fetch error for ${model}:`, fetchErr);
-        continue;
+        continue; // Fallback to next model
       }
 
       if (result.ok) {
+        // Return stream response matching OpenAI SSE format, which the frontend expects.
         return new Response(result.body, {
           headers: {
             ...CORS,
@@ -119,15 +119,13 @@ export async function onRequestPost(context: any) {
         });
       }
 
-      // Any error → log and try next model
       const errBody = await result.text().catch(() => "");
       console.log(`[AI Chat] ${model} → ${result.status}: ${errBody.slice(0, 200)}, trying next...`);
       continue;
     }
 
-    // All models exhausted
     return json({
-      error: "বর্তমানে AI সার্ভিস অস্থায়ীভাবে বন্ধ আছে। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।",
+      error: "বর্তমানে AI সার্ভিস অস্থায়ীভাবে বন্ধ আছে। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন। (Ollama Unreachable)",
     }, 503);
 
   } catch (err: any) {
