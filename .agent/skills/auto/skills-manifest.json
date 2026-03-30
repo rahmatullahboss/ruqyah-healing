@@ -1,7 +1,7 @@
 {
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-03-28T04:15:11.130Z",
+    "lastGenerated": "2026-03-30T02:23:58.650Z",
     "observationCount": 29,
     "skillCount": 0,
     "domain": "typescript",
@@ -13,8 +13,8 @@
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-28T04:15:11.131Z",
-    "observationCount": 169,
+    "lastGenerated": "2026-03-30T02:23:58.650Z",
+    "observationCount": 171,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
@@ -24,7 +24,7 @@
   },
   "config": {
     "enabled": true,
-    "lastGenerated": "2026-03-28T04:15:11.130Z",
+    "lastGenerated": "2026-03-30T02:23:58.650Z",
     "observationCount": 13,
     "skillCount": 0,
     "domain": "config",
@@ -38,7 +38,7 @@
   },
   "convention": {
     "enabled": true,
-    "lastGenerated": "2026-03-28T04:15:11.131Z",
+    "lastGenerated": "2026-03-30T02:23:58.651Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "convention",
@@ -49,7 +49,7 @@
   },
   "problem-fix": {
     "enabled": true,
-    "lastGenerated": "2026-03-28T04:15:11.131Z",
+    "lastGenerated": "2026-03-30T02:23:58.651Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "problem-fix",

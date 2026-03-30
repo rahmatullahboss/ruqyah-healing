@@ -1,7 +1,7 @@
 
 
 # Project Memory — ruqyah-healing
-> 211 notes | Score threshold: >40
+> 213 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,14 +18,7 @@
 
 **Stack:** JavaScript/Python/TypeScript · Express + React · DB: SQLite
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
-
-- **gotcha in check.log** — File updated (external): check.log
-
-Content summary (161 lines):
-13:03
-
-## Project Standards
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
 
 - Fixed null crash in Uses — hardens HTTP security headers — confirmed 3x
 - what-changed in package.json — confirmed 3x

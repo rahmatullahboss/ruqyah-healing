@@ -1,5 +1,5 @@
 # ruqyah-healing — Project Memory
-# Auto-synced | 211 observations
+# Auto-synced | 213 observations
 
 **Stack:** JavaScript/Python/TypeScript · Express + React · DB: SQLite
 
@@ -41,4 +41,7 @@
 > ℹ️ DO NOT call get_context() or get_gotchas() at startup — context above IS your context.
 
 ---
-*Auto-synced | 2026-03-27*
+*Auto-synced | 2026-03-28*
+
+# BrainSync Intelligence (Auto-Synced)
+[BrainSync Rules](.brainsync/agent-rules.md)
