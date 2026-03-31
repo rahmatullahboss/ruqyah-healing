@@ -1,9 +1,10 @@
 # ruqyah-healing — Project Memory
-# Auto-synced | 219 observations
+
+> Auto-synced | 215 observations
 
 **Stack:** JavaScript/Python/TypeScript · Express + React · DB: SQLite
 
-# 🏛️ CORE ARCHITECTURE
+## 🏛️ CORE ARCHITECTURE
 
 > **CRITICAL:** The following rules represent strict architectural boundaries defined by the user. NEVER violate them in your generated code or explanations.
 
@@ -16,16 +17,16 @@ Example:
 - NEVER use TailwindCSS. Only use vanilla CSS.
 - NEVER write class components. Only use functional React components.
 
-# 🛡️ GLOBAL SAFETY RULES
+## 🛡️ GLOBAL SAFETY RULES
 
 - **NEVER** run `git clean -fd` or `git reset --hard` without checking `git log` and verifying commits exist.
 - **NEVER** delete untracked files or folders blindly. Always backup or stash before bulk edits.
 
-# 🧭 ACTIVE CONTEXT
+## 🧭 ACTIVE CONTEXT
 
 > Always read `.cursor/active-context.md` for exact instructions on the specific file you are currently editing. It updates dynamically.
 
-# 🔴 CRITICAL — DO NOT IGNORE
+## 🔴 STOP — READ THESE FIRST
 
 - **Use async error handler middleware — don't let errors crash server** — Use async error handler middleware — don't let errors crash server
 - **Clean up effects — return cleanup function from useEffect** — Clean up effects — return cleanup function from useEffect
@@ -33,7 +34,7 @@ Example:
 - **Always use key prop when rendering lists — use unique ID, not array index** — Always use key prop when rendering lists — use unique ID, not array index
 - **Don't call setState directly inside render or useEffect without deps array** — Don't call setState directly inside render or useEffect without deps array
 
-# 📐 Conventions
+## 📐 Conventions
 
 - Rate limit API endpoints to prevent abuse
 - Validate request body with a schema validator (Joi, Zod)
@@ -44,7 +45,7 @@ Example:
 - Follow PEP 8 style guide
 - Use pathlib for file paths, not os.path string manipulation
 
-# ⚡ Available Tools (ON-DEMAND only)
+## ⚡ Available Tools (ON-DEMAND only)
 - `save(title, content, category)` — Save a note + auto-detect conflicts
 - `batch_save(items[])` — Save multiple notes in 1 call
 - `query(text)` — Search memory for architecture, past fixes, decisions
@@ -54,4 +55,4 @@ Example:
 > ℹ️ DO NOT call get_context() or get_gotchas() at startup — context above IS your context.
 
 ---
-*Auto-synced | 2026-03-31*
+*Auto-synced | 2026-03-30*

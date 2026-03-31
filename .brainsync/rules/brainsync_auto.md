@@ -1,7 +1,7 @@
 
 
 # Project Memory — ruqyah-healing
-> 213 notes | Score threshold: >40
+> 219 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -20,6 +20,7 @@
 
 ## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
 
+- what-changed in posts.schema.json — confirmed 3x
 - Fixed null crash in Uses — hardens HTTP security headers — confirmed 3x
 - what-changed in package.json — confirmed 3x
 - decision in chat.ts — confirmed 5x
@@ -27,7 +28,6 @@
 - what-changed in config.json — confirmed 3x
 - what-changed in astro.config.mjs — confirmed 3x
 - Fixed null crash in Error — prevents null/undefined runtime crashes — confirmed 3x
-- convention in astro.config.mjs
 
 ## Known Fixes
 
@@ -35,16 +35,10 @@
 - ❌ yarn-error.log* → ✅ problem-fix in .gitignore
 - ❌ -       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in Left — prevents null/undefined runtime crashes
 
-## Recent Decisions
-
-- decision in chat.ts
-- decision in chat.ts
-- decision in chat.ts
-- decision in chat.ts
-
 ## Learned Patterns
 
 - When encountering this, fix by: problem-fix in .gitignore (seen 2x)
+- Always: what-changed in posts.schema.json — confirmed 3x (seen 2x)
 - Always: what-changed in scratchpad_tzo37eq3.md — confirmed 3x (seen 2x)
 - Agent generates new migration for every change (squash related changes)
 - Agent installs packages without checking if already installed

@@ -1,7 +1,7 @@
 {
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-03-30T02:23:58.650Z",
+    "lastGenerated": "2026-03-31T21:17:30.113Z",
     "observationCount": 29,
     "skillCount": 0,
     "domain": "typescript",
@@ -13,8 +13,8 @@
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-30T02:23:58.650Z",
-    "observationCount": 171,
+    "lastGenerated": "2026-03-31T21:17:30.113Z",
+    "observationCount": 176,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
@@ -24,8 +24,8 @@
   },
   "config": {
     "enabled": true,
-    "lastGenerated": "2026-03-30T02:23:58.650Z",
-    "observationCount": 13,
+    "lastGenerated": "2026-03-31T21:17:30.113Z",
+    "observationCount": 14,
     "skillCount": 0,
     "domain": "config",
     "triggerGlobs": [
@@ -34,13 +34,13 @@
       "**/*.json",
       "**/*.toml"
     ],
-    "description": "Config for ruqyah-healing. 3 conventions."
+    "description": "Config for ruqyah-healing. 4 conventions."
   },
   "convention": {
     "enabled": true,
-    "lastGenerated": "2026-03-30T02:23:58.651Z",
+    "lastGenerated": "2026-03-31T21:17:30.114Z",
     "observationCount": 0,
-    "skillCount": 1,
+    "skillCount": 2,
     "domain": "convention",
     "triggerGlobs": [
       "**/*"
@@ -49,7 +49,7 @@
   },
   "problem-fix": {
     "enabled": true,
-    "lastGenerated": "2026-03-30T02:23:58.651Z",
+    "lastGenerated": "2026-03-31T21:17:30.114Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "problem-fix",
