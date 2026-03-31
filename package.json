@@ -9,19 +9,26 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "pages:dev": "node scripts/pages-dev.mjs",
     "astro": "astro",
-    "generate-types": "wrangler types"
+    "generate-types": "wrangler types",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
     "@astrojs/cloudflare": "^13.1.4",
     "@astrojs/mdx": "^5.0.2",
+    "@neondatabase/serverless": "^1.0.2",
     "astro": "^6.0.6",
+    "drizzle-orm": "^0.45.2",
     "ollama": "^0.6.3",
     "typescript": "^5.9.3",
-    "wrangler": "^4.75.0"
+    "wrangler": "^4.75.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@astrojs/sitemap": "^3.7.1"
+    "@astrojs/sitemap": "^3.7.1",
+    "drizzle-kit": "^0.31.10"
   }
 }

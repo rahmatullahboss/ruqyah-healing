@@ -1,43 +1,58 @@
-# Astro Starter Kit: Minimal
+# Ruqyah Healing
 
-```sh
-npm create astro@latest -- --template minimal
+Astro 6 site for Ruqyah Healing Center. The appointment flow now saves booking data to Neon via Drizzle before opening WhatsApp handoff.
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `npm install` | Install dependencies |
+| `npm run dev` | Run Astro dev server |
+| `npm run build` | Build production assets |
+| `npm run preview` | Preview the built site |
+| `npm run pages:dev` | Build and run Cloudflare Pages locally with `functions/` support |
+| `npm run db:generate` | Generate Drizzle SQL migration from schema changes |
+| `npm run db:push` | Push the current schema to Neon using `DATABASE_URL` |
+
+## Appointment Persistence
+
+Booking submissions from `/appointment` are sent to `functions/api/appointments.ts`.
+
+Saved fields include:
+
+- Patient details
+- Service mode and session format
+- Treatment type and selected sub-services
+- Contact information
+- Problem summary
+- Payment details
+- Booking status and created timestamp
+
+The endpoint validates the request with Zod, inserts into the `appointments` table through Drizzle, then the frontend opens WhatsApp with the saved booking ID.
+
+## Neon Setup
+
+1. Create a Neon Postgres database and copy its connection string.
+2. Put the connection string in a local `.dev.vars` file:
+
+```bash
+DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+3. Push the schema:
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```bash
+npm run db:push
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+4. For Cloudflare Pages production, add the same value as the `DATABASE_URL` secret/environment variable.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Local Verification
 
-Any static assets, like images, can be placed in the `public/` directory.
+For local end-to-end testing of the booking API, use:
 
-## 🧞 Commands
+```bash
+npm run pages:dev
+```
 
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+That serves the built site together with the `functions/` directory, which is closer to production than plain `astro dev`.

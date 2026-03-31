@@ -9,6 +9,7 @@ import {
 
 test('buildAppointmentWhatsappMessage includes selected booking details', () => {
   const message = buildAppointmentWhatsappMessage({
+    appointmentId: 'appt_123',
     fullName: 'রহিম উদ্দিন',
     nid: '1234567890',
     age: '৩২',
@@ -33,6 +34,7 @@ test('buildAppointmentWhatsappMessage includes selected booking details', () => 
     paymentTimestamp: '2026-03-31 14:30',
   });
 
+  assert.match(message, /appt_123/);
   assert.match(message, /রহিম উদ্দিন/);
   assert.match(message, /রুকইয়াহ/);
   assert.match(message, /Long Session - লং সেশন/);

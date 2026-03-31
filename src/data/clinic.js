@@ -228,8 +228,13 @@ function joinSelected(items) {
 }
 
 export function buildAppointmentWhatsappMessage(values) {
-  const lines = [
-    'আসসালামু আলাইকুম, আমি অ্যাপয়েন্টমেন্ট বুক করতে চাই।',
+  const lines = ['আসসালামু আলাইকুম, আমি অ্যাপয়েন্টমেন্ট বুক করতে চাই।'];
+
+  if (values.appointmentId) {
+    lines.push(`বুকিং আইডি: ${values.appointmentId}`);
+  }
+
+  lines.push(
     '',
     '👤 রুগীর ব্যক্তিগত তথ্য',
     `নাম: ${values.fullName || 'উল্লেখ করা হয়নি'}`,
@@ -255,8 +260,8 @@ export function buildAppointmentWhatsappMessage(values) {
     '',
     '🩺 বর্তমান অবস্থা',
     `প্রধান সমস্যা: ${values.problem || 'উল্লেখ করা হয়নি'}`,
-    `পূর্বে চিকিৎসা / রুকইয়াহ: ${values.previousTreatment || 'উল্লেখ করা হয়নি'}`,
-  ];
+    `পূর্বে চিকিৎসা / রুকইয়াহ: ${values.previousTreatment || 'উল্লেখ করা হয়নি'}`
+  );
 
   if (values.previousTreatment === 'হ্যাঁ') {
     lines.push(`পূর্বের চিকিৎসার বিবরণ: ${values.previousTreatmentDetails || 'উল্লেখ করা হয়নি'}`);

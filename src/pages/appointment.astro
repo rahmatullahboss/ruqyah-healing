@@ -5,7 +5,6 @@ import Footer from '../components/Footer.astro';
 import {
   beforeYouBookChecklist,
   bookingInstructions,
-  buildAppointmentWhatsappMessage,
   clinicNumbers,
   clinicSchedule,
   getWhatsappUrl,
@@ -434,13 +433,22 @@ const preferredTimeSlots = [
   <Footer />
 </BaseLayout>
 
-<script type="application/json" id="treatmentCatalogData" set:html={JSON.stringify(treatmentCatalog)}></script>
+<script is:inline type="application/json" id="treatmentCatalogData" set:html={JSON.stringify(treatmentCatalog)}></script>
 
 <script>
   import { buildAppointmentWhatsappMessage, getWhatsappUrl } from '../data/clinic.js';
+  import { serializeAppointmentPayload } from '../lib/appointments.js';
+
+  type TreatmentCatalogItem = {
+    value: string;
+    label: string;
+    options: string[];
+  };
 
   const treatmentCatalogData = document.getElementById('treatmentCatalogData');
-  const treatmentCatalog = treatmentCatalogData ? JSON.parse(treatmentCatalogData.textContent || '[]') : [];
+  const treatmentCatalog: TreatmentCatalogItem[] = treatmentCatalogData
+    ? JSON.parse(treatmentCatalogData.textContent || '[]')
+    : [];
 
   const form = document.getElementById('appt-form');
   const treatmentSelect = document.getElementById('treatmentType');
@@ -450,8 +458,9 @@ const preferredTimeSlots = [
   const previousTreatmentDetails = document.getElementById('previousTreatmentDetails');
   const submitStatus = document.getElementById('submitStatus');
   const confirmationGuidelines = document.getElementById('confirmationGuidelines');
+  const submitButton = form?.querySelector('button[type="submit"]');
 
-  const escapeHtml = (value) =>
+  const escapeHtml = (value: string) =>
     value
       .replaceAll('&', '&amp;')
       .replaceAll('<', '&lt;')
@@ -464,7 +473,7 @@ const preferredTimeSlots = [
       return;
     }
 
-    const selected = treatmentCatalog.find((item) => item.value === treatmentSelect.value);
+    const selected = treatmentCatalog.find((item: TreatmentCatalogItem) => item.value === treatmentSelect.value);
 
     if (!selected) {
       subServicesWrap.hidden = true;
@@ -475,7 +484,7 @@ const preferredTimeSlots = [
     subServicesWrap.hidden = false;
     subServicesList.innerHTML = selected.options
       .map(
-        (option) => `
+        (option: string) => `
           <label class="checkbox-card">
             <input type="checkbox" name="subServices" value="${escapeHtml(option)}" />
             <span>${escapeHtml(option)}</span>
@@ -494,6 +503,7 @@ const preferredTimeSlots = [
     const shouldShow = selected instanceof HTMLInputElement && selected.value === 'হ্যাঁ';
 
     previousTreatmentDetailsWrap.hidden = !shouldShow;
+    previousTreatmentDetails.required = shouldShow;
 
     if (!shouldShow) {
       previousTreatmentDetails.value = '';
@@ -508,7 +518,7 @@ const preferredTimeSlots = [
     input.addEventListener('change', togglePreviousTreatmentDetails);
   });
 
-  form?.addEventListener('submit', (event) => {
+  form?.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     if (!(form instanceof HTMLFormElement) || !submitStatus) {
@@ -516,43 +526,76 @@ const preferredTimeSlots = [
     }
 
     const formData = new FormData(form);
-    const selectedTreatment = treatmentCatalog.find((item) => item.value === formData.get('treatmentType'));
+    const treatmentKey = String(formData.get('treatmentType') || '');
+    const selectedTreatment = treatmentCatalog.find((item: TreatmentCatalogItem) => item.value === treatmentKey);
 
-    const values = {
-      fullName: String(formData.get('fullName') || ''),
-      nid: String(formData.get('nid') || ''),
-      age: String(formData.get('age') || ''),
-      weight: String(formData.get('weight') || ''),
-      gender: String(formData.get('gender') || ''),
-      religion: String(formData.get('religion') || ''),
-      duration: String(formData.get('duration') || ''),
-      previousTreatment: String(formData.get('previousTreatment') || ''),
-      previousTreatmentDetails: String(formData.get('previousTreatmentDetails') || ''),
-      serviceMode: String(formData.get('serviceMode') || ''),
-      sessionFormat: String(formData.get('sessionFormat') || ''),
-      treatmentType: selectedTreatment?.label || String(formData.get('treatmentType') || ''),
-      subServices: formData.getAll('subServices').map((item) => String(item)),
-      preferredDate: String(formData.get('preferredDate') || ''),
-      preferredTime: String(formData.get('preferredTime') || ''),
-      address: String(formData.get('address') || ''),
-      phone: String(formData.get('phone') || ''),
-      whatsapp: String(formData.get('whatsapp') || ''),
-      problem: String(formData.get('problem') || ''),
-      paymentMethod: String(formData.get('paymentMethod') || ''),
-      transactionId: String(formData.get('transactionId') || ''),
-      paymentTimestamp: String(formData.get('paymentTimestamp') || ''),
-    };
+    try {
+      submitStatus.textContent = 'বুকিং তথ্য ডাটাবেজে সংরক্ষণ করা হচ্ছে...';
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.disabled = true;
+      }
 
-    const message = buildAppointmentWhatsappMessage(values);
-    const whatsappUrl = getWhatsappUrl(message);
+      const values = serializeAppointmentPayload({
+        fullName: String(formData.get('fullName') || ''),
+        nid: String(formData.get('nid') || ''),
+        age: String(formData.get('age') || ''),
+        weight: String(formData.get('weight') || ''),
+        gender: String(formData.get('gender') || ''),
+        religion: String(formData.get('religion') || ''),
+        duration: String(formData.get('duration') || ''),
+        previousTreatment: String(formData.get('previousTreatment') || ''),
+        previousTreatmentDetails: String(formData.get('previousTreatmentDetails') || ''),
+        serviceMode: String(formData.get('serviceMode') || ''),
+        sessionFormat: String(formData.get('sessionFormat') || ''),
+        treatmentTypeKey: treatmentKey,
+        treatmentTypeLabel: selectedTreatment?.label || treatmentKey,
+        subServices: formData.getAll('subServices').map((item) => String(item)),
+        preferredDate: String(formData.get('preferredDate') || ''),
+        preferredTime: String(formData.get('preferredTime') || ''),
+        address: String(formData.get('address') || ''),
+        phone: String(formData.get('phone') || ''),
+        whatsapp: String(formData.get('whatsapp') || ''),
+        problem: String(formData.get('problem') || ''),
+        paymentMethod: String(formData.get('paymentMethod') || ''),
+        transactionId: String(formData.get('transactionId') || ''),
+        paymentTimestamp: String(formData.get('paymentTimestamp') || ''),
+      });
 
-    submitStatus.textContent = 'তথ্য প্রস্তুত হয়েছে। WhatsApp-এ পাঠানোর জন্য নতুন ট্যাব খোলা হচ্ছে...';
-    confirmationGuidelines?.removeAttribute('hidden');
-    confirmationGuidelines?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
 
-    const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-    if (!opened) {
-      submitStatus.textContent = 'WhatsApp ট্যাব খুলতে বাধা পেয়েছে। অনুগ্রহ করে pop-up allow করে আবার চেষ্টা করুন।';
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result.message || 'বুকিং তথ্য সংরক্ষণ করা যায়নি।');
+      }
+
+      const message = buildAppointmentWhatsappMessage({
+        ...values,
+        treatmentType: values.treatmentTypeLabel,
+        appointmentId: result.appointmentId,
+      });
+      const whatsappUrl = getWhatsappUrl(message);
+
+      submitStatus.textContent = `তথ্য সংরক্ষণ হয়েছে। বুকিং আইডি: ${result.appointmentId}. এখন WhatsApp-এ পাঠানোর জন্য নতুন ট্যাব খোলা হচ্ছে...`;
+      confirmationGuidelines?.removeAttribute('hidden');
+      confirmationGuidelines?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      if (!opened) {
+        submitStatus.textContent = 'ডাটাবেজে সেভ হয়েছে, কিন্তু WhatsApp ট্যাব খুলতে বাধা পেয়েছে। অনুগ্রহ করে pop-up allow করে আবার চেষ্টা করুন।';
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'বুকিং তথ্য সংরক্ষণ করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।';
+      submitStatus.textContent = message;
+    } finally {
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.disabled = false;
+      }
     }
   });
 </script>
