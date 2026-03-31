@@ -2,162 +2,430 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import {
+  beforeYouBookChecklist,
+  bookingInstructions,
+  buildAppointmentWhatsappMessage,
+  clinicNumbers,
+  clinicSchedule,
+  getWhatsappUrl,
+  paymentDetails,
+  paymentMethods,
+  postSubmitGuidelines,
+  pricingHighlights,
+  primaryContact,
+  religionOptions,
+  serviceModes,
+  sessionFormats,
+  specialOffers,
+  treatmentCatalog,
+  durationOptions,
+  genderOptions,
+} from '../data/clinic.js';
+
+const preferredTimeSlots = [
+  'সকাল ৯:০০',
+  'সকাল ১০:০০',
+  'সকাল ১১:০০',
+  'দুপুর ১২:০০',
+  'দুপুর ১:০০',
+  'দুপুর ২:০০',
+  'বিকেল ৩:০০',
+  'বিকেল ৪:০০',
+  'বিকেল ৫:০০',
+  'সন্ধ্যা ৬:০০',
+];
 ---
 
 <BaseLayout
-  title="এ্যাপয়নমেন্ট নিন | Ruqyah Healing Center"
-  description="আমাদের অভিজ্ঞ রাকীদের সাথে পরামর্শের জন্য এ্যাপয়নমেন্ট বুক করুন।"
+  title="অ্যাপয়েন্টমেন্ট নিন | Ruqyah Healing Center"
+  description="রুকইয়াহ, হিজামা, আকুপাংচার, আকুপ্রেসার, ম্যাসাজ ও ন্যাচারোপ্যাথি সেবার জন্য অ্যাপয়েন্টমেন্ট বুক করুন।"
 >
   <Header />
 
-  <main class="appt-main">
+  <main class="appt-page">
     <div class="container">
-      <!-- Breadcrumb -->
       <div class="breadcrumb">
         <a href="/">হোম</a>
         <span>/</span>
-        <span>এ্যাপয়নমেন্ট</span>
+        <span>অ্যাপয়েন্টমেন্ট</span>
       </div>
 
-      <!-- Page Title -->
-      <div class="appt-page-header">
-        <h1>এ্যাপয়েনমেন্ট নিন</h1>
-        <p>আমাদের অভিজ্ঞ রাকীদের সাথে পরামর্শের জন্য এ্যাপয়নমেন্ট বুক করুন</p>
-      </div>
-
-      <!-- Content Grid -->
-      <div class="appt-grid">
-        <!-- Form -->
-        <div class="appt-form-wrap">
-          <form class="appt-form" id="appt-form">
-            <!-- Name -->
-            <div class="form-group">
-              <label for="name">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                নাম <span class="required">*</span>
-              </label>
-              <input type="text" id="name" name="name" placeholder="আপনার পূর্ণ নাম লিখুন" required />
+      <div class="appt-shell">
+        <div class="appt-primary">
+          <section class="hero-card">
+            <div class="hero-copy">
+              <span class="eyebrow">রুগীর অ্যাপয়েন্টমেন্ট বুকিং</span>
+              <h1>বিশ্বস্ত, অভিজ্ঞ ও বিশেষজ্ঞ রাকীদের সাথে পরামর্শের সুযোগ</h1>
+              <p>
+                রুকইয়াহ একটি তাওহীদভিত্তিক আধ্যাত্মিক supportive care, যা কুরআন, সুন্নাহ ও জায়েজ দুআর আলোকে পরিচালিত হয়।
+                চূড়ান্ত শিফা একমাত্র আল্লাহর পক্ষ থেকেই আসে।
+              </p>
             </div>
 
-            <!-- Age + Phone -->
-            <div class="form-row">
-              <div class="form-group">
-                <label for="age">বয়স <span class="required">*</span></label>
-                <input type="number" id="age" name="age" placeholder="আপনার বয়স" min="1" max="120" required />
+            <div class="hero-highlights">
+              <div class="hero-chip">শিরকমুক্ত ও বিদআত-মুক্ত পদ্ধতি</div>
+              <div class="hero-chip">মহিলা রোগীর জন্য মাহরাম বাধ্যতামূলক</div>
+              <div class="hero-chip">চেম্বার, হোম সার্ভিস ও অনলাইন সাপোর্ট</div>
+              <div class="hero-chip">কোনো 100% cure guarantee দেওয়া হয় না</div>
+            </div>
+          </section>
+
+          <section class="content-card">
+            <div class="section-head">
+              <div>
+                <span class="section-kicker">সেবার মূল্য তালিকা</span>
+                <h2>ডায়াগনোসিস, সেশন ও বুকিং তথ্য</h2>
               </div>
-              <div class="form-group">
-                <label for="phone">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                  ফোন নম্বর <span class="required">*</span>
-                </label>
-                <input type="tel" id="phone" name="phone" placeholder="+880 1XXX-XXXXXX" required />
+              <p>ঢাকার বাহিরে যাতায়াত খরচ আলাদা এবং অগ্রিম পে করতে হবে। হোম সার্ভিসের সম্পূর্ণ ফি ফোনে আলোচনা সাপেক্ষ।</p>
+            </div>
+
+            <div class="pricing-grid">
+              {pricingHighlights.map((item) => (
+                <article class="pricing-card">
+                  <p class="pricing-title">{item.title}</p>
+                  <p class="pricing-price">{item.price}</p>
+                  <p class="pricing-details">{item.details}</p>
+                </article>
+              ))}
+            </div>
+
+            <div class="offer-box">
+              <h3>বিশেষ অফার</h3>
+              <ul class="bullet-list">
+                {specialOffers.map((offer) => <li>{offer}</li>)}
+              </ul>
+            </div>
+          </section>
+
+          <section class="content-card">
+            <div class="section-head">
+              <div>
+                <span class="section-kicker">চিকিৎসার ধরন</span>
+                <h2>প্রয়োজন অনুযায়ী সেবা নির্বাচন করুন</h2>
               </div>
+              <p>ফর্মে একটি প্রধান চিকিৎসা বেছে নিলে তার উপযোগী sub-option দেখানো হবে।</p>
             </div>
 
-            <!-- Date + Time -->
-            <div class="form-row">
-              <div class="form-group">
-                <label for="date">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                  তারিখ <span class="required">*</span>
-                </label>
-                <input type="date" id="date" name="date" required />
+            <div class="treatment-grid">
+              {treatmentCatalog.map((service) => (
+                <article class="treatment-card">
+                  <h3>{service.label}</h3>
+                  <p>{service.summary}</p>
+                  <ul class="mini-list">
+                    {service.options.slice(0, 4).map((option) => <li>{option}</li>)}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section class="content-card" id="booking-form">
+            <div class="section-head">
+              <div>
+                <span class="section-kicker">বুকিং ফর্ম</span>
+                <h2>রুগীর অ্যাপয়েন্টমেন্ট তথ্য পূরণ করুন</h2>
               </div>
-              <div class="form-group">
-                <label for="time">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  সময় <span class="required">*</span>
-                </label>
-                <select id="time" name="time" required>
-                  <option value="">সময় নির্বাচন করুন</option>
-                  <option>সকাল ৯:০০</option>
-                  <option>সকাল ১০:০০</option>
-                  <option>সকাল ১১:০০</option>
-                  <option>দুপুর ১২:০০</option>
-                  <option>দুপুর ২:০০</option>
-                  <option>বিকেল ৩:০০</option>
-                  <option>বিকেল ৪:০০</option>
-                  <option>বিকেল ৫:০০</option>
-                </select>
+              <p>সকল তথ্য সততা ও নির্ভুলতার সাথে পূরণ করুন। সঠিক তথ্য প্রদান চিকিৎসার মান নির্ধারণে সহায়ক।</p>
+            </div>
+
+            <form class="appt-form" id="appt-form">
+              <div class="form-section">
+                <h3>১. রুগীর ব্যক্তিগত তথ্য</h3>
+                <div class="form-grid form-grid--two">
+                  <div class="form-group">
+                    <label for="fullName">রুগীর পূর্ণ নাম <span class="required">*</span></label>
+                    <input id="fullName" name="fullName" type="text" placeholder="পূর্ণ নাম লিখুন" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="nid">ভোটার আইডি নং</label>
+                    <input id="nid" name="nid" type="text" placeholder="যদি থাকে লিখুন" />
+                  </div>
+                  <div class="form-group">
+                    <label for="age">বয়স <span class="required">*</span></label>
+                    <input id="age" name="age" type="number" min="0" max="120" placeholder="বয়স" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="weight">ওজন (কেজি)</label>
+                    <input id="weight" name="weight" type="number" min="0" max="250" placeholder="ওজন" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <span class="field-title">লিঙ্গ নির্বাচন করুন <span class="required">*</span></span>
+                  <div class="choice-grid">
+                    {genderOptions.map((option) => (
+                      <label class="choice-pill">
+                        <input type="radio" name="gender" value={option} required />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <span class="field-title">রিলিজিয়ন <span class="required">*</span></span>
+                  <div class="choice-grid">
+                    {religionOptions.map((option) => (
+                      <label class="choice-pill">
+                        <input type="radio" name="religion" value={option} required />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="duration">সমস্যার স্থায়িত্ব <span class="required">*</span></label>
+                  <select id="duration" name="duration" required>
+                    <option value="">একটি অপশন নির্বাচন করুন</option>
+                    {durationOptions.map((option) => <option value={option}>{option}</option>)}
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <span class="field-title">পূর্বে কোনো ইমাম, মুয়াজ্জিন, কবিরাজ বা রুকইয়াহ করানো হয়েছে? <span class="required">*</span></span>
+                  <div class="choice-grid choice-grid--compact">
+                    {['হ্যাঁ', 'না'].map((option) => (
+                      <label class="choice-pill">
+                        <input type="radio" name="previousTreatment" value={option} required />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div class="form-group" id="previousTreatmentDetailsWrap" hidden>
+                  <label for="previousTreatmentDetails">কি ধরনের চিকিৎসা / রুকইয়াহ করা হয়েছে (সংক্ষেপে লিখুন)</label>
+                  <textarea
+                    id="previousTreatmentDetails"
+                    name="previousTreatmentDetails"
+                    rows="3"
+                    placeholder="সংক্ষেপে পূর্বের চিকিৎসার বিবরণ লিখুন"
+                  ></textarea>
+                </div>
               </div>
+
+              <div class="form-section">
+                <h3>২. শিডিউল ও সেবার ধরণ</h3>
+
+                <div class="form-group">
+                  <span class="field-title">আপনি কোন সেবা নিতে চান? <span class="required">*</span></span>
+                  <div class="choice-grid">
+                    {serviceModes.map((mode) => (
+                      <label class="choice-pill">
+                        <input type="radio" name="serviceMode" value={mode} required />
+                        <span>{mode}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <span class="field-title">সেশনের ধরন <span class="required">*</span></span>
+                  <div class="choice-grid choice-grid--compact">
+                    {sessionFormats.map((format) => (
+                      <label class="choice-pill">
+                        <input type="radio" name="sessionFormat" value={format} required />
+                        <span>{format}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="treatmentType">চিকিৎসার ধরন <span class="required">*</span></label>
+                  <select id="treatmentType" name="treatmentType" required>
+                    <option value="">চিকিৎসা নির্বাচন করুন</option>
+                    {treatmentCatalog.map((service) => (
+                      <option value={service.value}>{service.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div class="form-group" id="subServicesWrap" hidden>
+                  <span class="field-title">প্রয়োজন অনুযায়ী sub-option নির্বাচন করুন</span>
+                  <div class="subservice-grid" id="subServicesList"></div>
+                </div>
+
+                <div class="form-grid form-grid--two">
+                  <div class="form-group">
+                    <label for="preferredDate">পছন্দের তারিখ <span class="required">*</span></label>
+                    <input id="preferredDate" name="preferredDate" type="date" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="preferredTime">পছন্দের সময় <span class="required">*</span></label>
+                    <select id="preferredTime" name="preferredTime" required>
+                      <option value="">সময় নির্বাচন করুন</option>
+                      {preferredTimeSlots.map((slot) => <option value={slot}>{slot}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>৩. যোগাযোগের তথ্য</h3>
+                <div class="form-grid form-grid--two">
+                  <div class="form-group form-group--full">
+                    <label for="address">বর্তমান ঠিকানা <span class="required">*</span></label>
+                    <textarea id="address" name="address" rows="3" placeholder="বর্তমান ঠিকানা লিখুন" required></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label for="phone">যোগাযোগের মোবাইল নাম্বার <span class="required">*</span></label>
+                    <input id="phone" name="phone" type="tel" placeholder="01XXXXXXXXX" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="whatsapp">হোয়াটসঅ্যাপ নাম্বার (যদি ভিন্ন হয়)</label>
+                    <input id="whatsapp" name="whatsapp" type="tel" placeholder="01XXXXXXXXX" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>৪. বর্তমান শারীরিক ও মানসিক অবস্থা</h3>
+                <div class="form-group">
+                  <label for="problem">প্রধান সমস্যা / উপসর্গসমূহ বিস্তারিত লিখুন <span class="required">*</span></label>
+                  <textarea
+                    id="problem"
+                    name="problem"
+                    rows="5"
+                    placeholder="যে সমস্যা, উপসর্গ বা কষ্ট নিয়ে সেবা নিতে চান তা বিস্তারিত লিখুন"
+                    required
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>৫. পেমেন্ট ও বুকিং কনফার্মেশন</h3>
+                <div class="payment-box">
+                  <p><strong>বুকিং ফি:</strong> {paymentDetails.bookingFee}</p>
+                  <p><strong>ব্যাংক:</strong> {paymentDetails.bankName}, {paymentDetails.branch}</p>
+                  <p><strong>একাউন্ট নাম:</strong> {paymentDetails.accountName}</p>
+                  <p><strong>একাউন্ট নাম্বার:</strong> {paymentDetails.accountNumber}</p>
+                  <p><strong>বিকাশ / নগদ:</strong> {paymentDetails.accountPhone}</p>
+                </div>
+
+                <div class="form-grid form-grid--two">
+                  <div class="form-group">
+                    <label for="paymentMethod">পেমেন্ট মাধ্যম <span class="required">*</span></label>
+                    <select id="paymentMethod" name="paymentMethod" required>
+                      <option value="">পেমেন্ট মাধ্যম নির্বাচন করুন</option>
+                      {paymentMethods.map((method) => <option value={method}>{method}</option>)}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="transactionId">Bank / বিকাশ / নগদ Trx ID <span class="required">*</span></label>
+                    <input id="transactionId" name="transactionId" type="text" placeholder="Trx ID লিখুন" required />
+                  </div>
+                  <div class="form-group form-group--full">
+                    <label for="paymentTimestamp">টাকা পাঠানোর তারিখ ও সময় <span class="required">*</span></label>
+                    <input id="paymentTimestamp" name="paymentTimestamp" type="datetime-local" required />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="agreement-box">
+                  <label class="agreement-check">
+                    <input type="checkbox" name="agreement" required />
+                    <span>
+                      অ্যাপয়েন্টমেন্ট নেওয়ার মাধ্যমে আমি উপরোক্ত শর্ত, মাহরাম নীতিমালা, বুকিং ফি এবং রুকইয়াহ সেশনের নির্দেশনাবলীতে সম্মতি দিচ্ছি।
+                    </span>
+                  </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary submit-btn">অ্যাপয়েন্টমেন্ট সাবমিট করুন</button>
+                <p class="submit-help">সাবমিট করলে WhatsApp-এ আপনার তথ্য পাঠানোর অপশন খুলবে এবং নিচে বিশেষ নির্দেশনাবলী দেখানো হবে।</p>
+                <p class="submit-status" id="submitStatus" aria-live="polite"></p>
+              </div>
+            </form>
+          </section>
+
+          <section class="content-card confirmation-card" id="confirmationGuidelines" hidden>
+            <div class="section-head">
+              <div>
+                <span class="section-kicker">সাবমিটের পর যা দেখবেন</span>
+                <h2>রুকইয়াহ সেশনের বিশেষ নির্দেশনাবলী</h2>
+              </div>
+              <p>আমাদের টিম আপনার সাথে যোগাযোগ করে সিরিয়াল নম্বর ও নির্ধারিত সময় জানিয়ে দেবে ইনশাআল্লাহ।</p>
             </div>
 
-            <!-- Treatment type -->
-            <div class="form-group">
-              <label for="type">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                চিকিৎসার ধরণ <span class="required">*</span>
-              </label>
-              <select id="type" name="type" required>
-                <option value="">নির্বাচন করুন</option>
-                <option>সিমটম ডায়াগনোসিস</option>
-                <option>রুকইয়াহ ডায়াগনোসিস</option>
-                <option>সেলফ রুকইয়া পরামর্শ</option>
-                <option>রুকইয়া সাপ্লিমেন্ট</option>
-                <option>অন্যান্য</option>
-              </select>
-            </div>
+            <ul class="bullet-list">
+              {postSubmitGuidelines.map((item) => <li>{item}</li>)}
+            </ul>
 
-            <!-- Problem details -->
-            <div class="form-group">
-              <label for="problem">সমস্যা বিস্তারিত <span class="required">*</span></label>
-              <textarea id="problem" name="problem" placeholder="আপনার সমস্যা বিস্তারিত লিখুন..." rows="5" required></textarea>
+            <div class="blessing-box">
+              <strong>জাযাকুমুল্লাহু খাইরান।</strong>
+              <p>আমরা আল্লাহ তাআলার নিকট আপনার পূর্ণ সুস্থতা ও শিফা কামনা করি।</p>
             </div>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px;">
-              এ্যাপয়নমেন্ট বুক করুন
-            </button>
-          </form>
+          </section>
         </div>
 
-        <!-- Sidebar -->
         <aside class="appt-sidebar">
-          <!-- Contact Info -->
-          <div class="sidebar-card">
-            <h3>যোগাযোগ তথ্য</h3>
-            <div class="contact-item">
-              <div class="contact-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-              </div>
-              <div>
-                <p class="contact-label">ফোন</p>
-                <p class="contact-value">+880 1XXX-XXXXXX</p>
-              </div>
-            </div>
-            <div class="contact-item">
-              <div class="contact-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-              </div>
-              <div>
-                <p class="contact-label">সময়সূচী</p>
-                <p class="contact-value">রবি - বৃহস্পতি</p>
-                <p class="contact-value">৯:০০ - ৬:০০</p>
-              </div>
-            </div>
-          </div>
+          <section class="sidebar-card sidebar-card--accent">
+            <h2>যোগাযোগ তথ্য</h2>
+            <p>এই নাম্বারগুলোতে কল করুন অথবা WhatsApp-এ message পাঠান।</p>
 
-          <!-- Instructions -->
-          <div class="sidebar-card">
-            <h3>নির্দেশনা</h3>
-            <ul class="instruction-list">
-              <li>
-                <span class="bullet">•</span>
-                এ্যাপয়নমেন্টের আগে ওযু করে নিন
-              </li>
-              <li>
-                <span class="bullet">•</span>
-                পরিষ্কার পোশাক পরিধান করুন
-              </li>
-              <li>
-                <span class="bullet">•</span>
-                সময়মতো উপস্থিত হন
-              </li>
-              <li>
-                <span class="bullet">•</span>
-                প্রয়োজনীয় কাগজপত্র সাথে আনুন
-              </li>
+            <div class="contact-list">
+              {clinicNumbers.map((contact) => (
+                <div class="contact-row">
+                  <div>
+                    <p class="contact-label">{contact.label}</p>
+                    <a href={`tel:${contact.display}`} class="contact-value">{contact.display}</a>
+                  </div>
+                  <a
+                    class="contact-wa"
+                    href={getWhatsappUrl('আসসালামু আলাইকুম, অ্যাপয়েন্টমেন্ট সম্পর্কে জানতে চাই।', contact.international)}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    WhatsApp
+                  </a>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section class="sidebar-card">
+            <h2>সময়সূচী</h2>
+            <p class="sidebar-strong">{clinicSchedule.days}</p>
+            <p>{clinicSchedule.hours}</p>
+            <a
+              class="btn btn-outline sidebar-btn"
+              href={getWhatsappUrl('আসসালামু আলাইকুম, আমি অ্যাপয়েন্টমেন্টের সময় সম্পর্কে জানতে চাই।')}
+              target="_blank"
+              rel="noopener"
+            >
+              সময় জেনে নিন
+            </a>
+          </section>
+
+          <section class="sidebar-card">
+            <h2>Before You Book</h2>
+            <ul class="bullet-list">
+              {beforeYouBookChecklist.map((item) => <li>{item}</li>)}
             </ul>
-          </div>
+          </section>
+
+          <section class="sidebar-card">
+            <h2>গুরুত্বপূর্ণ নির্দেশনা</h2>
+            <ul class="bullet-list">
+              {bookingInstructions.map((item) => <li>{item}</li>)}
+            </ul>
+          </section>
+
+          <section class="sidebar-card sidebar-card--muted">
+            <h2>দ্রুত বুকিং</h2>
+            <p>ফর্ম পূরণ করার আগে জরুরি কথা বলতে চাইলে সরাসরি WhatsApp করুন।</p>
+            <a
+              class="btn btn-primary sidebar-btn"
+              href={getWhatsappUrl('আসসালামু আলাইকুম, আমি দ্রুত অ্যাপয়েন্টমেন্ট বুক করতে চাই।', primaryContact.international)}
+              target="_blank"
+              rel="noopener"
+            >
+              WhatsApp-এ বুকিং শুরু করুন
+            </a>
+          </section>
         </aside>
       </div>
     </div>
@@ -166,129 +434,567 @@ import Footer from '../components/Footer.astro';
   <Footer />
 </BaseLayout>
 
+<script type="application/json" id="treatmentCatalogData" set:html={JSON.stringify(treatmentCatalog)}></script>
+
+<script>
+  import { buildAppointmentWhatsappMessage, getWhatsappUrl } from '../data/clinic.js';
+
+  const treatmentCatalogData = document.getElementById('treatmentCatalogData');
+  const treatmentCatalog = treatmentCatalogData ? JSON.parse(treatmentCatalogData.textContent || '[]') : [];
+
+  const form = document.getElementById('appt-form');
+  const treatmentSelect = document.getElementById('treatmentType');
+  const subServicesWrap = document.getElementById('subServicesWrap');
+  const subServicesList = document.getElementById('subServicesList');
+  const previousTreatmentDetailsWrap = document.getElementById('previousTreatmentDetailsWrap');
+  const previousTreatmentDetails = document.getElementById('previousTreatmentDetails');
+  const submitStatus = document.getElementById('submitStatus');
+  const confirmationGuidelines = document.getElementById('confirmationGuidelines');
+
+  const escapeHtml = (value) =>
+    value
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+
+  const renderSubServices = () => {
+    if (!(treatmentSelect instanceof HTMLSelectElement) || !subServicesWrap || !subServicesList) {
+      return;
+    }
+
+    const selected = treatmentCatalog.find((item) => item.value === treatmentSelect.value);
+
+    if (!selected) {
+      subServicesWrap.hidden = true;
+      subServicesList.innerHTML = '';
+      return;
+    }
+
+    subServicesWrap.hidden = false;
+    subServicesList.innerHTML = selected.options
+      .map(
+        (option) => `
+          <label class="checkbox-card">
+            <input type="checkbox" name="subServices" value="${escapeHtml(option)}" />
+            <span>${escapeHtml(option)}</span>
+          </label>
+        `
+      )
+      .join('');
+  };
+
+  const togglePreviousTreatmentDetails = () => {
+    if (!previousTreatmentDetailsWrap || !(previousTreatmentDetails instanceof HTMLTextAreaElement)) {
+      return;
+    }
+
+    const selected = document.querySelector('input[name="previousTreatment"]:checked');
+    const shouldShow = selected instanceof HTMLInputElement && selected.value === 'হ্যাঁ';
+
+    previousTreatmentDetailsWrap.hidden = !shouldShow;
+
+    if (!shouldShow) {
+      previousTreatmentDetails.value = '';
+    }
+  };
+
+  renderSubServices();
+  togglePreviousTreatmentDetails();
+
+  treatmentSelect?.addEventListener('change', renderSubServices);
+  document.querySelectorAll('input[name="previousTreatment"]').forEach((input) => {
+    input.addEventListener('change', togglePreviousTreatmentDetails);
+  });
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    if (!(form instanceof HTMLFormElement) || !submitStatus) {
+      return;
+    }
+
+    const formData = new FormData(form);
+    const selectedTreatment = treatmentCatalog.find((item) => item.value === formData.get('treatmentType'));
+
+    const values = {
+      fullName: String(formData.get('fullName') || ''),
+      nid: String(formData.get('nid') || ''),
+      age: String(formData.get('age') || ''),
+      weight: String(formData.get('weight') || ''),
+      gender: String(formData.get('gender') || ''),
+      religion: String(formData.get('religion') || ''),
+      duration: String(formData.get('duration') || ''),
+      previousTreatment: String(formData.get('previousTreatment') || ''),
+      previousTreatmentDetails: String(formData.get('previousTreatmentDetails') || ''),
+      serviceMode: String(formData.get('serviceMode') || ''),
+      sessionFormat: String(formData.get('sessionFormat') || ''),
+      treatmentType: selectedTreatment?.label || String(formData.get('treatmentType') || ''),
+      subServices: formData.getAll('subServices').map((item) => String(item)),
+      preferredDate: String(formData.get('preferredDate') || ''),
+      preferredTime: String(formData.get('preferredTime') || ''),
+      address: String(formData.get('address') || ''),
+      phone: String(formData.get('phone') || ''),
+      whatsapp: String(formData.get('whatsapp') || ''),
+      problem: String(formData.get('problem') || ''),
+      paymentMethod: String(formData.get('paymentMethod') || ''),
+      transactionId: String(formData.get('transactionId') || ''),
+      paymentTimestamp: String(formData.get('paymentTimestamp') || ''),
+    };
+
+    const message = buildAppointmentWhatsappMessage(values);
+    const whatsappUrl = getWhatsappUrl(message);
+
+    submitStatus.textContent = 'তথ্য প্রস্তুত হয়েছে। WhatsApp-এ পাঠানোর জন্য নতুন ট্যাব খোলা হচ্ছে...';
+    confirmationGuidelines?.removeAttribute('hidden');
+    confirmationGuidelines?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    if (!opened) {
+      submitStatus.textContent = 'WhatsApp ট্যাব খুলতে বাধা পেয়েছে। অনুগ্রহ করে pop-up allow করে আবার চেষ্টা করুন।';
+    }
+  });
+</script>
+
 <style>
-.appt-main {
-  padding: 48px 0 80px;
-  background: var(--bg-light);
-  min-height: calc(100vh - var(--nav-height));
+.appt-page {
+  padding: 40px 0 80px;
+  background:
+    radial-gradient(circle at top right, rgba(16, 185, 129, 0.12), transparent 28%),
+    linear-gradient(180deg, #f5fff9 0%, #effaf4 100%);
 }
 
-.appt-page-header {
-  text-align: center;
-  margin-bottom: 48px;
-}
-.appt-page-header h1 {
-  font-size: clamp(24px, 4vw, 36px);
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 10px;
-}
-.appt-page-header p {
-  font-size: 16px;
-  color: var(--text-medium);
-}
-
-.appt-grid {
+.appt-shell {
   display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 32px;
+  grid-template-columns: minmax(0, 1.6fr) 360px;
+  gap: 28px;
   align-items: start;
 }
 
-/* Form */
-.appt-form-wrap {
-  background: #fff;
-  border-radius: var(--radius-lg);
-  padding: 36px;
+.appt-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hero-card,
+.content-card,
+.sidebar-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(16, 185, 129, 0.14);
+  border-radius: 24px;
   box-shadow: var(--shadow-sm);
 }
-.appt-form { display: flex; flex-direction: column; gap: 20px; }
 
-.form-group { display: flex; flex-direction: column; gap: 6px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.hero-card {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 
-label {
+.eyebrow,
+.section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--primary-dark);
+}
+
+.hero-copy h1 {
+  font-size: clamp(30px, 5vw, 48px);
+  line-height: 1.15;
+  margin: 10px 0 14px;
+  color: var(--text-dark);
+}
+
+.hero-copy p,
+.section-head p,
+.treatment-card p,
+.sidebar-card p,
+.submit-help {
+  color: var(--text-medium);
+  line-height: 1.75;
+}
+
+.hero-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero-chip {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--primary-light);
+  color: var(--text-dark);
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-dark);
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
-label svg { color: var(--text-muted); }
-.required { color: var(--primary); }
 
-input, select, textarea {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 15px;
-  font-family: inherit;
-  color: var(--text-dark);
-  background: var(--bg-white);
-  transition: border-color 0.2s, box-shadow 0.2s;
-  outline: none;
-}
-input::placeholder, textarea::placeholder { color: var(--text-muted); }
-input:focus, select:focus, textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(13,124,255,0.1);
-}
-textarea { resize: vertical; min-height: 120px; }
-select { cursor: pointer; }
-
-/* Sidebar */
-.appt-sidebar { display: flex; flex-direction: column; gap: 20px; }
+.content-card,
 .sidebar-card {
-  background: var(--primary-light);
-  border-radius: var(--radius-md);
-  padding: 24px;
+  padding: 28px;
 }
-.sidebar-card h3 {
-  font-size: 17px;
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.section-head h2,
+.sidebar-card h2 {
+  font-size: 28px;
+  line-height: 1.2;
+  margin-top: 8px;
+}
+
+.pricing-grid,
+.treatment-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pricing-card,
+.treatment-card,
+.offer-box,
+.payment-box,
+.agreement-box,
+.blessing-box {
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: #fbfffd;
+}
+
+.pricing-card,
+.treatment-card {
+  padding: 20px;
+}
+
+.pricing-title {
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-dark);
-  margin-bottom: 16px;
 }
 
-.contact-item {
+.pricing-price {
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin: 12px 0 8px;
+}
+
+.pricing-details {
+  color: var(--text-medium);
+  font-size: 14px;
+}
+
+.offer-box,
+.payment-box,
+.agreement-box,
+.blessing-box {
+  padding: 20px;
+  margin-top: 18px;
+}
+
+.offer-box h3 {
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.treatment-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.mini-list,
+.bullet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.mini-list li,
+.bullet-list li {
+  position: relative;
+  padding-left: 18px;
+  color: var(--text-medium);
+  line-height: 1.65;
+}
+
+.mini-list li::before,
+.bullet-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  transform: translateY(-50%);
+}
+
+.appt-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-section {
+  padding: 24px;
+  border-radius: 22px;
+  background: #fbfffd;
+  border: 1px solid var(--border);
+}
+
+.form-section h3 {
+  font-size: 22px;
+  margin-bottom: 18px;
+}
+
+.form-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.form-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group--full {
+  grid-column: 1 / -1;
+}
+
+label,
+.field-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.required {
+  color: #dc2626;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  background: #fff;
+  font-size: 15px;
+  color: var(--text-dark);
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.choice-grid,
+.subservice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.choice-grid--compact {
+  grid-template-columns: repeat(3, minmax(0, 220px));
+}
+
+.choice-pill,
+.checkbox-card {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text-medium);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.choice-pill input,
+.checkbox-card input,
+.agreement-check input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+
+.agreement-check {
   display: flex;
   gap: 12px;
-  margin-bottom: 14px;
+  align-items: flex-start;
+  line-height: 1.7;
 }
-.contact-item:last-child { margin-bottom: 0; }
-.contact-icon {
-  width: 36px;
-  height: 36px;
-  background: var(--primary);
-  border-radius: 10px;
+
+.submit-btn {
+  width: 100%;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.submit-help,
+.submit-status {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.submit-status {
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.confirmation-card {
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.blessing-box {
+  background: linear-gradient(135deg, #effcf6 0%, #f7fffb 100%);
+}
+
+.blessing-box strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.appt-sidebar {
   display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: sticky;
+  top: calc(var(--nav-height) + 16px);
+}
+
+.sidebar-card--accent {
+  background: linear-gradient(180deg, #f3fff8 0%, #ffffff 100%);
+}
+
+.sidebar-card--muted {
+  background: linear-gradient(180deg, #ffffff 0%, #f4fff8 100%);
+}
+
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.contact-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.contact-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.contact-value,
+.sidebar-strong {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.contact-wa {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  color: white;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #22c55e;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
 }
-.contact-icon svg { stroke: white; }
-.contact-label { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
-.contact-value { font-size: 14px; font-weight: 600; color: var(--text-dark); }
 
-.instruction-list { display: flex; flex-direction: column; gap: 10px; }
-.instruction-list li {
-  display: flex;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--text-medium);
-  line-height: 1.5;
+.sidebar-btn {
+  width: 100%;
+  justify-content: center;
+  margin-top: 18px;
 }
-.bullet { color: var(--primary); font-weight: 700; flex-shrink: 0; }
 
-@media (max-width: 900px) {
-  .appt-grid { grid-template-columns: 1fr; }
-  .appt-sidebar { order: -1; }
+@media (max-width: 1100px) {
+  .appt-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .appt-sidebar {
+    position: static;
+    order: -1;
+  }
+
+  .section-head {
+    flex-direction: column;
+  }
 }
-@media (max-width: 600px) {
-  .form-row { grid-template-columns: 1fr; }
-  .appt-form-wrap { padding: 24px 16px; }
+
+@media (max-width: 820px) {
+  .pricing-grid,
+  .treatment-grid,
+  .choice-grid,
+  .subservice-grid,
+  .choice-grid--compact,
+  .form-grid--two {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-card,
+  .content-card,
+  .sidebar-card,
+  .form-section {
+    padding: 22px 18px;
+  }
+
+  .hero-copy h1,
+  .section-head h2,
+  .sidebar-card h2 {
+    font-size: 24px;
+  }
 }
 </style>

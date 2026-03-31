@@ -1,4 +1,5 @@
 ---
+import { clinicNumbers, clinicSchedule, getWhatsappUrl } from '../data/clinic.js';
 ---
 <footer class="site-footer">
   <div class="container footer-inner">
@@ -34,11 +35,11 @@
       <h4 class="footer-heading">দ্রুত লিংক</h4>
       <ul class="footer-links">
         <li><a href="/">হোম</a></li>
-        <li><a href="/appointment">এ্যাপয়নমেন্ট</a></li>
+        <li><a href="/appointment">অ্যাপয়েন্টমেন্ট</a></li>
         <li><a href="/symptom-diagnosis">সিমটম ডায়াগনোসিস</a></li>
-        <li><a href="/ruqyah-diagnosis">রুকইয়াহ ডায়গোনিসিস</a></li>
-        <li><a href="/self-ruqyah">সেলফ রুকইয়া</a></li>
-        <li><a href="/blog">রুকইয়া ব্লগ</a></li>
+        <li><a href="/ruqyah-diagnosis">রুকইয়াহ ডায়াগনোসিস</a></li>
+        <li><a href="/self-ruqyah">সেলফ রুকইয়াহ</a></li>
+        <li><a href="/blog">রুকইয়াহ ব্লগ</a></li>
       </ul>
     </div>
 
@@ -46,7 +47,7 @@
     <div class="footer-col">
       <h4 class="footer-heading">আমাদের সেবা</h4>
       <ul class="footer-links">
-        <li><a href="/supplements">রুকইয়া সাপ্লিমেন্ট</a></li>
+        <li><a href="/supplements">রুকইয়াহ সাপ্লিমেন্ট</a></li>
         <li><a href="/pdf">পিডিএফ গাইড</a></li>
         <li><a href="/courses">কোর্স</a></li>
         <li><a href="/team">রাকী পরিচয়</a></li>
@@ -58,10 +59,12 @@
     <div class="footer-col">
       <h4 class="footer-heading">যোগাযোগ</h4>
       <ul class="footer-contact">
-        <li>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          <span>+880 1XXX-XXXXXX</span>
-        </li>
+        {clinicNumbers.map((contact) => (
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span>{contact.display}</span>
+          </li>
+        ))}
         <li>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           <span>info@ruqyahhealing.com</span>
@@ -69,6 +72,14 @@
         <li>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           <span>ঢাকা, বাংলাদেশ</span>
+        </li>
+        <li>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>{clinicSchedule.days} | {clinicSchedule.hours}</span>
+        </li>
+        <li>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <a href={getWhatsappUrl('আসসালামু আলাইকুম, অ্যাপয়েন্টমেন্ট সম্পর্কে জানতে চাই।')} target="_blank" rel="noopener">WhatsApp-এ যোগাযোগ করুন</a>
         </li>
       </ul>
     </div>
