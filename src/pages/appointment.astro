@@ -445,6 +445,11 @@ const preferredTimeSlots = [
     options: string[];
   };
 
+  type AppointmentApiResponse = {
+    appointmentId?: string;
+    message?: string;
+  };
+
   const treatmentCatalogData = document.getElementById('treatmentCatalogData');
   const treatmentCatalog: TreatmentCatalogItem[] = treatmentCatalogData
     ? JSON.parse(treatmentCatalogData.textContent || '[]')
@@ -569,19 +574,24 @@ const preferredTimeSlots = [
         body: JSON.stringify(values),
       });
 
-      const result = await response.json().catch(() => ({}));
+      const rawResult = await response
+        .json()
+        .catch(() => ({} as AppointmentApiResponse));
+      const result = rawResult as AppointmentApiResponse;
       if (!response.ok) {
         throw new Error(result.message || 'বুকিং তথ্য সংরক্ষণ করা যায়নি।');
       }
 
+      const appointmentId = result.appointmentId || 'N/A';
+
       const message = buildAppointmentWhatsappMessage({
         ...values,
         treatmentType: values.treatmentTypeLabel,
-        appointmentId: result.appointmentId,
+        appointmentId,
       });
       const whatsappUrl = getWhatsappUrl(message);
 
-      submitStatus.textContent = `তথ্য সংরক্ষণ হয়েছে। বুকিং আইডি: ${result.appointmentId}. এখন WhatsApp-এ পাঠানোর জন্য নতুন ট্যাব খোলা হচ্ছে...`;
+      submitStatus.textContent = `তথ্য সংরক্ষণ হয়েছে। বুকিং আইডি: ${appointmentId}. এখন WhatsApp-এ পাঠানোর জন্য নতুন ট্যাব খোলা হচ্ছে...`;
       confirmationGuidelines?.removeAttribute('hidden');
       confirmationGuidelines?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
