@@ -1,5 +1,5 @@
 ---
-import { clinicNumbers, clinicSchedule, getWhatsappUrl } from '../data/clinic.js';
+import { clinicNumbers, clinicSchedule, getWhatsappUrl, socialLinks } from '../data/clinic.js';
 ---
 <footer class="site-footer">
   <div class="container footer-inner">
@@ -15,7 +15,7 @@ import { clinicNumbers, clinicSchedule, getWhatsappUrl } from '../data/clinic.js
       </a>
       <p class="footer-desc">ইসলামী রুকইয়ার মাধ্যমে হালাল হিলিং সার্ভিস। কুরআন ও সুন্নাহ ভিত্তিক আধ্যাত্মিক ও শারীরিক সুস্থতার পথে আপনার বিশ্বস্ত সঙ্গী।</p>
       <div class="social-links">
-        <a href="#" class="social-icon" aria-label="Facebook" title="Facebook">
+        <a href={socialLinks.facebook} class="social-icon" aria-label="Facebook" title="Facebook" target="_blank" rel="noopener noreferrer">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
         </a>
         <a href="#" class="social-icon" aria-label="Twitter / X" title="Twitter / X">

@@ -18,6 +18,10 @@ export const clinicNumbers = [
 
 export const primaryContact = clinicNumbers[0];
 
+export const socialLinks = {
+  facebook: 'https://www.facebook.com/Ruqyahhealingg',
+};
+
 export const clinicSchedule = {
   days: 'শুক্রবার থেকে শুক্রবার',
   hours: 'সকাল ৯টা থেকে সন্ধ্যা ৬টা',

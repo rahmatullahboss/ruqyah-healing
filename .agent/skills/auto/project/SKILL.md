@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ruqyah-healing. 37 gotchas, 59 conventions, 8 fixes."
+description: "Project for ruqyah-healing. 37 gotchas, 61 conventions, 9 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **176 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **189 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -57,6 +57,26 @@ Auto-compiled from **176 real patterns** in **ruqyah-healing**. This skill is au
 | gotcha in [testId].astro | - /* Result Header */ + /* ── Result Section ── */ - .result-header-block { + .result-section { padd |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in AppointmentApiResponse — prevents null/undefined runtime ...
+-       const result: AppointmentApiResponse = await response
++       const rawResult = await response
+-       if (!response.ok) {
++       const result = rawResult as AppointmentApiResponse;
+-         throw new Error(result.message || 'বুকিং তথ্য সংরক্ষণ করা যায়নি।');
++       if (!response.ok) {
+-       }
++         throw new Error(result.message || 'বুকিং তথ্য সংরক্ষণ করা যায়নি।');
+- 
++       }
+
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: AppointmentApiResponse
+3. identifier: Error
+4. identifier: WhatsApp
+5. identifier: HTMLButtonElement
 
 ### Patched security issue Helper — prevents XSS injection attacks
 -     // Simple markdown to HTML parser for basic output (bold, lists, links)
@@ -250,6 +270,10 @@ pnpm-debug.log*
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
+- 📐 **what-changed in [testId].astro — confirmed 3x** — -           <a href="/ruqyah-diagnosis">সেলফ রুকইয়াহ টেস্ট</a>
++           <a href="/ruqyah-diagnos
+- 📐 **Fixed null crash in Ruqyah — prevents null/undefined runtime crashes — confirmed 3x** — -   { label: 'রুকইয়াহ টেস্ট', href: '/ruqyah-test' },
++   { label: 'সেলফ রুকইয়াহ', href: '/self-ru
 - 📐 **what-changed in astro.config.mjs — confirmed 3x** — -   adapter: cloudflare(),
 +   adapter: cloudflare({ mode: 'directory' }),
 -     client: './dist',
@@ -268,14 +292,6 @@ pnpm-debug.log*
 - 📐 **Rate limit API endpoints to prevent abuse** — Rate limit API endpoints to prevent abuse
 - 📐 **Validate request body with a schema validator (Joi, Zod)** — Validate request body with a schema validator (Joi, Zod)
 - 📐 **Use helmet for security headers** — Use helmet for security headers
-- 📐 **Use Suspense and Error Boundaries for async operations** — Use Suspense and Error Boundaries for async operations
-- 📐 **Don't prop-drill more than 2 levels — use Context or state management** — Don't prop-drill more than 2 levels — use Context or state management
-- 📐 **Use useMemo for expensive computations, useCallback for stable references** — Use useMemo for expensive computations, useCallback for stable references
-- 📐 **Follow PEP 8 style guide** — Follow PEP 8 style guide
-- 📐 **Use pathlib for file paths, not os.path string manipulation** — Use pathlib for file paths, not os.path string manipulation
-- 📐 **Use virtual environments (venv, poetry, or conda)** — Use virtual environments (venv, poetry, or conda)
-- 📐 **Use f-strings for string formatting, not .format() or %** — Use f-strings for string formatting, not .format() or %
-- 📐 **Use context managers (with) for file and resource operations** — Use context managers (with) for file and resource operations
-- 📐 **Use type hints for function arguments and return types** — Use type h
+- 📐 **Use Suspense and Error Boundaries for async operations** — 
 
 ... [Truncated — see individual observations for full content]

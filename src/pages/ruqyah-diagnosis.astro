@@ -2,185 +2,136 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { testCategories } from '../data/test-data';
 
-const questions = [
-  // শারীরিক লক্ষণ
-  { id: 'q1', category: 'শারীরিক লক্ষণ', question: 'পেটে প্রচুর গ্যাস হওয়া।' },
-  { id: 'q2', category: 'শারীরিক লক্ষণ', question: 'অতিরিক্ত চুল পড়া। শ্যাম্পুতে কাজ না করা।' },
-  { id: 'q3', category: 'শারীরিক লক্ষণ', question: 'শরীরে জ্বর থাকা কিন্তু থার্মোমিটারে না উঠা।' },
-  { id: 'q6', category: 'শারীরিক লক্ষণ', question: 'প্রায়শই শরীর দুর্বল থাকা, ক্ষুধামন্দা, বমি বমি ভাব লাগা।' },
-  { id: 'q17', category: 'শারীরিক লক্ষণ', question: 'মেডিকেলীয় কোন ব্যখ্যা ছাড়াই অনেকদিন যাবত শরীরের কোন যায়গায় স্থির ব্যথা আছে?' },
-  { id: 'q18', category: 'শারীরিক লক্ষণ', question: 'আপনার শরীরে কোন কারণ ছাড়াই লাল, নীল, হলুদ দাগ অথবা আঘাতের চিহ্ন দেখা যায়?' },
-  { id: 'q25', category: 'শারীরিক লক্ষণ', question: 'মৃগীরোগ আছে আপনার?' },
-  { id: 'q26', category: 'শারীরিক লক্ষণ', question: 'ব্যাকপেইন। বিশেষত মেরুদণ্ডের নিচের দিকে ব্যথা করা।' },
-  { id: 'q27', category: 'শারীরিক লক্ষণ', question: '(মহিলাদের ক্ষেত্রে) অনিয়মিত মাসিক (পুরুষদের ক্ষেত্রে) প্রস্রাবে ইনফেকশন এর সমস্যা আছে?' },
-  { id: 'q28', category: 'শারীরিক লক্ষণ', question: 'দীর্ঘদিন চিকিৎসা করেও কোন রোগ ভালো হচ্ছে না?' },
-  { id: 'q29', category: 'শারীরিক লক্ষণ', question: 'তীব্র মাথা ব্যথা, ঔষধ খেয়েও তেমন লাভ হয়না?' },
-
-  // মানসিক ও আচরণগত লক্ষণ
-  { id: 'q5', category: 'মানসিক লক্ষণ', question: 'আপনি যে কাজে অভিজ্ঞ সেটা করতে গেলেই ঝামেলা বাধা।' },
-  { id: 'q10', category: 'মানসিক লক্ষণ', question: 'আপনি হঠাৎ পরিবর্তন হয়ে গেছেন? কেমন যেন উদাসীন ভাব চলে এসেছে, কিছুই ভালো লাগছে না?' },
-  { id: 'q11', category: 'মানসিক লক্ষণ', question: 'মাথায় বিক্ষিপ্ত চিন্তা ঘোরাঘুরির কারণে দৈনন্দিনের কাজকর্ম, ইবাদত, যিকির, তিলাওয়াত ইত্যাদিতে মন বসছে না?' },
-  { id: 'q13', category: 'মানসিক লক্ষণ', question: 'কোন কারণ ছাড়াই হাসাহাসি/কান্নাকাটি করেন?' },
-  { id: 'q30', category: 'মানসিক লক্ষণ', question: 'হঠাৎ করে কারো প্রতি তীব্র ঘৃণা বা তীব্র ভালোলাগা অনুভব হয়?' },
-  { id: 'q31', category: 'মানসিক লক্ষণ', question: 'বিকেল থেকে রাত পর্যন্ত খুব অস্বস্তি লাগে বা মেজাজ খারাপ থাকে?' },
-  { id: 'q32', category: 'মানসিক লক্ষণ', question: 'কোন কারণ ছাড়াই বাড়ি থেকে দৌড় দিয়ে বের হয়ে যেতে ইচ্ছা হয়?' },
-  { id: 'q16', category: 'মানসিক লক্ষণ', question: 'হঠাৎ আপনার শরীরের কোন অঙ্গ অবশ/বিকল হয়ে গেছে? ডাক্তাররা যেখানে কোন সমস্যা খুঁজে পায় না..' },
-
-  // আধ্যাত্মিক ও অদৃশ্য লক্ষণ
-  { id: 'q4', category: 'আধ্যাত্মিক লক্ষণ', question: 'কোরআন তেলাওয়াত করলে বারবার হাই আসে, ঘুম পায়।' },
-  { id: 'q7', category: 'আধ্যাত্মিক লক্ষণ', question: 'নামাজে সিজদার সময় মনের মধ্যে বিভিন্ন অশ্লীল ছবি কিংবা দেবদেবীর মুর্তি ভেসে উঠছে?' },
-  { id: 'q8', category: 'আধ্যাত্মিক লক্ষণ', question: 'আল্লাহ, রাসুল অথবা ইসলামের মৌলিক ব্যাপারে অবমাননাকর চিন্তা মাথায় আসে?' },
-  { id: 'q9', category: 'আধ্যাত্মিক লক্ষণ', question: 'ওযু-গোসল বা ইস্তিঞ্জার সময় এক অঙ্গ বারবার ধুচ্ছেন, তবুও মনে হয় ধোয়া হয়নি ঠিকমতো?' },
-  { id: 'q12', category: 'আধ্যাত্মিক লক্ষণ', question: 'কোরআন তেলাওয়াত শুনতে আপনার খারাপ লাগে?' },
-  { id: 'q19', category: 'আধ্যাত্মিক লক্ষণ', question: 'আপনার কি মনে হয়, বিছানায় কেউ আপনার পাশে শুয়ে আছে অথবা কেউ আপনাকে ফলো করছে?' },
-  { id: 'q20', category: 'আধ্যাত্মিক লক্ষণ', question: 'আপনি কি মাঝেমাঝে এমন কিছু জিনিস শোনেন বা দেখেন যা অন্য কেউ দেখে না?' },
-
-  // ঘুম ও স্বপ্ন
-  { id: 'q14', category: 'ঘুম ও স্বপ্ন', question: 'ঘন ঘন বোবায় ধরার সমস্যা হয়? মনে হয় যে কেউ চেপে ধরেছে, নড়তে পারছেন না এমন হয়?' },
-  { id: 'q15', category: 'ঘুম ও স্বপ্ন', question: 'আপনি ঘুমন্ত অবস্থায় হাটাহাটী করেন? (sleepwalking)' },
-  { id: 'q21', category: 'ঘুম ও স্বপ্ন', question: 'স্বপ্নে নিজেকে অনেক উঁচু কোনো জায়গা থেকে পড়ে যেতে দেখেন?' },
-  { id: 'q22', category: 'ঘুম ও স্বপ্ন', question: 'স্বপ্নে কোনো প্রাণী আপনাকে আক্রমণ করতে বা ধাওয়া করতে দেখেন? বিশেষতঃ কুকুর, বিড়াল, গরু, সিংহ, সাপ।' },
-  { id: 'q23', category: 'ঘুম ও স্বপ্ন', question: 'ঘুমের মাঝে প্রায়শই চিৎকার, গোঙানো, হাসি-কান্নাকাটি করেন?' },
-  { id: 'q24', category: 'ঘুম ও স্বপ্ন', question: 'ঘুম থেকে ওঠার পর অনেক ক্লান্ত লাগে?' }
-];
-
-const options = [
-  { value: 0, label: 'না', color: '#dcfce7', text: '#16a34a' },
-  { value: 1, label: 'মাঝে মধ্যে', color: '#fef9c3', text: '#ca8a04' },
-  { value: 2, label: 'হ্যাঁ', color: '#fee2e2', text: '#dc2626' },
-];
+const categories = testCategories.map(c => ({
+  id:          c.id,
+  title:       c.title,
+  subtitle:    c.subtitle,
+  description: c.description,
+  icon:        c.icon,
+  color:       c.color,
+  colorLight:  c.colorLight,
+  count:       c.id === 'kids' ? '6 / 19' : c.questions.length.toString(),
+}));
 ---
 
 <BaseLayout
   title="রুকইয়াহ ডায়াগনোসিস | Ruqyah Healing Center"
-  description="ধাপে ধাপে রুকইয়াহ ডায়াগনোসিস প্রক্রিয়া সম্পন্ন করুন।"
+  description="রুকইয়াহ ডায়াগনোসিস - আপনার সমস্যাটি কি শারীরিক, মানসিক নাকি আসলেই জিন বা জাদুর প্রভাব? বিজ্ঞানসম্মত ও শরয়ী পদ্ধতিতে নিজে নিজে যাচাই করুন।"
 >
   <Header />
 
   <main>
     <div class="page-header">
       <div class="container">
+        <!-- Breadcrumb -->
         <nav class="breadcrumb" aria-label="breadcrumb">
           <a href="/">হোম</a>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-          <a href="/symptom-diagnosis">সিমটম ডায়াগনোসিস</a>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           <span>রুকইয়াহ ডায়াগনোসিস</span>
         </nav>
       </div>
     </div>
 
-    <!-- Selected symptoms context banner (shown via JS) -->
-    <div class="symptom-banner" id="symptomBanner" style="display:none">
+    <!-- Hero -->
+    <section class="test-hero">
       <div class="container">
-        <div class="banner-inner">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          <span>আপনি <strong id="symptomBannerCount">০</strong>টি লক্ষণ চিহ্নিত করেছেন। নিচের প্রশ্নগুলো সৎভাবে উত্তর দিন।</span>
+        <div class="hero-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          আধ্যাত্মিক ডায়াগনোসিস
         </div>
-      </div>
-    </div>
+        <h1>সেলফ রুকইয়াহ<br /><span>ডায়াগনোসিস সিস্টেম</span></h1>
+        <p>আপনার সমস্যার ধরন অনুযায়ী টেস্ট বেছে নিন। প্রতিটি প্রশ্নের সৎ উত্তর দিন —<br class="br-desk"/>ফলাফল আপনাকে সঠিক পদক্ষেপ নিতে সাহায্য করবে ইনশাআল্লাহ।</p>
 
-    <!-- Quiz Section -->
-    <section class="quiz-section" id="quizSection">
-      <div class="container">
-        <div class="quiz-wrapper">
-
-          <!-- Progress -->
-          <div class="quiz-progress">
-            <div class="progress-top">
-              <span class="progress-label" id="progressLabel">প্রশ্ন ১ / {questions.length}</span>
-              <span class="progress-percent" id="progressPercent">৭% সম্পন্ন</span>
-            </div>
-            <div class="progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={7}>
-              <div class="progress-fill" id="progressFill" style="width:7%"></div>
-            </div>
-          </div>
-
-          <!-- Question card -->
-          <div class="question-card" id="questionCard">
-            <div class="question-meta">
-              <span class="question-category" id="questionCategory">{questions[0].category}</span>
-              <span class="question-num" id="questionNum">১ / {questions.length}</span>
-            </div>
-            <h2 id="questionText">{questions[0].question}</h2>
-
-            <div class="answer-options" id="answerOptions">
-              {options.map(opt => (
-                <button
-                  class="answer-btn"
-                  data-value={opt.value}
-                  style={`--opt-bg:${opt.color};--opt-text:${opt.text}`}
-                  onclick={`selectAnswer(${opt.value})`}
-                >
-                  <span class="opt-dot"></span>
-                  <span class="opt-label">{opt.label}</span>
-                </button>
-              ))}
-            </div>
-
-            <div class="quiz-nav">
-              <button class="nav-btn prev-btn" id="prevBtn" onclick="prevQuestion()" disabled>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-                পূর্ববর্তী
-              </button>
-              <div class="dots" id="dotsContainer"></div>
-              <button class="nav-btn next-btn" id="nextBtn" onclick="nextQuestion()">
-                পরবর্তী
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
-            </div>
-          </div>
-
+        <div class="hero-meta">
+          <span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ৫–১৫ মিনিট
+          </span>
+          <span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            সম্পূর্ণ গোপনীয়
+          </span>
+          <span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            বিনামূল্যে
+          </span>
         </div>
       </div>
     </section>
 
-    <!-- Result Section (hidden initially) -->
-    <section class="result-section hidden" id="resultSection">
+    <!-- Disclaimer -->
+    <div class="disclaimer">
       <div class="container">
-        <div class="result-card">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p>এই টেস্ট শুধুমাত্র প্রাথমিক পর্যায়ের মূল্যায়নের জন্য। এটি কোনো মেডিকেল বা ধর্মীয় ফতোয়া নয়। উচ্চ মাত্রার লক্ষণে অবশ্যই অভিজ্ঞ রাকীর শরণাপন্ন হোন।</p>
+      </div>
+    </div>
 
-          <div class="result-icon" id="resultIcon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    <!-- Test Cards -->
+    <section class="tests-section">
+      <div class="container">
+        <div class="section-label">টেস্ট বেছে নিন</div>
+        <div class="tests-grid">
+          {categories.map(cat => (
+            <a
+              href={`/ruqyah-diagnosis/${cat.id}`}
+              class="test-card"
+              style={`--card-color:${cat.color};--card-light:${cat.colorLight}`}
+            >
+              <div class="card-icon" style={`background:${cat.colorLight}`}>
+                <span>{cat.icon}</span>
+              </div>
+              <div class="card-body">
+                <div class="card-subtitle">{cat.subtitle}</div>
+                <h2 class="card-title">{cat.title}</h2>
+                <p class="card-desc">{cat.description}</p>
+                <div class="card-footer">
+                  <span class="q-count">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    {cat.count} প্রশ্ন
+                  </span>
+                  <span class="start-link">
+                    শুরু করুন
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                  </span>
+                </div>
+              </div>
+              <div class="card-accent" style={`background:${cat.color}`}></div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="how-section">
+      <div class="container">
+        <h2>কীভাবে কাজ করে?</h2>
+        <p class="section-sub">তিনটি সহজ ধাপে আপনার সমস্যা চিহ্নিত করুন</p>
+        <div class="steps-row">
+          <div class="step">
+            <div class="step-num">১</div>
+            <h3>টেস্ট বেছে নিন</h3>
+            <p>আপনার সমস্যার ধরন অনুযায়ী উপযুক্ত টেস্ট সিলেক্ট করুন</p>
           </div>
-          <h2>ডায়াগনোসিস সম্পন্ন</h2>
-          <p>আপনার উত্তরের উপর ভিত্তি করে প্রাথমিক মূল্যায়ন</p>
-
-          <div class="risk-banner" id="riskBanner">
-            <div class="risk-label" id="riskLabel">ঝুঁকির মাত্রা</div>
-            <div class="risk-value" id="riskValue">মূল্যায়ন হচ্ছে...</div>
-            <div class="risk-bar-wrap">
-              <div class="risk-bar" id="riskBar"></div>
-            </div>
+          <div class="step-arrow" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
-
-          <div class="result-stats">
-            <div class="stat-item">
-              <div class="stat-value">{questions.length}</div>
-              <div class="stat-label">মোট প্রশ্ন</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value" id="yesCount">০</div>
-              <div class="stat-label">হ্যাঁ উত্তর</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value" id="scoreVal">০%</div>
-              <div class="stat-label">স্কোর</div>
-            </div>
+          <div class="step">
+            <div class="step-num">২</div>
+            <h3>প্রশ্নের উত্তর দিন</h3>
+            <p>প্রতিটি প্রশ্নে সৎভাবে হ্যাঁ, মাঝেমাঝে বা না বেছে নিন</p>
           </div>
-
-          <div class="recommendations" id="recommendations">
-            <h3>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-              সুপারিশ
-            </h3>
-            <ul id="recList"></ul>
+          <div class="step-arrow" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
-
-          <div class="result-actions" id="resultActions"></div>
-
-          <button class="restart-link" onclick="restartQuiz()">পুনরায় শুরু করুন</button>
+          <div class="step">
+            <div class="step-num">৩</div>
+            <h3>সমাধান পান</h3>
+            <p>স্কোর অনুযায়ী ব্যক্তিগত সুপারিশ ও পরবর্তী পদক্ষেপ জানুন</p>
+          </div>
         </div>
       </div>
     </section>
@@ -191,335 +142,159 @@ const options = [
 
 <style>
 .page-header { padding: 14px 0; border-bottom: 1px solid var(--border); }
-.breadcrumb { display: flex; gap: 6px; align-items: center; font-size: 14px; color: var(--text-muted); flex-wrap: wrap; }
+.breadcrumb { display: flex; gap: 6px; align-items: center; font-size: 14px; color: var(--text-muted); }
 .breadcrumb a { color: var(--primary); text-decoration: none; }
 
-/* Banner */
-.symptom-banner { background: #f0fdf4; border-bottom: 1px solid #bbf7d0; padding: 12px 0; }
-.banner-inner { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #166534; }
-.banner-inner svg { flex-shrink: 0; color: #16a34a; }
+/* Hero */
+.test-hero {
+  padding: 60px 0 48px;
+  text-align: center;
+  background: linear-gradient(180deg, #ecfdf5 0%, #f9fffe 60%, #fff 100%);
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--primary); color: #fff;
+  font-size: 13px; font-weight: 600; padding: 5px 16px;
+  border-radius: 20px; margin-bottom: 20px;
+}
+.test-hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 800; color: var(--text-dark);
+  line-height: 1.2; margin-bottom: 16px;
+}
+.test-hero h1 span { color: var(--primary); }
+.test-hero p {
+  font-size: 1rem; color: var(--text-muted);
+  max-width: 560px; margin: 0 auto 28px; line-height: 1.7;
+}
+.br-desk { display: none; }
+@media (min-width: 600px) { .br-desk { display: block; } }
 
-/* Quiz */
-.quiz-section { padding: 48px 0 80px; min-height: 70vh; }
-.quiz-wrapper { max-width: 720px; margin: 0 auto; }
+.hero-meta {
+  display: inline-flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+  background: #fff; border: 1.5px solid var(--border);
+  border-radius: 40px; padding: 10px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.hero-meta span {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-medium); font-weight: 500;
+}
+.hero-meta svg { color: var(--primary); }
 
-.quiz-progress { margin-bottom: 28px; }
-.progress-top { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
-.progress-bar { height: 8px; background: var(--border, #e5e7eb); border-radius: 999px; overflow: hidden; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary) 0%, #34d399 100%); border-radius: 999px; transition: width 0.4s ease; }
+/* Disclaimer */
+.disclaimer {
+  background: #fffbeb; border-top: 1px solid #fde68a; border-bottom: 1px solid #fde68a;
+  padding: 12px 0;
+}
+.disclaimer .container { display: flex; align-items: flex-start; gap: 10px; }
+.disclaimer svg { color: #d97706; flex-shrink: 0; margin-top: 2px; }
+.disclaimer p { font-size: 13px; color: #78350f; line-height: 1.6; }
 
-.question-card { background: #fff; border: 1.5px solid var(--border); border-radius: 24px; padding: 36px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
-.question-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.question-category { background: var(--primary-light, #ecfdf5); color: var(--primary); font-size: 13px; font-weight: 600; padding: 4px 14px; border-radius: 20px; }
-.question-num { font-size: 13px; color: var(--text-muted); }
-.question-card h2 { font-size: clamp(1.1rem, 3vw, 1.4rem); font-weight: 700; color: var(--text-dark); margin-bottom: 28px; line-height: 1.5; }
+/* Tests Grid */
+.tests-section { padding: 48px 0 64px; }
+.section-label {
+  font-size: 13px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 24px;
+}
+.tests-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
 
-/* 3-option answers */
-.answer-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
-.answer-btn {
+.test-card {
+  position: relative;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 20px 12px;
-  border: 2px solid var(--border);
-  border-radius: 16px;
-  background: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.18s;
-  font-family: inherit;
-  color: var(--text-dark);
-  min-height: 80px;
-}
-.answer-btn:hover { border-color: var(--primary); background: var(--primary-light, #ecfdf5); }
-.answer-btn.selected {
-  border-color: transparent;
-  background: var(--opt-bg, #dcfce7);
-  color: var(--opt-text, #16a34a);
-  box-shadow: 0 0 0 2px var(--opt-text, #16a34a);
-}
-.opt-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid currentColor; transition: background 0.15s; }
-.answer-btn.selected .opt-dot { background: currentColor; }
-.opt-label { font-size: 14px; font-weight: 700; }
-
-/* Nav */
-.quiz-nav { display: flex; align-items: center; justify-content: space-between; }
-.nav-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; padding: 8px 4px; font-family: inherit; transition: color 0.18s; min-height: 44px; }
-.nav-btn:hover { color: var(--primary); }
-.nav-btn:disabled { opacity: 0.3; cursor: default; }
-.next-btn { color: var(--primary); }
-
-.dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 200px; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s, transform 0.2s; }
-.dot.answered { background: #22c55e; }
-.dot.current { background: var(--primary); transform: scale(1.35); }
-
-/* Result */
-.result-section { padding: 60px 0 80px; }
-.result-section.hidden { display: none; }
-.result-card { max-width: 600px; margin: 0 auto; text-align: center; background: #fff; border: 1.5px solid var(--border); border-radius: 24px; padding: 44px 36px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
-.result-icon { width: 72px; height: 72px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #16a34a; margin: 0 auto 20px; }
-.result-card h2 { font-size: 1.7rem; font-weight: 700; margin-bottom: 8px; }
-.result-card > p { color: var(--text-muted); margin-bottom: 24px; }
-
-/* Risk banner */
-.risk-banner { background: var(--bg-light, #f9fafb); border-radius: 14px; padding: 18px 20px; margin-bottom: 20px; text-align: left; }
-.risk-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-.risk-value { font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; }
-.risk-bar-wrap { height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; }
-.risk-bar { height: 100%; border-radius: 999px; transition: width 0.6s ease, background 0.4s; }
-
-.result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; background: var(--bg-light, #f9fafb); border-radius: 14px; padding: 18px; }
-.stat-item { text-align: center; }
-.stat-value { font-size: 1.8rem; font-weight: 700; color: var(--text-dark); }
-.stat-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
-.recommendations { background: #eff6ff; border-radius: 14px; padding: 18px 20px; text-align: left; margin-bottom: 24px; }
-.recommendations h3 { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text-dark); }
-.recommendations ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-.recommendations li { font-size: 14px; color: var(--text-medium); padding-right: 0; padding-left: 20px; position: relative; line-height: 1.5; }
-.recommendations li::before { content: '✓'; position: absolute; left: 0; color: var(--primary); font-weight: 700; }
-
-.result-actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-.result-actions a, .result-actions button.action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px 24px;
-  border-radius: 40px;
-  font-size: 15px;
-  font-weight: 700;
+  gap: 16px;
   text-decoration: none;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s;
-  min-height: 48px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
-.btn-primary-action { background: var(--primary); color: #fff; }
-.btn-primary-action:hover { background: var(--primary-dark, #059669); }
-.btn-urgent { background: #dc2626; color: #fff; }
-.btn-urgent:hover { background: #b91c1c; }
-.btn-secondary-action { background: #fff; color: var(--text-dark); border: 1.5px solid var(--border) !important; }
-.btn-secondary-action:hover { border-color: var(--primary) !important; color: var(--primary); }
+.test-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.1);
+  border-color: var(--card-color);
+}
+.test-card:hover .start-link { color: var(--card-color); }
 
-.restart-link { background: none; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; font-family: inherit; text-decoration: underline; }
+.card-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; flex-shrink: 0;
+}
 
+.card-body { flex: 1; }
+.card-subtitle {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--card-color, var(--primary));
+  margin-bottom: 6px;
+}
+.card-title {
+  font-size: 1.15rem; font-weight: 800;
+  color: var(--text-dark); margin-bottom: 8px; line-height: 1.3;
+}
+.card-desc {
+  font-size: 13px; color: var(--text-muted);
+  line-height: 1.6; margin-bottom: 16px;
+}
+.card-footer {
+  display: flex; align-items: center;
+  justify-content: space-between;
+}
+.q-count {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--text-muted); font-weight: 500;
+}
+.q-count svg { color: var(--card-color, var(--primary)); }
+.start-link {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 13px; font-weight: 700; color: var(--text-muted);
+  transition: color 0.18s;
+}
+
+/* Decorative top accent bar */
+.card-accent {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 4px; opacity: 0;
+  transition: opacity 0.2s;
+}
+.test-card:hover .card-accent { opacity: 1; }
+
+/* How it works */
+.how-section {
+  padding: 60px 0 80px;
+  background: var(--bg-light, #f9fafb);
+}
+.how-section h2 { text-align: center; font-size: 1.75rem; font-weight: 800; margin-bottom: 8px; }
+.section-sub { text-align: center; color: var(--text-muted); margin-bottom: 48px; font-size: 15px; }
+.steps-row {
+  display: flex; align-items: flex-start; justify-content: center;
+  gap: 0; max-width: 760px; margin: 0 auto;
+}
+.step {
+  flex: 1; text-align: center; padding: 0 20px;
+}
+.step-num {
+  width: 56px; height: 56px; background: var(--primary); color: #fff;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; margin: 0 auto 16px;
+}
+.step h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text-dark); }
+.step p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.step-arrow { padding-top: 14px; flex-shrink: 0; }
+
+/* Responsive */
+@media (max-width: 960px) { .tests-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) {
-  .question-card { padding: 24px 18px; }
-  .answer-options { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .answer-btn { padding: 14px 6px; font-size: 13px; }
-  .result-card { padding: 28px 18px; }
+  .tests-grid { grid-template-columns: 1fr; }
+  .test-hero { padding: 40px 0 32px; }
+  .steps-row { flex-direction: column; align-items: center; gap: 24px; }
+  .step-arrow { display: none; }
 }
 </style>
-
-<script define:vars={{ questions, questionsLen: questions.length }}>
-// --- State ---
-let currentQ = 0;
-// 0 = না, 1 = মাঝে মধ্যে, 2 = হ্যাঁ, null = unanswered
-const answers = new Array(questionsLen).fill(null);
-
-// --- Symptom banner from query param ---
-const params = new URLSearchParams(window.location.search);
-const symptomsParam = params.get('symptoms');
-if (symptomsParam) {
-  const count = symptomsParam.split(',').filter(Boolean).length;
-  if (count > 0) {
-    const banner = document.getElementById('symptomBanner');
-    const bannerCount = document.getElementById('symptomBannerCount');
-    if (banner && bannerCount) {
-      bannerCount.textContent = count.toString();
-      banner.style.display = '';
-    }
-  }
-}
-
-// --- Build dots ---
-function buildDots() {
-  const container = document.getElementById('dotsContainer');
-  if (!container) return;
-  container.innerHTML = '';
-  answers.forEach((ans, i) => {
-    const dot = document.createElement('span');
-    dot.className = 'dot' + (ans !== null ? ' answered' : '') + (i === currentQ ? ' current' : '');
-    container.appendChild(dot);
-  });
-}
-
-// --- Update UI ---
-function updateUI(animate = false) {
-  const q = questions[currentQ];
-  const catEl = document.getElementById('questionCategory');
-  const textEl = document.getElementById('questionText');
-  const labelEl = document.getElementById('progressLabel');
-  const pctEl = document.getElementById('progressPercent');
-  const fillEl = document.getElementById('progressFill');
-  const numEl = document.getElementById('questionNum');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const progressBar = document.querySelector('.progress-bar');
-
-  if (catEl) catEl.textContent = q.category;
-  if (textEl) {
-    if (animate) {
-      textEl.style.opacity = '0';
-      textEl.style.transform = 'translateY(8px)';
-      setTimeout(() => {
-        textEl.textContent = q.question;
-        textEl.style.transition = 'opacity 0.2s, transform 0.2s';
-        textEl.style.opacity = '1';
-        textEl.style.transform = 'translateY(0)';
-      }, 120);
-    } else {
-      textEl.textContent = q.question;
-    }
-  }
-  if (numEl) numEl.textContent = `${currentQ + 1} / ${questionsLen}`;
-  if (labelEl) labelEl.textContent = `প্রশ্ন ${currentQ + 1} / ${questionsLen}`;
-  const pct = Math.round(((currentQ + 1) / questionsLen) * 100);
-  if (pctEl) pctEl.textContent = `${pct}% সম্পন্ন`;
-  if (fillEl) fillEl.style.width = `${pct}%`;
-  if (progressBar) progressBar.setAttribute('aria-valuenow', pct.toString());
-
-  // Highlight selected answer
-  document.querySelectorAll('.answer-btn').forEach(btn => {
-    const val = parseInt(btn.dataset.value ?? '-1');
-    btn.classList.toggle('selected', answers[currentQ] === val);
-  });
-
-  if (prevBtn) (prevBtn).disabled = currentQ === 0;
-  if (nextBtn) (nextBtn).disabled = false;
-
-  buildDots();
-}
-
-// --- Answer ---
-window.selectAnswer = function(val) {
-  answers[currentQ] = val;
-  updateUI();
-  setTimeout(() => {
-    if (currentQ < questionsLen - 1) {
-      currentQ++;
-      updateUI(true);
-    } else {
-      showResult();
-    }
-  }, 350);
-};
-
-window.nextQuestion = function() {
-  if (currentQ < questionsLen - 1) { currentQ++; updateUI(true); }
-  else showResult();
-};
-window.prevQuestion = function() {
-  if (currentQ > 0) { currentQ--; updateUI(true); }
-};
-
-// --- Result ---
-function showResult() {
-  document.getElementById('quizSection')?.classList.add('hidden');
-  const resultSection = document.getElementById('resultSection');
-  resultSection?.classList.remove('hidden');
-  resultSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  // Weighted score: না=0, মাঝে মধ্যে=1, হ্যাঁ=2
-  let totalScore = 0;
-  const maxScore = questionsLen * 2;
-  answers.forEach((ans) => {
-    const raw = ans ?? 0;
-    totalScore += raw;
-  });
-
-  const yesCount = answers.filter(a => a === 2).length;
-  const pct = Math.round((totalScore / maxScore) * 100);
-
-  // Display
-  const yesEl = document.getElementById('yesCount');
-  const scoreEl = document.getElementById('scoreVal');
-  if (yesEl) yesEl.textContent = yesCount.toString();
-  if (scoreEl) scoreEl.textContent = `${pct}%`;
-
-  // Risk level
-  let risk, color, barWidth, iconBg, iconColor;
-  if (pct >= 60) {
-    risk = 'উচ্চ'; color = '#dc2626'; barWidth = '90%'; iconBg = '#fee2e2'; iconColor = '#dc2626';
-  } else if (pct >= 30) {
-    risk = 'মাঝারি'; color = '#f59e0b'; barWidth = '55%'; iconBg = '#fef9c3'; iconColor = '#ca8a04';
-  } else {
-    risk = 'নিম্ন'; color = '#16a34a'; barWidth = '22%'; iconBg = '#dcfce7'; iconColor = '#16a34a';
-  }
-
-  const riskValueEl = document.getElementById('riskValue');
-  const riskBarEl = document.getElementById('riskBar');
-  const resultIconEl = document.getElementById('resultIcon');
-  if (riskValueEl) { riskValueEl.textContent = risk; riskValueEl.style.color = color; }
-  if (riskBarEl) { riskBarEl.style.width = barWidth; riskBarEl.style.background = color; }
-  if (resultIconEl) { resultIconEl.style.background = iconBg; resultIconEl.style.color = iconColor; }
-
-  // Recommendations
-  const recs = [];
-  if (pct >= 60) {
-    recs.push('অবিলম্বে অভিজ্ঞ রাকীর সাথে যোগাযোগ করুন');
-    recs.push('নিয়মিত পেশাদার রুকইয়াহ সেশন নিন');
-    recs.push('পরিবারকে আপনার অবস্থা জানান');
-  } else if (pct >= 30) {
-    recs.push('সেলফ রুকইয়াহ শুরু করুন এবং নিয়মিত আমল করুন');
-    recs.push('রুকইয়াহ সংক্রান্ত ব্লগ পোস্ট পড়ুন');
-    recs.push('প্রয়োজনে রাকীর পরামর্শ নিন');
-  } else {
-    recs.push('নিয়মিত সকাল-সন্ধ্যার আযকার পড়ুন');
-    recs.push('সেলফ রুকইয়াহ অনুশীলন করুন');
-    recs.push('কুরআন তেলাওয়াত বাড়ান');
-  }
-  recs.push('নামাজ ও ইবাদতে নিয়মিত থাকুন');
-  recs.push('শিরক ও কুসংস্কার থেকে দূরে থাকুন');
-
-  const recList = document.getElementById('recList');
-  if (recList) recList.innerHTML = recs.map(r => `<li>${r}</li>`).join('');
-
-  // Action buttons based on risk
-  const actionsEl = document.getElementById('resultActions');
-  if (actionsEl) {
-    if (pct >= 60) {
-      actionsEl.innerHTML = `
-        <a href="/appointment" class="action-btn btn-urgent">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          এখনই অ্যাপয়েন্টমেন্ট নিন
-        </a>
-        <a href="/self-ruqyah" class="action-btn btn-secondary-action">সেলফ রুকইয়াহ দেখুন</a>
-      `;
-    } else if (pct >= 30) {
-      actionsEl.innerHTML = `
-        <a href="/self-ruqyah" class="action-btn btn-primary-action">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          সেলফ রুকইয়াহ শুরু করুন
-        </a>
-        <a href="/appointment" class="action-btn btn-secondary-action">রাকীর পরামর্শ নিন</a>
-      `;
-    } else {
-      actionsEl.innerHTML = `
-        <a href="/self-ruqyah" class="action-btn btn-primary-action">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          সেলফ রুকইয়াহ অনুশীলন করুন
-        </a>
-        <a href="/blog" class="action-btn btn-secondary-action">ব্লগ পড়ুন</a>
-      `;
-    }
-  }
-}
-
-window.restartQuiz = function() {
-  currentQ = 0;
-  answers.fill(null);
-  document.getElementById('quizSection')?.classList.remove('hidden');
-  document.getElementById('resultSection')?.classList.add('hidden');
-  updateUI();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-// Init
-updateUI();
-</script>

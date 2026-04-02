@@ -1,7 +1,7 @@
 
 
 # Project Memory — ruqyah-healing
-> 219 notes | Score threshold: >40
+> 234 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,22 +18,32 @@
 
 **Stack:** JavaScript/Python/TypeScript · Express + React · DB: SQLite
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `src/pages/ruqyah-diagnosis`
 
+- **what-changed in [testId].astro — confirmed 3x**
+- **what-changed in ruqyah-diagnosis.astro**
+- **what-changed in ruqyah-diagnosis.astro**
+
+## Project Standards
+
+- what-changed in [testId].astro — confirmed 3x
+- Fixed null crash in Ruqyah — prevents null/undefined runtime crashes — confirmed 3x
 - what-changed in posts.schema.json — confirmed 3x
+- Fixed null crash in Error — prevents null/undefined runtime crashes — confirmed 3x
 - Fixed null crash in Uses — hardens HTTP security headers — confirmed 3x
 - what-changed in package.json — confirmed 3x
 - decision in chat.ts — confirmed 5x
 - Fixed null crash in Ruqyah — hardens HTTP security headers — confirmed 5x
-- what-changed in config.json — confirmed 3x
-- what-changed in astro.config.mjs — confirmed 3x
-- Fixed null crash in Error — prevents null/undefined runtime crashes — confirmed 3x
 
 ## Known Fixes
 
 - ❌ +       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
 - ❌ yarn-error.log* → ✅ problem-fix in .gitignore
 - ❌ -       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in Left — prevents null/undefined runtime crashes
+
+## Recent Decisions
+
+- decision in appointment.astro
 
 ## Learned Patterns
 
