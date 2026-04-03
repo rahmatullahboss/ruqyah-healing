@@ -1,31 +1,31 @@
 {
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-04-02T15:53:16.724Z",
-    "observationCount": 29,
+    "lastGenerated": "2026-04-03T23:10:53.637Z",
+    "observationCount": 42,
     "skillCount": 0,
     "domain": "typescript",
     "triggerGlobs": [
       "**/*.ts",
       "**/*.tsx"
     ],
-    "description": "Typescript for ruqyah-healing. 1 gotchas, 5 conventions, 8 fixes."
+    "description": "Typescript for ruqyah-healing. 2 gotchas, 8 conventions, 8 fixes."
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-04-02T15:53:16.724Z",
-    "observationCount": 189,
+    "lastGenerated": "2026-04-03T23:10:53.636Z",
+    "observationCount": 240,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Project for ruqyah-healing. 37 gotchas, 61 conventions, 9 fixes."
+    "description": "Project for ruqyah-healing. 38 gotchas, 71 conventions, 19 fixes."
   },
   "config": {
     "enabled": true,
-    "lastGenerated": "2026-04-02T15:53:16.724Z",
-    "observationCount": 16,
+    "lastGenerated": "2026-04-03T23:10:53.636Z",
+    "observationCount": 21,
     "skillCount": 0,
     "domain": "config",
     "triggerGlobs": [
@@ -34,11 +34,11 @@
       "**/*.json",
       "**/*.toml"
     ],
-    "description": "Config for ruqyah-healing. 4 conventions."
+    "description": "Config for ruqyah-healing. 5 conventions."
   },
   "convention": {
     "enabled": true,
-    "lastGenerated": "2026-04-02T15:53:16.724Z",
+    "lastGenerated": "2026-04-03T23:10:53.637Z",
     "observationCount": 0,
     "skillCount": 2,
     "domain": "convention",
@@ -49,13 +49,25 @@
   },
   "problem-fix": {
     "enabled": true,
-    "lastGenerated": "2026-04-02T15:53:16.724Z",
+    "lastGenerated": "2026-04-03T23:10:53.637Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "problem-fix",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Problem Fix for ruqyah-healing. 3 error→fix pairs."
+    "description": "Problem Fix for ruqyah-healing. 4 error→fix pairs."
+  },
+  "javascript": {
+    "enabled": true,
+    "lastGenerated": "2026-04-03T23:10:53.636Z",
+    "observationCount": 7,
+    "skillCount": 0,
+    "domain": "javascript",
+    "triggerGlobs": [
+      "**/*.js",
+      "**/*.jsx"
+    ],
+    "description": "Javascript for ruqyah-healing. 1 conventions, 1 fixes."
   }
 }

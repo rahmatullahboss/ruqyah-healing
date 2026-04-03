@@ -3,6 +3,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { testCategories } from '../data/test-data';
+import { Activity, Eye, Moon, Ghost, Brain, Baby } from '@lucide/astro';
+
+const icons = {
+  activity: Activity,
+  eye: Eye,
+  moon: Moon,
+  ghost: Ghost,
+  brain: Brain,
+  baby: Baby
+};
 
 const categories = testCategories.map(c => ({
   id:          c.id,
@@ -10,6 +20,7 @@ const categories = testCategories.map(c => ({
   subtitle:    c.subtitle,
   description: c.description,
   icon:        c.icon,
+  IconCmp:     icons[c.icon as keyof typeof icons] || Activity,
   color:       c.color,
   colorLight:  c.colorLight,
   count:       c.id === 'kids' ? '6 / 19' : c.questions.length.toString(),
@@ -80,8 +91,8 @@ const categories = testCategories.map(c => ({
               class="test-card"
               style={`--card-color:${cat.color};--card-light:${cat.colorLight}`}
             >
-              <div class="card-icon" style={`background:${cat.colorLight}`}>
-                <span>{cat.icon}</span>
+              <div class="card-icon" style={`background:${cat.colorLight}; color: ${cat.color};`}>
+                <cat.IconCmp size={28} stroke-width={2.5} />
               </div>
               <div class="card-body">
                 <div class="card-subtitle">{cat.subtitle}</div>

@@ -158,7 +158,7 @@ export const testCategories: TestCategory[] = [
     title: 'সাধারণ টেস্ট',
     subtitle: 'সমস্যা (অনির্দিষ্ট) যাচাই',
     description: 'সাধারণ বা অনির্দিষ্ট সমস্যার জন্য টেস্ট। এটি আপনাকে লক্ষণ অনুযায়ী জীন, যাদু, বদনজর, ওয়াসওয়াসার সমস্যা নির্ধারণে সাহায্য করবে।',
-    icon: '🔍',
+    icon: 'activity',
     color: '#10B981',
     colorLight: '#ECFDF5',
     questions: [
@@ -214,7 +214,7 @@ export const testCategories: TestCategory[] = [
     title: 'বদনজর টেস্ট',
     subtitle: 'বদনজরের জন্য সমস্যা যাচাই',
     description: 'বদনজর বা হাসাদের কারণে সৃষ্ট সমস্যা যাচাই করতে এই টেস্ট দিন।',
-    icon: '👁️',
+    icon: 'eye',
     color: '#3B82F6',
     colorLight: '#EFF6FF',
     questions: [
@@ -255,7 +255,7 @@ export const testCategories: TestCategory[] = [
     title: 'যাদু টেস্ট',
     subtitle: 'যাদুর সমস্যা যাচাই',
     description: 'কালো যাদু বা জাদুর কারণে সৃষ্ট সমস্যা যাচাই করতে এই টেস্ট দিন।',
-    icon: '🌑',
+    icon: 'moon',
     color: '#8B5CF6',
     colorLight: '#EDE9FE',
     questions: [
@@ -297,7 +297,7 @@ export const testCategories: TestCategory[] = [
     title: 'জীন টেস্ট',
     subtitle: 'জীন আক্রান্তের সমস্যা যাচাই',
     description: 'জীন আক্রমণ বা জীনের প্রভাবে সৃষ্ট সমস্যা যাচাই করতে এই টেস্ট দিন।',
-    icon: '🌙',
+    icon: 'ghost',
     color: '#6366F1',
     colorLight: '#EEF2FF',
     questions: [
@@ -345,7 +345,7 @@ export const testCategories: TestCategory[] = [
     title: 'ওয়াসওয়াসা টেস্ট',
     subtitle: 'ওয়াসওয়াসার সমস্যা যাচাই',
     description: 'শয়তানের কুমন্ত্রণা বা ওয়াসওয়াসার কারণে সৃষ্ট সমস্যা যাচাই করতে এই টেস্ট দিন।',
-    icon: '💭',
+    icon: 'brain',
     color: '#F59E0B',
     colorLight: '#FFFBEB',
     questions: [
@@ -383,7 +383,7 @@ export const testCategories: TestCategory[] = [
     title: 'শিশু টেস্ট',
     subtitle: 'বাচ্চাদের সমস্যা যাচাই',
     description: 'শিশুদের আধ্যাত্মিক সমস্যা যাচাই করতে এই টেস্ট দিন। বয়স অনুযায়ী আলাদা প্রশ্ন আছে।',
-    icon: '👶',
+    icon: 'baby',
     color: '#EC4899',
     colorLight: '#FDF2F8',
     questions: [], // dynamically set based on age group

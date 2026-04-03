@@ -206,7 +206,9 @@ const typeColors: Record<string, { bg: string; border: string; badge: string; te
       <div class="container">
         <!-- Selection counter -->
         <div class="selection-bar" id="selectionBar" aria-live="polite">
-          <span id="selectionCount">কোনো লক্ষণ সিলেক্ট করা হয়নি</span>
+          <div class="selection-count-wrapper">
+            <span id="selectionCount">কোনো লক্ষণ সিলেক্ট করা হয়নি</span>
+          </div>
           <button class="clear-btn" id="clearBtn" style="display:none">সব বাদ দিন</button>
         </div>
 
@@ -248,7 +250,8 @@ const typeColors: Record<string, { bg: string; border: string; badge: string; te
       <div class="container">
         <div class="bottom-cta-inner">
           <div class="cta-selected-info">
-            <strong id="ctaCount">০</strong> টি লক্ষণ সিলেক্ট করা হয়েছে
+            <div><strong id="ctaCount">০</strong> টি লক্ষণ সিলেক্ট করা হয়েছে</div>
+            <div id="ctaSuggestion" style="font-size: 13px; opacity: 0.9; margin-top: 2px; color: var(--primary); display: none;"></div>
           </div>
           <a href="/ruqyah-diagnosis" class="btn-cta" id="diagnosisBtn">
             ডায়াগনোসিস শুরু করুন
@@ -448,10 +451,75 @@ const clearBtn = document.getElementById('clearBtn')!;
 const noResults = document.getElementById('noResults')!;
 const bottomCta = document.getElementById('bottomCta')!;
 const ctaCount = document.getElementById('ctaCount')!;
+const ctaSuggestion = document.getElementById('ctaSuggestion')!;
 const diagnosisBtn = document.getElementById('diagnosisBtn') as HTMLAnchorElement;
 
 let activeFilter = 'all';
 const selected = new Set<string>();
+
+const symptomToTestMap: Record<string, string[]> = {
+  // বদনজর (Evil Eye)
+  'fatigue': ['evil-eye'],
+  'business': ['evil-eye'],
+  'dizziness': ['evil-eye', 'general'],
+  'headache': ['evil-eye', 'magic', 'general'],
+  'eye': ['evil-eye', 'general'],
+  
+  // জাদু (Magic)
+  'marriage': ['magic'],
+  'child': ['magic'],
+  'personality': ['magic'],
+  'social': ['magic'],
+  'pain': ['magic', 'general'],
+  'burning': ['magic', 'jinn'],
+  
+  // জীন (Jinn)
+  'fear': ['jinn'],
+  'quran': ['jinn', 'general'],
+  'feeling': ['jinn', 'magic'],
+  'sleep': ['jinn', 'magic'],
+  'heart': ['jinn', 'magic'],
+  
+  // ওয়াসওয়াসা (Waswasa)
+  'prayer': ['waswasa'],
+  'anxiety': ['waswasa', 'jinn'],
+  'depression': ['waswasa', 'magic', 'general']
+};
+
+const testNames: Record<string, string> = {
+  'general': 'সাধারণ সমস্যা',
+  'evil-eye': 'বদনজর',
+  'magic': 'জাদু',
+  'jinn': 'জীন',
+  'waswasa': 'ওয়াসওয়াসা'
+};
+
+function recommendTest(selectedIds: string[]): { id: string, name: string } {
+  if (selectedIds.length === 0) return { id: 'general', name: 'সাধারণ সমস্যা' };
+  
+  const scores: Record<string, number> = {
+    'general': 0, 'evil-eye': 0, 'magic': 0, 'jinn': 0, 'waswasa': 0
+  };
+  
+  for (const id of selectedIds) {
+    const tests = symptomToTestMap[id] || ['general'];
+    for (const test of tests) {
+      scores[test]++;
+    }
+  }
+  
+  let topTest = 'general';
+  let maxScore = 0;
+  
+  for (const [test, score] of Object.entries(scores)) {
+    if (score > maxScore) {
+      maxScore = score;
+      topTest = test;
+    }
+  }
+  
+  return { id: topTest, name: testNames[topTest] };
+}
 
 function updateSelectionUI() {
   const n = selected.size;
@@ -460,14 +528,22 @@ function updateSelectionUI() {
     clearBtn.style.display = 'none';
     bottomCta.classList.remove('visible');
     bottomCta.setAttribute('aria-hidden', 'true');
+    ctaSuggestion.style.display = 'none';
   } else {
-    selectionCount.textContent = `${n}টি লক্ষণ সিলেক্ট করা হয়েছে`;
+    const { id: testId, name: testName } = recommendTest([...selected]);
+    
+    selectionCount.innerHTML = `${n}টি লক্ষণ সিলেক্ট করা হয়েছে <span style="font-size:13px; color:var(--text-muted); display:block; margin-top:2px;">সাজেস্টেড: <strong style="color:var(--primary);">${testName} টেস্ট</strong></span>`;
     clearBtn.style.display = '';
+    
     ctaCount.textContent = n.toString();
+    ctaSuggestion.innerHTML = `সাজেস্টেড: <strong>${testName} টেস্ট</strong>`;
+    ctaSuggestion.style.display = 'block';
+    
     bottomCta.classList.add('visible');
     bottomCta.removeAttribute('aria-hidden');
-    // Pass symptom IDs as query param
-    diagnosisBtn.href = `/ruqyah-diagnosis?symptoms=${[...selected].join(',')}`;
+    
+    // Pass symptom IDs as query param and route to exact test
+    diagnosisBtn.href = `/ruqyah-diagnosis/${testId}?symptoms=${[...selected].join(',')}`;
   }
 }
 

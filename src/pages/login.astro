@@ -1,0 +1,286 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { UserCircle, Mail, Lock, AlertCircle, ArrowRight } from '@lucide/astro';
+
+// If user is already logged in, redirect to profile
+if (Astro.locals.user) {
+  return Astro.redirect('/profile');
+}
+---
+
+<BaseLayout title="লগইন | Ruqyah Healing Center" description="আপনার অ্যাকাউন্টে লগইন করুন।">
+  <main class="auth-page">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="auth-icon-wrapper">
+             <UserCircle size={40} class="auth-icon" stroke-width={1.5} />
+          </div>
+          <h1>লগইন করুন</h1>
+          <p>আপনার প্রোফাইল এবং এ্যাপয়েন্টমেন্ট দেখতে লগইন করুন</p>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+          <div class="form-group">
+            <label for="identifier">ইমেইল অথবা মোবাইল নাম্বার</label>
+            <div class="input-wrapper">
+              <Mail size={20} class="input-icon" />
+              <input type="text" id="identifier" name="identifier" required placeholder="01XXXXXXXXX" />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">পাসওয়ার্ড</label>
+            <div class="input-wrapper">
+              <Lock size={20} class="input-icon" />
+              <input type="password" id="password" name="password" required placeholder="••••••••" />
+            </div>
+          </div>
+
+          <div id="errorMessage" class="error-message" style="display: none;">
+            <AlertCircle size={16} />
+            <span id="errorText"></span>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            <span>লগইন করুন</span>
+            <ArrowRight size={20} />
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          <p>অ্যাকাউন্ট নেই? <a href="/register">নতুন অ্যাকাউন্ট তৈরি করুন</a></p>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('loginForm') as HTMLFormElement;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+  const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
+  const errorText = document.getElementById('errorText') as HTMLSpanElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.classList.add('loading');
+    errorMessage.style.display = 'none';
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        window.location.href = result.redirect;
+      } else {
+        throw new Error(result.error || 'লগইন করতে সমস্যা হয়েছে।');
+      }
+    } catch (err: any) {
+      errorText.textContent = err.message;
+      errorMessage.style.display = 'flex';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('loading');
+    }
+  });
+</script>
+
+<style>
+  .auth-page {
+    min-height: calc(100vh - var(--nav-height));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, var(--bg-white) 0%, var(--bg-light) 100%);
+  }
+
+  .auth-container {
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .auth-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-light);
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .auth-icon-wrapper {
+    width: 72px;
+    height: 72px;
+    background: var(--primary-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+  }
+
+  .auth-icon {
+    color: var(--primary);
+  }
+
+  .auth-header h1 {
+    font-size: 1.75rem;
+    color: var(--text-dark);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .auth-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-muted);
+  }
+
+  .input-wrapper input {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 2.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    color: var(--text-dark);
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background-color: var(--bg-white);
+  }
+
+  .input-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  }
+
+  .error-message {
+    background: var(--pink-light);
+    color: #ef4444;
+    padding: 0.875rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .submit-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .submit-btn.loading span {
+    opacity: 0;
+  }
+  
+  .submit-btn.loading {
+    position: relative;
+  }
+  
+  .submit-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid white;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    100% { transform: rotate(360deg); }
+  }
+
+  .auth-footer {
+    margin-top: 2rem;
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .auth-footer p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .auth-footer a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .auth-footer a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+  }
+</style>

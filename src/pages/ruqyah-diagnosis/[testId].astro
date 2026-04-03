@@ -3,6 +3,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import { testCategories, kidsQuestions, answerOptions, type TestCategory } from '../../data/test-data';
+import { Activity, Eye, Moon, Ghost, Brain, Baby, CheckCircle, HelpCircle, XCircle, User, AlertTriangle } from '@lucide/astro';
+
+export const prerender = true;
+
+const icons = {
+  activity: Activity,
+  eye: Eye,
+  moon: Moon,
+  ghost: Ghost,
+  brain: Brain,
+  baby: Baby
+};
 
 export function getStaticPaths() {
   return testCategories.map(cat => ({ params: { testId: cat.id } }));
@@ -10,6 +22,7 @@ export function getStaticPaths() {
 
 const { testId } = Astro.params;
 const category = testCategories.find(c => c.id === testId) as TestCategory;
+const IconCmp = icons[category.icon as keyof typeof icons] || Activity;
 
 // For non-kids, embed questions directly; kids uses client-side switching
 const isKids = testId === 'kids';
@@ -41,18 +54,20 @@ const questions = isKids ? [] : category.questions;
       <section class="age-selector-section" id="ageSelectorSection">
         <div class="container">
           <div class="age-selector-card">
-            <div class="test-icon" style={`background:${category.colorLight}`}>{category.icon}</div>
+            <div class="test-icon" style={`background:${category.colorLight}; color:${category.color};`}>
+              <IconCmp size={36} stroke-width={2.5} />
+            </div>
             <h1>{category.title}</h1>
             <p class="test-desc">{category.description}</p>
             <p style="font-weight:700; color: var(--text-dark); margin-bottom: 16px;">শিশুর বয়স বেছে নিন:</p>
             <div class="age-btns">
               <button class="age-btn" id="btnInfant" onclick="selectAgeGroup('infant')">
-                <span class="age-icon">👶</span>
+                <span class="age-icon" style="display:inline-flex;align-items:center;color:#EC4899;"><Baby size={20} stroke-width={2.5}/></span>
                 <span class="age-label">০ – ২ বছর</span>
                 <span class="age-sub">৬টি প্রশ্ন</span>
               </button>
               <button class="age-btn" id="btnChild" onclick="selectAgeGroup('child')">
-                <span class="age-icon">🧒</span>
+                <span class="age-icon" style="display:inline-flex;align-items:center;color:#EC4899;"><User size={20} stroke-width={2.5}/></span>
                 <span class="age-label">২ – ১২ বছর</span>
                 <span class="age-sub">১৯টি প্রশ্ন</span>
               </button>
@@ -67,7 +82,9 @@ const questions = isKids ? [] : category.questions;
       <div class="container">
         <!-- Test intro header -->
         <div class="test-intro" id="testIntro">
-          <div class="test-icon-sm" style={`background:${category.colorLight}`}>{category.icon}</div>
+          <div class="test-icon-sm" style={`background:${category.colorLight}; color:${category.color};`}>
+            <IconCmp size={24} stroke-width={2.5} />
+          </div>
           <div>
             <p class="intro-sub" style={`color:${category.color}`}>{category.subtitle}</p>
             <h1 class="intro-title">{category.title}</h1>
@@ -100,8 +117,10 @@ const questions = isKids ? [] : category.questions;
                   style={`--opt-bg:${opt.color};--opt-text:${opt.text}`}
                   onclick={`selectAnswer(${opt.value})`}
                 >
-                  <span class="opt-emoji">
-                    {opt.value === 2 ? '✅' : opt.value === 1 ? '🤔' : '❌'}
+                  <span class="opt-emoji" style="display:inline-flex;align-items:center;justify-content:center;">
+                    {opt.value === 2 && <CheckCircle size={20} stroke-width={2.5} />}
+                    {opt.value === 1 && <HelpCircle size={20} stroke-width={2.5} />}
+                    {opt.value === 0 && <XCircle size={20} stroke-width={2.5} />}
                   </span>
                   <span class="opt-label">{opt.label}</span>
                 </button>
@@ -176,6 +195,7 @@ function updateUI(animate = false) {
   const len = questions.length;
 
   const textEl    = document.getElementById('questionText');
+  const answerOpts= document.getElementById('answerOptions');
   const labelEl   = document.getElementById('progressLabel');
   const pctEl     = document.getElementById('progressPercent');
   const fillEl    = document.getElementById('progressFill');
@@ -185,35 +205,44 @@ function updateUI(animate = false) {
   const pBar      = document.querySelector('.progress-bar');
   const pct       = Math.round(((currentQ + 1) / len) * 100);
 
-  if (textEl) {
-    if (animate) {
-      textEl.style.opacity = '0';
-      textEl.style.transform = 'translateY(10px)';
-      setTimeout(() => {
-        textEl.textContent = q.text;
-        textEl.style.transition = 'opacity 0.22s, transform 0.22s';
-        textEl.style.opacity = '1';
-        textEl.style.transform = 'translateY(0)';
-      }, 140);
-    } else {
-      textEl.textContent = q.text;
-    }
+  function applyData() {
+    if (textEl) textEl.textContent = q.text;
+    if (numBadge) numBadge.textContent = `প্রশ্ন ${currentQ + 1}`;
+    if (labelEl)  labelEl.textContent  = `প্রশ্ন ${currentQ + 1} / ${len}`;
+    if (pctEl)    pctEl.textContent    = `${pct}% সম্পন্ন`;
+    if (fillEl)   fillEl.style.width   = `${pct}%`;
+    if (pBar)     pBar.setAttribute('aria-valuenow', pct.toString());
+
+    // Highlight selected answer
+    document.querySelectorAll('.answer-btn').forEach(btn => {
+      const val = parseInt(btn.dataset.value ?? '-1');
+      btn.classList.toggle('selected', answers[currentQ] === val);
+    });
+
+    if (prevBtn) prevBtn.disabled = currentQ === 0;
+    buildDots();
   }
 
-  if (numBadge) numBadge.textContent = `প্রশ্ন ${currentQ + 1}`;
-  if (labelEl)  labelEl.textContent  = `প্রশ্ন ${currentQ + 1} / ${len}`;
-  if (pctEl)    pctEl.textContent    = `${pct}% সম্পন্ন`;
-  if (fillEl)   fillEl.style.width   = `${pct}%`;
-  if (pBar)     pBar.setAttribute('aria-valuenow', pct.toString());
-
-  // Highlight selected answer
-  document.querySelectorAll('.answer-btn').forEach(btn => {
-    const val = parseInt(btn.dataset.value ?? '-1');
-    btn.classList.toggle('selected', answers[currentQ] === val);
-  });
-
-  if (prevBtn) prevBtn.disabled = currentQ === 0;
-  buildDots();
+  if (animate && textEl && answerOpts) {
+    textEl.style.transition = 'opacity 0.2s, transform 0.2s';
+    answerOpts.style.transition = 'opacity 0.2s, transform 0.2s';
+    
+    textEl.style.opacity = '0';
+    textEl.style.transform = 'translateY(10px)';
+    answerOpts.style.opacity = '0';
+    answerOpts.style.transform = 'translateY(10px)';
+    
+    setTimeout(() => {
+      applyData();
+      
+      textEl.style.opacity = '1';
+      textEl.style.transform = 'translateY(0)';
+      answerOpts.style.opacity = '1';
+      answerOpts.style.transform = 'translateY(0)';
+    }, 200);
+  } else {
+    applyData();
+  }
 }
 
 // ── Dots ─────────────────────────────────────────────────────────────────────
@@ -333,7 +362,7 @@ function buildProtocolHTML(res) {
   // tabeez warning
   if (p.tabeejWarning) {
     html += `<div class="rc-warning">
-      <span class="rc-warning-icon">⚠️</span>
+      <span class="rc-warning-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
       <span>আপনি যদি তাবিজ ব্যবহার করে থাকেন বা বর্তমানে তাবিজ কাছে থাকে, তবে অবশ্যই রুকইয়াহ শুরু করার আগে সেই তাবিজ নষ্ট করতে হবে। <a href="/posts/tabij-nosto-korar-niyom" style="font-weight:700;text-decoration:underline;white-space:nowrap">তাবিজ নষ্টের নিয়ম পড়ুন →</a></span>
     </div>`;
   }
@@ -913,4 +942,3 @@ if (!isKids) {
   .rc-footer { padding: 12px 20px 20px; }
 }
 </style>
-

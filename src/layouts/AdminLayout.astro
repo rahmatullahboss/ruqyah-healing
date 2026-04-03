@@ -1,0 +1,366 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import { LayoutDashboard, Users, Calendar, Settings, LogOut, Heart, Menu, X } from '@lucide/astro';
+
+interface Props {
+  title?: string;
+}
+
+const { title = 'Admin Dashboard | Ruqyah Healing' } = Astro.props;
+
+const currentPath = Astro.url.pathname;
+const user = Astro.locals.user;
+---
+
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <ClientRouter />
+    <style>
+      :root {
+        --admin-bg: #f8fafc;
+        --admin-surface: #ffffff;
+        --admin-border: #e2e8f0;
+        --admin-text: #0f172a;
+        --admin-text-light: #64748b;
+        --admin-primary: #0891B2;
+        --admin-primary-light: #ECFEFF;
+        --admin-sidebar-width: 260px;
+      }
+      
+      body {
+        background-color: var(--admin-bg);
+        color: var(--admin-text);
+        margin: 0;
+        overflow-x: hidden;
+      }
+
+      .admin-layout {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: var(--admin-sidebar-width);
+        background: var(--admin-surface);
+        border-right: 1px solid var(--admin-border);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 50;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar-brand {
+        height: 70px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 24px;
+        border-bottom: 1px solid var(--admin-border);
+        color: var(--admin-primary);
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-decoration: none;
+      }
+
+      .sidebar-nav {
+        flex: 1;
+        padding: 24px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        overflow-y: auto;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        color: var(--admin-text-light);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+      }
+
+      .nav-item:hover {
+        background: var(--admin-primary-light);
+        color: var(--admin-primary);
+      }
+
+      .nav-item.active {
+        background: var(--admin-primary-light);
+        color: var(--admin-primary);
+        font-weight: 600;
+      }
+
+      .sidebar-footer {
+        padding: 20px 16px;
+        border-top: 1px solid var(--admin-border);
+      }
+
+      .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: #f1f5f9;
+        border-radius: 8px;
+      }
+
+      .user-avatar {
+        width: 36px;
+        height: 36px;
+        background: var(--admin-primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .user-info {
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .user-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .user-role {
+        font-size: 0.8rem;
+        color: var(--admin-text-light);
+        text-transform: capitalize;
+      }
+
+      /* Main Content */
+      .main-wrapper {
+        flex: 1;
+        margin-left: var(--admin-sidebar-width);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .topbar {
+        height: 70px;
+        background: var(--admin-surface);
+        border-bottom: 1px solid var(--admin-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        position: sticky;
+        top: 0;
+        z-index: 40;
+      }
+
+      .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--admin-text);
+        cursor: pointer;
+        padding: 8px;
+      }
+      
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-left: auto;
+      }
+      
+      .logout-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #ef4444;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        transition: all 0.2s;
+        background: white;
+      }
+      
+      .logout-btn:hover {
+        background: #fef2f2;
+      }
+
+      .content-area {
+        flex: 1;
+        padding: 32px;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      /* Responsive */
+      @media (max-width: 1024px) {
+        .admin-layout {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          transform: translateX(-100%);
+        }
+
+        .sidebar.open {
+          transform: translateX(0);
+          box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+        }
+
+        .main-wrapper {
+          margin-left: 0;
+        }
+
+        .topbar {
+          padding: 0 20px;
+        }
+        
+        .mobile-menu-btn {
+          display: flex;
+        }
+        
+        .content-area {
+          padding: 24px 20px;
+        }
+      }
+      
+      /* Global Admin Utility Classes */
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 24px;
+      }
+      
+      .page-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--admin-text);
+        margin: 0 0 4px 0;
+      }
+      
+      .page-desc {
+        color: var(--admin-text-light);
+        margin: 0;
+        font-size: 0.95rem;
+      }
+      
+      .admin-card {
+        background: var(--admin-surface);
+        border: 1px solid var(--admin-border);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-layout">
+      <!-- Sidebar overlay for mobile -->
+      <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/50 z-40 hidden lg:hidden" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:40;"></div>
+      
+      <aside class="sidebar" id="adminSidebar">
+        <a href="/" class="sidebar-brand">
+          <Heart size={24} stroke-width={2.5} />
+          <span>Ruqyah Admin</span>
+        </a>
+        
+        <nav class="sidebar-nav">
+          <a href="/admin" class:list={['nav-item', currentPath === '/admin' && 'active']}>
+            <LayoutDashboard size={20} stroke-width={2} />
+            ড্যাশবোর্ড
+          </a>
+          <a href="/admin/appointments" class:list={['nav-item', currentPath.startsWith('/admin/appointments') && 'active']}>
+            <Calendar size={20} stroke-width={2} />
+            এ্যাপয়েন্টমেন্টস
+          </a>
+          <a href="/admin/users" class:list={['nav-item', currentPath.startsWith('/admin/users') && 'active']}>
+            <Users size={20} stroke-width={2} />
+            ইউজার ম্যানেজমেন্ট
+          </a>
+          <a href="/admin/settings" class:list={['nav-item', currentPath.startsWith('/admin/settings') && 'active']}>
+            <Settings size={20} stroke-width={2} />
+            সেটিংস
+          </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+          <div class="user-profile">
+            <div class="user-avatar">
+              {user?.fullName?.charAt(0) || 'A'}
+            </div>
+            <div class="user-info">
+              <div class="user-name">{user?.fullName || 'Admin User'}</div>
+              <div class="user-role">{user?.role || 'Admin'}</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="main-wrapper">
+        <header class="topbar">
+          <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <Menu size={24} />
+          </button>
+          
+          <div class="topbar-actions">
+             <a href="/api/auth/logout" class="logout-btn">
+               <LogOut size={16} />
+               লগআউট
+             </a>
+          </div>
+        </header>
+
+        <main class="content-area">
+          <slot />
+        </main>
+      </div>
+    </div>
+    
+    <script>
+      const mobileBtn = document.getElementById('mobileMenuBtn');
+      const sidebar = document.getElementById('adminSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      
+      function toggleSidebar() {
+        const isOpen = sidebar?.classList.contains('open');
+        if (isOpen) {
+          sidebar?.classList.remove('open');
+          if (overlay) overlay.style.display = 'none';
+        } else {
+          sidebar?.classList.add('open');
+          if (overlay) overlay.style.display = 'block';
+        }
+      }
+      
+      mobileBtn?.addEventListener('click', toggleSidebar);
+      overlay?.addEventListener('click', toggleSidebar);
+    </script>
+  </body>
+</html>

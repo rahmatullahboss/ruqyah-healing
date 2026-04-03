@@ -25,8 +25,11 @@
     <div id="ai-message-list" class="ai-message-list">
       <!-- Welcome Message -->
       <div class="ai-msg-row ai">
-        <div class="ai-bubble-ai">
-          আসসালামু আলাইকুম! রুকইয়াহ এবং ইসলামিক হিলিং সম্পর্কিত কোনো বিষয়ে আমার সাহায্য প্রয়োজন?
+        <div class="ai-msg-shell ai">
+          <div class="ai-avatar" aria-hidden="true">AI</div>
+          <div class="ai-bubble-ai">
+            আপনার লক্ষণ, রুকইয়াহ টেস্ট, সেলফ রুকইয়াহ বা অ্যাপয়েন্টমেন্ট নিয়ে জানতে লিখুন।
+          </div>
         </div>
       </div>
     </div>
@@ -112,17 +115,60 @@
         .replace(/'/g, '&#039;');
     };
 
-    // Simple markdown to HTML parser for basic output (bold, lists, links)
-    const parseMarkdown = (text: string) => {
-      let escaped = escapeHTML(text);
-      let html = escaped
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    const applyInlineFormatting = (text: string) => {
+      return text
         .replace(/`([^`]+)`/g, '<code>$1</code>')
-        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
-        .replace(/\n\n/g, '<br><br>')
-        .replace(/\n/g, '<br>');
-      return html;
+        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+    };
+
+    const extractStandaloneHeading = (line: string) => {
+      const match = line.match(/^\*\*(.+?)\*\*$/);
+      return match ? match[1].trim() : '';
+    };
+
+    // Simple markdown to HTML parser for sections, lists, and links
+    const parseMarkdown = (text: string) => {
+      const normalized = text
+        .replace(/\r\n/g, '\n')
+        .replace(/([^\n])(\*\*[^*\n]+\*\*)/g, '$1\n\n$2')
+        .replace(/(\*\*[^*\n]+\*\*)([^\n])/g, '$1\n$2');
+      const escaped = escapeHTML(normalized.trim());
+      const blocks = escaped.split(/\n{2,}/).filter(Boolean);
+
+      return blocks.map((block) => {
+        const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
+        if (lines.length === 0) return '';
+
+        if (lines.length === 1) {
+          const heading = extractStandaloneHeading(lines[0]);
+          if (heading) {
+            return `<h4 class="ai-section-title">${applyInlineFormatting(heading)}</h4>`;
+          }
+        }
+
+        const firstHeading = extractStandaloneHeading(lines[0]);
+        if (firstHeading && lines.length > 1) {
+          const remaining = lines.slice(1);
+          const content = remaining.every((line) => line.startsWith('- '))
+            ? `<ul class="ai-rich-list">${remaining.map((line) => `<li>${applyInlineFormatting(line.slice(2))}</li>`).join('')}</ul>`
+            : `<p>${remaining.map(applyInlineFormatting).join('<br>')}</p>`;
+          return `<section class="ai-section-block"><h4 class="ai-section-title">${applyInlineFormatting(firstHeading)}</h4>${content}</section>`;
+        }
+
+        if (lines.every((line) => line.startsWith('- '))) {
+          const items = lines.map((line) => `<li>${applyInlineFormatting(line.slice(2))}</li>`).join('');
+          return `<ul class="ai-rich-list">${items}</ul>`;
+        }
+
+        if (lines.every((line) => /^\d+\.\s/.test(line))) {
+          const items = lines.map((line) => `<li>${applyInlineFormatting(line.replace(/^\d+\.\s/, ''))}</li>`).join('');
+          return `<ol class="ai-rich-list">${items}</ol>`;
+        }
+
+        return `<p>${lines.map(applyInlineFormatting).join('<br>')}</p>`;
+      }).join('');
     };
 
     // UI Builders
@@ -130,8 +176,10 @@
       const msgDiv = document.createElement('div');
       msgDiv.className = "ai-msg-row user";
       msgDiv.innerHTML = `
-        <div class="ai-bubble-user">
-          ${escapeHTML(text)}
+        <div class="ai-msg-shell user">
+          <div class="ai-bubble-user">
+            ${escapeHTML(text)}
+          </div>
         </div>
       `;
       messageList?.appendChild(msgDiv);
@@ -142,11 +190,14 @@
       const msgDiv = document.createElement('div');
       msgDiv.className = "ai-msg-row ai ai-response-container";
       msgDiv.innerHTML = `
-        <div class="ai-bubble-ai">
-          <div class="ai-typing-dots">
-            <span class="ai-typing-dot"></span>
-            <span class="ai-typing-dot"></span>
-            <span class="ai-typing-dot"></span>
+        <div class="ai-msg-shell ai">
+          <div class="ai-avatar" aria-hidden="true">AI</div>
+          <div class="ai-bubble-ai">
+            <div class="ai-typing-dots">
+              <span class="ai-typing-dot"></span>
+              <span class="ai-typing-dot"></span>
+              <span class="ai-typing-dot"></span>
+            </div>
           </div>
         </div>
       `;
@@ -186,7 +237,17 @@
         });
 
         if (!res.ok) {
-          throw new Error('API Error: ' + res.statusText);
+          let message = 'AI সার্ভিসে সাময়িক সমস্যা হচ্ছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+          const contentType = res.headers.get('Content-Type') || '';
+
+          if (contentType.includes('application/json')) {
+            const errorBody = await res.json().catch(() => null);
+            if (errorBody?.error) {
+              message = errorBody.error;
+            }
+          }
+
+          throw new Error(message);
         }
 
         // 4. Stream reading
@@ -207,22 +268,33 @@
           buffer = lines.pop() || '';
 
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const dataStr = line.slice(6).trim();
-              if (dataStr === '[DONE]') break;
-              if (!dataStr) continue;
+            if (!line.startsWith('data: ')) continue;
 
-              try {
-                const data = JSON.parse(dataStr);
-                const delta = data.choices?.[0]?.delta?.content;
-                if (delta) {
-                  aiText += delta;
-                  aiBubble.innerHTML = parseMarkdown(aiText);
-                  scrollToBottom();
+            const dataStr = line.slice(6).trim();
+            if (dataStr === '[DONE]') continue;
+            if (!dataStr) continue;
+
+            try {
+              const data = JSON.parse(dataStr);
+              const candidate = data.choices?.[0]?.delta?.content
+                ?? data.response
+                ?? data.output_text
+                ?? data.result?.response
+                ?? '';
+
+              if (typeof candidate === 'string' && candidate) {
+                if (candidate.startsWith(aiText)) {
+                  aiText = candidate;
+                } else {
+                  aiText += candidate;
                 }
-              } catch (parseError) {
-                // partial chunk or invalid json
+                aiBubble.innerHTML = parseMarkdown(aiText);
+                scrollToBottom();
               }
+            } catch {
+              aiText += dataStr;
+              aiBubble.innerHTML = parseMarkdown(aiText);
+              scrollToBottom();
             }
           }
         }
@@ -232,12 +304,10 @@
 
       } catch (error) {
         console.error(error);
-        // Try to show the server's Bengali error message if available
-        let errMsg = 'দুঃখিত, আপনার অনুরোধ প্রক্রিয়া করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।';
-        if (error instanceof Error && error.message.includes('API Error')) {
-          errMsg = 'AI সার্ভিসে সাময়িক সমস্যা হচ্ছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
-        }
-        aiBubble.innerHTML = errMsg;
+        const errMsg = error instanceof Error && error.message
+          ? error.message
+          : 'দুঃখিত, এই মুহূর্তে উত্তর দিতে সমস্যা হচ্ছে। একটু পরে আবার চেষ্টা করুন।';
+        aiBubble.innerHTML = parseMarkdown(errMsg);
         aiBubble.classList.add('ai-bubble-error');
         messages.pop(); // remove failed user message from context
       } finally {
@@ -248,7 +318,7 @@
   });
 </script>
 
-<style>
+<style is:global>
   /* Container */
   .ai-agent-container {
     position: fixed;
@@ -349,48 +419,105 @@
   .ai-message-list {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    padding: 18px 14px 22px;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background: #f9fafb;
+    background: linear-gradient(180deg, #f7faf9 0%, #f3f7f5 100%);
     font-size: 0.875rem;
   }
   
   .ai-msg-row {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    margin-bottom: 8px;
     animation: fadeIn 0.3s ease-in-out;
   }
   
   .ai-msg-row.user { align-items: flex-end; }
   .ai-msg-row.ai { align-items: flex-start; }
+
+  .ai-msg-shell {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .ai-msg-shell.user {
+    justify-content: flex-end;
+  }
+
+  .ai-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex: 0 0 auto;
+    box-shadow: 0 6px 14px rgba(16, 185, 129, 0.18);
+  }
   
   .ai-bubble-user {
-    background: #1f2937;
+    position: relative;
+    background: linear-gradient(135deg, #0f766e 0%, #0b6b63 100%);
     color: #fff;
-    border: 1px solid #374151;
-    border-radius: 16px;
-    border-top-right-radius: 2px;
-    padding: 8px 16px;
-    max-width: 85%;
+    border: 1px solid rgba(13, 110, 102, 0.5);
+    border-radius: 20px;
+    border-bottom-right-radius: 6px;
+    padding: 12px 15px;
+    max-width: min(78%, 272px);
     word-break: break-word;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 20px rgba(15, 118, 110, 0.12);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  .ai-bubble-user::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    bottom: 10px;
+    width: 12px;
+    height: 12px;
+    background: #0b6b63;
+    border-right: 1px solid rgba(13, 110, 102, 0.5);
+    border-bottom: 1px solid rgba(13, 110, 102, 0.5);
+    transform: rotate(-45deg);
+    border-bottom-right-radius: 3px;
   }
   
   .ai-bubble-ai {
-    background: var(--primary-light);
+    position: relative;
+    background: #ffffff;
     color: var(--text-dark);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    border-top-left-radius: 2px;
-    padding: 12px 16px;
-    max-width: 85%;
+    border: 1px solid #d9efe4;
+    border-radius: 20px;
+    border-bottom-left-radius: 6px;
+    padding: 13px 15px;
+    max-width: min(86%, 300px);
     word-break: break-word;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    line-height: 1.5;
+    box-shadow: 0 8px 18px rgba(16, 185, 129, 0.06);
+    line-height: 1.78;
+    font-size: 15px;
+  }
+
+  .ai-bubble-ai::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    bottom: 10px;
+    width: 12px;
+    height: 12px;
+    background: #ffffff;
+    border-left: 1px solid #d9efe4;
+    border-bottom: 1px solid #d9efe4;
+    transform: rotate(45deg);
+    border-bottom-left-radius: 3px;
   }
   
   .ai-bubble-error {
@@ -399,10 +526,22 @@
     border-color: #fecaca;
   }
   
-  .ai-bubble-ai a { color: var(--primary-dark); text-decoration: underline; }
+  .ai-bubble-ai p { margin: 0 0 10px; }
+  .ai-bubble-ai p:last-child { margin-bottom: 0; }
+  .ai-bubble-ai a { color: var(--primary-dark); text-decoration: underline; font-weight: 600; }
   .ai-bubble-ai code { background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; color: #db2777; font-family: monospace; }
   .ai-bubble-ai strong { font-weight: 700; color: #064e3b; }
   .ai-bubble-ai em { font-style: italic; }
+  .ai-section-block { display: flex; flex-direction: column; gap: 8px; }
+  .ai-section-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: #047857;
+  }
+  .ai-rich-list { margin: 0 0 10px; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+  .ai-rich-list:last-child { margin-bottom: 0; }
 
   /* Typing dots */
   .ai-typing-dots { display: flex; gap: 4px; align-items: center; height: 20px; }
@@ -512,5 +651,14 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
-</style>
 
+  @media (max-width: 640px) {
+    .ai-bubble-user {
+      max-width: min(82%, 250px);
+    }
+
+    .ai-bubble-ai {
+      max-width: min(88%, 270px);
+    }
+  }
+</style>

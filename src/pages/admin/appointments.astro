@@ -1,0 +1,198 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { appointments } from '../../db/schema.js';
+import { desc } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+
+export const prerender = false;
+
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+
+const allAppointments = await db.select().from(appointments).orderBy(desc(appointments.createdAt));
+---
+
+<AdminLayout title="এ্যাপয়েন্টমেন্ট ম্যানেজমেন্ট | Admin - Ruqyah Healing">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">এ্যাপয়েন্টমেন্ট ম্যানেজমেন্ট</h1>
+      <p class="page-desc">সকল বুকিং এবং সেশন স্ট্যাটাস নিয়ন্ত্রণ করুন</p>
+    </div>
+  </div>
+
+  <div class="admin-card">
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>রেফারেন্স (ID)</th>
+            <th>নাম ও ফ্যামিলি</th>
+            <th>যোগাযোগ</th>
+            <th>চিকিৎসার বিবরণ</th>
+            <th>স্ট্যাটাস</th>
+            <th>অ্যাকশন</th>
+          </tr>
+        </thead>
+        <tbody>
+          {allAppointments.length === 0 ? (
+            <tr><td colspan="6" style="text-align:center; padding:32px 0;">কোনো এ্যাপয়েন্টমেন্ট নেই</td></tr>
+          ) : (
+            allAppointments.map((appt) => (
+              <tr>
+                <td>
+                   <span style="font-size:0.8rem; font-family:monospace; color:var(--admin-text-light);">
+                     {appt.id.substring(0,8)}...
+                   </span>
+                   <div style="font-size:0.75rem; margin-top:4px;">
+                     {new Date(appt.createdAt).toLocaleDateString('bn-BD', { month: 'short', day: 'numeric', hour:'numeric', minute:'numeric' })}
+                   </div>
+                </td>
+                <td>
+                  <div style="font-weight:500; color:var(--admin-text);">{appt.fullName}</div>
+                  <div style="font-size:0.8rem; color:var(--admin-text-light);">
+                    {appt.age} বছর • {appt.gender}
+                  </div>
+                </td>
+                <td>
+                  <div style="font-size:0.85rem;">{appt.phone}</div>
+                  <div style="font-size:0.8rem; color:var(--admin-text-light);">WA: {appt.whatsapp || 'N/A'}</div>
+                </td>
+                <td>
+                  <div style="font-weight:500; font-size:0.9rem;">{appt.treatmentTypeLabel || 'চিকিৎসা'}</div>
+                  <div style="font-size:0.8rem; color:var(--admin-text-light);">
+                    {appt.preferredDate} • {appt.preferredTime}
+                  </div>
+                </td>
+                <td>
+                  <span class={`status-badge status-${appt.status === 'pending' ? 'pending' : appt.status === 'completed' ? 'done' : 'default'}`}>
+                    {appt.status}
+                  </span>
+                </td>
+                <td>
+                   <select 
+                    class="status-select" 
+                    data-appt-id={appt.id}
+                    data-current-status={appt.status}
+                   >
+                     <option value="pending" selected={appt.status === 'pending'}>Pending</option>
+                     <option value="confirmed" selected={appt.status === 'confirmed'}>Confirmed</option>
+                     <option value="completed" selected={appt.status === 'completed' || appt.status === 'সম্পন্ন'}>Completed</option>
+                     <option value="cancelled" selected={appt.status === 'cancelled'}>Cancelled</option>
+                   </select>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  const selects = document.querySelectorAll('.status-select');
+  selects.forEach(select => {
+    select.addEventListener('change', async (e) => {
+      const target = e.target as HTMLSelectElement;
+      const apptId = target.getAttribute('data-appt-id');
+      const currentStatus = target.getAttribute('data-current-status');
+      const newStatus = target.value;
+
+      if (newStatus === currentStatus) return;
+      
+      const confirmMsg = `আপনি কি নিশ্চিত যে এই এ্যাপয়েন্টমেন্ট এর স্ট্যাটাস '${newStatus}' করতে চান?`;
+      if (!confirm(confirmMsg)) {
+        target.value = currentStatus || 'pending';
+        return;
+      }
+
+      target.disabled = true;
+
+      try {
+        const res = await fetch('/api/admin/appointments/update-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apptId, status: newStatus })
+        });
+        
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert('স্ট্যাটাস সাফল্যের সাথে আপডেট করা হয়েছে!');
+          window.location.reload();
+        } else {
+          throw new Error(data.error || 'আপডেট ব্যর্থ হয়েছে।');
+        }
+      } catch (err: any) {
+        alert(err.message);
+        target.value = currentStatus || 'pending';
+        target.disabled = false;
+      }
+    });
+  });
+</script>
+
+<style>
+  .status-select {
+    padding: 6px 12px;
+    border: 1px solid var(--admin-border);
+    border-radius: 6px;
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+  }
+  
+  .status-select:focus {
+    border-color: var(--admin-primary);
+  }
+  
+  .status-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  .status-pending { background: #fef3c7; color: #d97706; }
+  .status-done { background: #dcfce7; color: #16a34a; }
+  .status-default { background: #e2e8f0; color: #64748b; }
+
+  .table-container { overflow-x: auto; }
+  
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  
+  .admin-table th {
+    padding: 12px 16px;
+    background: #f8fafc;
+    color: var(--admin-text-light);
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--admin-border);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .admin-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--admin-border);
+    color: var(--admin-text-light);
+    font-size: 0.95rem;
+    vertical-align: middle;
+  }
+  
+  .admin-table tr:last-child td { border-bottom: none; }
+</style>

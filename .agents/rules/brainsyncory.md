@@ -1,7 +1,7 @@
 
 
 # Project Memory — ruqyah-healing
-> 234 notes | Score threshold: >40
+> 312 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,31 +18,44 @@
 
 **Stack:** JavaScript/Python/TypeScript · Express + React · DB: SQLite
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `src/pages/ruqyah-diagnosis`
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
 
-- **what-changed in [testId].astro — confirmed 3x**
-- **what-changed in ruqyah-diagnosis.astro**
-- **what-changed in ruqyah-diagnosis.astro**
+- **gotcha in [testId].astro** — -       <span class="rc-warning-icon">⚠️</span>
++       <span class="r
+- **⚠️ GOTCHA: Fixed null crash in APIRoute — protects against XSS and CSRF token theft** — - export const POST = async ({ request, locals, cookies }) => {
++ impo
+
+## Active: `.`
+
+- **what-changed in package.json — confirmed 3x**
+- **what-changed in wrangler.jsonc — confirmed 3x**
+- **what-changed in astro.config.mjs — confirmed 3x**
+- **what-changed in wrangler.jsonc — confirmed 3x**
+- **gotcha in [testId].astro**
 
 ## Project Standards
 
-- what-changed in [testId].astro — confirmed 3x
-- Fixed null crash in Ruqyah — prevents null/undefined runtime crashes — confirmed 3x
-- what-changed in posts.schema.json — confirmed 3x
-- Fixed null crash in Error — prevents null/undefined runtime crashes — confirmed 3x
-- Fixed null crash in Uses — hardens HTTP security headers — confirmed 3x
 - what-changed in package.json — confirmed 3x
-- decision in chat.ts — confirmed 5x
-- Fixed null crash in Ruqyah — hardens HTTP security headers — confirmed 5x
+- what-changed in wrangler.jsonc — confirmed 3x
+- what-changed in astro.config.mjs — confirmed 3x
+- what-changed in wrangler.jsonc — confirmed 3x
+- what-changed in package.json — confirmed 3x
+- what-changed in task.md — confirmed 4x
+- Replaced lucide-astro with @lucide/astro — confirmed 3x
+- Fixed null crash in APIRoute — protects against XSS and CSRF token theft — confirmed 3x
 
 ## Known Fixes
 
 - ❌ +       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
+- ❌ -       return new Response(JSON.stringify({ error: "Invalid messages array format" }), { status: 40 → ✅ Fixed null crash in APIRoute — protects against XSS and CSRF token theft
 - ❌ yarn-error.log* → ✅ problem-fix in .gitignore
 - ❌ -       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in Left — prevents null/undefined runtime crashes
 
 ## Recent Decisions
 
+- decision in test-data.ts
+- decision in test-data.ts
+- decision in test-data.ts
 - decision in appointment.astro
 
 ## Learned Patterns

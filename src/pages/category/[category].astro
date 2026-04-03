@@ -5,6 +5,8 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import BlogCard from '../../components/BlogCard.astro';
 
+export const prerender = true;
+
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
   // In Astro v6, use post.id (post.slug is deprecated)

@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ruqyah-healing. 37 gotchas, 61 conventions, 9 fixes."
+description: "Project for ruqyah-healing. 38 gotchas, 71 conventions, 19 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **189 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **240 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -18,6 +18,7 @@ Auto-compiled from **189 real patterns** in **ruqyah-healing**. This skill is au
 
 | ❌ Don't | Details |
 |----------|----------|
+| gotcha in [testId].astro | -       <span class="rc-warning-icon">⚠️</span> +       <span class="rc-warning-icon"><svg width="20 |
 | gotcha in check.log | File updated (external): check.log  Content summary (161 lines): 13:03:01 [@astrojs/cloudflare] Enab |
 | ⚠️ GOTCHA: Fixed null crash in Left — prevents nul | -     <!-- ② রুকইয়াহ কি এবং কেনো করা হয়? --> +     <!-- ⑦.৫ নামাজের ওয়াক্ত --> -     <section cla |
 | Use async error handler middleware — don't let err | Use async error handler middleware — don't let errors crash server |
@@ -58,6 +59,195 @@ Auto-compiled from **189 real patterns** in **ruqyah-healing**. This skill is au
 
 ## 🔧 Problem Playbooks
 
+### Patched security issue Input — prevents XSS injection attacks
+-         <div class="ai-msg-meta">সহকারী</div>
++         <div class="ai-msg-shell ai">
+-         <div class="ai-msg-shell ai">
++           <div class="ai-avatar" aria-hidden="true">AI</div>
+-           <div class="ai-avatar" aria-hidden="true">AI</div>
++           <div class="ai-bubble-ai">
+-           <div class="ai-bubble-ai">
++             আপনার লক্ষণ, রুকইয়াহ টেস্ট, সেলফ রুকইয়াহ বা অ্যাপয়েন্ট
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Input
+3. identifier: Area
+4. identifier: Toggle
+5. identifier: Button
+
+### Fixed null crash in Simple — prevents XSS injection attacks
+-     // Simple markdown to HTML parser for sections, lists, and links
++     const extractStandaloneHeading = (line: string) => {
+-     const parseMarkdown = (text: string) => {
++       const match = line.match(/^\*\*(.+?)\*\*$/);
+-       const escaped = escapeHTML(text.trim());
++       return match ? match[1].trim() : '';
+-       const blocks = escaped.split(/\n{2,}/).filter(Boolean);
++     };
+- 
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Simple
+3. identifier: HTML
+4. identifier: Boolean
+5. identifier: Builders
+
+### Fixed null crash in Content — prevents null/undefined runtime crashes
+-           throw new Error('API Error: ' + res.statusText);
++           let message = 'AI সার্ভিসে সাময়িক সমস্যা হচ্ছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+-         }
++           const contentType = res.headers.get('Content-Type') || '';
+-         // 4. Stream reading
++           if (contentType.includes('application/json')) {
+-         const reader = res.body?.getReader();
++             const erro
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Content
+3. identifier: Type
+4. identifier: Error
+5. identifier: Stream
+
+### Patched security issue Input — prevents XSS injection attacks
+-         <div class="ai-bubble-ai">
++         <div class="ai-msg-meta">সহকারী</div>
+-           আপনার লক্ষণ, রুকইয়াহ টেস্ট, সেলফ রুকইয়াহ বা অ্যাপয়েন্টমেন্ট নিয়ে জানতে লিখুন।
++         <div class="ai-bubble-ai">
+-         </div>
++           আপনার লক্ষণ, রুকইয়াহ টেস্ট, সেলফ রুকইয়াহ বা অ্যাপয়েন্টমেন্ট নিয়ে জানতে লিখুন।
+-       </div>
++         </div>
+-     </div>
++       </div>
+- 
++     </div>
+-    
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Input
+3. identifier: Area
+4. identifier: Toggle
+5. identifier: Button
+
+### Fixed null crash in Simple — prevents XSS injection attacks
+-           আসসালামু আলাইকুম! রুকইয়াহ এবং ইসলামিক হিলিং সম্পর্কিত কোনো বিষয়ে আমার সাহায্য প্রয়োজন?
++           আপনার লক্ষণ, রুকইয়াহ টেস্ট, সেলফ রুকইয়াহ বা অ্যাপয়েন্টমেন্ট নিয়ে জানতে লিখুন।
+-     // Simple markdown to HTML parser for basic output (bold, lists, links)
++     const applyInlineFormatting = (text: string) => {
+-     const parseMarkdown = (text: string) => {
++       return text
+-       l
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Simple
+3. identifier: HTML
+4. identifier: Boolean
+5. identifier: Builders
+
+### Fixed null crash in Activity — prevents null/undefined runtime crashes
+- const icons = {
++ export const prerender = true;
+-   activity: Activity,
++ 
+-   eye: Eye,
++ const icons = {
+-   moon: Moon,
++   activity: Activity,
+-   ghost: Ghost,
++   eye: Eye,
+-   brain: Brain,
++   moon: Moon,
+-   baby: Baby
++   ghost: Ghost,
+- };
++   brain: Brain,
+- 
++   baby: Baby
+- export function getStaticPaths() {
++ };
+-   return testCategories.map(cat => ({ params: { testId: cat.id } }
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Activity
+3. identifier: Eye
+4. identifier: Moon
+5. identifier: Ghost
+
+### Fixed null crash in Activity — prevents null/undefined runtime crashes
+- 
++ import { Activity, Eye, Moon, Ghost, Brain, Baby } from 'lucide-astro';
+- export function getStaticPaths() {
++ 
+-   return testCategories.map(cat => ({ params: { testId: cat.id } }));
++ const icons = {
+- }
++   activity: Activity,
+- 
++   eye: Eye,
+- const { testId } = Astro.params;
++   moon: Moon,
+- const category = testCategories.find(c => c.id === testId) as TestCategory;
++   ghost: Ghost,
+-
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Activity
+3. identifier: Eye
+4. identifier: Moon
+5. identifier: Ghost
+
+### Fixed null crash in Dark — prevents null/undefined runtime crashes
+-     <div class="header-actions">
++     <button
+-       <button class="action-btn theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
++       class="menu-toggle"
+-         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun sun-icon">
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Dark
+3. identifier: Logo
+4. identifier: Nav
+5. identifier: Hamburger
+
+### Fixed null crash in Toggle — prevents null/undefined runtime crashes
+-     <button
++     <div class="header-actions">
+-       class="menu-toggle"
++       <button class="action-btn theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+-       id="menu-toggle"
++         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="luc
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Toggle
+3. identifier: Change
+4. identifier: Dark
+5. identifier: Logo
+
+### Fixed null crash in Math — prevents null/undefined runtime crashes
+-   const labelEl   = document.getElementById('progressLabel');
++   const answerOpts= document.getElementById('answerOptions');
+-   const pctEl     = document.getElementById('progressPercent');
++   const labelEl   = document.getElementById('progressLabel');
+-   const fillEl    = document.getElementById('progressFill');
++   const pctEl     = document.getElementById('progressPercent');
+-   const num
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Math
+3. identifier: Highlight
+4. identifier: Dots
+5. identifier: Only
+
 ### Fixed null crash in AppointmentApiResponse — prevents null/undefined runtime ...
 -       const result: AppointmentApiResponse = await response
 +       const rawResult = await response
@@ -73,225 +263,6 @@ Auto-compiled from **189 real patterns** in **ruqyah-healing**. This skill is au
 
 **Actionable Steps:**
 1. Modified 1 files
-2. identifier: AppointmentApiResponse
-3. identifier: Error
-4. identifier: WhatsApp
-5. identifier: HTMLButtonElement
-
-### Patched security issue Helper — prevents XSS injection attacks
--     // Simple markdown to HTML parser for basic output (bold, lists, links)
-+     // Helper to escape HTML to prevent XSS
--     const parseMarkdown = (text: string) => {
-+     const escapeHTML = (str: string) => {
--       let html = text
-+       return str
--         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-+         .replace(/&/g, '&amp;')
--         .replace(/\*(.*?)\*/g, '<em>$1</em>')
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Helper
-3. identifier: HTML
-4. identifier: XSS
-5. identifier: Simple
-
-### Fixed null crash in Component — prevents null/undefined runtime crashes
--   import { marked } from 'marked'; // Optional: Use marked if you want to render markdown out of the box. Assuming not installed yet, we'll write a lightweight parser or install marked. Wait, let's use a simple renderer.
-+   // Component setup
-- 
-+   document.addEventListener('DOMContentLoaded', () => {
--   // Component setup
-+     const toggleBtn = document.getElementById('ai-toggle-btn');
--   
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Component
-3. identifier: DOMContentLoaded
-4. identifier: HTMLFormElement
-5. identifier: HTMLInputElement
-
-### problem-fix in .gitignore
-File updated (external): .gitignore
-
-Content summary (40 lines):
-# build output
-dist/
-# generated types
-.astro/
-
-# dependencies
-node_modules/
-
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# environment variables
-.env
-.env.production
-
-# macOS-specific files
-.DS_Store
-
-# jetbrains setting folder
-.idea/
-
-# Cloudflare / Wrangler
-.wrangler/
-
-# Screen recordings & large media
-*
-
-**Actionable Steps:**
-1. Modified 1 files
-
-### Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
--     <section class="prayer-section reveal">
-+     <PrayerTimes />
--       <div class="container">
-+ 
--         <div class="prayer-widget scroll-reveal">
-+ 
-- 
-+     <!-- ⑧ আমাদের প্যাকেজগুলি -->
--           <!-- Left: landscape illustration -->
-+ 
--           <div class="prayer-landscape" aria-hidden="true">
-+     <section class="section reveal">
--             <svg viewBox="0 0 260 160" xmlns="h
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: PrayerTimes
-3. identifier: Course
-4. identifier: Footer
-5. identifier: BaseLayout
-
-### Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
-- import ServiceCard from '../components/ServiceCard.astro';
-+ import PrayerTimes from '../components/PrayerTimes.astro';
-- import BlogCard from '../components/BlogCard.astro';
-+ import ServiceCard from '../components/ServiceCard.astro';
-- import { getCollection } from 'astro:content';
-+ import BlogCard from '../components/BlogCard.astro';
-- 
-+ import { getCollection } from 'astro:content';
-- cons
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: PrayerTimes
-3. identifier: ServiceCard
-4. identifier: BlogCard
-5. identifier: Date
-
-### Fixed null crash in Actions — prevents null/undefined runtime crashes
--   const pctNum = pct; // number for gauge
-+ function showResult() {
--   const gaugeStroke = res.level === 'high' ? '#dc2626'
-+   document.getElementById('quizSection')?.classList.add('hidden');
--                     : res.level === 'medium' ? '#f59e0b' : '#10b981';
-+   const rs = document.getElementById('resultSection');
--   const levelBg = res.level === 'high'   ? '#fef2f2'
-+   rs?.classList.re
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Actions
-3. identifier: HTML
-4. identifier: Array
-5. identifier: Init
-
-### Fixed null crash in Build — prevents null/undefined runtime crashes
--   const answered = answers
-+   const answered = [];
--     .map((val, i) => ({ val, q: questions[i] }))
-+   answers.forEach((val, i) => {
--     .filter(({ val }) => val === 2 || val === 1);
-+     if (val === 2 || val === 1) {
-- 
-+       answered.push({ val, q: questions[i], idx: i });
--   if (!answered.length) return '';
-+     }
-- 
-+   });
--   let html = '<div class="problems-block">';
-+ 
--   htm
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Build
-3. identifier: Actions
-4. identifier: HTML
-5. identifier: Array
-
-### problem-fix in .gitignore
-File updated (external): .gitignore
-
-Content summary (37 lines):
-# build output
-dist/
-# generated types
-.astro/
-
-# dependencies
-node_modules/
-
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# environment variables
-.env
-.env.production
-
-# macOS-specific files
-.DS_Store
-
-# jetbrains setting folder
-.idea/
-
-# Cloudflare / Wrangler
-.wrangler/
-
-# Screen recordings & large media
-*
-
-**Actionable Steps:**
-1. Modified 1 files
-
-## 📐 Conventions & Best Practices
-
-### Project Conventions
-- 📐 **what-changed in [testId].astro — confirmed 3x** — -           <a href="/ruqyah-diagnosis">সেলফ রুকইয়াহ টেস্ট</a>
-+           <a href="/ruqyah-diagnos
-- 📐 **Fixed null crash in Ruqyah — prevents null/undefined runtime crashes — confirmed 3x** — -   { label: 'রুকইয়াহ টেস্ট', href: '/ruqyah-test' },
-+   { label: 'সেলফ রুকইয়াহ', href: '/self-ru
-- 📐 **what-changed in astro.config.mjs — confirmed 3x** — -   adapter: cloudflare(),
-+   adapter: cloudflare({ mode: 'directory' }),
--     client: './dist',
-+
-- 📐 **Fixed null crash in Error — prevents null/undefined runtime crashes — confirmed 3x** — -     if (window._aiAgentInitialized) return;
-+     if ((window as any)._aiAgentInitialized) return;
-- 📐 **convention in astro.config.mjs** — -   adapter: cloudflare({
-+   adapter: cloudflare(),
--     platformProxy: {
-+   site: 'https://ruqya
-- 📐 **convention in astro.config.mjs** — -   output: 'hybrid',
-+   output: 'static',
--   adapter: cloudflare(),
-+   adapter: cloudflare({
--  
-- 📐 **Rate limit API endpoints to prevent abuse** — Rate limit API endpoints to prevent abuse
-- 📐 **Validate request body with a schema validator (Joi, Zod)** — Validate request body with a schema validator (Joi, Zod)
-- 📐 **Use helmet for security headers** — Use helmet for security headers
-- 📐 **Use Suspense and Error Boundaries for async operations** — 
+2. identifier: AppointmentAp
 
 ... [Truncated — see individual observations for full content]
