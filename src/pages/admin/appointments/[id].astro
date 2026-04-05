@@ -1,0 +1,419 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createDb } from '../../../db/client.js';
+import { appointments } from '../../../db/schema.js';
+import { eq } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/admin/appointments');
+
+const rows = await db.select().from(appointments).where(eq(appointments.id, id));
+const appt = rows[0];
+if (!appt) return Astro.redirect('/admin/appointments');
+
+const statusMap: Record<string, string> = {
+  pending: 'অপেক্ষমাণ',
+  confirmed: 'নিশ্চিত',
+  completed: 'সম্পন্ন',
+  cancelled: 'বাতিল',
+};
+
+const statusClass: Record<string, string> = {
+  pending: 'status-pending',
+  confirmed: 'status-confirmed',
+  completed: 'status-done',
+  cancelled: 'status-cancelled',
+};
+
+const subServicesArr: string[] = Array.isArray(appt.subServices) ? appt.subServices as string[] : [];
+---
+
+<AdminLayout title={`এ্যাপয়েন্টমেন্ট: ${appt.fullName} | Admin`}>
+  <div class="page-header no-print">
+    <div>
+      <h1 class="page-title">এ্যাপয়েন্টমেন্ট বিস্তারিত</h1>
+      <p class="page-desc">
+        <a href="/admin/appointments" class="back-link">← এ্যাপয়েন্টমেন্ট লিস্টে ফিরুন</a>
+      </p>
+    </div>
+    <div class="action-buttons">
+      <a href={`/admin/appointment-edit?id=${appt.id}`} class="btn btn-primary">সম্পাদনা করুন</a>
+      <button onclick="window.print()" class="btn btn-secondary">প্রিন্ট করুন</button>
+      <a href="/admin/appointments" class="btn btn-outline">ফেরত যান</a>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <!-- Section 1: Patient Info -->
+    <div class="admin-card detail-section">
+      <h2 class="section-title">রোগীর তথ্য</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">পূর্ণ নাম</span>
+          <span class="info-value">{appt.fullName}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">বয়স</span>
+          <span class="info-value">{appt.age} বছর</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">লিঙ্গ</span>
+          <span class="info-value">{appt.gender}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">ধর্ম</span>
+          <span class="info-value">{appt.religion}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">ওজন</span>
+          <span class="info-value">{appt.weight || 'N/A'}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">NID</span>
+          <span class="info-value">{appt.nid || 'N/A'}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Contact -->
+    <div class="admin-card detail-section">
+      <h2 class="section-title">যোগাযোগ</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">ফোন</span>
+          <span class="info-value">{appt.phone}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">হোয়াটসঅ্যাপ</span>
+          <span class="info-value">{appt.whatsapp || 'N/A'}</span>
+        </div>
+        <div class="info-item full-width">
+          <span class="info-label">ঠিকানা</span>
+          <span class="info-value">{appt.address}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Treatment -->
+    <div class="admin-card detail-section">
+      <h2 class="section-title">চিকিৎসা তথ্য</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">চিকিৎসার ধরন</span>
+          <span class="info-value">{appt.treatmentTypeLabel}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">সার্ভিস মোড</span>
+          <span class="info-value">{appt.serviceMode}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">সেশন ফরম্যাট</span>
+          <span class="info-value">{appt.sessionFormat}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">সময়কাল</span>
+          <span class="info-value">{appt.duration}</span>
+        </div>
+        {subServicesArr.length > 0 && (
+          <div class="info-item full-width">
+            <span class="info-label">সাব-সার্ভিস</span>
+            <div class="pills">
+              {subServicesArr.map((s: string) => <span class="pill">{s}</span>)}
+            </div>
+          </div>
+        )}
+        <div class="info-item">
+          <span class="info-label">পূর্ববর্তী চিকিৎসা</span>
+          <span class="info-value">{appt.previousTreatment ? 'হ্যাঁ' : 'না'}</span>
+        </div>
+        {appt.previousTreatment && appt.previousTreatmentDetails && (
+          <div class="info-item full-width">
+            <span class="info-label">পূর্ববর্তী চিকিৎসার বিবরণ</span>
+            <span class="info-value">{appt.previousTreatmentDetails}</span>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <!-- Section 4: Schedule -->
+    <div class="admin-card detail-section">
+      <h2 class="section-title">সময়সূচী</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">পছন্দের তারিখ</span>
+          <span class="info-value">{appt.preferredDate}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">পছন্দের সময়</span>
+          <span class="info-value">{appt.preferredTime}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5: Problem -->
+    <div class="admin-card detail-section full-card">
+      <h2 class="section-title">সমস্যা</h2>
+      <div class="problem-text">{appt.problem}</div>
+    </div>
+
+    <!-- Section 6: Payment -->
+    <div class="admin-card detail-section">
+      <h2 class="section-title">পেমেন্ট</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">পেমেন্ট মেথড</span>
+          <span class="info-value">{appt.paymentMethod}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">ট্রানজেকশন আইডি</span>
+          <span class="info-value" style="font-family:monospace;">{appt.transactionId}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">পেমেন্ট সময়</span>
+          <span class="info-value">{appt.paymentTimestamp}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 7: Admin -->
+    <div class="admin-card detail-section">
+      <h2 class="section-title">অ্যাডমিন</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">স্ট্যাটাস</span>
+          <span class={`status-badge ${statusClass[appt.status] || 'status-default'}`}>
+            {statusMap[appt.status] || appt.status}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">সোর্স</span>
+          <span class="info-value">{appt.source}</span>
+        </div>
+        {appt.cancelReason && (
+          <div class="info-item full-width">
+            <span class="info-label">বাতিলের কারণ</span>
+            <span class="info-value">{appt.cancelReason}</span>
+          </div>
+        )}
+        {appt.adminNotes && (
+          <div class="info-item full-width">
+            <span class="info-label">অ্যাডমিন নোটস</span>
+            <span class="info-value">{appt.adminNotes}</span>
+          </div>
+        )}
+        <div class="info-item">
+          <span class="info-label">তৈরির সময়</span>
+          <span class="info-value">
+            {new Date(appt.createdAt).toLocaleDateString('bn-BD', {
+              year: 'numeric', month: 'long', day: 'numeric',
+              hour: 'numeric', minute: 'numeric'
+            })}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">রেফারেন্স ID</span>
+          <span class="info-value" style="font-family:monospace; font-size:0.85rem;">{appt.id}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  .back-link { color: var(--admin-primary); text-decoration: none; font-weight: 500; }
+  .back-link:hover { text-decoration: underline; }
+
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--admin-primary);
+    color: #fff;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+
+  .btn-secondary {
+    background: #f1f5f9;
+    color: var(--admin-text);
+    border: 1px solid var(--admin-border);
+  }
+  .btn-secondary:hover { background: #e2e8f0; }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--admin-text-light);
+    border: 1px solid var(--admin-border);
+  }
+  .btn-outline:hover { background: #f8fafc; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .detail-section { padding: 24px; }
+
+  .full-card { grid-column: 1 / -1; }
+
+  .section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--admin-primary);
+    margin: 0 0 16px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--admin-border);
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .info-item.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .info-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--admin-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .info-value {
+    font-size: 0.95rem;
+    color: var(--admin-text);
+    word-break: break-word;
+  }
+
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pill {
+    display: inline-flex;
+    padding: 4px 12px;
+    background: var(--admin-primary-light);
+    color: var(--admin-primary);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .problem-text {
+    font-size: 0.95rem;
+    color: var(--admin-text);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--admin-border);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    width: fit-content;
+  }
+  .status-pending { background: #fef3c7; color: #d97706; }
+  .status-confirmed { background: #dbeafe; color: #2563eb; }
+  .status-done { background: #dcfce7; color: #16a34a; }
+  .status-cancelled { background: #fee2e2; color: #dc2626; }
+  .status-default { background: #e2e8f0; color: #64748b; }
+
+  @media (max-width: 768px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .info-grid { grid-template-columns: 1fr; }
+    .action-buttons { flex-wrap: wrap; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  }
+
+  /* Print styles */
+  @media print {
+    .sidebar, .topbar, .no-print, .action-buttons {
+      display: none !important;
+    }
+    .main-wrapper {
+      margin-left: 0 !important;
+    }
+    .content-area {
+      padding: 0 !important;
+      max-width: 100% !important;
+    }
+    body {
+      background: #fff !important;
+      color: #000 !important;
+    }
+    .admin-card {
+      border: 1px solid #ccc !important;
+      box-shadow: none !important;
+      break-inside: avoid;
+    }
+    .detail-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .section-title {
+      color: #000 !important;
+    }
+    .info-label {
+      color: #555 !important;
+    }
+    .info-value {
+      color: #000 !important;
+    }
+    .status-badge {
+      border: 1px solid #999 !important;
+      background: transparent !important;
+      color: #000 !important;
+    }
+    .pill {
+      background: #eee !important;
+      color: #000 !important;
+    }
+    .problem-text {
+      background: #f5f5f5 !important;
+      border-color: #ccc !important;
+      color: #000 !important;
+    }
+  }
+</style>
