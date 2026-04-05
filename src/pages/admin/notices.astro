@@ -1,0 +1,99 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { notices } from '../../db/schema.js';
+import { desc } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+const noticeList = await db.select().from(notices).orderBy(desc(notices.createdAt));
+---
+
+<AdminLayout title="নোটিশ ম্যানেজমেন্ট | Admin - Ruqyah Healing">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">নোটিশ ম্যানেজমেন্ট</h1>
+      <p class="page-desc">নোটিশ, ইভেন্ট ও ঘোষণা পরিচালনা করুন</p>
+    </div>
+    <a href="/admin/notice-edit" class="btn-primary">+ নতুন নোটিশ</a>
+  </div>
+
+  <div class="admin-card">
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>আইকন</th>
+            <th>শিরোনাম</th>
+            <th>তারিখ</th>
+            <th>ব্যাজ</th>
+            <th>জরুরি</th>
+            <th>প্রকাশিত</th>
+            <th>অ্যাকশন</th>
+          </tr>
+        </thead>
+        <tbody>
+          {noticeList.length === 0 ? (
+            <tr><td colspan="7" style="text-align:center; padding:32px 0;">কোনো নোটিশ নেই। নতুন যোগ করুন।</td></tr>
+          ) : (
+            noticeList.map(notice => (
+              <tr>
+                <td style="font-size:1.5rem;">{notice.icon}</td>
+                <td style="font-weight:500; color:var(--admin-text);">{notice.title}</td>
+                <td>{notice.eventDate}</td>
+                <td><span class="table-badge">{notice.badge}</span></td>
+                <td>{notice.urgent ? '🔴 হ্যাঁ' : 'না'}</td>
+                <td>{notice.published ? '✅' : '❌'}</td>
+                <td>
+                  <div class="action-btns">
+                    <a href={`/admin/notice-edit?id=${notice.id}`} class="btn-edit">এডিট</a>
+                    <button class="btn-delete" data-id={notice.id}>মুছুন</button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  document.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('নোটিশটি মুছে ফেলতে চান?')) return;
+      const id = (btn as HTMLElement).dataset.id;
+      const res = await fetch('/api/admin/notices/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) window.location.reload();
+    });
+  });
+</script>
+
+<style>
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 20px; background: var(--admin-primary); color: #fff;
+    border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+    text-decoration: none; transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .table-container { overflow-x: auto; }
+  .admin-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .admin-table th { padding: 12px 16px; background: #f8fafc; color: var(--admin-text-light); font-weight: 600; font-size: 0.85rem; border-bottom: 1px solid var(--admin-border); text-transform: uppercase; letter-spacing: 0.5px; }
+  .admin-table td { padding: 14px 16px; border-bottom: 1px solid var(--admin-border); color: var(--admin-text-light); font-size: 0.95rem; vertical-align: middle; }
+  .admin-table tr:last-child td { border-bottom: none; }
+  .table-badge { padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: #eff6ff; color: #1d4ed8; }
+  .action-btns { display: flex; gap: 8px; }
+  .btn-edit { padding: 6px 14px; background: #f0f9ff; color: var(--admin-primary); border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: background 0.2s; }
+  .btn-edit:hover { background: #e0f2fe; }
+  .btn-delete { padding: 6px 14px; background: #fef2f2; color: #ef4444; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+  .btn-delete:hover { background: #fee2e2; }
+</style>

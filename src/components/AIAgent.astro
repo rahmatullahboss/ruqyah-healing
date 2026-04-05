@@ -14,7 +14,7 @@
         </svg>
         <h3>AI হিলিং অ্যাসিস্ট্যান্ট</h3>
       </div>
-      <button id="ai-close-btn" class="ai-close-btn" aria-label="Close Chat">
+      <button id="ai-close-btn" class="ai-close-btn" aria-label="চ্যাট বন্ধ করুন">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -55,7 +55,7 @@
   </div>
 
   <!-- Toggle Button (Floating Action Button) -->
-  <button id="ai-toggle-btn" class="ai-toggle-btn" aria-label="Open AI Assistant">
+  <button id="ai-toggle-btn" class="ai-toggle-btn" aria-label="এআই সহায়ক খুলুন">
     <div class="ai-toggle-wrap">
       <svg xmlns="http://www.w3.org/2000/svg" class="ai-toggle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -118,7 +118,12 @@
     const applyInlineFormatting = (text: string) => {
       return text
         .replace(/`([^`]+)`/g, '<code>$1</code>')
-        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
+        .replace(/\[(.*?)\]\((.*?)\)/g, (_, text, url) => {
+          if (/^https?:\/\//i.test(url) || url.startsWith('/')) {
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+          }
+          return text;
+        })
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>');
     };

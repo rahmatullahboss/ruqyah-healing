@@ -1,6 +1,9 @@
 import { z } from 'zod';
+import { createDb } from '../../db/client.js';
+import { siteSettings, aiChatLogs } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
 
-const SYSTEM_PROMPT = `আপনি "Ruqyah Healing Center" ওয়েবসাইটের mixed clinic assistant।
+const DEFAULT_SYSTEM_PROMPT = `আপনি "Ruqyah Healing Center" ওয়েবসাইটের mixed clinic assistant।
 আপনি সাধারণ ইসলামিক/রুকইয়াহ গাইডেন্স দিতে পারবেন, কিন্তু আপনার primary কাজ হলো clinic flow support করা: symptom triage, test selection, self-ruqyah direction, service guidance, এবং appointment conversion।
 
 অবশ্যপালনীয় নিয়ম:
@@ -74,7 +77,7 @@ Hard boundaries:
 - uncertainty থাকলে বলবেন এটি প্রাথমিক দিকনির্দেশনা।`;
 
 const DEFAULT_MODEL = '@cf/google/gemma-4-26b-a4b-it';
-const FALLBACK_MODEL = '@cf/google/gemma-3-12b-it';
+const SECONDARY_MODEL = '@cf/google/gemma-3-12b-it';
 const MAX_OUTPUT_TOKENS = 450;
 const DEFAULT_DAILY_NEURON_LIMIT = 10_000;
 const DEFAULT_NEURON_RATES = {
@@ -83,18 +86,25 @@ const DEFAULT_NEURON_RATES = {
 };
 const MODEL_NEURON_RATES = {
   [DEFAULT_MODEL]: DEFAULT_NEURON_RATES,
-  [FALLBACK_MODEL]: {
+  [SECONDARY_MODEL]: {
     inputPerMillion: 31_371,
     outputPerMillion: 50_560,
   },
 };
 const FREE_LIMIT_MESSAGE = 'আজকের AI ফ্রি লিমিট শেষ হয়েছে। আগামীকাল আবার চেষ্টা করুন, অথবা আপাতত [সিমটম ডায়াগনোসিস](/symptom-diagnosis) / [রুকইয়াহ ডায়াগনোসিস](/ruqyah-diagnosis) ব্যবহার করুন।';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const ALLOWED_ORIGINS = [
+  'https://ruqyah-healing.pages.dev',
+  'https://ruqyahhealing.com',
+];
+
+function getCorsOrigin(request) {
+  const origin = request?.headers?.get?.('Origin') || '';
+  if (ALLOWED_ORIGINS.includes(origin)) return origin;
+  // Allow localhost for development
+  if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) return origin;
+  return ALLOWED_ORIGINS[0];
+}
 
 const chatRequestSchema = z.object({
   messages: z.array(
@@ -105,11 +115,14 @@ const chatRequestSchema = z.object({
   ).min(1),
 });
 
-function jsonResponse(payload, status = 200) {
+function jsonResponse(payload, status = 200, request = null) {
+  const origin = request ? getCorsOrigin(request) : ALLOWED_ORIGINS[0];
   return new Response(JSON.stringify(payload), {
     status,
     headers: {
-      ...corsHeaders,
+      'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
       'Content-Type': 'application/json',
     },
   });
@@ -128,7 +141,7 @@ export function isWorkersAiFreeLimitError(error) {
 }
 
 function buildModelList(configuredModel) {
-  return [...new Set([configuredModel?.trim(), DEFAULT_MODEL, FALLBACK_MODEL].filter(Boolean))];
+  return [...new Set([configuredModel?.trim(), DEFAULT_MODEL, SECONDARY_MODEL].filter(Boolean))];
 }
 
 function extractTextFromAiResult(result) {
@@ -239,8 +252,38 @@ async function addBudgetUsage(workerEnv, neurons, now = new Date()) {
   );
 }
 
-function buildPromptText(messages) {
-  return [{ role: 'system', content: SYSTEM_PROMPT }, ...messages]
+async function getActiveSystemPrompt(workerEnv) {
+  try {
+    if (!workerEnv?.DATABASE_URL) return DEFAULT_SYSTEM_PROMPT;
+    const db = createDb(workerEnv.DATABASE_URL);
+    const [row] = await db.select().from(siteSettings).where(eq(siteSettings.key, 'ai_system_prompt'));
+    if (row?.value && typeof row.value === 'string' && row.value.trim()) {
+      return row.value;
+    }
+  } catch {}
+  return DEFAULT_SYSTEM_PROMPT;
+}
+
+async function logChatConversation(workerEnv, { userMessage, aiResponse, model, neuronsUsed, clientIp }) {
+  try {
+    if (!workerEnv?.DATABASE_URL) return;
+    const db = createDb(workerEnv.DATABASE_URL);
+    await db.insert(aiChatLogs).values({
+      id: crypto.randomUUID(),
+      sessionId: 'web',
+      userMessage: (userMessage || '').slice(0, 2000),
+      aiResponse: (aiResponse || '').slice(0, 2000),
+      model: model || '',
+      neuronsUsed: neuronsUsed || 0,
+      clientIp: clientIp || '',
+    });
+  } catch (err) {
+    console.error('[AI Chat] Failed to log conversation:', err);
+  }
+}
+
+function buildPromptText(messages, systemPrompt) {
+  return [{ role: 'system', content: systemPrompt || DEFAULT_SYSTEM_PROMPT }, ...messages]
     .map((message) => `${message.role}: ${message.content}`)
     .join('\n');
 }
@@ -282,7 +325,8 @@ function parseStreamChunk(dataString, previousText) {
   };
 }
 
-export function createSseResponseFromText(text) {
+export function createSseResponseFromText(text, request = null) {
+  const origin = request ? getCorsOrigin(request) : ALLOWED_ORIGINS[0];
   const encoder = new TextEncoder();
   const ssePayload = [
     toOpenAiDeltaEvent(text).trimEnd(),
@@ -294,7 +338,9 @@ export function createSseResponseFromText(text) {
   return new Response(encoder.encode(ssePayload), {
     status: 200,
     headers: {
-      ...corsHeaders,
+      'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
@@ -302,7 +348,8 @@ export function createSseResponseFromText(text) {
   });
 }
 
-export function createOpenAiCompatibleSseResponse(upstreamStream, options = {}) {
+export function createOpenAiCompatibleSseResponse(upstreamStream, options = {}, request = null) {
+  const origin = request ? getCorsOrigin(request) : ALLOWED_ORIGINS[0];
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
   const onComplete = typeof options.onComplete === 'function' ? options.onComplete : null;
@@ -371,7 +418,9 @@ export function createOpenAiCompatibleSseResponse(upstreamStream, options = {}) 
   return new Response(transformed, {
     status: 200,
     headers: {
-      ...corsHeaders,
+      'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
@@ -379,16 +428,21 @@ export function createOpenAiCompatibleSseResponse(upstreamStream, options = {}) 
   });
 }
 
-export function createOptionsResponse() {
+export function createOptionsResponse(request = null) {
+  const origin = request ? getCorsOrigin(request) : ALLOWED_ORIGINS[0];
   return new Response(null, {
     status: 204,
-    headers: corsHeaders,
+    headers: {
+      'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
   });
 }
 
 export async function handleChatRequest(request, workerEnv) {
   if (!workerEnv?.AI?.run) {
-    return jsonResponse({ error: 'Workers AI binding configured নেই।' }, 500);
+    return jsonResponse({ error: 'Workers AI binding configured নেই।' }, 500, request);
   }
 
   let body;
@@ -398,7 +452,7 @@ export async function handleChatRequest(request, workerEnv) {
     return jsonResponse({
       error: 'Could not parse request body as JSON',
       detail: String(error),
-    }, 400);
+    }, 400, request);
   }
 
   const parsed = chatRequestSchema.safeParse(body);
@@ -406,26 +460,29 @@ export async function handleChatRequest(request, workerEnv) {
     return jsonResponse({
       error: "Invalid request: 'messages' must be a non-empty array",
       detail: parsed.error.flatten(),
-    }, 400);
+    }, 400, request);
   }
 
   const models = buildModelList(workerEnv.AI_MODEL);
-  const promptText = buildPromptText(parsed.data.messages);
+  const activePrompt = await getActiveSystemPrompt(workerEnv);
+  const promptText = buildPromptText(parsed.data.messages, activePrompt);
   const now = new Date();
   const budgetState = await getBudgetState(workerEnv, now);
   const dailyNeuronLimit = getDailyNeuronLimit(workerEnv);
+  const clientIp = request.headers.get('cf-connecting-ip') || '';
+  const lastUserMsg = parsed.data.messages[parsed.data.messages.length - 1]?.content || '';
 
   for (const model of models) {
     const projectedNeurons = estimateRequestNeurons(model, promptText, MAX_OUTPUT_TOKENS);
 
     if (budgetState.usedNeurons + projectedNeurons > dailyNeuronLimit) {
-      return jsonResponse({ error: FREE_LIMIT_MESSAGE }, 429);
+      return jsonResponse({ error: FREE_LIMIT_MESSAGE }, 429, request);
     }
 
     try {
       const stream = await workerEnv.AI.run(model, {
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: activePrompt },
           ...parsed.data.messages,
         ],
         stream: true,
@@ -438,12 +495,13 @@ export async function handleChatRequest(request, workerEnv) {
           onComplete: async ({ completionText, usage }) => {
             const neurons = calculateNeuronsFromUsage(model, usage, promptText, completionText);
             await addBudgetUsage(workerEnv, neurons);
+            await logChatConversation(workerEnv, { userMessage: lastUserMsg, aiResponse: completionText, model, neuronsUsed: neurons, clientIp });
           },
-        });
+        }, request);
       }
     } catch (error) {
       if (isWorkersAiFreeLimitError(error)) {
-        return jsonResponse({ error: FREE_LIMIT_MESSAGE }, 429);
+        return jsonResponse({ error: FREE_LIMIT_MESSAGE }, 429, request);
       }
       console.error(`[AI Chat] Workers AI stream failed for ${model}:`, error);
     }
@@ -451,7 +509,7 @@ export async function handleChatRequest(request, workerEnv) {
     try {
       const result = await workerEnv.AI.run(model, {
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: activePrompt },
           ...parsed.data.messages,
         ],
         max_tokens: MAX_OUTPUT_TOKENS,
@@ -462,11 +520,12 @@ export async function handleChatRequest(request, workerEnv) {
       if (text) {
         const neurons = calculateNeuronsFromUsage(model, result?.usage, promptText, text);
         await addBudgetUsage(workerEnv, neurons);
-        return createSseResponseFromText(text);
+        await logChatConversation(workerEnv, { userMessage: lastUserMsg, aiResponse: text, model, neuronsUsed: neurons, clientIp });
+        return createSseResponseFromText(text, request);
       }
     } catch (error) {
       if (isWorkersAiFreeLimitError(error)) {
-        return jsonResponse({ error: FREE_LIMIT_MESSAGE }, 429);
+        return jsonResponse({ error: FREE_LIMIT_MESSAGE }, 429, request);
       }
       console.error(`[AI Chat] Workers AI failed for ${model}:`, error);
     }
@@ -474,5 +533,5 @@ export async function handleChatRequest(request, workerEnv) {
 
   return jsonResponse({
     error: 'বর্তমানে AI সার্ভিস অস্থায়ীভাবে বন্ধ আছে। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।',
-  }, 503);
+  }, 503, request);
 }

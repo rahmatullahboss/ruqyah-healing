@@ -1,5 +1,6 @@
 # build output
 dist/
+
 # generated types
 .astro/
 
@@ -33,9 +34,39 @@ pnpm-debug.log*
 *.avi
 *.mkv
 
+# IDE and agent config
+.agent/
+.agent-mem/
+.agents/
+.brainsync/
+.bsync_core/
+.cursor/
+.vscode/
+.windsurfrules
+.cursorrules
+.clinerules
+AGENTS.md
 AGENT.md
 CLAUDE.md
-.agent-mem/
+
+# Auto-generated types
+worker-configuration.d.ts
+
+# Design files
+*.psd
+
+# Debug/temp artifacts
+check.log
+diff.txt
+*.log
+
+# Ad-hoc screenshots (root level)
+/Screenshot*
+/prayer*.png
+/homepage.mp4
+
+# Claude settings
+.claude/settings.local.json
 
 # Auto-generated agent rules (personalized per developer)
 .brainsync/agent-rules.md

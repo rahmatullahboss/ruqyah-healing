@@ -2,22 +2,62 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { getCollection } from 'astro:content';
 import BlogCard from '../components/BlogCard.astro';
+import { env as workerEnv } from 'cloudflare:workers';
+import { createDb } from '../db/client.js';
+import { getAllPosts, getCategories } from '../lib/posts.js';
 
-const allPosts = await getCollection('posts');
-// Sort newest first
-const posts = allPosts.sort((a, b) =>
-  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-);
+export const prerender = false;
+
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+
+const posts = await getAllPosts(db);
+const categoryList = await getCategories(db);
 
 const featuredPost = posts[0];
 const gridPosts   = posts.slice(1);
 
 // Unique categories
-const categories = ['সব', ...new Set(posts.map(p => p.data.category))];
+const categories = ['সব', ...categoryList];
+
+const urlCategory = Astro.url.searchParams.get('cat') || 'সব';
+const pageParam = Astro.url.searchParams.get('page') || '1';
+let currentPage = parseInt(pageParam, 10);
+if (isNaN(currentPage) || currentPage < 1) currentPage = 1;
+
+let filteredPosts = gridPosts;
+let isFeaturedVisible = urlCategory === 'সব' || featuredPost?.category === urlCategory;
+
+if (urlCategory !== 'সব') {
+  filteredPosts = gridPosts.filter(p => p.category === urlCategory);
+}
 
 const POSTS_PER_PAGE = 12;
+const totalPosts = filteredPosts.length;
+const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
+
+if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+
+const start = (currentPage - 1) * POSTS_PER_PAGE;
+const end = start + POSTS_PER_PAGE;
+const paginatedPosts = filteredPosts.slice(start, end);
+
+function getPageUrl(cat: string, pageNum: number) {
+  const url = new URL(Astro.url.href);
+  url.searchParams.set('cat', cat);
+  url.searchParams.set('page', pageNum.toString());
+  return url.toString();
+}
+
+const pages = [];
+for (let i = 1; i <= totalPages; i++) {
+  if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+    pages.push(i);
+  } else if (pages[pages.length - 1] !== '...') {
+    pages.push('...');
+  }
+}
 ---
 
 <BaseLayout
@@ -45,12 +85,12 @@ const POSTS_PER_PAGE = 12;
       <div class="container">
         <div class="cat-tabs" id="cat-tabs">
           {categories.map((cat, i) => (
-            <button
-              class:list={['cat-btn', i === 0 && 'active']}
-              data-cat={cat}
+            <a
+              href={getPageUrl(cat, 1)}
+              class:list={['cat-btn', urlCategory === cat && 'active']}
             >
               {cat}
-            </button>
+            </a>
           ))}
         </div>
       </div>
@@ -60,10 +100,10 @@ const POSTS_PER_PAGE = 12;
       <div class="container">
 
         <!-- Featured Post -->
-        {featuredPost && (
+        {featuredPost && isFeaturedVisible && currentPage === 1 && (
           <div
             class="featured-post"
-            data-category={featuredPost.data.category}
+            data-category={featuredPost.category}
             data-featured="true"
           >
             <div class="featured-img">
@@ -73,17 +113,17 @@ const POSTS_PER_PAGE = 12;
             <div class="featured-body">
               <div class="feat-top">
                 <span class="badge badge-featured">✨ বৈশিষ্ট্যমূলক</span>
-                <span class="cat-pill">{featuredPost.data.category}</span>
+                <span class="cat-pill">{featuredPost.category}</span>
               </div>
-              <h2>{featuredPost.data.title}</h2>
-              <p>{featuredPost.data.excerpt}</p>
+              <h2>{featuredPost.title}</h2>
+              <p>{featuredPost.excerpt}</p>
               <div class="feat-meta">
                 <span style="display:inline-flex;align-items:center;gap:5px;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                {new Date(featuredPost.data.date).toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' })}
+                {new Date(featuredPost.date).toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' })}
               </span>
               </div>
-              <a href={`/posts/${featuredPost.id.replace(/\.md$/, '')}`} class="btn btn-primary read-btn">
+              <a href={`/posts/${featuredPost.slug}`} class="btn btn-primary read-btn">
                 বিস্তারিত পড়ুন →
               </a>
             </div>
@@ -92,34 +132,62 @@ const POSTS_PER_PAGE = 12;
 
         <!-- Posts Grid -->
         <div class="posts-grid" id="posts-grid">
-          {gridPosts.map((post) => (
-            <div
-              class="post-item"
-              data-category={post.data.category}
-            >
+          {paginatedPosts.map((post) => (
+            <div class="post-item" data-category={post.category}>
               <BlogCard
-                title={post.data.title}
-                excerpt={post.data.excerpt}
-                category={post.data.category}
-                date={new Date(post.data.date).toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' })}
-                href={`/posts/${post.id.replace(/\.md$/, '')}`}
+                title={post.title}
+                excerpt={post.excerpt}
+                category={post.category}
+                date={new Date(post.date).toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' })}
+                href={`/posts/${post.slug}`}
               />
             </div>
           ))}
         </div>
 
-        <!-- No results message -->
-        <div class="no-results" id="no-results" style="display:none">
-          <div class="no-results-icon">🔍</div>
-          <h3>কোনো পোস্ট পাওয়া যায়নি</h3>
-          <p>এই বিভাগে এখনো কোনো পোস্ট নেই।</p>
-        </div>
+        {totalPosts === 0 && (
+          <div class="no-results">
+            <div class="no-results-icon">🔍</div>
+            <h3>কোনো পোস্ট পাওয়া যায়নি</h3>
+            <p>এই বিভাগে এখনো কোনো পোস্ট নেই।</p>
+          </div>
+        )}
 
-        <!-- Pagination -->
-        <div class="pagination-wrap" id="pagination-wrap">
-          <nav class="pagination" id="pagination" aria-label="ব্লগ পেজিনেশন"></nav>
-          <p class="pagination-info" id="pagination-info"></p>
-        </div>
+        {totalPages > 1 && (
+          <div class="pagination-wrap">
+            <nav class="pagination" aria-label="ব্লগ পেজিনেশন">
+              <a 
+                class:list={['page-btn', currentPage === 1 && 'disabled']} 
+                href={currentPage > 1 ? getPageUrl(urlCategory, currentPage - 1) : '#'}
+              >
+                ← আগে
+              </a>
+              
+              {pages.map(p => (
+                p === '...' ? (
+                  <span class="page-ellipsis">…</span>
+                ) : (
+                  <a 
+                    class:list={['page-btn', p === currentPage && 'active']} 
+                    href={getPageUrl(urlCategory, p as number)}
+                  >
+                    {p}
+                  </a>
+                )
+              ))}
+              
+              <a 
+                class:list={['page-btn', currentPage === totalPages && 'disabled']} 
+                href={currentPage < totalPages ? getPageUrl(urlCategory, currentPage + 1) : '#'}
+              >
+                পরে →
+              </a>
+            </nav>
+            <p class="pagination-info">
+              {totalPosts}টির মধ্যে {start + 1}–{Math.min(end, totalPosts)}টি দেখাচ্ছে
+            </p>
+          </div>
+        )}
 
       </div>
     </section>
@@ -383,121 +451,3 @@ const POSTS_PER_PAGE = 12;
 }
 </style>
 
-<script define:vars={{ postsPerPage: POSTS_PER_PAGE }}>
-  const POSTS_PER_PAGE_JS = postsPerPage;
-
-  // ── State ──
-  let currentCat = 'সব';
-  let currentPage = 1;
-
-  // ── Elements ──
-  const catButtons    = document.querySelectorAll('.cat-btn');
-  const postItems     = document.querySelectorAll('.post-item');
-  const featuredPost  = document.querySelector('.featured-post');
-  const noResults     = document.getElementById('no-results');
-  const pagination    = document.getElementById('pagination');
-  const paginationInfo= document.getElementById('pagination-info');
-
-  function getVisibleItems() {
-    if (currentCat === 'সব') return [...postItems];
-    return [...postItems].filter(el => el.dataset.category === currentCat);
-  }
-
-  function isFeaturedVisible() {
-    if (!featuredPost) return false;
-    return currentCat === 'সব' || featuredPost.dataset.category === currentCat;
-  }
-
-  function updateFeatured() {
-    if (featuredPost) {
-      if (isFeaturedVisible()) {
-        featuredPost.classList.remove('hidden');
-      } else {
-        featuredPost.classList.add('hidden');
-      }
-    }
-  }
-
-  function renderPagination(totalItems) {
-    if (!pagination) return;
-    const totalPages = Math.ceil(totalItems / POSTS_PER_PAGE_JS);
-    if (totalPages <= 1) {
-      pagination.innerHTML = '';
-      paginationInfo.textContent = '';
-      return;
-    }
-
-    let html = '';
-    // Prev
-    html += `<button class="page-btn" id="prev-btn" ${currentPage === 1 ? 'disabled' : ''}>← আগে</button>`;
-
-    // Page numbers with ellipsis
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-        pages.push(i);
-      } else if (pages[pages.length - 1] !== '...') {
-        pages.push('...');
-      }
-    }
-    pages.forEach(p => {
-      if (p === '...') {
-        html += `<span class="page-ellipsis">…</span>`;
-      } else {
-        html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" data-page="${p}">${p}</button>`;
-      }
-    });
-
-    // Next
-    html += `<button class="page-btn" id="next-btn" ${currentPage === totalPages ? 'disabled' : ''}>পরে →</button>`;
-
-    pagination.innerHTML = html;
-
-    const start = (currentPage - 1) * POSTS_PER_PAGE_JS + 1;
-    const end   = Math.min(currentPage * POSTS_PER_PAGE_JS, totalItems);
-    paginationInfo.textContent = `${totalItems}টির মধ্যে ${start}–${end}টি দেখাচ্ছে`;
-
-    // Attach events
-    pagination.querySelectorAll('[data-page]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        currentPage = parseInt(btn.dataset.page);
-        render();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    });
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    if (prevBtn) prevBtn.addEventListener('click', () => { currentPage--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-    if (nextBtn) nextBtn.addEventListener('click', () => { currentPage++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-  }
-
-  function render() {
-    const visible = getVisibleItems();
-    updateFeatured();
-
-    // Hide all
-    postItems.forEach(el => el.classList.add('hidden'));
-
-    // Show only this page
-    const start = (currentPage - 1) * POSTS_PER_PAGE_JS;
-    const end   = start + POSTS_PER_PAGE_JS;
-    visible.slice(start, end).forEach(el => el.classList.remove('hidden'));
-
-    noResults.style.display = visible.length === 0 ? 'block' : 'none';
-    renderPagination(visible.length);
-  }
-
-  // ── Category click ──
-  catButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      catButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentCat = btn.dataset.cat;
-      currentPage = 1;
-      render();
-    });
-  });
-
-  // ── Initial render ──
-  render();
-</script>

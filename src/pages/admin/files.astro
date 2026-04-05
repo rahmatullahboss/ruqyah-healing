@@ -1,0 +1,471 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { Upload, Trash2, Copy, FileText, Image } from '@lucide/astro';
+
+export const prerender = false;
+---
+
+<AdminLayout title="ফাইল ম্যানেজার | Admin - Ruqyah Healing">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">ফাইল ম্যানেজার</h1>
+      <p class="page-desc">R2 স্টোরেজে ফাইল আপলোড, দেখুন এবং পরিচালনা করুন</p>
+    </div>
+  </div>
+
+  <!-- Upload Zone -->
+  <div class="admin-card upload-section">
+    <div id="dropZone" class="drop-zone">
+      <Upload size={32} color="var(--admin-primary)" />
+      <p class="drop-text">ফাইল ড্র্যাগ করুন অথবা ক্লিক করুন</p>
+      <p class="drop-hint">সর্বোচ্চ ১০MB | JPG, PNG, WebP, GIF, PDF</p>
+      <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" style="display:none;" />
+    </div>
+    <div id="uploadProgress" class="upload-progress" style="display:none;">
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+      <span id="progressText" class="progress-text">আপলোড হচ্ছে...</span>
+    </div>
+    <div id="uploadMsg" class="save-msg" style="display:none;"></div>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="filter-tabs" style="margin-top:16px;">
+    <button class="tab-btn active" data-filter="all">সব</button>
+    <button class="tab-btn" data-filter="images">ছবি</button>
+    <button class="tab-btn" data-filter="pdfs">পিডিএফ</button>
+  </div>
+
+  <!-- File Grid -->
+  <div id="fileGrid" class="file-grid" style="margin-top:16px;">
+    <div class="loading-state">লোড হচ্ছে...</div>
+  </div>
+
+  <!-- Empty State -->
+  <div id="emptyState" class="empty-state" style="display:none;">
+    <p>কোনো ফাইল পাওয়া যায়নি।</p>
+  </div>
+</AdminLayout>
+
+<script>
+  const dropZone = document.getElementById('dropZone')!;
+  const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+  const uploadProgress = document.getElementById('uploadProgress')!;
+  const progressFill = document.getElementById('progressFill')!;
+  const progressText = document.getElementById('progressText')!;
+  const uploadMsg = document.getElementById('uploadMsg')!;
+  const fileGrid = document.getElementById('fileGrid')!;
+  const emptyState = document.getElementById('emptyState')!;
+
+  let allFiles: any[] = [];
+  let currentFilter = 'all';
+
+  // Drop zone events
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+  });
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      uploadFile(files[0]);
+    }
+  });
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files && fileInput.files.length > 0) {
+      uploadFile(fileInput.files[0]);
+    }
+  });
+
+  async function uploadFile(file: File) {
+    uploadMsg.style.display = 'none';
+    uploadProgress.style.display = 'flex';
+    progressFill.style.width = '0%';
+    progressText.textContent = 'আপলোড হচ্ছে...';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      // Simulate progress
+      progressFill.style.width = '30%';
+
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      progressFill.style.width = '80%';
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        progressFill.style.width = '100%';
+        progressText.textContent = 'আপলোড সম্পন্ন!';
+        uploadMsg.textContent = `সফলভাবে আপলোড হয়েছে: ${data.key}`;
+        uploadMsg.className = 'save-msg success';
+        uploadMsg.style.display = 'block';
+        setTimeout(() => {
+          uploadProgress.style.display = 'none';
+          loadFiles();
+        }, 1000);
+      } else {
+        throw new Error(data.error || 'আপলোড ব্যর্থ হয়েছে');
+      }
+    } catch (err: any) {
+      progressFill.style.width = '0%';
+      uploadProgress.style.display = 'none';
+      uploadMsg.textContent = err.message;
+      uploadMsg.className = 'save-msg error';
+      uploadMsg.style.display = 'block';
+    }
+
+    fileInput.value = '';
+  }
+
+  // Filter tabs
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = (btn as HTMLElement).dataset.filter || 'all';
+      renderFiles();
+    });
+  });
+
+  async function loadFiles() {
+    fileGrid.innerHTML = '<div class="loading-state">লোড হচ্ছে...</div>';
+    emptyState.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/admin/files/list');
+      const data = await res.json();
+      if (res.ok) {
+        allFiles = data.files || [];
+        renderFiles();
+      } else {
+        fileGrid.innerHTML = '<div class="loading-state" style="color:#dc2626;">ফাইল লোড ব্যর্থ হয়েছে।</div>';
+      }
+    } catch {
+      fileGrid.innerHTML = '<div class="loading-state" style="color:#dc2626;">ফাইল লোড ব্যর্থ হয়েছে।</div>';
+    }
+  }
+
+  function renderFiles() {
+    let filtered = allFiles;
+    if (currentFilter === 'images') {
+      filtered = allFiles.filter(f => f.key.startsWith('images/'));
+    } else if (currentFilter === 'pdfs') {
+      filtered = allFiles.filter(f => f.key.startsWith('pdfs/'));
+    }
+
+    if (filtered.length === 0) {
+      fileGrid.innerHTML = '';
+      emptyState.style.display = 'block';
+      return;
+    }
+
+    emptyState.style.display = 'none';
+
+    fileGrid.innerHTML = filtered.map(f => {
+      const isImage = f.key.startsWith('images/');
+      const fileName = f.key.split('/').pop() || f.key;
+      const sizeKB = f.size ? (f.size / 1024).toFixed(1) : '?';
+      const sizeDisplay = f.size > 1024 * 1024 ? `${(f.size / (1024 * 1024)).toFixed(1)} MB` : `${sizeKB} KB`;
+      const dateStr = f.uploaded ? new Date(f.uploaded).toLocaleDateString('bn-BD', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+
+      return `
+        <div class="file-card" data-key="${f.key}">
+          <div class="file-preview">
+            ${isImage
+              ? `<img src="${f.url}" alt="${fileName}" loading="lazy" />`
+              : `<div class="pdf-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg><span>PDF</span></div>`
+            }
+          </div>
+          <div class="file-info">
+            <div class="file-name" title="${fileName}">${fileName}</div>
+            <div class="file-meta">${sizeDisplay} ${dateStr ? '&middot; ' + dateStr : ''}</div>
+          </div>
+          <div class="file-actions">
+            <button class="btn-icon copy-url-btn" title="কপি URL" data-url="${f.url}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+              কপি URL
+            </button>
+            <button class="btn-icon btn-delete delete-btn" title="মুছুন" data-key="${f.key}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+              মুছুন
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Bind copy and delete
+    document.querySelectorAll('.copy-url-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const url = window.location.origin + (btn as HTMLElement).dataset.url;
+        navigator.clipboard.writeText(url).then(() => {
+          const original = btn.innerHTML;
+          btn.textContent = 'কপি হয়েছে!';
+          setTimeout(() => { btn.innerHTML = original; }, 1500);
+        });
+      });
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const key = (btn as HTMLElement).dataset.key;
+        if (!confirm(`আপনি কি নিশ্চিত "${key}" ফাইলটি মুছতে চান?`)) return;
+
+        try {
+          const res = await fetch('/api/admin/files/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key }),
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            loadFiles();
+          } else {
+            alert(data.error || 'মুছতে ব্যর্থ হয়েছে।');
+          }
+        } catch {
+          alert('মুছতে ব্যর্থ হয়েছে।');
+        }
+      });
+    });
+  }
+
+  // Load on init
+  loadFiles();
+</script>
+
+<style>
+  .upload-section {
+    margin-bottom: 0;
+  }
+
+  .drop-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 40px 20px;
+    border: 2px dashed var(--admin-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--admin-bg);
+  }
+
+  .drop-zone:hover,
+  .drop-zone.dragover {
+    border-color: var(--admin-primary);
+    background: var(--admin-primary-light);
+  }
+
+  .drop-text {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--admin-text);
+  }
+
+  .drop-hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--admin-text-light);
+  }
+
+  .upload-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--admin-border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--admin-primary);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .progress-text {
+    font-size: 0.85rem;
+    color: var(--admin-text-light);
+    white-space: nowrap;
+  }
+
+  .save-msg {
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  .save-msg.success { background: #dcfce7; color: #15803d; }
+  .save-msg.error { background: #fee2e2; color: #dc2626; }
+
+  .filter-tabs {
+    display: flex;
+    gap: 8px;
+  }
+
+  .tab-btn {
+    padding: 8px 20px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    background: var(--admin-surface);
+    color: var(--admin-text-light);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover {
+    border-color: var(--admin-primary);
+    color: var(--admin-primary);
+  }
+
+  .tab-btn.active {
+    background: var(--admin-primary);
+    color: #fff;
+    border-color: var(--admin-primary);
+  }
+
+  .file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .loading-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: var(--admin-text-light);
+    font-size: 0.95rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--admin-text-light);
+    font-size: 0.95rem;
+  }
+
+  .file-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+
+  .file-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .file-preview {
+    width: 100%;
+    height: 160px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .file-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .pdf-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #dc2626;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .file-info {
+    padding: 12px;
+  }
+
+  .file-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--admin-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .file-meta {
+    font-size: 0.75rem;
+    color: var(--admin-text-light);
+    margin-top: 4px;
+  }
+
+  .file-actions {
+    display: flex;
+    gap: 6px;
+    padding: 0 12px 12px;
+  }
+
+  .btn-icon {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border: 1px solid var(--admin-border);
+    border-radius: 6px;
+    background: var(--admin-surface);
+    color: var(--admin-text-light);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-icon:hover {
+    border-color: var(--admin-primary);
+    color: var(--admin-primary);
+  }
+
+  .btn-delete:hover {
+    border-color: #dc2626;
+    color: #dc2626;
+    background: #fef2f2;
+  }
+
+  @media (max-width: 768px) {
+    .file-grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+  }
+</style>

@@ -1,0 +1,190 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { env as workerEnv } from 'cloudflare:workers';
+import { createDb } from '../../db/client.js';
+import { getAllPostsAdmin } from '../../lib/posts.js';
+
+export const prerender = false;
+
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+const posts = await getAllPostsAdmin(db);
+---
+
+<AdminLayout title="ব্লগ পোস্ট | Admin">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">ব্লগ পোস্ট</h1>
+      <p class="page-desc">মোট {posts.length}টি পোস্ট</p>
+    </div>
+    <a href="/admin/posts/new" class="btn-add">+ নতুন পোস্ট</a>
+  </div>
+
+  <div class="admin-card">
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>শিরোনাম</th>
+            <th>বিভাগ</th>
+            <th>তারিখ</th>
+            <th>স্ট্যাটাস</th>
+            <th>অ্যাকশন</th>
+          </tr>
+        </thead>
+        <tbody>
+          {posts.map((post) => (
+            <tr>
+              <td class="title-cell">
+                <a href={`/posts/${post.slug}`} target="_blank">{post.title.length > 50 ? post.title.substring(0, 50) + '…' : post.title}</a>
+              </td>
+              <td><span class="cat-pill">{post.category}</span></td>
+              <td class="date-cell">{post.date}</td>
+              <td>
+                <span class:list={['status-badge', post.published ? 'published' : 'draft']}>
+                  {post.published ? 'প্রকাশিত' : 'ড্রাফট'}
+                </span>
+              </td>
+              <td class="action-cell">
+                <a href={`/admin/posts/edit/${post.slug}`} class="btn-edit">সম্পাদনা</a>
+                <button class="btn-delete" data-id={post.id} data-title={post.title}>মুছুন</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {posts.length === 0 && (
+      <div class="empty-state">
+        <p>কোনো পোস্ট নেই।</p>
+        <a href="/admin/posts/new">প্রথম পোস্ট তৈরি করুন</a>
+      </div>
+    )}
+  </div>
+</AdminLayout>
+
+<script>
+  document.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = (btn as HTMLElement).dataset.id;
+      const title = (btn as HTMLElement).dataset.title;
+      if (!confirm(`"${title}" মুছে ফেলতে চান?`)) return;
+
+      const res = await fetch('/api/admin/posts/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert('মুছতে সমস্যা হয়েছে');
+      }
+    });
+  });
+</script>
+
+<style>
+  .btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: var(--admin-primary);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .btn-add:hover { opacity: 0.9; }
+
+  .table-wrap { overflow-x: auto; }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .admin-table th {
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--admin-border);
+    font-weight: 600;
+    color: var(--admin-text-light);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .admin-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--admin-border);
+    vertical-align: middle;
+  }
+  .admin-table tbody tr:hover { background: #f8fafc; }
+
+  .title-cell a {
+    color: var(--admin-text);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .title-cell a:hover { color: var(--admin-primary); }
+
+  .cat-pill {
+    background: var(--admin-primary-light);
+    color: var(--admin-primary);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .date-cell { color: var(--admin-text-light); white-space: nowrap; }
+
+  .status-badge {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .status-badge.published { background: #dcfce7; color: #16a34a; }
+  .status-badge.draft { background: #fef3c7; color: #d97706; }
+
+  .action-cell { display: flex; gap: 8px; }
+  .btn-edit {
+    padding: 5px 12px;
+    background: var(--admin-primary-light);
+    color: var(--admin-primary);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .btn-edit:hover { background: #cffafe; }
+
+  .btn-delete {
+    padding: 5px 12px;
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s;
+  }
+  .btn-delete:hover { background: #fecaca; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--admin-text-light);
+  }
+  .empty-state a { color: var(--admin-primary); font-weight: 600; }
+</style>

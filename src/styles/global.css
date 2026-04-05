@@ -50,6 +50,38 @@
   --nav-height: 72px;
 }
 
+/* Skip to content link for keyboard accessibility */
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 1rem;
+  background: var(--primary, #2d6a4f);
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+}
+.skip-to-content:focus {
+  left: 0;
+}
+
+/* Focus visible styles for keyboard accessibility */
+:focus-visible {
+  outline: 3px solid var(--primary, #2d6a4f);
+  outline-offset: 2px;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--primary, #2d6a4f);
+  outline-offset: 2px;
+}
+
 /* ─── Reset & Base ──────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

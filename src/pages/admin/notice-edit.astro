@@ -1,0 +1,159 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { notices } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+
+const editId = Astro.url.searchParams.get('id');
+let notice: any = null;
+if (editId) {
+  const rows = await db.select().from(notices).where(eq(notices.id, editId));
+  notice = rows[0] || null;
+}
+const isEdit = !!notice;
+---
+
+<AdminLayout title={isEdit ? 'নোটিশ এডিট' : 'নতুন নোটিশ' + ' | Admin'}>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{isEdit ? 'নোটিশ এডিট করুন' : 'নতুন নোটিশ যোগ করুন'}</h1>
+      <p class="page-desc"><a href="/admin/notices" class="back-link">← নোটিশ লিস্টে ফিরুন</a></p>
+    </div>
+  </div>
+
+  <div id="formMsg" class="save-msg" style="display:none;"></div>
+
+  <form id="noticeForm" class="admin-card">
+    <input type="hidden" id="noticeId" value={notice?.id || ''} />
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="title">শিরোনাম *</label>
+        <input type="text" id="title" class="form-input" value={notice?.title || ''} required />
+      </div>
+      <div class="form-group">
+        <label for="eventDate">তারিখ *</label>
+        <input type="text" id="eventDate" class="form-input" value={notice?.eventDate || ''} placeholder="১৫ নভেম্বর, ২০২৫" required />
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:16px;">
+      <label for="description">বিবরণ *</label>
+      <textarea id="description" class="form-input" rows="3" required>{notice?.description || ''}</textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="icon">আইকন (ইমোজি)</label>
+        <input type="text" id="icon" class="form-input" value={notice?.icon || '📢'} />
+      </div>
+      <div class="form-group">
+        <label for="badge">ব্যাজ</label>
+        <input type="text" id="badge" class="form-input" value={notice?.badge || 'নোটিশ'} />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="badgeColor">ব্যাজ কালার</label>
+        <select id="badgeColor" class="form-input">
+          <option value="event" selected={notice?.badgeColor === 'event'}>ইভেন্ট (নীল)</option>
+          <option value="seminar" selected={notice?.badgeColor === 'seminar'}>সেমিনার (সবুজ)</option>
+          <option value="course" selected={notice?.badgeColor === 'course'}>কোর্স (বেগুনি)</option>
+          <option value="job" selected={notice?.badgeColor === 'job'}>চাকরি (কমলা)</option>
+          <option value="new" selected={notice?.badgeColor === 'new'}>নতুন (সবুজ)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>অপশন</label>
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="urgent" checked={notice?.urgent || false} /> জরুরি
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="published" checked={notice?.published !== false} /> প্রকাশিত
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-save">{isEdit ? '💾 আপডেট করুন' : '✅ নোটিশ যোগ করুন'}</button>
+    </div>
+  </form>
+</AdminLayout>
+
+<script>
+  document.getElementById('noticeForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('formMsg')!;
+    const id = (document.getElementById('noticeId') as HTMLInputElement).value;
+    const isEdit = !!id;
+
+    const payload: any = {
+      title: (document.getElementById('title') as HTMLInputElement).value,
+      description: (document.getElementById('description') as HTMLTextAreaElement).value,
+      eventDate: (document.getElementById('eventDate') as HTMLInputElement).value,
+      icon: (document.getElementById('icon') as HTMLInputElement).value || '📢',
+      badge: (document.getElementById('badge') as HTMLInputElement).value || 'নোটিশ',
+      badgeColor: (document.getElementById('badgeColor') as HTMLSelectElement).value,
+      urgent: (document.getElementById('urgent') as HTMLInputElement).checked,
+      published: (document.getElementById('published') as HTMLInputElement).checked,
+    };
+
+    if (isEdit) payload.id = id;
+
+    const url = isEdit ? '/api/admin/notices/update' : '/api/admin/notices/create';
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        msg.textContent = isEdit ? '✅ নোটিশ আপডেট হয়েছে!' : '✅ নোটিশ যোগ হয়েছে!';
+        msg.className = 'save-msg success';
+        msg.style.display = 'block';
+        if (!isEdit) setTimeout(() => window.location.href = '/admin/notices', 1000);
+      } else {
+        throw new Error('Failed');
+      }
+    } catch {
+      msg.textContent = '❌ সমস্যা হয়েছে';
+      msg.className = 'save-msg error';
+      msg.style.display = 'block';
+    }
+  });
+</script>
+
+<style>
+  .back-link { color: var(--admin-primary); text-decoration: none; font-weight: 500; }
+  .back-link:hover { text-decoration: underline; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--admin-text-light); }
+  .form-input {
+    padding: 10px 14px; border: 1px solid var(--admin-border); border-radius: 8px;
+    font-size: 0.95rem; font-family: inherit; background: #fff; transition: border-color 0.2s;
+  }
+  .form-input:focus { outline: none; border-color: var(--admin-primary); }
+  .checkbox-row { display: flex; gap: 20px; align-items: center; padding-top: 8px; }
+  .checkbox-label { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; }
+  .form-actions { margin-top: 20px; text-align: right; }
+  .btn-save {
+    padding: 12px 32px; background: var(--admin-primary); color: #fff;
+    border: none; border-radius: 10px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: all 0.2s;
+  }
+  .btn-save:hover { opacity: 0.9; }
+  .save-msg { padding: 12px 20px; border-radius: 10px; font-weight: 600; margin-bottom: 16px; }
+  .save-msg.success { background: #dcfce7; color: #15803d; }
+  .save-msg.error { background: #fee2e2; color: #dc2626; }
+  @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }
+</style>

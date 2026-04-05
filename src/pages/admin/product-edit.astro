@@ -1,0 +1,152 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { products } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+
+const editId = Astro.url.searchParams.get('id');
+let product: any = null;
+if (editId) {
+  const rows = await db.select().from(products).where(eq(products.id, editId));
+  product = rows[0] || null;
+}
+const isEdit = !!product;
+---
+
+<AdminLayout title={isEdit ? 'পণ্য এডিট' : 'নতুন পণ্য' + ' | Admin'}>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{isEdit ? 'পণ্য এডিট করুন' : 'নতুন পণ্য যোগ করুন'}</h1>
+      <p class="page-desc"><a href="/admin/products" class="back-link">← পণ্য লিস্টে ফিরুন</a></p>
+    </div>
+  </div>
+
+  <div id="formMsg" class="save-msg" style="display:none;"></div>
+
+  <form id="productForm" class="admin-card">
+    <input type="hidden" id="productId" value={product?.id || ''} />
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="name">পণ্যের নাম *</label>
+        <input type="text" id="name" class="form-input" value={product?.name || ''} required />
+      </div>
+      <div class="form-group">
+        <label for="price">মূল্য (টাকা) *</label>
+        <input type="number" id="price" class="form-input" value={product?.price || ''} required />
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:16px;">
+      <label for="description">বিবরণ *</label>
+      <textarea id="description" class="form-input" rows="2" required>{product?.description || ''}</textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="benefit">উপকারিতা *</label>
+        <input type="text" id="benefit" class="form-input" value={product?.benefit || ''} required />
+      </div>
+      <div class="form-group">
+        <label for="category">ক্যাটাগরি</label>
+        <select id="category" class="form-input">
+          <option value="পানি" selected={product?.category === 'পানি'}>পানি</option>
+          <option value="তেল" selected={product?.category === 'তেল'}>তেল</option>
+          <option value="মসলা" selected={product?.category === 'মসলা'}>মসলা</option>
+          <option value="ফল" selected={product?.category === 'ফল'}>ফল</option>
+          <option value="মধু" selected={product?.category === 'মধু'}>মধু</option>
+          <option value="অন্যান্য" selected={product?.category === 'অন্যান্য' || !product?.category}>অন্যান্য</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="image">ছবির URL/পাথ</label>
+        <input type="text" id="image" class="form-input" value={product?.image || ''} placeholder="/supplements/image.webp" />
+      </div>
+      <div class="form-group">
+        <label for="badge">ব্যাজ (ঐচ্ছিক)</label>
+        <input type="text" id="badge" class="form-input" value={product?.badge || ''} placeholder="বেস্টসেলার, প্রিমিয়াম..." />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="rating">রেটিং (১-৫)</label>
+        <input type="number" id="rating" class="form-input" value={product?.rating || 5} min="1" max="5" step="0.5" />
+      </div>
+      <div class="form-group">
+        <label>অপশন</label>
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="published" checked={product?.published !== false} /> প্রকাশিত
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-save">{isEdit ? '💾 আপডেট করুন' : '✅ পণ্য যোগ করুন'}</button>
+    </div>
+  </form>
+</AdminLayout>
+
+<script>
+  document.getElementById('productForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('formMsg')!;
+    const id = (document.getElementById('productId') as HTMLInputElement).value;
+    const isEdit = !!id;
+
+    const payload: any = {
+      name: (document.getElementById('name') as HTMLInputElement).value,
+      description: (document.getElementById('description') as HTMLTextAreaElement).value,
+      price: (document.getElementById('price') as HTMLInputElement).value,
+      benefit: (document.getElementById('benefit') as HTMLInputElement).value,
+      category: (document.getElementById('category') as HTMLSelectElement).value,
+      image: (document.getElementById('image') as HTMLInputElement).value,
+      badge: (document.getElementById('badge') as HTMLInputElement).value || null,
+      rating: (document.getElementById('rating') as HTMLInputElement).value,
+      published: (document.getElementById('published') as HTMLInputElement).checked,
+    };
+    if (isEdit) payload.id = id;
+
+    const url = isEdit ? '/api/admin/products/update' : '/api/admin/products/create';
+    try {
+      const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (res.ok) {
+        msg.textContent = isEdit ? '✅ পণ্য আপডেট হয়েছে!' : '✅ পণ্য যোগ হয়েছে!';
+        msg.className = 'save-msg success'; msg.style.display = 'block';
+        if (!isEdit) setTimeout(() => window.location.href = '/admin/products', 1000);
+      } else { throw new Error('Failed'); }
+    } catch {
+      msg.textContent = '❌ সমস্যা হয়েছে'; msg.className = 'save-msg error'; msg.style.display = 'block';
+    }
+  });
+</script>
+
+<style>
+  .back-link { color: var(--admin-primary); text-decoration: none; font-weight: 500; }
+  .back-link:hover { text-decoration: underline; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--admin-text-light); }
+  .form-input { padding: 10px 14px; border: 1px solid var(--admin-border); border-radius: 8px; font-size: 0.95rem; font-family: inherit; background: #fff; }
+  .form-input:focus { outline: none; border-color: var(--admin-primary); }
+  .checkbox-row { display: flex; gap: 20px; align-items: center; padding-top: 8px; }
+  .checkbox-label { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; }
+  .form-actions { margin-top: 20px; text-align: right; }
+  .btn-save { padding: 12px 32px; background: var(--admin-primary); color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .btn-save:hover { opacity: 0.9; }
+  .save-msg { padding: 12px 20px; border-radius: 10px; font-weight: 600; margin-bottom: 16px; }
+  .save-msg.success { background: #dcfce7; color: #15803d; }
+  .save-msg.error { background: #fee2e2; color: #dc2626; }
+  @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }
+</style>

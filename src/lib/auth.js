@@ -1,9 +1,10 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-// Define a simple fallback secret for local dev if env not setup
-// Always use a strong JWT_SECRET in production (.dev.vars or Wrangler Dashboard)
 const getSecretKey = (env) => {
-  const secret = env.JWT_SECRET || 'super-secret-local-development-key';
+  const secret = env?.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required. Set it in .dev.vars (local) or Wrangler Dashboard (production).');
+  }
   return new TextEncoder().encode(secret);
 };
 
@@ -77,7 +78,16 @@ export async function verifyPassword(password, storedHash) {
   const exportedKey = await crypto.subtle.exportKey('raw', key);
   const hashHex = Array.from(new Uint8Array(exportedKey)).map(b => b.toString(16).padStart(2, '0')).join('');
   
-  return hashHex === originalHash;
+  // Constant-time comparison to prevent timing attacks
+  const encoder = new TextEncoder();
+  const a = encoder.encode(hashHex);
+  const b = encoder.encode(originalHash);
+  if (a.byteLength !== b.byteLength) return false;
+  let result = 0;
+  for (let i = 0; i < a.byteLength; i++) {
+    result |= a[i] ^ b[i];
+  }
+  return result === 0;
 }
 
 export async function createSession(userId, env) {

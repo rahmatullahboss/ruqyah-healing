@@ -29,7 +29,7 @@ const {
   noindex = false,
 } = Astro.props;
 
-const siteUrl   = 'https://ruqyah-healing.pages.dev';
+const siteUrl   = Astro.site?.origin || 'https://ruqyah-healing.pages.dev';
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
 const ogImageFull  = new URL(ogImage, siteUrl).href;
 const siteName = 'রুকইয়াহ হিলিং সেন্টার';
@@ -107,7 +107,10 @@ const siteName = 'রুকইয়াহ হিলিং সেন্টার
     <ClientRouter fallback="swap" />
   </head>
   <body>
-    <slot />
+    <a href="#main-content" class="skip-to-content">মূল বিষয়বস্তুতে যান</a>
+    <div id="main-content">
+      <slot />
+    </div>
     <BottomNav />
 
     <!-- WhatsApp Floating Button -->

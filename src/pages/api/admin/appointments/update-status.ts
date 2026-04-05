@@ -1,6 +1,7 @@
 import { createDb } from '../../../../db/client.js';
 import { appointments } from '../../../../db/schema.js';
 import { eq } from 'drizzle-orm';
+import { logAuditEvent } from '../../../../lib/audit.js';
 
 export const prerender = false;
 
@@ -30,6 +31,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     await db.update(appointments)
       .set({ status })
       .where(eq(appointments.id, apptId));
+
+    await logAuditEvent(db, {
+      adminId: adminUser.id,
+      adminName: adminUser.fullName,
+      action: 'status_change',
+      entityType: 'appointment',
+      entityId: apptId,
+      details: { newStatus: status },
+    });
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
 

@@ -23,7 +23,7 @@ export const socialLinks = {
 };
 
 export const clinicSchedule = {
-  days: 'শুক্রবার থেকে শুক্রবার',
+  days: 'শনিবার থেকে বৃহস্পতিবার',
   hours: 'সকাল ৯টা থেকে সন্ধ্যা ৬টা',
 };
 

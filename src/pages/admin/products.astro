@@ -1,0 +1,93 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { products } from '../../db/schema.js';
+import { desc } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+const productList = await db.select().from(products).orderBy(desc(products.createdAt));
+---
+
+<AdminLayout title="পণ্য ম্যানেজমেন্ট | Admin - Ruqyah Healing">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">পণ্য ম্যানেজমেন্ট</h1>
+      <p class="page-desc">সাপ্লিমেন্ট ও পণ্য পরিচালনা করুন</p>
+    </div>
+    <a href="/admin/product-edit" class="btn-primary">+ নতুন পণ্য</a>
+  </div>
+
+  <div class="admin-card">
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>পণ্যের নাম</th>
+            <th>মূল্য</th>
+            <th>ক্যাটাগরি</th>
+            <th>রেটিং</th>
+            <th>ব্যাজ</th>
+            <th>প্রকাশিত</th>
+            <th>অ্যাকশন</th>
+          </tr>
+        </thead>
+        <tbody>
+          {productList.length === 0 ? (
+            <tr><td colspan="7" style="text-align:center; padding:32px 0;">কোনো পণ্য নেই। নতুন যোগ করুন।</td></tr>
+          ) : (
+            productList.map(p => (
+              <tr>
+                <td style="font-weight:500; color:var(--admin-text);">{p.name}</td>
+                <td>৳{p.price.toLocaleString()}</td>
+                <td>{p.category}</td>
+                <td>⭐ {p.rating}</td>
+                <td>{p.badge || '—'}</td>
+                <td>{p.published ? '✅' : '❌'}</td>
+                <td>
+                  <div class="action-btns">
+                    <a href={`/admin/product-edit?id=${p.id}`} class="btn-edit">এডিট</a>
+                    <button class="btn-delete" data-id={p.id}>মুছুন</button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  document.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('পণ্যটি মুছে ফেলতে চান?')) return;
+      const id = (btn as HTMLElement).dataset.id;
+      const res = await fetch('/api/admin/products/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) window.location.reload();
+    });
+  });
+</script>
+
+<style>
+  .btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; background: var(--admin-primary); color: #fff; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: opacity 0.2s; }
+  .btn-primary:hover { opacity: 0.9; }
+  .table-container { overflow-x: auto; }
+  .admin-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .admin-table th { padding: 12px 16px; background: #f8fafc; color: var(--admin-text-light); font-weight: 600; font-size: 0.85rem; border-bottom: 1px solid var(--admin-border); text-transform: uppercase; letter-spacing: 0.5px; }
+  .admin-table td { padding: 14px 16px; border-bottom: 1px solid var(--admin-border); color: var(--admin-text-light); font-size: 0.95rem; vertical-align: middle; }
+  .admin-table tr:last-child td { border-bottom: none; }
+  .action-btns { display: flex; gap: 8px; }
+  .btn-edit { padding: 6px 14px; background: #f0f9ff; color: var(--admin-primary); border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+  .btn-edit:hover { background: #e0f2fe; }
+  .btn-delete { padding: 6px 14px; background: #fef2f2; color: #ef4444; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-delete:hover { background: #fee2e2; }
+</style>

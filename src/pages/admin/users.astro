@@ -2,16 +2,41 @@
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { createDb } from '../../db/client.js';
 import { users } from '../../db/schema.js';
-import { desc } from 'drizzle-orm';
+import { desc, ilike, eq, or } from 'drizzle-orm';
 import { env as workerEnv } from 'cloudflare:workers';
-import { Shield, User, MoreVertical } from '@lucide/astro';
+import { Shield, User, Search } from '@lucide/astro';
 
 export const prerender = false;
 
 const env = workerEnv || process.env;
 const db = createDb(env.DATABASE_URL);
 
-const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
+// Search & filter params
+const q = Astro.url.searchParams.get('q') || '';
+const roleFilter = Astro.url.searchParams.get('role') || '';
+
+// Build query conditionally
+const conditions: any[] = [];
+
+if (q.trim()) {
+  conditions.push(
+    or(
+      ilike(users.fullName, `%${q.trim()}%`),
+      ilike(users.email, `%${q.trim()}%`),
+      ilike(users.phone, `%${q.trim()}%`)
+    )
+  );
+}
+
+if (roleFilter && ['patient', 'admin'].includes(roleFilter)) {
+  conditions.push(eq(users.role, roleFilter));
+}
+
+let query = db.select().from(users);
+for (const cond of conditions) {
+  query = query.where(cond) as any;
+}
+const allUsers = await (query as any).orderBy(desc(users.createdAt));
 ---
 
 <AdminLayout title="ইউজার ম্যানেজমেন্ট | Admin - Ruqyah Healing">
@@ -22,7 +47,31 @@ const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
     </div>
   </div>
 
-  <div class="admin-card">
+  <!-- Search / Filter Bar -->
+  <div class="admin-card filter-bar">
+    <form method="get" action="/admin/users" class="filter-form">
+      <div class="filter-group">
+        <label for="q" class="filter-label">অনুসন্ধান</label>
+        <input type="text" id="q" name="q" class="form-input" placeholder="নাম, ইমেইল বা ফোন..." value={q} />
+      </div>
+      <div class="filter-group">
+        <label for="role" class="filter-label">ভূমিকা</label>
+        <select id="role" name="role" class="form-input">
+          <option value="" selected={!roleFilter}>সব</option>
+          <option value="patient" selected={roleFilter === 'patient'}>Patient</option>
+          <option value="admin" selected={roleFilter === 'admin'}>Admin</option>
+        </select>
+      </div>
+      <div class="filter-group filter-action">
+        <button type="submit" class="btn-search">
+          <Search size={16} />
+          খুঁজুন
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="admin-card" style="margin-top:16px;">
     <div class="table-container">
       <table class="admin-table">
         <thead>
@@ -36,9 +85,9 @@ const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
         </thead>
         <tbody>
           {allUsers.length === 0 ? (
-            <tr><td colspan="5" style="text-align:center; padding:32px 0;">কোনো ইউজার নেই</td></tr>
+            <tr><td colspan="5" style="text-align:center; padding:32px 0;">কোনো ইউজার পাওয়া যায়নি</td></tr>
           ) : (
-            allUsers.map((u) => (
+            allUsers.map((u: any) => (
               <tr>
                 <td>
                   <div style="display:flex; align-items:center; gap:8px;">
@@ -59,14 +108,17 @@ const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
                   {new Date(u.createdAt).toLocaleDateString('bn-BD', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </td>
                 <td>
-                   <select 
-                    class="role-select" 
-                    data-user-id={u.id}
-                    data-current-role={u.role}
-                   >
-                     <option value="patient" selected={u.role === 'patient'}>Patient</option>
-                     <option value="admin" selected={u.role === 'admin'}>Admin</option>
-                   </select>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <select
+                      class="role-select"
+                      data-user-id={u.id}
+                      data-current-role={u.role}
+                    >
+                      <option value="patient" selected={u.role === 'patient'}>Patient</option>
+                      <option value="admin" selected={u.role === 'admin'}>Admin</option>
+                    </select>
+                    <a href={`/admin/users/${u.id}`} class="btn-details">বিস্তারিত</a>
+                  </div>
                 </td>
               </tr>
             ))
@@ -87,7 +139,7 @@ const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
       const newRole = target.value;
 
       if (newRole === currentRole) return;
-      
+
       const confirmMsg = `আপনি কি নিশ্চিত যে এই ইউজারের ভূমিকা '${newRole}' করতে চান?`;
       if (!confirm(confirmMsg)) {
         target.value = currentRole || 'patient';
@@ -102,7 +154,7 @@ const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId, role: newRole })
         });
-        
+
         const data = await res.json();
         if (res.ok && data.success) {
           alert('সাফল্যের সাথে আপডেট করা হয়েছে!');
@@ -120,6 +172,91 @@ const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
 </script>
 
 <style>
+  .filter-bar {
+    margin-bottom: 0;
+  }
+
+  .filter-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 160px;
+  }
+
+  .filter-group.filter-action {
+    flex: 0;
+    min-width: auto;
+  }
+
+  .filter-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--admin-text-light);
+  }
+
+  .form-input {
+    padding: 10px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+  }
+
+  .btn-search {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: var(--admin-primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+  }
+
+  .btn-search:hover {
+    opacity: 0.9;
+  }
+
+  .btn-details {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    background: var(--admin-primary-light);
+    color: var(--admin-primary);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .btn-details:hover {
+    background: var(--admin-primary);
+    color: #fff;
+  }
+
   .role-select {
     padding: 6px 12px;
     border: 1px solid var(--admin-border);
@@ -130,16 +267,16 @@ const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
     cursor: pointer;
     outline: none;
   }
-  
+
   .role-select:focus {
     border-color: var(--admin-primary);
   }
-  
+
   .role-select:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
+
   .status-badge {
     display: inline-flex;
     align-items: center;
@@ -163,13 +300,13 @@ const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
   .table-container {
     overflow-x: auto;
   }
-  
+
   .admin-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
   }
-  
+
   .admin-table th {
     padding: 12px 16px;
     background: #f8fafc;
@@ -180,7 +317,7 @@ const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  
+
   .admin-table td {
     padding: 16px;
     border-bottom: 1px solid var(--admin-border);
@@ -188,8 +325,17 @@ const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
     font-size: 0.95rem;
     vertical-align: middle;
   }
-  
+
   .admin-table tr:last-child td {
     border-bottom: none;
+  }
+
+  @media (max-width: 768px) {
+    .filter-form {
+      flex-direction: column;
+    }
+    .filter-group {
+      min-width: 100%;
+    }
   }
 </style>

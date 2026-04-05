@@ -1,0 +1,260 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { env as workerEnv } from 'cloudflare:workers';
+import { createDb } from '../../../db/client.js';
+import { getCategories } from '../../../lib/posts.js';
+
+export const prerender = false;
+
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+const existingCategories = await getCategories(db);
+---
+
+<AdminLayout title="নতুন পোস্ট | Admin">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">নতুন পোস্ট তৈরি করুন</h1>
+      <p class="page-desc">ব্লগে নতুন পোস্ট যোগ করুন</p>
+    </div>
+    <a href="/admin/posts" class="btn-back">← পোস্ট তালিকা</a>
+  </div>
+
+  <form id="postForm" class="admin-card post-form">
+    <div class="form-row">
+      <div class="form-group full">
+        <label for="title">শিরোনাম *</label>
+        <input type="text" id="title" name="title" required placeholder="পোস্টের শিরোনাম লিখুন" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="slug">স্লাগ (URL) *</label>
+        <input type="text" id="slug" name="slug" required placeholder="auto-generated-from-title" />
+        <small>URL এ ব্যবহার হবে: /posts/<span id="slugPreview">...</span></small>
+      </div>
+      <div class="form-group">
+        <label for="date">তারিখ *</label>
+        <input type="date" id="date" name="date" required />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="category">বিভাগ *</label>
+        <input type="text" id="category" name="category" required list="categoryList" placeholder="বিভাগ নির্বাচন বা লিখুন" />
+        <datalist id="categoryList">
+          {existingCategories.map(cat => <option value={cat} />)}
+        </datalist>
+      </div>
+      <div class="form-group">
+        <label for="tags">ট্যাগ (কমা দিয়ে আলাদা)</label>
+        <input type="text" id="tags" name="tags" placeholder="রুকইয়াহ, জ্বীন, যাদু" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group full">
+        <label for="excerpt">সংক্ষিপ্ত বিবরণ *</label>
+        <textarea id="excerpt" name="excerpt" rows="2" required placeholder="পোস্টের সংক্ষিপ্ত বিবরণ..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group full">
+        <label for="content">কন্টেন্ট (Markdown) *</label>
+        <textarea id="content" name="content" rows="20" required placeholder="## শিরোনাম&#10;&#10;আপনার কন্টেন্ট এখানে লিখুন..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="published" name="published" checked />
+          <span>প্রকাশিত</span>
+        </label>
+      </div>
+    </div>
+
+    <div id="errorMessage" class="error-msg" style="display:none;"></div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-save" id="submitBtn">পোস্ট সেভ করুন</button>
+    </div>
+  </form>
+</AdminLayout>
+
+<script>
+  const titleInput = document.getElementById('title') as HTMLInputElement;
+  const slugInput = document.getElementById('slug') as HTMLInputElement;
+  const slugPreview = document.getElementById('slugPreview');
+  const form = document.getElementById('postForm') as HTMLFormElement;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+  const errorMsg = document.getElementById('errorMessage') as HTMLDivElement;
+
+  // Auto-generate slug from title
+  let slugManuallyEdited = false;
+  slugInput.addEventListener('input', () => { slugManuallyEdited = true; });
+
+  titleInput.addEventListener('input', () => {
+    if (!slugManuallyEdited) {
+      const slug = titleInput.value
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s\u0980-\u09FF-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+      slugInput.value = slug;
+      if (slugPreview) slugPreview.textContent = slug || '...';
+    }
+  });
+
+  slugInput.addEventListener('input', () => {
+    if (slugPreview) slugPreview.textContent = slugInput.value || '...';
+  });
+
+  // Set today's date
+  const dateInput = document.getElementById('date') as HTMLInputElement;
+  dateInput.value = new Date().toISOString().split('T')[0];
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    errorMsg.style.display = 'none';
+
+    const tagsRaw = (document.getElementById('tags') as HTMLInputElement).value;
+    const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+    const published = (document.getElementById('published') as HTMLInputElement).checked;
+
+    const data = {
+      title: titleInput.value,
+      slug: slugInput.value,
+      excerpt: (document.getElementById('excerpt') as HTMLTextAreaElement).value,
+      category: (document.getElementById('category') as HTMLInputElement).value,
+      tags,
+      date: dateInput.value,
+      content: (document.getElementById('content') as HTMLTextAreaElement).value,
+      published,
+    };
+
+    try {
+      const res = await fetch('/api/admin/posts/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (res.ok && result.success) {
+        window.location.href = '/admin/posts';
+      } else {
+        throw new Error(result.error || 'সেভ করতে সমস্যা হয়েছে');
+      }
+    } catch (err: any) {
+      errorMsg.textContent = err.message;
+      errorMsg.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  .btn-back {
+    color: var(--admin-text-light);
+    font-size: 14px;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .btn-back:hover { color: var(--admin-primary); }
+
+  .post-form { max-width: 900px; }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .form-group.full { grid-column: 1 / -1; }
+
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--admin-text);
+    margin-bottom: 6px;
+  }
+  .form-group small {
+    font-size: 12px;
+    color: var(--admin-text-light);
+    margin-top: 4px;
+    display: block;
+  }
+
+  .form-group input[type="text"],
+  .form-group input[type="date"],
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--admin-text);
+    background: #fff;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+  }
+
+  .form-group textarea#content {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .checkbox-label input { width: 18px; height: 18px; accent-color: var(--admin-primary); }
+
+  .error-msg {
+    background: #fee2e2;
+    color: #ef4444;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .form-actions { padding-top: 16px; border-top: 1px solid var(--admin-border); }
+
+  .btn-save {
+    padding: 12px 32px;
+    background: var(--admin-primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.2s;
+  }
+  .btn-save:hover { opacity: 0.9; }
+  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  @media (max-width: 640px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>

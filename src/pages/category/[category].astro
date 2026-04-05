@@ -1,28 +1,19 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import BlogCard from '../../components/BlogCard.astro';
+import { env as workerEnv } from 'cloudflare:workers';
+import { createDb } from '../../db/client.js';
+import { getPostsByCategory } from '../../lib/posts.js';
 
-export const prerender = true;
+export const prerender = false;
 
-export async function getStaticPaths() {
-  const posts = await getCollection('posts');
-  // In Astro v6, use post.id (post.slug is deprecated)
-  const categories = [...new Set(posts.map((p) => p.data.category))];
-  return categories.map((cat) => ({
-    params: { category: cat },
-    props: {
-      category: cat,
-      posts: posts
-        .filter((p) => p.data.category === cat)
-        .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()),
-    },
-  }));
-}
+const { category } = Astro.params;
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
 
-const { category, posts } = Astro.props;
+const posts = await getPostsByCategory(db, category);
 ---
 
 <BaseLayout
@@ -64,15 +55,15 @@ const { category, posts } = Astro.props;
         <div class="grid-3">
           {posts.map((post) => (
             <BlogCard
-              title={post.data.title}
-              excerpt={post.data.excerpt}
-              category={post.data.category}
-              date={new Date(post.data.date).toLocaleDateString('bn-BD', {
+              title={post.title}
+              excerpt={post.excerpt}
+              category={post.category}
+              date={new Date(post.date).toLocaleDateString('bn-BD', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
               })}
-              href={`/posts/${post.id.replace(/\.md$/, '')}`}
+              href={`/posts/${post.slug}`}
             />
           ))}
         </div>

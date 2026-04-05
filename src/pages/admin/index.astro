@@ -1,29 +1,90 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { createDb } from '../../db/client.js';
-import { users, appointments } from '../../db/schema.js';
-import { desc, count } from 'drizzle-orm';
+import { users, appointments, posts, courses, auditLogs, siteSettings } from '../../db/schema.js';
+import { desc, count, eq, sql } from 'drizzle-orm';
 import { env as workerEnv } from 'cloudflare:workers';
-import { Users, Calendar as CalendarIcon, CheckCircle, Clock } from '@lucide/astro';
+import { Users, Calendar as CalendarIcon, CheckCircle, Clock, FileText, BookOpen, TrendingUp, Brain } from '@lucide/astro';
 
 export const prerender = false;
 
-// We know the user is admin because middleware.js protects /admin routes
 const env = workerEnv || process.env;
 const db = createDb(env.DATABASE_URL);
 
-// Fetch stats
-const totalUsersResult = await db.select({ value: count(users.id) }).from(users);
-const totalAppointmentsResult = await db.select({ value: count(appointments.id) }).from(appointments);
+// Fetch basic stats
+const [totalUsersR, totalApptsR, totalPostsR, totalCoursesR, pendingR, completedR] = await Promise.all([
+  db.select({ value: count(users.id) }).from(users),
+  db.select({ value: count(appointments.id) }).from(appointments),
+  db.select({ value: count(posts.id) }).from(posts),
+  db.select({ value: count(courses.id) }).from(courses),
+  db.select({ value: count(appointments.id) }).from(appointments).where(eq(appointments.status, 'pending')),
+  db.select({ value: count(appointments.id) }).from(appointments).where(eq(appointments.status, 'completed')),
+]);
 
-const totalUsers = totalUsersResult[0]?.value || 0;
-const totalAppointments = totalAppointmentsResult[0]?.value || 0;
+const totalUsers = totalUsersR[0]?.value || 0;
+const totalAppointments = totalApptsR[0]?.value || 0;
+const totalPosts = totalPostsR[0]?.value || 0;
+const totalCourses = totalCoursesR[0]?.value || 0;
+const pendingCount = pendingR[0]?.value || 0;
+const completedCount = completedR[0]?.value || 0;
 
-// Fetch recent appointments limit 5
-const recentAppointments = await db.select()
-  .from(appointments)
-  .orderBy(desc(appointments.createdAt))
-  .limit(5);
+// Revenue estimate
+let bookingFee = 0;
+try {
+  const [paymentRow] = await db.select().from(siteSettings).where(eq(siteSettings.key, 'payment_details'));
+  if (paymentRow?.value && typeof paymentRow.value === 'object') {
+    bookingFee = Number((paymentRow.value as any).bookingFee) || 0;
+  }
+} catch {}
+const estimatedRevenue = completedCount * bookingFee;
+
+// Popular services
+let popularServices: Array<{key: string, label: string, count: number}> = [];
+try {
+  popularServices = await db.select({
+    key: appointments.treatmentTypeKey,
+    label: appointments.treatmentTypeLabel,
+    count: count(appointments.id),
+  }).from(appointments)
+    .groupBy(appointments.treatmentTypeKey, appointments.treatmentTypeLabel)
+    .orderBy(desc(count(appointments.id)))
+    .limit(6);
+} catch {}
+
+// AI usage from KV
+let todayNeurons = 0;
+let aiDailyLimit = 10000;
+try {
+  if ((env as any).AI_BUDGET?.get) {
+    const today = new Date().toISOString().slice(0, 10);
+    const raw = await (env as any).AI_BUDGET.get(`daily-neurons:${today}`);
+    if (raw) todayNeurons = JSON.parse(raw).usedNeurons || 0;
+  }
+  const [limitRow] = await db.select().from(siteSettings).where(eq(siteSettings.key, 'ai_daily_neuron_limit'));
+  if (limitRow?.value && typeof limitRow.value === 'number') aiDailyLimit = limitRow.value;
+} catch {}
+const aiPercent = aiDailyLimit > 0 ? Math.min(100, Math.round((todayNeurons / aiDailyLimit) * 100)) : 0;
+
+// Recent audit logs
+let recentLogs: any[] = [];
+try {
+  recentLogs = await db.select().from(auditLogs).orderBy(desc(auditLogs.createdAt)).limit(8);
+} catch {}
+
+// Recent appointments
+const recentAppointments = await db.select().from(appointments).orderBy(desc(appointments.createdAt)).limit(5);
+
+const actionLabels: Record<string, string> = {
+  create: 'তৈরি', update: 'আপডেট', delete: 'মুছে ফেলা',
+  status_change: 'স্ট্যাটাস পরিবর্তন', role_change: 'ভূমিকা পরিবর্তন',
+};
+const entityLabels: Record<string, string> = {
+  post: 'পোস্ট', appointment: 'অ্যাপয়েন্টমেন্ট', user: 'ইউজার',
+  course: 'কোর্স', notice: 'নোটিশ', product: 'পণ্য', resource: 'রিসোর্স', settings: 'সেটিংস',
+};
+const statusLabels: Record<string, string> = {
+  pending: 'অপেক্ষমান', confirmed: 'নিশ্চিত', completed: 'সম্পন্ন', cancelled: 'বাতিল',
+};
 ---
 
 <AdminLayout title="ড্যাশবোর্ড | Admin - Ruqyah Healing">
@@ -37,59 +98,116 @@ const recentAppointments = await db.select()
   <!-- Stats Grid -->
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-icon-wrap" style="background:#e0f2fe; color:#0284c7;">
-        <Users size={24} />
-      </div>
+      <div class="stat-icon-wrap" style="background:#e0f2fe; color:#0284c7;"><Users size={24} /></div>
       <div class="stat-content">
         <p class="stat-title">মোট ইউজার</p>
         <p class="stat-value">{totalUsers}</p>
       </div>
     </div>
-    
     <div class="stat-card">
-      <div class="stat-icon-wrap" style="background:#fce7f3; color:#db2777;">
-        <CalendarIcon size={24} />
-      </div>
+      <div class="stat-icon-wrap" style="background:#fce7f3; color:#db2777;"><CalendarIcon size={24} /></div>
       <div class="stat-content">
-        <p class="stat-title">মোট এ্যাপয়েন্টমেন্ট</p>
+        <p class="stat-title">মোট অ্যাপয়েন্টমেন্ট</p>
         <p class="stat-value">{totalAppointments}</p>
       </div>
     </div>
-    
     <div class="stat-card">
-      <div class="stat-icon-wrap" style="background:#fef3c7; color:#d97706;">
-        <Clock size={24} />
-      </div>
+      <div class="stat-icon-wrap" style="background:#fef3c7; color:#d97706;"><Clock size={24} /></div>
       <div class="stat-content">
         <p class="stat-title">পেন্ডিং</p>
-        <p class="stat-value">...</p>
+        <p class="stat-value">{pendingCount}</p>
       </div>
     </div>
-    
     <div class="stat-card">
-      <div class="stat-icon-wrap" style="background:#dcfce7; color:#16a34a;">
-        <CheckCircle size={24} />
-      </div>
+      <div class="stat-icon-wrap" style="background:#dcfce7; color:#16a34a;"><CheckCircle size={24} /></div>
       <div class="stat-content">
         <p class="stat-title">সম্পন্ন</p>
-        <p class="stat-value">...</p>
+        <p class="stat-value">{completedCount}</p>
+      </div>
+    </div>
+    {bookingFee > 0 && (
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:#ecfdf5; color:#059669;"><TrendingUp size={24} /></div>
+        <div class="stat-content">
+          <p class="stat-title">আনুমানিক আয়</p>
+          <p class="stat-value">৳{estimatedRevenue.toLocaleString('bn-BD')}</p>
+        </div>
+      </div>
+    )}
+    <div class="stat-card">
+      <div class="stat-icon-wrap" style="background:#dbeafe; color:#2563eb;"><Brain size={24} /></div>
+      <div class="stat-content">
+        <p class="stat-title">AI ব্যবহার (আজ)</p>
+        <p class="stat-value">{aiPercent}%</p>
+        <div class="mini-progress"><div class="mini-bar" style={`width:${aiPercent}%`}></div></div>
       </div>
     </div>
   </div>
 
+  <!-- Two column: Services + Activity -->
+  <div class="dash-grid">
+    <!-- Popular Services -->
+    {popularServices.length > 0 && (
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">জনপ্রিয় সেবাসমূহ</h2>
+        </div>
+        <div class="services-list">
+          {popularServices.map((s, i) => {
+            const maxCount = popularServices[0]?.count || 1;
+            const pct = Math.round((s.count / maxCount) * 100);
+            return (
+              <div class="service-row">
+                <div class="service-info">
+                  <span class="service-label">{s.label || s.key}</span>
+                  <span class="service-count">{s.count}</span>
+                </div>
+                <div class="service-bar-outer"><div class="service-bar" style={`width:${pct}%`}></div></div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    <!-- Recent Activity -->
+    <div class="admin-card">
+      <div class="card-header">
+        <h2 class="card-title">সাম্প্রতিক কার্যক্রম</h2>
+        <a href="/admin/audit-logs" class="view-all">সবগুলো দেখুন</a>
+      </div>
+      {recentLogs.length === 0 ? (
+        <p style="color:var(--admin-text-light); font-size:0.9rem;">কোনো কার্যক্রম নেই।</p>
+      ) : (
+        <div class="activity-list">
+          {recentLogs.map(log => (
+            <div class="activity-item">
+              <span class:list={['activity-dot', `dot-${log.action}`]}></span>
+              <div class="activity-content">
+                <span class="activity-text">
+                  <strong>{log.adminName}</strong> {actionLabels[log.action] || log.action} করেছেন — {entityLabels[log.entityType] || log.entityType}
+                </span>
+                <span class="activity-time">{new Date(log.createdAt).toLocaleString('bn-BD', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+
   <!-- Recent Appointments Table -->
-  <div class="admin-card">
+  <div class="admin-card" style="margin-top:20px;">
     <div class="card-header">
-      <h2 class="card-title">সাম্প্রতিক এ্যাপয়েন্টমেন্টসমূহ</h2>
+      <h2 class="card-title">সাম্প্রতিক অ্যাপয়েন্টমেন্ট</h2>
       <a href="/admin/appointments" class="view-all">সবগুলো দেখুন</a>
     </div>
-    
     <div class="table-container">
       <table class="admin-table">
         <thead>
           <tr>
             <th>নাম</th>
-            <th>ফোন নাম্বার</th>
+            <th>ফোন</th>
             <th>চিকিৎসা</th>
             <th>তারিখ ও সময়</th>
             <th>স্ট্যাটাস</th>
@@ -97,20 +215,22 @@ const recentAppointments = await db.select()
         </thead>
         <tbody>
           {recentAppointments.length === 0 ? (
-            <tr><td colspan="5" style="text-align:center; padding:32px 0;">কোনো এ্যাপয়েন্টমেন্ট নেই</td></tr>
+            <tr><td colspan="5" style="text-align:center; padding:32px 0;">কোনো অ্যাপয়েন্টমেন্ট নেই</td></tr>
           ) : (
-            recentAppointments.map((appt) => (
+            recentAppointments.map(appt => (
               <tr>
-                <td style="font-weight:500; color:var(--admin-text);">{appt.fullName}</td>
+                <td style="font-weight:500; color:var(--admin-text);">
+                  <a href={`/admin/appointments/${appt.id}`} style="text-decoration:none; color:inherit;">{appt.fullName}</a>
+                </td>
                 <td>{appt.phone}</td>
-                <td>{appt.treatmentTypeLabel || 'Service'}</td>
+                <td>{appt.treatmentTypeLabel}</td>
                 <td>
                   <div style="font-size:0.85rem;">{appt.preferredDate}</div>
                   <div style="font-size:0.8rem; color:var(--admin-text-light);">{appt.preferredTime}</div>
                 </td>
                 <td>
-                  <span class={`status-badge status-${appt.status === 'pending' ? 'pending' : appt.status === 'completed' ? 'done' : 'default'}`}>
-                    {appt.status}
+                  <span class={`status-badge status-${appt.status === 'pending' ? 'pending' : appt.status === 'completed' ? 'done' : appt.status === 'confirmed' ? 'confirmed' : 'default'}`}>
+                    {statusLabels[appt.status] || appt.status}
                   </span>
                 </td>
               </tr>
@@ -123,143 +243,46 @@ const recentAppointments = await db.select()
 </AdminLayout>
 
 <style>
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-    margin-bottom: 32px;
-  }
-  
-  .stat-card {
-    background: var(--admin-surface);
-    border: 1px solid var(--admin-border);
-    border-radius: 12px;
-    padding: 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-  
-  .stat-icon-wrap {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .stat-title {
-    font-size: 0.9rem;
-    color: var(--admin-text-light);
-    margin: 0 0 4px 0;
-    font-weight: 500;
-  }
-  
-  .stat-value {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--admin-text);
-    margin: 0;
-    line-height: 1;
-  }
-  
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .card-title {
-    font-size: 1.15rem;
-    font-weight: 600;
-    margin: 0;
-  }
-  
-  .view-all {
-    font-size: 0.9rem;
-    color: var(--admin-primary);
-    text-decoration: none;
-    font-weight: 500;
-  }
-  
-  .view-all:hover {
-    text-decoration: underline;
-  }
-  
-  .table-container {
-    overflow-x: auto;
-  }
-  
-  .admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-  }
-  
-  .admin-table th {
-    padding: 12px 16px;
-    background: #f8fafc;
-    color: var(--admin-text-light);
-    font-weight: 600;
-    font-size: 0.85rem;
-    border-bottom: 1px solid var(--admin-border);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .admin-table td {
-    padding: 16px;
-    border-bottom: 1px solid var(--admin-border);
-    color: var(--admin-text-light);
-    font-size: 0.95rem;
-    vertical-align: middle;
-  }
-  
-  .admin-table tr:last-child td {
-    border-bottom: none;
-  }
-  
-  .status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: capitalize;
-  }
-  
-  .status-pending {
-    background: #fef3c7;
-    color: #d97706;
-  }
-  
-  .status-done {
-    background: #dcfce7;
-    color: #16a34a;
-  }
-  
-  .status-default {
-    background: #e2e8f0;
-    color: #64748b;
-  }
-
-  @media (max-width: 1024px) {
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 640px) {
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .admin-table th, .admin-table td {
-      padding: 12px 8px;
-    }
-  }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px; }
+  .stat-card { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: 12px; padding: 24px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .stat-icon-wrap { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .stat-title { font-size: 0.85rem; color: var(--admin-text-light); margin: 0 0 4px 0; font-weight: 500; }
+  .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--admin-text); margin: 0; line-height: 1; }
+  .mini-progress { height: 4px; background: #e2e8f0; border-radius: 2px; margin-top: 6px; width: 80px; }
+  .mini-bar { height: 100%; background: var(--admin-primary); border-radius: 2px; }
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .card-title { font-size: 1.05rem; font-weight: 600; margin: 0; }
+  .view-all { font-size: 0.9rem; color: var(--admin-primary); text-decoration: none; font-weight: 500; }
+  .view-all:hover { text-decoration: underline; }
+  .services-list { display: flex; flex-direction: column; gap: 12px; }
+  .service-row { }
+  .service-info { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .service-label { font-size: 0.9rem; color: var(--admin-text); font-weight: 500; }
+  .service-count { font-size: 0.85rem; color: var(--admin-text-light); font-weight: 600; }
+  .service-bar-outer { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+  .service-bar { height: 100%; background: var(--admin-primary); border-radius: 4px; }
+  .activity-list { display: flex; flex-direction: column; gap: 12px; }
+  .activity-item { display: flex; gap: 12px; align-items: flex-start; }
+  .activity-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .dot-create { background: #16a34a; }
+  .dot-update { background: #2563eb; }
+  .dot-delete { background: #dc2626; }
+  .dot-status_change { background: #d97706; }
+  .dot-role_change { background: #7c3aed; }
+  .activity-content { flex: 1; }
+  .activity-text { display: block; font-size: 0.9rem; color: var(--admin-text); line-height: 1.4; }
+  .activity-time { display: block; font-size: 0.8rem; color: #94a3b8; margin-top: 2px; }
+  .table-container { overflow-x: auto; }
+  .admin-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .admin-table th { padding: 12px 16px; background: #f8fafc; color: var(--admin-text-light); font-weight: 600; font-size: 0.8rem; border-bottom: 1px solid var(--admin-border); text-transform: uppercase; letter-spacing: 0.5px; }
+  .admin-table td { padding: 14px 16px; border-bottom: 1px solid var(--admin-border); color: var(--admin-text-light); font-size: 0.95rem; vertical-align: middle; }
+  .admin-table tr:last-child td { border-bottom: none; }
+  .status-badge { display: inline-flex; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+  .status-pending { background: #fef3c7; color: #d97706; }
+  .status-done { background: #dcfce7; color: #16a34a; }
+  .status-confirmed { background: #dbeafe; color: #1d4ed8; }
+  .status-default { background: #e2e8f0; color: #64748b; }
+  @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .dash-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } }
 </style>

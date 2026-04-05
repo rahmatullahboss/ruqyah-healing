@@ -9,8 +9,18 @@ import type { APIRoute } from 'astro';
 
 import { env as workerEnv } from 'cloudflare:workers';
 
+function getAdminEmails(env: Record<string, string | undefined>) {
+  return new Set(
+    (env.ADMIN_EMAILS || '')
+      .split(',')
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean),
+  );
+}
+
 export const POST: APIRoute = async ({ request, locals, cookies }) => {
   const env = workerEnv || process.env;
+  const adminEmails = getAdminEmails(env);
 
   try {
     const formData = (await request.json()) as Record<string, string>;
@@ -33,6 +43,11 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
       return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
     }
 
+    // Google-only user trying password login — use generic message to prevent account enumeration
+    if (!user.passwordHash) {
+      return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
+    }
+
     const isValid = await verifyPassword(password, user.passwordHash);
 
     if (!isValid) {
@@ -44,11 +59,15 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
     cookies.set('auth_token', token, {
       httpOnly: true,
       secure: true,
+      sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7 // 7 days
     });
 
-    return new Response(JSON.stringify({ success: true, redirect: '/profile' }), { status: 200 });
+    const shouldUseAdminRedirect = user.role === 'admin'
+      || (!!user.email && adminEmails.has(user.email.toLowerCase()));
+
+    return new Response(JSON.stringify({ success: true, redirect: shouldUseAdminRedirect ? '/admin' : '/profile' }), { status: 200 });
 
   } catch (error) {
     console.error('Login error:', error);

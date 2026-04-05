@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
-import { LayoutDashboard, Users, Calendar, Settings, LogOut, Heart, Menu, X } from '@lucide/astro';
+import { LayoutDashboard, Users, Calendar, Settings, LogOut, Heart, Menu, FileText, BookOpen, Bell, ShoppingBag, FileDown, Image, MessageSquare, ClipboardList } from '@lucide/astro';
 
 interface Props {
   title?: string;
@@ -303,6 +303,38 @@ const user = Astro.locals.user;
           <a href="/admin/users" class:list={['nav-item', currentPath.startsWith('/admin/users') && 'active']}>
             <Users size={20} stroke-width={2} />
             ইউজার ম্যানেজমেন্ট
+          </a>
+          <a href="/admin/posts" class:list={['nav-item', currentPath.startsWith('/admin/posts') && 'active']}>
+            <FileText size={20} stroke-width={2} />
+            ব্লগ পোস্ট
+          </a>
+          <a href="/admin/courses" class:list={['nav-item', currentPath.startsWith('/admin/courses') && 'active']}>
+            <BookOpen size={20} stroke-width={2} />
+            কোর্স ম্যানেজমেন্ট
+          </a>
+          <a href="/admin/notices" class:list={['nav-item', currentPath.startsWith('/admin/notice') && 'active']}>
+            <Bell size={20} stroke-width={2} />
+            নোটিশ ম্যানেজমেন্ট
+          </a>
+          <a href="/admin/products" class:list={['nav-item', currentPath.startsWith('/admin/product') && 'active']}>
+            <ShoppingBag size={20} stroke-width={2} />
+            পণ্য ম্যানেজমেন্ট
+          </a>
+          <a href="/admin/resources" class:list={['nav-item', currentPath.startsWith('/admin/resource') && 'active']}>
+            <FileDown size={20} stroke-width={2} />
+            পিডিএফ রিসোর্স
+          </a>
+          <a href="/admin/files" class:list={['nav-item', currentPath.startsWith('/admin/files') && 'active']}>
+            <Image size={20} stroke-width={2} />
+            ফাইল ম্যানেজার
+          </a>
+          <a href="/admin/ai-chat" class:list={['nav-item', currentPath.startsWith('/admin/ai-chat') && 'active']}>
+            <MessageSquare size={20} stroke-width={2} />
+            AI চ্যাট কন্ট্রোল
+          </a>
+          <a href="/admin/audit-logs" class:list={['nav-item', currentPath.startsWith('/admin/audit-log') && 'active']}>
+            <ClipboardList size={20} stroke-width={2} />
+            অডিট লগ
           </a>
           <a href="/admin/settings" class:list={['nav-item', currentPath.startsWith('/admin/settings') && 'active']}>
             <Settings size={20} stroke-width={2} />

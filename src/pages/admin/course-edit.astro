@@ -1,0 +1,252 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { courses } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+import { ArrowLeft, Save } from '@lucide/astro';
+
+export const prerender = false;
+
+const env = workerEnv || process.env;
+const db = createDb((env as any).DATABASE_URL);
+
+const id = Astro.url.searchParams.get('id');
+let course: any = null;
+
+if (id && id !== 'new') {
+  const result = await db.select().from(courses).where(eq(courses.id, id));
+  if (result.length > 0) course = result[0];
+}
+
+// Handle form submission on the server to make it work without JS API entirely if preferred, 
+// using Astro's request method, but keeping API style for consistency. We will use JS fetch in client.
+---
+
+<AdminLayout title={course ? 'কোর্স আপডেট' : 'নতুন কোর্স'}>
+  <div class="page-header">
+    <div>
+      <a href="/admin/courses" class="back-link">
+        <ArrowLeft size={16} /> ফিরে যান
+      </a>
+      <h1 class="page-title">{course ? 'কোর্স আপডেট করুন' : 'নতুন কোর্স তৈরি করুন'}</h1>
+    </div>
+  </div>
+
+  <div class="admin-card max-w-3xl">
+    <form id="courseForm">
+      <input type="hidden" name="id" value={course?.id || 'new'} />
+      
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>কোর্সের নাম *</label>
+          <input type="text" name="title" required value={course?.title || ''} placeholder="যেমন: বেসিক রুকইয়াহ ফ্রি কোর্স" />
+        </div>
+
+        <div class="form-group">
+          <label>ইন্সট্রাক্টর *</label>
+          <input type="text" name="instructor" required value={course?.instructor || ''} placeholder="ইন্সট্রাক্টরের নাম" />
+        </div>
+
+        <div class="form-group">
+          <label>মোট শিক্ষার্থী (Optional)</label>
+          <input type="number" name="students" value={course?.students || 0} />
+        </div>
+
+        <div class="form-group">
+          <label>ক্লাস সংখ্যা ও টেক্সট *</label>
+          <input type="text" name="classCount" required value={course?.classCount || ''} placeholder="যেমন: ৬ টি ক্লাস" />
+        </div>
+
+        <div class="form-group">
+          <label>কোর্সের সময়কাল *</label>
+          <input type="text" name="hours" required value={course?.hours || ''} placeholder="যেমন: ৮ সপ্তাহ" />
+        </div>
+
+        <div class="form-group">
+          <label>স্তর (Level) *</label>
+          <select name="level" required>
+            <option value="শুরুর স্তর" selected={course?.level === 'শুরুর স্তর'}>শুরুর স্তর</option>
+            <option value="মধ্যম স্তর" selected={course?.level === 'মধ্যম স্তর'}>মধ্যম স্তর</option>
+            <option value="উন্নত স্তর" selected={course?.level === 'উন্নত স্তর'}>উন্নত স্তর</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>মূল্য (বিনা মূল্যের জন্য ফাঁকা বা 0 রাখুন)</label>
+          <input type="number" name="price" value={course?.price || ''} placeholder="0" />
+        </div>
+
+        <div class="form-group">
+          <label>রেটিং</label>
+          <input type="number" step="0.1" max="5" name="rating" value={course?.rating || '5.0'} />
+        </div>
+        
+        <div class="form-group full-width">
+          <label>ছবির URL বা পাথ *</label>
+          <input type="text" name="image" required value={course?.image || '/images/courses/default.webp'} />
+          <small class="hint">যেমন: /images/courses/course_ruqyah_practitioner.webp</small>
+        </div>
+
+        <div class="form-group full-width">
+          <label>সংক্ষিপ্ত বিবরণ *</label>
+          <textarea name="desc" required rows="3">{course?.desc || ''}</textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-save">
+          <Save size={18} />
+          সেভ করুন
+        </button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<script>
+  const form = document.getElementById('courseForm') as HTMLFormElement;
+  const submitBtn = form.querySelector('.btn-save') as HTMLButtonElement;
+  
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'সেভ হচ্ছে...';
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    // Formatting data properly
+    const payload = {
+      ...data,
+      students: parseInt(data.students as string) || 0,
+      price: data.price ? parseInt(data.price as string) : null,
+      rating: parseFloat(data.rating as string) || 0.0
+    };
+
+    const endpoint = data.id === 'new' 
+      ? '/api/admin/courses/create' 
+      : '/api/admin/courses/update';
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      const result = await res.json() as Record<string, any>;
+      
+      if (res.ok && result.success) {
+        alert('সফলভাবে সেভ হয়েছে!');
+        window.location.href = '/admin/courses';
+      } else {
+        throw new Error(result.error || 'সেভ করতে সমস্যা হয়েছে।');
+      }
+    } catch (err: any) {
+      alert(err.message);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> সেভ করুন';
+    }
+  });
+</script>
+
+<style>
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--admin-text-light);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .back-link:hover {
+    color: var(--admin-primary);
+  }
+
+  .max-w-3xl {
+    max-width: 800px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--admin-text);
+  }
+
+  input, select, textarea {
+    padding: 10px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #f8fafc;
+    outline: none;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    background: #fff;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px var(--admin-primary-light);
+  }
+
+  .hint {
+    font-size: 0.8rem;
+    color: var(--admin-text-light);
+  }
+
+  .form-actions {
+    margin-top: 32px;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 24px;
+    border-top: 1px solid var(--admin-border);
+  }
+
+  .btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--admin-primary);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-save:hover {
+    background: #06b6d4;
+  }
+  .btn-save:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 640px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

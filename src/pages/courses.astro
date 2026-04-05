@@ -3,14 +3,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
-const courses = [
-  { title: 'রুকইয়া প্র্যাকটিশনার কোর্স', instructor: 'মাওলানা আব্দুল্লাহ', students: 156, lessons: 24, hours: '৮ সপ্তাহ', level: 'শুরুর স্তর', price: null, rating: 4.8, desc: 'সম্পূর্ণ রুকইয়াহ শেখার জন্য বিস্তারিত কোর্স', image: '/images/courses/course_ruqyah_practitioner.webp' },
-  { title: 'ইসলামিক হিলিং থেরাপি', instructor: 'ডা. ফাতিমা রহমান', students: 203, lessons: 18, hours: '৬ সপ্তাহ', level: 'মধ্যম স্তর', price: 2000, rating: 4.9, desc: 'কুরআন এবং সুন্নাহ ভিত্তিক হিলিং পদ্ধতি', image: '/images/courses/course_islamic_healing.webp' },
-  { title: 'জিন ও শয়তান থেকে সুরক্ষা', instructor: 'শায়েখ মুহাম্মাদ', students: 89, lessons: 12, hours: '৮ সপ্তাহ', level: 'শুরুর স্তর', price: null, rating: 4.7, desc: 'সুরক্ষার পদ্ধতি এবং প্রতিরোধ ব্যবস্থা', image: '/images/courses/course_jinn_protection.webp' },
-  { title: 'কুরআনিক হিলিং ম্যাস্টারক্লাস', instructor: 'মাওলানা আব্দুল্লাহ', students: 312, lessons: 30, hours: '১২ সপ্তাহ', level: 'উন্নত স্তর', price: 4500, rating: 5.0, desc: 'কুরআনের আয়াত দিয়ে সম্পূর্ণ চিকিৎসা পদ্ধতি', image: '/images/courses/course_quranic_masterclass.webp' },
-  { title: 'পারিবারিক রুকইয়াহ', instructor: 'ডা. ফাতিমা রহমান', students: 178, lessons: 15, hours: '৫ সপ্তাহ', level: 'শুরুর স্তর', price: 3000, rating: 4.6, desc: 'পরিবারের সুরক্ষার জন্য সম্পূর্ণ গাইড', image: '/images/courses/course_family_ruqyah.webp' },
-  { title: 'সেলফ রুকইয়াহ সার্টিফিকেট', instructor: 'শায়েখ মুহাম্মাদ', students: 245, lessons: 20, hours: '৭ সপ্তাহ', level: 'মধ্যম স্তর', price: 2500, rating: 4.8, desc: 'নিজেই রুকইয়াহ করার দক্ষতা অর্জন করুন', image: '/images/courses/course_self_ruqyah_certificate.webp' },
-];
+import { createDb } from '../db/client.js';
+import { courses } from '../db/schema.js';
+import { env as workerEnv } from 'cloudflare:workers';
+import { desc } from 'drizzle-orm';
+
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+
+// Fetch courses from DB
+const coursesList = await db.select().from(courses).orderBy(desc(courses.createdAt));
 ---
 
 <BaseLayout title="কোর্সসমূহ | Ruqyah Healing Center" description="ইসলামিক হিলিং এবং রুকইয়াহ সম্পর্কে বিস্তারিত জ্ঞান অর্জন করুন আমাদের কোর্সগুলো থেকে।">
@@ -35,7 +37,7 @@ const courses = [
     <section class="courses-section">
       <div class="container">
         <div class="courses-grid">
-          {courses.map((course) => (
+          {coursesList.map((course) => (
             <div class="course-card">
               <div class="course-img">
                 <img src={course.image} alt={course.title} class="course-bg" loading="lazy" decoding="async" />
@@ -52,7 +54,7 @@ const courses = [
                 <p>{course.desc}</p>
                 <div class="course-stats">
                   <span>⏱ {course.hours}</span>
-                  <span>📚 {course.lessons} লেসন</span>
+                  <span>📚 {course.classCount}</span>
                 </div>
                 <div class="course-footer">
                   <div class="instructor">

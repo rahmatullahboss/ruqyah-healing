@@ -5,19 +5,25 @@ import Hero from '../components/Hero.astro';
 import Footer from '../components/Footer.astro';
 import ServiceCard from '../components/ServiceCard.astro';
 import BlogCard from '../components/BlogCard.astro';
-import { getCollection } from 'astro:content';
+import { env as workerEnv } from 'cloudflare:workers';
+import { createDb } from '../db/client.js';
+import { getAllPosts } from '../lib/posts.js';
 import { clinicNumbers, clinicSchedule, getWhatsappUrl } from '../data/clinic.js';
 
-const allPosts = await getCollection('posts');
+export const prerender = false;
+
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+
+const allPosts = await getAllPosts(db);
 const blogs = allPosts
-  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
-  .slice(0, 3)
+  .slice(0, 6)
   .map(post => ({
-    date: new Date(post.data.date).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }),
-    category: post.data.category ?? 'রুকইয়াহ',
-    title: post.data.title,
-    excerpt: post.data.excerpt ?? '',
-    href: `/posts/${post.id.replace(/\.md$/, '')}`,
+    date: new Date(post.date).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }),
+    category: post.category ?? 'রুকইয়াহ',
+    title: post.title,
+    excerpt: post.excerpt ?? '',
+    href: `/posts/${post.slug}`,
   }));
 
 const services = [
@@ -627,31 +633,6 @@ const acupressureBookingLink = getWhatsappUrl('আসসালামু আল�
     } else {
       revealEls.forEach(el => el.classList.add('is-visible'));
     }
-
-    // ── Stats counter
-    function animateCounter(el: Element, target: number, suffix: string, duration = 1200) {
-      let start = 0;
-      const step = (timestamp: number) => {
-        if (!start) start = timestamp;
-        const progress = Math.min((timestamp - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        el.textContent = Math.floor(eased * target) + suffix;
-        if (progress < 1) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    }
-    const statsObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        const el = entry.target as HTMLElement;
-        const raw = el.dataset.count ?? '';
-        const target = parseInt(raw, 10);
-        const suffix = el.dataset.suffix ?? '';
-        if (!isNaN(target)) animateCounter(el, target, suffix);
-        statsObserver.unobserve(el);
-      });
-    }, { threshold: 0.5 });
-    document.querySelectorAll('[data-count]').forEach(el => statsObserver.observe(el));
 
     // ── Swipe hint
     const swipeHint = document.querySelector('.swipe-hint') as HTMLElement | null;

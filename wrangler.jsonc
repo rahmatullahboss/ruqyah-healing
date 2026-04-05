@@ -15,6 +15,8 @@
 			"binding": "AI_BUDGET",
 			"id": "8d493972c8994df0a80c8de40539b222"
 		}
+		// TODO: Create a KV namespace for sessions and add binding:
+		// { "binding": "SESSION", "id": "<kv-namespace-id>" }
 	],
 	"assets": {
 		"directory": "./dist/client",
@@ -25,5 +27,15 @@
 	},
 	"observability": {
 		"enabled": true
-	}
+	},
+	// ADMIN_EMAILS should be set as a secret, not a plaintext var:
+	//   wrangler secret put ADMIN_EMAILS
+	"vars": {},
+	"r2_buckets": [
+		{
+			"bucket_name": "ruqyah-healing-images",
+			"binding": "R2_IMAGES",
+			"remote": true
+		}
+	]
 }
