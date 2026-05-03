@@ -16,8 +16,8 @@
       <span>কুরআন ও সুন্নাহ ভিত্তিক হিলিং</span>
     </div>
 
-    <h1 class="hero-title">Ruqyah Healing Center</h1>
-    <p class="hero-subtitle">ইসলামী রুকইয়ার মাধ্যমে হালাল হিলিং সার্ভিস</p>
+    <h1 class="hero-title">Ruqyah Healing — ইসলামী রুকইয়াহ চিকিৎসা</h1>
+    <p class="hero-subtitle" data-typewriter='["ইসলামী রুকইয়ার মাধ্যমে হালাল হিলিং সার্ভিস", "আপনার কি দাম্পত্য জীবনে কলহ?", "আপনার কি ব্যবসায়ে মন্দা?", "আপনার কি জীবনে হতাশা?"]'></p>
     <p class="hero-desc">কুরআন এবং সুন্নাহ ভিত্তিক চিকিৎসা পদ্ধতিতে আপনার আধ্যাত্মিক ও শারীরিক সুস্থতা নিশ্চিত করুন</p>
 
     <div class="hero-actions">
@@ -40,20 +40,20 @@
       <div class="hero-stat">
         <span
           class="hero-stat-num"
-          data-count="500"
+          data-count="1800"
           data-suffix="+"
-          aria-label="৫০০+ সুচিকিৎসিত রোগী"
-        >৫০০+</span>
+          aria-label="১৮০০+ সুচিকিৎসিত রোগী"
+        >১৮০০+</span>
         <span class="hero-stat-label">সুচিকিৎসিত রোগী</span>
       </div>
       <div class="hero-stat-divider"></div>
       <div class="hero-stat">
         <span
           class="hero-stat-num"
-          data-count="3"
+          data-count="8"
           data-suffix="+"
-          aria-label="৩+ বছরের অভিজ্ঞতা"
-        >৩+</span>
+          aria-label="৮+ বছরের অভিজ্ঞতা"
+        >৮+</span>
         <span class="hero-stat-label">বছরের অভিজ্ঞতা</span>
       </div>
       <div class="hero-stat-divider"></div>
@@ -175,25 +175,91 @@
 })();
 </script>
 
+<!-- Typewriter effect for hero subtitle -->
+<script>
+(function () {
+  'use strict';
+
+  function initTypewriter() {
+    const el = document.querySelector('[data-typewriter]');
+    if (!el) return;
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const typingSpeed = prefersReduced ? 0 : 80;
+    const deletingSpeed = prefersReduced ? 0 : 40;
+    const pauseDuration = prefersReduced ? 0 : 2000;
+
+    let raw = el.dataset.typewriter || '';
+    let texts = [];
+    try {
+      texts = JSON.parse(raw);
+    } catch {
+      texts = [raw];
+    }
+    if (!texts.length) texts = [raw];
+    if (!el) return;
+
+    let textIndex = 0;
+    let isDeleting = false;
+    let isPaused = false;
+
+    function type() {
+      if (isPaused) return;
+
+      const text = texts[textIndex];
+
+      if (!isDeleting) {
+        const currentLength = el.textContent.length;
+        if (currentLength < text.length) {
+          el.textContent = text.slice(0, currentLength + 1);
+          setTimeout(type, typingSpeed);
+        } else {
+          isPaused = true;
+          setTimeout(() => {
+            isPaused = false;
+            isDeleting = true;
+            type();
+          }, pauseDuration);
+        }
+      } else {
+        const currentLength = el.textContent.length;
+        if (currentLength > 0) {
+          el.textContent = text.slice(0, currentLength - 1);
+          setTimeout(type, deletingSpeed);
+        } else {
+          isDeleting = false;
+          textIndex = (textIndex + 1) % texts.length;
+          setTimeout(type, 500);
+        }
+      }
+    }
+
+    type();
+  }
+
+  initTypewriter();
+  document.addEventListener('astro:page-load', initTypewriter);
+})();
+</script>
+
 <!-- Stats counter animation -->
 <script>
-function animateCounter(el: Element, target: number, suffix: string, duration = 1400) {
+function animateCounter(el, target, suffix, duration = 1400) {
   const start = performance.now();
-  const step = (now: number) => {
+  function step(now) {
     const progress = Math.min((now - start) / duration, 1);
-    // Ease-out cubic
     const eased = 1 - Math.pow(1 - progress, 3);
     el.textContent = Math.floor(eased * target) + suffix;
     if (progress < 1) requestAnimationFrame(step);
-  };
+  }
   requestAnimationFrame(step);
 }
 
 function initCounters() {
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReduced) return; // Leave static text as-is
+  if (prefersReduced) return;
 
-  const counters = document.querySelectorAll<HTMLElement>('[data-count]');
+  const counters = document.querySelectorAll('[data-count]');
   if (!counters.length) return;
 
   const obs = new IntersectionObserver((entries) => {
@@ -210,9 +276,7 @@ function initCounters() {
   counters.forEach(el => obs.observe(el));
 }
 
-// Run on initial load
 initCounters();
-// Re-run after Astro View Transitions navigate (ClientRouter)
 document.addEventListener('astro:page-load', initCounters);
 </script>
 
@@ -228,7 +292,6 @@ document.addEventListener('astro:page-load', initCounters);
   overflow: hidden;
 }
 
-/* Three.js canvas — fills hero section */
 #hero-canvas {
   position: absolute;
   inset: 0;
@@ -238,7 +301,6 @@ document.addEventListener('astro:page-load', initCounters);
   z-index: 0;
 }
 
-/* Subtle Islamic geometric grid overlay */
 .hero::before {
   content: '';
   position: absolute;
@@ -250,7 +312,6 @@ document.addEventListener('astro:page-load', initCounters);
   z-index: 1;
 }
 
-/* Floating orbs */
 .hero-orb {
   position: absolute;
   border-radius: 50%;
@@ -282,14 +343,13 @@ document.addEventListener('astro:page-load', initCounters);
 
 .hero-content {
   position: relative;
-  z-index: 2;     /* above canvas + overlays */
+  z-index: 2;
   text-align: center;
   padding-top: 80px;
   padding-bottom: 80px;
   color: #fff;
 }
 
-/* Badge */
 .hero-badge {
   display: inline-flex;
   align-items: center;
@@ -320,6 +380,7 @@ document.addEventListener('astro:page-load', initCounters);
   font-weight: 600;
   margin-bottom: 14px;
   color: rgba(255,255,255,0.92);
+  min-height: 1.5em;
 }
 
 .hero-desc {
@@ -338,7 +399,6 @@ document.addEventListener('astro:page-load', initCounters);
   margin-bottom: 48px;
 }
 
-/* Primary hero button */
 .btn-hero-primary {
   display: inline-flex;
   align-items: center;
@@ -361,7 +421,6 @@ document.addEventListener('astro:page-load', initCounters);
   box-shadow: 0 6px 20px rgba(0,0,0,0.2);
 }
 
-/* Stats strip */
 .hero-stats {
   display: inline-flex;
   align-items: center;
@@ -384,7 +443,7 @@ document.addEventListener('astro:page-load', initCounters);
   color: #fff;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  min-width: 3ch; /* avoid layout shift during count-up */
+  min-width: 3ch;
   display: inline-block;
 }
 .hero-stat-label {

@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+export const prerender = true;
+
+const audioList = [
+  { title: 'Surah Al-Fatihah', duration: '2:30', src: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/1.mp3' },
+  { title: 'Ayatul Kursi', duration: '3:15', src: 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/262.mp3' },
+  { title: 'Surah Al-Ikhlas', duration: '1:45', src: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/112.mp3' },
+  { title: 'Surah Al-Falaq', duration: '1:30', src: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/113.mp3' },
+  { title: 'Surah An-Nas', duration: '1:40', src: 'https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/114.mp3' },
+];
+---
+
+<BaseLayout
+  title="Self Ruqyah | Ruqyah Healing Center"
+  description="Follow a daily self-ruqyah routine with recitation audio."
+  locale="en"
+>
+  <Header />
+
+  <main class="section">
+    <div class="container shell">
+      <nav class="breadcrumb">
+        <a href="/en/">Home</a><span>/</span><span>Self Ruqyah</span>
+      </nav>
+      <h1>Self Ruqyah Routine</h1>
+      <p class="lead">Play the recitations and read along consistently every day.</p>
+
+      <div class="card">
+        <h2>Daily Steps</h2>
+        <ol>
+          <li>Make wudu and set a sincere intention for healing.</li>
+          <li>Recite morning and evening adhkar consistently.</li>
+          <li>Play and follow the recitations below.</li>
+          <li>Consult a qualified raqi if symptoms become severe.</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h2>Recitation Audio</h2>
+        <div class="list">
+          {audioList.map((item) => (
+            <div class="audio-row">
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.duration}</p>
+              </div>
+              <audio controls preload="none" src={item.src}></audio>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="card note">
+        <p>
+          This page is for spiritual support only and is not a medical diagnosis.
+          If you have urgent physical or mental symptoms, seek medical care first.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .section { padding: 48px 0 64px; }
+  .shell { max-width: 900px; }
+  .breadcrumb { display: flex; gap: 8px; color: var(--text-muted); font-size: 14px; margin-bottom: 18px; }
+  .lead { color: var(--text-muted); margin-bottom: 20px; }
+  .card { border: 1px solid var(--border); border-radius: 14px; padding: 18px; background: #fff; margin-bottom: 14px; }
+  .card h2 { margin-bottom: 10px; }
+  ol { margin-left: 20px; line-height: 1.8; color: var(--text-medium); }
+  .list { display: grid; gap: 12px; }
+  .audio-row { border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: grid; gap: 10px; }
+  .audio-row h3 { font-size: 16px; }
+  .audio-row p { color: var(--text-muted); font-size: 13px; }
+  .note { background: #fffbeb; border-color: #fcd34d; }
+  .note p { color: #7c2d12; }
+</style>

@@ -3,7 +3,7 @@ import { createDb } from '../../db/client.js';
 import { siteSettings, aiChatLogs } from '../../db/schema.js';
 import { eq } from 'drizzle-orm';
 
-const DEFAULT_SYSTEM_PROMPT = `আপনি "Ruqyah Healing Center" ওয়েবসাইটের mixed clinic assistant।
+export const DEFAULT_SYSTEM_PROMPT = `আপনি "Ruqyah Healing Center" ওয়েবসাইটের mixed clinic assistant।
 আপনি সাধারণ ইসলামিক/রুকইয়াহ গাইডেন্স দিতে পারবেন, কিন্তু আপনার primary কাজ হলো clinic flow support করা: symptom triage, test selection, self-ruqyah direction, service guidance, এবং appointment conversion।
 
 অবশ্যপালনীয় নিয়ম:
@@ -76,8 +76,8 @@ Hard boundaries:
 - নিজেকে final authority বা doctor/mufti হিসেবে উপস্থাপন করবেন না।
 - uncertainty থাকলে বলবেন এটি প্রাথমিক দিকনির্দেশনা।`;
 
-const DEFAULT_MODEL = '@cf/google/gemma-4-26b-a4b-it';
-const SECONDARY_MODEL = '@cf/google/gemma-3-12b-it';
+const DEFAULT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const SECONDARY_MODEL = '@cf/mistral/mistral-small-3.1-24b-instruct';
 const MAX_OUTPUT_TOKENS = 450;
 const DEFAULT_DAILY_NEURON_LIMIT = 10_000;
 const DEFAULT_NEURON_RATES = {
@@ -94,8 +94,8 @@ const MODEL_NEURON_RATES = {
 const FREE_LIMIT_MESSAGE = 'আজকের AI ফ্রি লিমিট শেষ হয়েছে। আগামীকাল আবার চেষ্টা করুন, অথবা আপাতত [সিমটম ডায়াগনোসিস](/symptom-diagnosis) / [রুকইয়াহ ডায়াগনোসিস](/ruqyah-diagnosis) ব্যবহার করুন।';
 
 const ALLOWED_ORIGINS = [
-  'https://ruqyah-healing.pages.dev',
   'https://ruqyahhealing.com',
+  'https://ruqyah-healing.pages.dev',
 ];
 
 function getCorsOrigin(request) {
@@ -154,7 +154,11 @@ function extractTextFromAiResult(result) {
       result.response,
       result.result?.response,
       result.output_text,
+      result.p,
+      result.text,
+      result.content,
       result.choices?.[0]?.message?.content,
+      result.choices?.[0]?.delta?.content,
       result.choices?.[0]?.text,
     ];
 
@@ -210,6 +214,35 @@ function getSecondsUntilNextUtcMidnight(now = new Date()) {
 function getDailyNeuronLimit(workerEnv) {
   const configured = Number(workerEnv?.AI_DAILY_NEURON_LIMIT);
   return Number.isFinite(configured) && configured > 0 ? configured : DEFAULT_DAILY_NEURON_LIMIT;
+}
+
+function getOllamaFallbackConfig(workerEnv) {
+  const baseUrl = workerEnv?.OLLAMA_BASE_URL?.trim?.() || '';
+  if (!baseUrl) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(baseUrl);
+    const hostname = parsed.hostname.toLowerCase();
+
+    if (
+      hostname === 'localhost'
+      || hostname === '127.0.0.1'
+      || hostname === '0.0.0.0'
+      || hostname === '::1'
+    ) {
+      return null;
+    }
+  } catch {
+    return null;
+  }
+
+  return {
+    baseUrl,
+    model: workerEnv?.OLLAMA_MODEL || 'llama3',
+    apiKey: workerEnv?.OLLAMA_API_KEY || '',
+  };
 }
 
 async function getBudgetState(workerEnv, now = new Date()) {
@@ -362,19 +395,36 @@ export function createOpenAiCompatibleSseResponse(upstreamStream, options = {}, 
       const reader = upstreamStream.getReader();
 
       try {
+        let rawChunkCount = 0;
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          buffer += decoder.decode(value, { stream: true });
+          const chunk = decoder.decode(value, { stream: true });
+          rawChunkCount++;
+          if (rawChunkCount <= 3) {
+            console.log(`[AI Stream Debug] chunk #${rawChunkCount}: ${JSON.stringify(chunk.slice(0, 300))}`);
+          }
+          buffer += chunk;
           const lines = buffer.split('\n');
           buffer = lines.pop() || '';
 
           for (const line of lines) {
-            if (!line.startsWith('data:')) continue;
+            const trimmedLine = line.trim();
+            if (!trimmedLine) continue;
 
-            const dataString = line.slice(5).trim();
-            if (dataString && dataString !== '[DONE]') {
+            // Handle both 'data: ...' and 'data:...' formats
+            let dataString = '';
+            if (trimmedLine.startsWith('data:')) {
+              dataString = trimmedLine.slice(5).trim();
+            } else {
+              // Some CF AI streams emit raw JSON without 'data:' prefix
+              dataString = trimmedLine;
+            }
+
+            if (!dataString) continue;
+
+            if (dataString !== '[DONE]') {
               try {
                 const parsedData = JSON.parse(dataString);
                 if (parsedData?.usage && typeof parsedData.usage === 'object') {
@@ -441,10 +491,6 @@ export function createOptionsResponse(request = null) {
 }
 
 export async function handleChatRequest(request, workerEnv) {
-  if (!workerEnv?.AI?.run) {
-    return jsonResponse({ error: 'Workers AI binding configured নেই।' }, 500, request);
-  }
-
   let body;
   try {
     body = await request.json();
@@ -471,67 +517,121 @@ export async function handleChatRequest(request, workerEnv) {
   const dailyNeuronLimit = getDailyNeuronLimit(workerEnv);
   const clientIp = request.headers.get('cf-connecting-ip') || '';
   const lastUserMsg = parsed.data.messages[parsed.data.messages.length - 1]?.content || '';
+  const ollamaConfig = getOllamaFallbackConfig(workerEnv);
 
-  for (const model of models) {
-    const projectedNeurons = estimateRequestNeurons(model, promptText, MAX_OUTPUT_TOKENS);
+  if (workerEnv?.AI?.run) {
+    for (const model of models) {
+      const projectedNeurons = estimateRequestNeurons(model, promptText, MAX_OUTPUT_TOKENS);
 
-    if (budgetState.usedNeurons + projectedNeurons > dailyNeuronLimit) {
-      return jsonResponse({ error: FREE_LIMIT_MESSAGE }, 429, request);
+      if (budgetState.usedNeurons + projectedNeurons > dailyNeuronLimit) {
+        console.warn(`[AI Chat] Budget limit reached for ${model}, skipping CF AI.`);
+        break; 
+      }
+
+      // Try non-streaming first (returns properly decoded text)
+      try {
+        console.log(`[AI Chat] Trying model (non-stream): ${model}`);
+        const result = await workerEnv.AI.run(model, {
+          messages: [
+            { role: 'system', content: activePrompt },
+            ...parsed.data.messages,
+          ],
+          max_tokens: MAX_OUTPUT_TOKENS,
+          temperature: 0.45,
+        });
+        const text = extractTextFromAiResult(result);
+
+        if (text) {
+          const neurons = calculateNeuronsFromUsage(model, result?.usage, promptText, text);
+          await addBudgetUsage(workerEnv, neurons);
+          await logChatConversation(workerEnv, { userMessage: lastUserMsg, aiResponse: text, model, neuronsUsed: neurons, clientIp });
+          return createSseResponseFromText(text, request);
+        }
+        console.warn(`[AI Chat] Non-streaming returned empty text for ${model}`);
+      } catch (error) {
+        if (isWorkersAiFreeLimitError(error)) {
+          console.warn(`[AI Chat] Workers AI free limit hit for ${model}.`);
+          break;
+        }
+        console.error(`[AI Chat] Workers AI non-streaming failed for ${model}:`, error);
+      }
+
+      // Streaming fallback
+      try {
+        const stream = await workerEnv.AI.run(model, {
+          messages: [
+            { role: 'system', content: activePrompt },
+            ...parsed.data.messages,
+          ],
+          stream: true,
+          max_tokens: MAX_OUTPUT_TOKENS,
+          temperature: 0.45,
+        });
+
+        if (stream instanceof ReadableStream) {
+          return createOpenAiCompatibleSseResponse(stream, {
+            onComplete: async ({ completionText, usage }) => {
+              const neurons = calculateNeuronsFromUsage(model, usage, promptText, completionText);
+              await addBudgetUsage(workerEnv, neurons);
+              await logChatConversation(workerEnv, { userMessage: lastUserMsg, aiResponse: completionText, model, neuronsUsed: neurons, clientIp });
+            },
+          }, request);
+        }
+      } catch (error) {
+        if (isWorkersAiFreeLimitError(error)) {
+          console.warn(`[AI Chat] Workers AI free limit hit for ${model}.`);
+          break;
+        }
+        console.error(`[AI Chat] Workers AI stream failed for ${model}:`, error);
+      }
     }
+  } else {
+    console.warn('[AI Chat] Workers AI binding unavailable, checking fallback providers.');
+  }
 
+  // --- OLLAMA FALLBACK ---
+  if (ollamaConfig) {
     try {
-      const stream = await workerEnv.AI.run(model, {
-        messages: [
-          { role: 'system', content: activePrompt },
-          ...parsed.data.messages,
-        ],
-        stream: true,
-        max_tokens: MAX_OUTPUT_TOKENS,
-        temperature: 0.45,
+      const response = await fetch(`${ollamaConfig.baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(ollamaConfig.apiKey ? { "Authorization": `Bearer ${ollamaConfig.apiKey}` } : {})
+        },
+        body: JSON.stringify({
+          model: ollamaConfig.model,
+          messages: [
+            { role: 'system', content: activePrompt },
+            ...parsed.data.messages,
+          ],
+          stream: true,
+          max_tokens: MAX_OUTPUT_TOKENS,
+          temperature: 0.45,
+        })
       });
 
-      if (stream instanceof ReadableStream) {
-        return createOpenAiCompatibleSseResponse(stream, {
-          onComplete: async ({ completionText, usage }) => {
-            const neurons = calculateNeuronsFromUsage(model, usage, promptText, completionText);
-            await addBudgetUsage(workerEnv, neurons);
-            await logChatConversation(workerEnv, { userMessage: lastUserMsg, aiResponse: completionText, model, neuronsUsed: neurons, clientIp });
-          },
+      if (response.ok && response.body) {
+        return createOpenAiCompatibleSseResponse(response.body, {
+          onComplete: async ({ completionText }) => {
+            await logChatConversation(workerEnv, { 
+              userMessage: lastUserMsg, 
+              aiResponse: completionText, 
+              model: `ollama:${ollamaConfig.model}`, 
+              neuronsUsed: 0, 
+              clientIp 
+            });
+          }
         }, request);
+      } else {
+        const errBody = await response.text().catch(() => "");
+        console.error(`[AI Chat] Ollama fallback failed: ${response.status} ${errBody.slice(0, 200)}`);
       }
     } catch (error) {
-      if (isWorkersAiFreeLimitError(error)) {
-        return jsonResponse({ error: FREE_LIMIT_MESSAGE }, 429, request);
-      }
-      console.error(`[AI Chat] Workers AI stream failed for ${model}:`, error);
-    }
-
-    try {
-      const result = await workerEnv.AI.run(model, {
-        messages: [
-          { role: 'system', content: activePrompt },
-          ...parsed.data.messages,
-        ],
-        max_tokens: MAX_OUTPUT_TOKENS,
-        temperature: 0.45,
-      });
-      const text = extractTextFromAiResult(result);
-
-      if (text) {
-        const neurons = calculateNeuronsFromUsage(model, result?.usage, promptText, text);
-        await addBudgetUsage(workerEnv, neurons);
-        await logChatConversation(workerEnv, { userMessage: lastUserMsg, aiResponse: text, model, neuronsUsed: neurons, clientIp });
-        return createSseResponseFromText(text, request);
-      }
-    } catch (error) {
-      if (isWorkersAiFreeLimitError(error)) {
-        return jsonResponse({ error: FREE_LIMIT_MESSAGE }, 429, request);
-      }
-      console.error(`[AI Chat] Workers AI failed for ${model}:`, error);
+      console.error(`[AI Chat] Ollama fallback fetch error:`, error);
     }
   }
 
   return jsonResponse({
-    error: 'বর্তমানে AI সার্ভিস অস্থায়ীভাবে বন্ধ আছে। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।',
+    error: FREE_LIMIT_MESSAGE,
   }, 503, request);
 }

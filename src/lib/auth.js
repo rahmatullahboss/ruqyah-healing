@@ -45,14 +45,54 @@ export async function hashPassword(password) {
   return `${saltHex}:${hashHex}`;
 }
 
+async function sha256Hex(value) {
+  const data = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
+function constantTimeEqual(left, right) {
+  const encoder = new TextEncoder();
+  const a = encoder.encode(left);
+  const b = encoder.encode(right);
+  if (a.byteLength !== b.byteLength) return false;
+
+  let result = 0;
+  for (let i = 0; i < a.byteLength; i++) {
+    result |= a[i] ^ b[i];
+  }
+  return result === 0;
+}
+
+export function needsPasswordRehash(storedHash) {
+  return Boolean(storedHash) && !storedHash.includes(':');
+}
+
 export async function verifyPassword(password, storedHash) {
-  if (!storedHash || !storedHash.includes(':')) return false;
-  
+  if (!storedHash) return false;
+
+  if (!storedHash.includes(':')) {
+    if (constantTimeEqual(password, storedHash)) {
+      return true;
+    }
+
+    if (/^[a-f0-9]{64}$/i.test(storedHash)) {
+      const passwordHash = await sha256Hex(password);
+      return constantTimeEqual(passwordHash, storedHash.toLowerCase());
+    }
+
+    return false;
+  }
+
   const [saltHex, originalHash] = storedHash.split(':');
-  
+  if (!saltHex || !originalHash) return false;
+
+  const saltBytes = saltHex.match(/.{1,2}/g);
+  if (!saltBytes) return false;
+
   // Convert salt from Hex to Uint8Array
-  const salt = new Uint8Array(saltHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-  
+  const salt = new Uint8Array(saltBytes.map((byte) => parseInt(byte, 16)));
+
   const enc = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -76,18 +116,9 @@ export async function verifyPassword(password, storedHash) {
   );
 
   const exportedKey = await crypto.subtle.exportKey('raw', key);
-  const hashHex = Array.from(new Uint8Array(exportedKey)).map(b => b.toString(16).padStart(2, '0')).join('');
-  
-  // Constant-time comparison to prevent timing attacks
-  const encoder = new TextEncoder();
-  const a = encoder.encode(hashHex);
-  const b = encoder.encode(originalHash);
-  if (a.byteLength !== b.byteLength) return false;
-  let result = 0;
-  for (let i = 0; i < a.byteLength; i++) {
-    result |= a[i] ^ b[i];
-  }
-  return result === 0;
+  const hashHex = Array.from(new Uint8Array(exportedKey)).map((byte) => byte.toString(16).padStart(2, '0')).join('');
+
+  return constantTimeEqual(hashHex, originalHash);
 }
 
 export async function createSession(userId, env) {

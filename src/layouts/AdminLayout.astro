@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
-import { LayoutDashboard, Users, Calendar, Settings, LogOut, Heart, Menu, FileText, BookOpen, Bell, ShoppingBag, FileDown, Image, MessageSquare, ClipboardList } from '@lucide/astro';
+import { LayoutDashboard, Users, Calendar, Settings, LogOut, Heart, Menu, FileText, BookOpen, Bell, ShoppingBag, FileDown, Image, MessageSquare, ClipboardList, MessageCircle } from '@lucide/astro';
 
 interface Props {
   title?: string;
@@ -10,7 +10,7 @@ interface Props {
 const { title = 'Admin Dashboard | Ruqyah Healing' } = Astro.props;
 
 const currentPath = Astro.url.pathname;
-const user = Astro.locals.user;
+const user = (Astro.locals as App.Locals).user;
 ---
 
 <!doctype html>
@@ -20,7 +20,7 @@ const user = Astro.locals.user;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="robots" content="noindex, nofollow" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/images/ruqyah-logo.png" />
     <ClientRouter />
     <style>
       :root {
@@ -308,13 +308,21 @@ const user = Astro.locals.user;
             <FileText size={20} stroke-width={2} />
             ব্লগ পোস্ট
           </a>
-          <a href="/admin/courses" class:list={['nav-item', currentPath.startsWith('/admin/courses') && 'active']}>
+          <a href="/admin/courses" class:list={['nav-item', currentPath === '/admin/courses' && 'active']}>
             <BookOpen size={20} stroke-width={2} />
             কোর্স ম্যানেজমেন্ট
+          </a>
+          <a href="/admin/enrollments" class:list={['nav-item', currentPath.startsWith('/admin/enrollment') && 'active']}>
+            <Users size={20} stroke-width={2} />
+            কোর্স এনরোলমেন্টস
           </a>
           <a href="/admin/notices" class:list={['nav-item', currentPath.startsWith('/admin/notice') && 'active']}>
             <Bell size={20} stroke-width={2} />
             নোটিশ ম্যানেজমেন্ট
+          </a>
+          <a href="/admin/testimonials" class:list={['nav-item', currentPath.startsWith('/admin/testimonial') && 'active']}>
+            <MessageCircle size={20} stroke-width={2} />
+            টেস্টিমোনিয়াল
           </a>
           <a href="/admin/products" class:list={['nav-item', currentPath.startsWith('/admin/product') && 'active']}>
             <ShoppingBag size={20} stroke-width={2} />

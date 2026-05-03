@@ -4,6 +4,7 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import { testCategories, kidsQuestions, answerOptions, type TestCategory } from '../../data/test-data';
 import { Activity, Eye, Moon, Ghost, Brain, Baby, CheckCircle, HelpCircle, XCircle, User, AlertTriangle } from '@lucide/astro';
+import { buildBreadcrumbSchema, buildWebPageSchema } from '../../lib/seo.js';
 
 export const prerender = true;
 
@@ -27,12 +28,28 @@ const IconCmp = icons[category.icon as keyof typeof icons] || Activity;
 // For non-kids, embed questions directly; kids uses client-side switching
 const isKids = testId === 'kids';
 const questions = isKids ? [] : category.questions;
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/ruqyah-diagnosis/${category.id}`;
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'রুকইয়াহ ডায়াগনোসিস', url: `${siteUrl}/ruqyah-diagnosis` },
+  { name: category.title, url: pageUrl },
+]);
+const pageLd = buildWebPageSchema({
+  pageUrl,
+  name: category.title,
+  description: category.description,
+  inLanguage: 'bn-BD',
+});
 ---
 
 <BaseLayout
   title={`${category.title} | রুকইয়াহ হিলিং সেন্টার`}
   description={category.description}
+  locale="bn"
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(pageLd)} />
   <Header />
 
   <main>
@@ -474,8 +491,33 @@ function showResult() {
       <a href="/ruqyah-diagnosis">অন্য টেস্ট দেখুন</a>
     </div>
   `;
+
+  // Save result to server if user is logged in
+  saveTestResult({ pct, yesCount, maybeCount, noCount, totalQ, res });
 }
 
+async function saveTestResult(data: { pct: number; yesCount: number; maybeCount: number; noCount: number; totalQ: number; res: any }) {
+  try {
+    await fetch('/api/test-results/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        testType: categoryId,
+        testTitle: categoryTitle,
+        score: data.pct,
+        totalQuestions: data.totalQ,
+        yesCount: data.yesCount,
+        maybeCount: data.maybeCount,
+        noCount: data.noCount,
+        resultLevel: data.res.level,
+        resultText: data.res.resultText,
+        answers: answers.map((a, i) => ({ question: questions[i]?.text, answer: a })),
+      }),
+    });
+  } catch (e) {
+    // Silently fail if user is not logged in or network error
+  }
+}
 
 window.restartQuiz = function() {
   currentQ = 0;

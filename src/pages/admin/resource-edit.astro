@@ -57,12 +57,15 @@ const isEdit = !!resource;
 
     <div class="form-row">
       <div class="form-group">
-        <label for="fileUrl">ফাইল URL</label>
-        <input type="text" id="fileUrl" class="form-input" value={resource?.fileUrl || ''} placeholder="/pdfs/guide.pdf" />
+        <label for="pdfUpload">সরাসরি পিডিএফ আপলোড করুন (Optional)</label>
+        <div class="upload-widget">
+          <input type="file" id="pdfUpload" accept="application/pdf" class="form-input" style="padding: 6px 14px;" />
+          <div id="uploadStatus" class="upload-status"></div>
+        </div>
       </div>
       <div class="form-group">
-        <label for="fileSize">ফাইলের আকার</label>
-        <input type="text" id="fileSize" class="form-input" value={resource?.fileSize || ''} placeholder="2.5 MB" />
+        <label for="fileUrl">ফাইল URL *</label>
+        <input type="text" id="fileUrl" class="form-input" value={resource?.fileUrl || ''} placeholder="/api/images/pdfs/..." required />
       </div>
     </div>
 
@@ -72,6 +75,13 @@ const isEdit = !!resource;
         <input type="number" id="pages" class="form-input" value={resource?.pages || 0} />
       </div>
       <div class="form-group">
+        <label for="fileSize">ফাইলের আকার</label>
+        <input type="text" id="fileSize" class="form-input" value={resource?.fileSize || ''} placeholder="2.5 MB" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
         <label for="language">ভাষা</label>
         <select id="language" class="form-input">
           <option value="বাংলা" selected={resource?.language === 'বাংলা'}>বাংলা</option>
@@ -80,12 +90,11 @@ const isEdit = !!resource;
           <option value="ইংরেজি" selected={resource?.language === 'ইংরেজি'}>ইংরেজি</option>
         </select>
       </div>
-    </div>
-
-    <div class="form-group" style="margin-bottom:16px;">
-      <label class="checkbox-label">
-        <input type="checkbox" id="published" checked={resource?.published !== false} /> প্রকাশিত
-      </label>
+      <div class="form-group" style="justify-content: center;">
+        <label class="checkbox-label" style="margin-top: 24px;">
+          <input type="checkbox" id="published" checked={resource?.published !== false} /> প্রকাশিত
+        </label>
+      </div>
     </div>
 
     <div class="form-actions">
@@ -95,6 +104,49 @@ const isEdit = !!resource;
 </AdminLayout>
 
 <script>
+  // Automatic PDF Upload
+  document.getElementById('pdfUpload')?.addEventListener('change', async (e) => {
+    const fileInput = e.target as HTMLInputElement;
+    const file = fileInput.files?.[0];
+    if (!file) return;
+
+    const uploadStatus = document.getElementById('uploadStatus')!;
+    const fileUrl = document.getElementById('fileUrl') as HTMLInputElement;
+    const fileSize = document.getElementById('fileSize') as HTMLInputElement;
+
+    uploadStatus.textContent = 'আপলোড হচ্ছে...';
+    uploadStatus.style.color = 'var(--admin-primary)';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json() as any;
+      if (res.ok && data.success) {
+        fileUrl.value = data.url;
+        
+        // Auto calculate size
+        const mb = file.size / (1024 * 1024);
+        const kb = file.size / 1024;
+        fileSize.value = mb > 1 ? `${mb.toFixed(1)} MB` : `${kb.toFixed(1)} KB`;
+
+        uploadStatus.textContent = '✅ আপলোড সম্পন্ন!';
+        uploadStatus.style.color = '#15803d';
+      } else {
+        throw new Error(data.error || 'আপলোড ব্যর্থ হয়েছে');
+      }
+    } catch (err: any) {
+      uploadStatus.textContent = `❌ ${err.message}`;
+      uploadStatus.style.color = '#dc2626';
+    }
+  });
+
+  // Handle Form Submit
   document.getElementById('resourceForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const msg = document.getElementById('formMsg')!;
@@ -104,11 +156,11 @@ const isEdit = !!resource;
     const payload: any = {
       title: (document.getElementById('title') as HTMLInputElement).value,
       description: (document.getElementById('description') as HTMLTextAreaElement).value,
-      category: (document.getElementById('category') as HTMLSelectElement).value,
+      category: (document.getElementById('category') as HTMLSelectElement | null)?.value || 'গাইড',
       fileUrl: (document.getElementById('fileUrl') as HTMLInputElement).value,
       fileSize: (document.getElementById('fileSize') as HTMLInputElement).value,
-      pages: (document.getElementById('pages') as HTMLInputElement).value,
-      language: (document.getElementById('language') as HTMLSelectElement).value,
+      pages: parseInt((document.getElementById('pages') as HTMLInputElement).value) || 0,
+      language: (document.getElementById('language') as HTMLSelectElement | null)?.value || 'বাংলা',
       published: (document.getElementById('published') as HTMLInputElement).checked,
     };
     if (isEdit) payload.id = id;
@@ -142,5 +194,7 @@ const isEdit = !!resource;
   .save-msg { padding: 12px 20px; border-radius: 10px; font-weight: 600; margin-bottom: 16px; }
   .save-msg.success { background: #dcfce7; color: #15803d; }
   .save-msg.error { background: #fee2e2; color: #dc2626; }
+  .upload-widget { display: flex; flex-direction: column; gap: 4px; }
+  .upload-status { font-size: 0.85rem; font-weight: 500; }
   @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }
 </style>

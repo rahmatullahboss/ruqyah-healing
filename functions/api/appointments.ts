@@ -7,8 +7,8 @@ import {
 } from '../../src/lib/appointments.js';
 
 const ALLOWED_ORIGINS = [
-  'https://ruqyah-healing.pages.dev',
   'https://ruqyahhealing.com',
+  'https://ruqyah-healing.pages.dev',
 ];
 
 function getCorsOrigin(request?: Request): string {

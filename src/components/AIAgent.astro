@@ -246,7 +246,7 @@
           const contentType = res.headers.get('Content-Type') || '';
 
           if (contentType.includes('application/json')) {
-            const errorBody = await res.json().catch(() => null);
+            const errorBody = (await res.json().catch(() => null)) as any;
             if (errorBody?.error) {
               message = errorBody.error;
             }

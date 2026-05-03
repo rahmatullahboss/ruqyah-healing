@@ -5,9 +5,18 @@ import Footer from '../../components/Footer.astro';
 import BlogCard from '../../components/BlogCard.astro';
 import { env as workerEnv } from 'cloudflare:workers';
 import { createDb } from '../../db/client.js';
+import { posts as postsTable } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
 import { getPostsByCategory } from '../../lib/posts.js';
 
-export const prerender = false;
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const env = (workerEnv || process.env) as any;
+  const db = createDb(env.DATABASE_URL);
+  const rows = await db.selectDistinct({ category: postsTable.category }).from(postsTable).where(eq(postsTable.published, true));
+  return rows.map((row) => ({ params: { category: row.category } }));
+}
 
 const { category } = Astro.params;
 const env = workerEnv || process.env;
@@ -53,7 +62,7 @@ const posts = await getPostsByCategory(db, category);
         </div>
       ) : (
         <div class="grid-3">
-          {posts.map((post) => (
+          {posts.map((post: (typeof posts)[number]) => (
             <BlogCard
               title={post.title}
               excerpt={post.excerpt}

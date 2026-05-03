@@ -7,16 +7,16 @@ import { env as workerEnv } from 'cloudflare:workers';
 import { createDb } from '../db/client.js';
 import { getAllPosts, getCategories } from '../lib/posts.js';
 
-export const prerender = false;
+export const prerender = true;
 
-const env = workerEnv || process.env;
+const env = (workerEnv || process.env) as any;
 const db = createDb(env.DATABASE_URL);
 
 const posts = await getAllPosts(db);
 const categoryList = await getCategories(db);
 
 const featuredPost = posts[0];
-const gridPosts   = posts.slice(1);
+const gridPosts = posts.slice(1) as typeof posts;
 
 // Unique categories
 const categories = ['সব', ...categoryList];
@@ -30,7 +30,7 @@ let filteredPosts = gridPosts;
 let isFeaturedVisible = urlCategory === 'সব' || featuredPost?.category === urlCategory;
 
 if (urlCategory !== 'সব') {
-  filteredPosts = gridPosts.filter(p => p.category === urlCategory);
+  filteredPosts = gridPosts.filter((post) => post.category === urlCategory);
 }
 
 const POSTS_PER_PAGE = 12;
@@ -62,7 +62,8 @@ for (let i = 1; i <= totalPages; i++) {
 
 <BaseLayout
   title="রুকইয়া ব্লগ | Ruqyah Healing Center"
-  description="ইসলামিক হিলিং, রুকইয়াহ এবং আধ্যাত্মিক সুস্থতা সম্পর্কিত জ্ঞান ও গাইড।"
+  description="ইসলামিক হিলিং, রুকইয়াহ এবং আধ্যাত্মিক সুস্থতা সম্পর্কিত জ্ঞান ও গাইড। Islamic Ruqyah healing blog — Quran and Sunnah-based spiritual healing guides for jinn, sihr, evil eye, and more."
+  keywords={['রুকইয়াহ', 'ইসলামিক হিলিং', 'ruqyah', 'islamic healing', 'jinn', 'sihr', 'evil eye', 'spiritual healing', 'Quran', 'Sunnah']}
 >
   <Header />
 
@@ -76,6 +77,21 @@ for (let i = 1; i <= totalPages; i++) {
         <div class="stats-row">
           <span>📝 {posts.length}টি প্রবন্ধ</span>
           <span>📂 {categories.length - 1}টি বিভাগ</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Blog Intro for AI Search (hidden SEO content) ── -->
+    <section class="blog-intro-seo">
+      <div class="container">
+        <div class="blog-intro-content">
+          <h2>ইসলামী রুকইয়াহ চিকিৎসা সম্পর্কে জ্ঞান — Islamic Ruqyah Healing Knowledge</h2>
+          <p>
+            এই ব্লগে ইসলামী রুকইয়াহ, হিজামা থেরাপি, জ্বীন-ভূত, কালো জাদু (Sihr), বদনজর (Evil Eye), আধ্যাত্মিক সুস্থতা এবং কুরআন-সুন্নাহ ভিত্তিক চিকিৎসা পদ্ধতি নিয়ে গভীর আলোচনা প্রকাশিত হয়। প্রতিটি নিবিডভাবে কুরআনের আয়াত ও সহীহ হাদিসের আলোকে লেখা হয়।
+          </p>
+          <p class="en-summary">
+            <strong>Summary in English:</strong> This blog provides comprehensive guides on <em>Ruqyah Shariah (Islamic spiritual healing)</em>, <em>Hijama (cupping therapy)</em>, <em>jinn possession symptoms</em>, <em>black magic (sihr) protection</em>, <em>evil eye (hasad) remedies</em>, and Quran & Sunnah-based treatment methods. All articles are written with references to Quranic verses and authentic Hadith, authored by qualified Islamic scholars and practitioners at Ruqyah Healing Center, Dhaka, Bangladesh.
+          </p>
         </div>
       </div>
     </section>
@@ -132,7 +148,7 @@ for (let i = 1; i <= totalPages; i++) {
 
         <!-- Posts Grid -->
         <div class="posts-grid" id="posts-grid">
-          {paginatedPosts.map((post) => (
+          {paginatedPosts.map((post: (typeof paginatedPosts)[number]) => (
             <div class="post-item" data-category={post.category}>
               <BlogCard
                 title={post.title}
@@ -292,6 +308,36 @@ for (let i = 1; i <= totalPages; i++) {
 /* ── Blog Content ── */
 .blog-content { padding: 40px 0 80px; }
 
+/* ── Blog Intro SEO Section ── */
+.blog-intro-seo {
+  background: var(--bg-light);
+  padding: 32px 0;
+  border-bottom: 1px solid var(--border);
+}
+.blog-intro-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+.blog-intro-content h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+.blog-intro-content p {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text-body);
+  margin-bottom: 12px;
+}
+.blog-intro-content .en-summary {
+  font-size: 13px;
+  color: var(--text-medium);
+  border-left: 3px solid var(--primary);
+  padding-left: 16px;
+}
+
 /* ── Featured ── */
 .featured-post {
   display: grid;
@@ -450,4 +496,3 @@ for (let i = 1; i <= totalPages; i++) {
   .featured-body { padding: 20px; }
 }
 </style>
-

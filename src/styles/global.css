@@ -135,6 +135,44 @@ ul { list-style: none; }
   margin-bottom: 40px;
 }
 
+/* ─── Home Service Section ─────────────────────────────────── */
+.home-service-section {
+  background: linear-gradient(135deg, var(--primary) 0%, #047857 100%);
+  color: #fff;
+  text-align: center;
+}
+
+.home-service-content {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.home-service-content h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.home-service-content p {
+  font-size: 17px;
+  line-height: 1.7;
+  margin-bottom: 28px;
+  opacity: 0.92;
+}
+
+.home-service-content .btn {
+  background: #fff;
+  color: var(--primary);
+  border: 2px solid #fff;
+}
+
+.home-service-content .btn:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-light);
+  color: var(--primary-dark);
+}
+
 /* ─── Buttons ───────────────────────────────────────────────── */
 .btn {
   display: inline-flex;
@@ -220,6 +258,8 @@ ul { list-style: none; }
   .section-header h2 { font-size: 22px; }
   /* Body padding for fixed bottom nav on mobile */
   body { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  .home-service-content h2 { font-size: 24px; }
+  .home-service-content p { font-size: 15px; }
 }
 
 /* ─── Prose (Article Content) ───────────────────────────────── */

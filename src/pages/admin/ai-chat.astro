@@ -4,29 +4,12 @@ import { createDb } from '../../db/client.js';
 import { aiChatLogs, siteSettings } from '../../db/schema.js';
 import { desc, count, eq } from 'drizzle-orm';
 import { env as workerEnv } from 'cloudflare:workers';
+import { DEFAULT_SYSTEM_PROMPT } from '../../lib/ai/chat.js';
 
 export const prerender = false;
 
 const env = (workerEnv || process.env) as any;
 const db = createDb(env.DATABASE_URL);
-
-// Get today's AI budget usage from KV
-let todayNeurons = 0;
-let dailyLimit = 10000;
-const today = new Date().toISOString().slice(0, 10);
-
-try {
-  if (env.AI_BUDGET?.get) {
-    const raw = await env.AI_BUDGET.get(`daily-neurons:${today}`);
-    if (raw) todayNeurons = JSON.parse(raw).usedNeurons || 0;
-  }
-} catch {}
-
-// Get configured daily limit from siteSettings
-try {
-  const [limitRow] = await db.select().from(siteSettings).where(eq(siteSettings.key, 'ai_daily_neuron_limit'));
-  if (limitRow?.value && typeof limitRow.value === 'number') dailyLimit = limitRow.value;
-} catch {}
 
 // Get custom system prompt
 let customPrompt = '';
@@ -34,6 +17,9 @@ try {
   const [promptRow] = await db.select().from(siteSettings).where(eq(siteSettings.key, 'ai_system_prompt'));
   if (promptRow?.value && typeof promptRow.value === 'string') customPrompt = promptRow.value;
 } catch {}
+
+const activePrompt = customPrompt || DEFAULT_SYSTEM_PROMPT;
+const usingDefaultPrompt = !customPrompt;
 
 // Get recent chat logs
 let recentChats: any[] = [];
@@ -43,91 +29,28 @@ try {
   totalChats = chatCount?.value || 0;
   recentChats = await db.select().from(aiChatLogs).orderBy(desc(aiChatLogs.createdAt)).limit(30);
 } catch {}
-
-const usagePercent = dailyLimit > 0 ? Math.min(100, Math.round((todayNeurons / dailyLimit) * 100)) : 0;
 ---
 
 <AdminLayout title="AI চ্যাট কন্ট্রোল | Admin - Ruqyah Healing">
   <div class="page-header">
     <div>
       <h1 class="page-title">AI চ্যাট কন্ট্রোল</h1>
-      <p class="page-desc">AI চ্যাটবটের ব্যবহার, বাজেট এবং সিস্টেম প্রম্পট পরিচালনা</p>
-    </div>
-  </div>
-
-  <!-- Usage Stats -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#dbeafe; color:#1d4ed8;">🧠</div>
-      <div>
-        <div class="stat-label">আজকের নিউরন ব্যবহার</div>
-        <div class="stat-value">{todayNeurons.toLocaleString('bn-BD')}</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#fef3c7; color:#92400e;">⚡</div>
-      <div>
-        <div class="stat-label">দৈনিক লিমিট</div>
-        <div class="stat-value">{dailyLimit.toLocaleString('bn-BD')}</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#dcfce7; color:#15803d;">💬</div>
-      <div>
-        <div class="stat-label">মোট কথোপকথন</div>
-        <div class="stat-value">{totalChats.toLocaleString('bn-BD')}</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Usage Progress -->
-  <div class="admin-card" style="margin-bottom:20px;">
-    <h3 class="card-title">আজকের ব্যবহার</h3>
-    <div class="progress-bar-outer">
-      <div class="progress-bar-inner" style={`width:${usagePercent}%`}></div>
-    </div>
-    <p class="progress-text">{usagePercent}% ব্যবহৃত ({todayNeurons.toLocaleString('bn-BD')} / {dailyLimit.toLocaleString('bn-BD')} নিউরন)</p>
-  </div>
-
-  <!-- 30-Day Usage Chart -->
-  <div class="admin-card" style="margin-bottom:20px;">
-    <h3 class="card-title">৩০ দিনের ব্যবহার</h3>
-    <div id="chart-container" style="height:200px; display:flex; align-items:flex-end; gap:3px; padding:10px 0;">
-      <p style="color:#94a3b8; font-size:0.9rem;">লোড হচ্ছে...</p>
-    </div>
-  </div>
-
-  <div class="two-col">
-    <!-- Budget Config -->
-    <div class="admin-card">
-      <h3 class="card-title">বাজেট কনফিগারেশন</h3>
-      <div class="form-group">
-        <label class="form-label">দৈনিক নিউরন লিমিট</label>
-        <input type="number" id="neuronLimit" value={dailyLimit} min="100" step="500" class="form-input" />
-      </div>
-      <button id="saveBudget" class="btn-primary" style="margin-top:12px;">সেভ করুন</button>
-      <div id="budgetMsg" class="msg" style="display:none;"></div>
-    </div>
-
-    <!-- Model Info -->
-    <div class="admin-card">
-      <h3 class="card-title">মডেল তথ্য</h3>
-      <div class="info-row"><span class="info-label">প্রাথমিক মডেল:</span> <span>Gemma 4 26B</span></div>
-      <div class="info-row"><span class="info-label">সেকেন্ডারি মডেল:</span> <span>Gemma 3 12B</span></div>
-      <div class="info-row"><span class="info-label">Max Output Tokens:</span> <span>450</span></div>
-      <div class="info-row"><span class="info-label">Temperature:</span> <span>0.45</span></div>
+      <p class="page-desc">AI চ্যাটবটের সিস্টেম প্রম্পট দেখুন, এডিট করুন এবং সেভ করুন</p>
     </div>
   </div>
 
   <!-- System Prompt Editor -->
-  <div class="admin-card" style="margin-top:20px;">
+  <div class="admin-card">
     <h3 class="card-title">সিস্টেম প্রম্পট সম্পাদনা</h3>
-    <p class="card-desc">এটি পরিবর্তন করলে AI চ্যাটবটের আচরণ পরিবর্তন হবে। সাবধানে এডিট করুন।</p>
-    <textarea id="systemPrompt" class="form-input prompt-editor" rows="15" maxlength="10000">{customPrompt}</textarea>
+    <p class="card-desc">এটি পরিবর্তন করলে AI চ্যাটবটের আচরণ পরিবর্তন হবে। কাস্টম প্রম্পট না থাকলে ডিফল্ট প্রম্পট নিচে দেখানো হচ্ছে।</p>
+    <div class={`prompt-status ${usingDefaultPrompt ? 'prompt-status-default' : 'prompt-status-custom'}`}>
+      {usingDefaultPrompt ? 'বর্তমানে ডিফল্ট সিস্টেম প্রম্পট চালু আছে' : 'বর্তমানে কাস্টম সিস্টেম প্রম্পট চালু আছে'}
+    </div>
+    <textarea id="systemPrompt" class="form-input prompt-editor" rows="15" maxlength="10000">{activePrompt}</textarea>
     <div class="prompt-actions">
       <button id="savePrompt" class="btn-primary">প্রম্পট সেভ করুন</button>
       <button id="resetPrompt" class="btn-secondary">ডিফল্ট রিসেট</button>
-      <span id="charCount" class="char-count">{customPrompt.length}/10000</span>
+      <span id="charCount" class="char-count">{activePrompt.length}/10000</span>
     </div>
     <div id="promptMsg" class="msg" style="display:none;"></div>
   </div>
@@ -169,55 +92,43 @@ const usagePercent = dailyLimit > 0 ? Math.min(100, Math.round((todayNeurons / d
   </div>
 </AdminLayout>
 
-<script>
-  // Load 30-day chart
-  fetch('/api/admin/ai/budget-stats')
-    .then(r => r.json())
-    .then(data => {
-      const container = document.getElementById('chart-container');
-      if (!container || !data.days?.length) return;
-      container.innerHTML = '';
-      const max = Math.max(...data.days.map((d: any) => d.neurons), 1);
-      data.days.forEach((d: any) => {
-        const h = Math.max(2, (d.neurons / max) * 180);
-        const bar = document.createElement('div');
-        bar.style.cssText = `flex:1; height:${h}px; background:var(--admin-primary); border-radius:3px 3px 0 0; min-width:6px; cursor:pointer;`;
-        bar.title = `${d.date}: ${d.neurons} neurons`;
-        container.appendChild(bar);
-      });
-    })
-    .catch(() => {});
+<script define:vars={{ defaultSystemPrompt: DEFAULT_SYSTEM_PROMPT }}>
+  const systemPromptInput = document.getElementById('systemPrompt') as HTMLTextAreaElement | null;
+  const promptMsg = document.getElementById('promptMsg');
+  const charCount = document.getElementById('charCount');
+  const promptStatus = document.querySelector('.prompt-status');
 
-  // Save budget
-  document.getElementById('saveBudget')?.addEventListener('click', async () => {
-    const limit = (document.getElementById('neuronLimit') as HTMLInputElement).value;
-    const msg = document.getElementById('budgetMsg')!;
-    const res = await fetch('/api/admin/ai/update-config', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dailyNeuronLimit: Number(limit) }),
-    });
-    const data = await res.json();
-    msg.style.display = 'block';
-    msg.textContent = data.success ? 'সেভ হয়েছে!' : (data.error || 'সমস্যা হয়েছে');
-    msg.className = data.success ? 'msg msg-ok' : 'msg msg-err';
-    setTimeout(() => msg.style.display = 'none', 3000);
-  });
+  function updatePromptMeta(prompt: string, isDefault = false) {
+    if (charCount) {
+      charCount.textContent = `${prompt.length}/10000`;
+    }
 
-  // Save system prompt
+    if (promptStatus) {
+      promptStatus.textContent = isDefault
+        ? 'বর্তমানে ডিফল্ট সিস্টেম প্রম্পট চালু আছে'
+        : 'বর্তমানে কাস্টম সিস্টেম প্রম্পট চালু আছে';
+      promptStatus.classList.toggle('prompt-status-default', isDefault);
+      promptStatus.classList.toggle('prompt-status-custom', !isDefault);
+    }
+  }
+
   document.getElementById('savePrompt')?.addEventListener('click', async () => {
-    const prompt = (document.getElementById('systemPrompt') as HTMLTextAreaElement).value;
-    const msg = document.getElementById('promptMsg')!;
+    const prompt = systemPromptInput?.value || '';
+    const payloadPrompt = prompt.trim() === defaultSystemPrompt.trim() ? '' : prompt;
     const res = await fetch('/api/admin/ai/update-config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ systemPrompt: prompt }),
+      body: JSON.stringify({ systemPrompt: payloadPrompt }),
     });
     const data = await res.json();
-    msg.style.display = 'block';
-    msg.textContent = data.success ? 'প্রম্পট সেভ হয়েছে!' : (data.error || 'সমস্যা হয়েছে');
-    msg.className = data.success ? 'msg msg-ok' : 'msg msg-err';
-    setTimeout(() => msg.style.display = 'none', 3000);
+    if (!promptMsg) return;
+    promptMsg.style.display = 'block';
+    promptMsg.textContent = data.success ? 'প্রম্পট সেভ হয়েছে!' : (data.error || 'সমস্যা হয়েছে');
+    promptMsg.className = data.success ? 'msg msg-ok' : 'msg msg-err';
+    if (data.success) {
+      updatePromptMeta(prompt, payloadPrompt === '');
+    }
+    setTimeout(() => { if (promptMsg) promptMsg.style.display = 'none'; }, 3000);
   });
 
   // Reset prompt
@@ -229,34 +140,27 @@ const usagePercent = dailyLimit > 0 ? Math.min(100, Math.round((todayNeurons / d
       body: JSON.stringify({ systemPrompt: '' }),
     });
     if (res.ok) {
-      (document.getElementById('systemPrompt') as HTMLTextAreaElement).value = '';
-      document.getElementById('charCount')!.textContent = '0/10000';
+      if (systemPromptInput) {
+        systemPromptInput.value = defaultSystemPrompt;
+      }
+      updatePromptMeta(defaultSystemPrompt, true);
     }
   });
 
   // Char count
-  document.getElementById('systemPrompt')?.addEventListener('input', () => {
-    const len = (document.getElementById('systemPrompt') as HTMLTextAreaElement).value.length;
-    document.getElementById('charCount')!.textContent = `${len}/10000`;
+  systemPromptInput?.addEventListener('input', () => {
+    updatePromptMeta(systemPromptInput.value, systemPromptInput.value.trim() === defaultSystemPrompt.trim());
   });
 </script>
 
 <style>
-  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
-  .stat-card { display: flex; align-items: center; gap: 16px; background: #fff; border: 1px solid var(--admin-border); border-radius: 12px; padding: 20px; }
-  .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
-  .stat-label { font-size: 0.85rem; color: var(--admin-text-light); margin-bottom: 4px; }
-  .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--admin-text); }
   .card-title { font-size: 1rem; font-weight: 600; color: var(--admin-text); margin-bottom: 12px; }
   .card-desc { font-size: 0.9rem; color: var(--admin-text-light); margin-bottom: 12px; }
-  .progress-bar-outer { height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden; }
-  .progress-bar-inner { height: 100%; background: var(--admin-primary); border-radius: 6px; transition: width 0.3s; }
-  .progress-text { font-size: 0.85rem; color: var(--admin-text-light); margin-top: 8px; }
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .form-group { margin-bottom: 12px; }
-  .form-label { display: block; font-size: 0.9rem; font-weight: 600; color: var(--admin-text); margin-bottom: 6px; }
   .form-input { width: 100%; padding: 10px 14px; border: 1px solid var(--admin-border); border-radius: 8px; font-size: 0.95rem; font-family: inherit; background: #fff; box-sizing: border-box; }
   .prompt-editor { font-family: monospace; font-size: 0.85rem; line-height: 1.6; resize: vertical; }
+  .prompt-status { margin-bottom: 12px; padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; }
+  .prompt-status-default { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .prompt-status-custom { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
   .prompt-actions { display: flex; gap: 12px; align-items: center; margin-top: 12px; }
   .btn-primary { padding: 10px 20px; background: var(--admin-primary); color: #fff; border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; font-family: inherit; }
   .btn-secondary { padding: 10px 20px; background: #f1f5f9; color: var(--admin-text-light); border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; font-family: inherit; }

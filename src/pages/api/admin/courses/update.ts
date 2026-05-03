@@ -23,6 +23,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const db = createDb((env as any).DATABASE_URL);
+    const r2 = (env as any).R2_IMAGES;
+
+    const oldCourseRes = await db.select().from(courses).where(eq(courses.id, body.id));
+    if (oldCourseRes.length > 0) {
+      const oldImg = oldCourseRes[0].image;
+      if (body.image && oldImg && oldImg !== body.image && oldImg.startsWith('/api/images/') && r2) {
+        const key = oldImg.replace('/api/images/', '');
+        await r2.delete(key).catch(console.error);
+      }
+    }
 
     await db.update(courses)
       .set({
@@ -35,7 +45,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
         price: body.price !== null ? body.price : null,
         rating: body.rating || 5.0,
         desc: body.desc,
-        image: body.image
+        image: body.image,
+        videoLink: body.videoLink || ''
       })
       .where(eq(courses.id, body.id));
 

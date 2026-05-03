@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ruqyah-healing. 38 gotchas, 71 conventions, 19 fixes."
+description: "Project for ruqyah-healing. 74 gotchas, 298 conventions, 22 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **240 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **805 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -18,6 +18,42 @@ Auto-compiled from **240 real patterns** in **ruqyah-healing**. This skill is au
 
 | ❌ Don't | Details |
 |----------|----------|
+| ⚠️ GOTCHA: Optimized GOTCHA | - - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for speed + - ⚠️ GOTCHA: Optimized GO |
+| ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy compu | - - ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy computation off the main thread + - ⚠️ GOTCHA: Opti |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 905 notes - Score threshold: >40 + > 907 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 901 notes - Score threshold: >40 + > 905 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 895 notes - Score threshold: >40 + > 901 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy compu | - - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for speed + - gotcha in shared-contex |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 886 notes - Score threshold: >40 + > 891 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: problem-fix in agent-rules.md | - - problem-fix in shared-context.json + - Patched security issue MvNDAbZV - - Patched security issu |
+| ⚠️ GOTCHA: Optimized GOTCHA | - - ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy computation off the main thread + - ⚠️ GOTCHA: Opti |
+| ⚠️ GOTCHA: Optimized GOTCHA | - - ⚠️ GOTCHA: Strengthened types Patched — offloads heavy computation off the main thread + - ⚠️ GO |
+| ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy compu | - - ⚠️ GOTCHA: problem-fix in agent-rules.md + - ⚠️ GOTCHA: Strengthened types Patched — offloads he |
+| ⚠️ GOTCHA: Strengthened types Patched — offloads h | - - problem-fix in shared-context.json + - Patched security issue RMQJxqeutKgaYph - - problem-fix in |
+| ⚠️ GOTCHA: problem-fix in agent-rules.md | - - Patched security issue RMQJxqeutKgaYph + - problem-fix in shared-context.json - - Fixed null cra |
+| ⚠️ GOTCHA: Fixed null crash in BaseLayout — preven | - const videos: any[] = []; + const videos = [ - const galleryImages: any[] = []; +   { id: 'dQw4w9W |
+| ⚠️ GOTCHA: Fixed null crash in Desktop — prevents  | -             <li>রোগ প্রতিরোধ ক্ষমতা বাড়ায়</li> +             <li>রোগ প্র�        <div class="vid |
+| gotcha in agent-rules.md | File updated (external): .brainsync/agent-rules.md  Content summary (82 lines): # Project Intelligen |
+| ⚠️ GOTCHA: Optimized Score | - > 605 notes - Score threshold: >40 + > 610 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 600 notes - Score threshold: >40 + > 605 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 598 notes - Score threshold: >40 + > 600 notes - Score threshold: >40 - - **gotcha in shared-con |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 595 notes - Score threshold: >40 + > 598 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized Score | - > 586 notes - Score threshold: >40 + > 591 notes - Score threshold: >40 - - Strengthened types Com |
+| ⚠️ GOTCHA: Strengthened types Patched — offloads h | - - problem-fix in agent-rules.md + - problem-fix in shared-context.json - - problem-fix in agent-ru |
+| ⚠️ GOTCHA: problem-fix in agent-rules.md | - - Fixed null crash in HTMLFormElement + - problem-fix in agent-rules.md - - problem-fix in shared- |
+| gotcha in agent-rules.md | File updated (external): .brainsync/agent-rules.md  Content summary (85 lines): # Project Intelligen |
+| ⚠️ GOTCHA: Optimized Score — offloads heavy comput | - > 521 notes - Score threshold: >40 + > 530 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized GOTCHA | - - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for speed + - ⚠️ GOTCHA: Optimized GO |
+| ⚠️ GOTCHA: Optimized GOTCHA | - - ⚠️ GOTCHA: Optimized GOTCHA + - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for s |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 511 notes - Score threshold: >40 + > 521 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized GOTCHA | - - gotcha in shared-context.json + - ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy computation off t |
+| ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy compu | - - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for speed + - gotcha in shared-contex |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 507 notes - Score threshold: >40 + > 511 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized GOTCHA | - - gotcha in agent-rules.md + - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for spee |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 503 notes - Score threshold: >40 + > 507 notes - Score threshold: >40 - - **gotcha in agent-rule |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 501 notes - Score threshold: >40 + > 503 notes - Score threshold: >40 - - Strengthened types Pat |
+| gotcha in agent-rules.md | File updated (external): .brainsync/agent-rules.md  Content summary (80 lines): # Project Intelligen |
+| gotcha in destroy-the-black-magic.md | File updated (external): src/content/posts/destroy-the-black-magic.md  Content summary (52 lines): - |
 | gotcha in [testId].astro | -       <span class="rc-warning-icon">⚠️</span> +       <span class="rc-warning-icon"><svg width="20 |
 | gotcha in check.log | File updated (external): check.log  Content summary (161 lines): 13:03:01 [@astrojs/cloudflare] Enab |
 | ⚠️ GOTCHA: Fixed null crash in Left — prevents nul | -     <!-- ② রুকইয়াহ কি এবং কেনো করা হয়? --> +     <!-- ⑦.৫ নামাজের ওয়াক্ত --> -     <section cla |
@@ -32,32 +68,58 @@ Auto-compiled from **240 real patterns** in **ruqyah-healing**. This skill is au
 | Don't use "any" type in TypeScript — define proper | Don't use "any" type in TypeScript — define proper types/interfaces |
 | Handle Promise rejections — always .catch() or try | Handle Promise rejections — always .catch() or try/catch with await |
 | Use === not == — strict equality prevents type coe | Use === not == — strict equality prevents type coercion bugs |
-| Agent: follow existing project patterns — don't in | Agent: follow existing project patterns — don't introduce a different style |
-| Agent: don't generate code with "any" type — defin | Agent: don't generate code with "any" type — define proper TypeScript types |
-| Agent: always handle loading/error states — don't  | Agent: always handle loading/error states — don't just render data |
-| Agent: don't use deprecated APIs — check library v | Agent: don't use deprecated APIs — check library version, use current API |
-| Agent: check existing code before creating utility | Agent: check existing code before creating utility functions — avoid duplicates |
-| Don't expose database errors to clients — map to u | Don't expose database errors to clients — map to user-friendly messages |
-| Always validate data on the SERVER — client valida | Always validate data on the SERVER — client validation is for UX only |
-| Don't fetch data inside render loops or hot paths | Don't fetch data inside render loops or hot paths |
-| Don't swallow errors silently — empty catch blocks | Don't swallow errors silently — empty catch blocks hide bugs |
-| Never store session tokens in localStorage — use h | Never store session tokens in localStorage — use httpOnly cookies |
-| Use parameterized queries — never string concatena | Use parameterized queries — never string concatenation for SQL |
-| Don't store passwords in plain text — use bcrypt,  | Don't store passwords in plain text — use bcrypt, argon2, or scrypt |
-| Don't use innerHTML — use textContent or sanitized | Don't use innerHTML — use textContent or sanitized rendering |
-| Sanitize ALL user input before database queries —  | Sanitize ALL user input before database queries — prevent SQL injection |
-| Never use eval(), exec(), or Function() with user  | Never use eval(), exec(), or Function() with user input |
-| Don't hardcode API keys, passwords, database URLs, | Don't hardcode API keys, passwords, database URLs, or secrets anywhere |
-| Don't leave console.log, print(), debugger, or TOD | Don't leave console.log, print(), debugger, or TODO in production code |
-| Don't commit .env, secrets, API keys, or credentia | Don't commit .env, secrets, API keys, or credentials — add to .gitignore |
-| Never force push to main, master, or production br | Never force push to main, master, or production branches |
-| ⚠️ GOTCHA: Fixed null crash in ServiceCard — preve | - import PrayerTimes from '../components/PrayerTimes.astro'; + import ServiceCard from '../component |
-| gotcha in [testId].astro | -   background: #fff; border: 1.5px solid var(--border); -   border-radius: 24px; -   box-shadow: 0  |
-| gotcha in [testId].astro | - .result-card { + <style is:global> -   max-width: 720px; margin: 0 auto; + /* ════════════════════ |
-| gotcha in [testId].astro | - /* ── Result Section ── */ +  - .result-section { padding: 60px 0 80px; } + /* ── Result Section ─ |
-| gotcha in [testId].astro | - /* Result Header */ + /* ── Result Section ── */ - .result-header-block { + .result-section { padd |
 
 ## 🔧 Problem Playbooks
+
+### problem-fix in agent-rules.md
+- - Fixed null crash in HTMLFormElement
++ - problem-fix in agent-rules.md
+- - problem-fix in shared-context.json
++ - Fixed null crash in HTMLFormElement
+- - Patched security issue shared-context
++ - problem-fix in shared-context.json
+- - Fixed null crash in Math — hardens HTTP security headers
++ - Patched security issue shared-context
+- - Fixed null crash in Date — hardens HTTP security headers
++ 
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in agent-rules.md
+- - problem-fix in shared-context.json
++ - Fixed null crash in HTMLFormElement
+- - Patched security issue shared-context
++ - problem-fix in shared-context.json
+- - Fixed null crash in Math — hardens HTTP security headers
++ - Patched security issue shared-context
+- - Fixed null crash in Date — hardens HTTP security headers
++ - Fixed null crash in Math — hardens HTTP security headers
+- - problem-fix
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in chat-worker.test.mjs
+File updated (external): tests/chat-worker.test.mjs
+
+Content summary (156 lines):
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+import {
+  calculateNeuronsFromUsage,
+  createOpenAiCompatibleSseResponse,
+  createSseResponseFromText,
+  estimateRequestNeurons,
+  handleChatRequest,
+  isWorkersAiFreeLimitError,
+} from '../src/lib/ai/chat.js';
+
+test('converts Workers AI text ou
+
+**Actionable Steps:**
+1. Modified 1 files
 
 ### Patched security issue Input — prevents XSS injection attacks
 -         <div class="ai-msg-meta">সহকারী</div>
@@ -138,131 +200,6 @@ Auto-compiled from **240 real patterns** in **ruqyah-healing**. This skill is au
 +           আপনার লক্ষণ, রুকইয়াহ টেস্ট, সেলফ রুকইয়াহ বা অ্যাপয়েন্টমেন্ট নিয়ে জানতে লিখুন।
 -     // Simple markdown to HTML parser for basic output (bold, lists, links)
 +     const applyInlineFormatting = (text: string) => {
--     const parseMarkdown = (text: string) => {
-+       return text
--       l
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Simple
-3. identifier: HTML
-4. identifier: Boolean
-5. identifier: Builders
-
-### Fixed null crash in Activity — prevents null/undefined runtime crashes
-- const icons = {
-+ export const prerender = true;
--   activity: Activity,
-+ 
--   eye: Eye,
-+ const icons = {
--   moon: Moon,
-+   activity: Activity,
--   ghost: Ghost,
-+   eye: Eye,
--   brain: Brain,
-+   moon: Moon,
--   baby: Baby
-+   ghost: Ghost,
-- };
-+   brain: Brain,
-- 
-+   baby: Baby
-- export function getStaticPaths() {
-+ };
--   return testCategories.map(cat => ({ params: { testId: cat.id } }
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Activity
-3. identifier: Eye
-4. identifier: Moon
-5. identifier: Ghost
-
-### Fixed null crash in Activity — prevents null/undefined runtime crashes
-- 
-+ import { Activity, Eye, Moon, Ghost, Brain, Baby } from 'lucide-astro';
-- export function getStaticPaths() {
-+ 
--   return testCategories.map(cat => ({ params: { testId: cat.id } }));
-+ const icons = {
-- }
-+   activity: Activity,
-- 
-+   eye: Eye,
-- const { testId } = Astro.params;
-+   moon: Moon,
-- const category = testCategories.find(c => c.id === testId) as TestCategory;
-+   ghost: Ghost,
--
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Activity
-3. identifier: Eye
-4. identifier: Moon
-5. identifier: Ghost
-
-### Fixed null crash in Dark — prevents null/undefined runtime crashes
--     <div class="header-actions">
-+     <button
--       <button class="action-btn theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
-+       class="menu-toggle"
--         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun sun-icon">
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Dark
-3. identifier: Logo
-4. identifier: Nav
-5. identifier: Hamburger
-
-### Fixed null crash in Toggle — prevents null/undefined runtime crashes
--     <button
-+     <div class="header-actions">
--       class="menu-toggle"
-+       <button class="action-btn theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
--       id="menu-toggle"
-+         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="luc
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Toggle
-3. identifier: Change
-4. identifier: Dark
-5. identifier: Logo
-
-### Fixed null crash in Math — prevents null/undefined runtime crashes
--   const labelEl   = document.getElementById('progressLabel');
-+   const answerOpts= document.getElementById('answerOptions');
--   const pctEl     = document.getElementById('progressPercent');
-+   const labelEl   = document.getElementById('progressLabel');
--   const fillEl    = document.getElementById('progressFill');
-+   const pctEl     = document.getElementById('progressPercent');
--   const num
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Math
-3. identifier: Highlight
-4. identifier: Dots
-5. identifier: Only
-
-### Fixed null crash in AppointmentApiResponse — prevents null/undefined runtime ...
--       const result: AppointmentApiResponse = await response
-+       const rawResult = await response
--       if (!response.ok) {
-+       const result = rawResult as AppointmentApiResponse;
--         throw new Error(result.message || 'বুকিং তথ্য সংরক্ষণ করা যায়নি।');
-+       if (!response.ok) {
--       }
-+         throw new Error(result.message || 'বুকিং তথ্য সংরক্ষণ করা যায়নি।');
-- 
-+       }
-
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: AppointmentAp
+-     const parseMarkdown = (t
 
 ... [Truncated — see individual observations for full content]

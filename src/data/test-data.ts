@@ -2,6 +2,8 @@
 // Questions extracted from test.ruqyahbd.org/bn
 // Scoring: হ্যাঁ=2, মাঝেমাঝে=1, না=0
 
+import { getWhatsappUrl } from './clinic.js';
+
 export interface Question {
   id: string;
   text: string;
@@ -113,8 +115,9 @@ function lowResult(resultText: string, customProtocol?: Protocol): TestResult {
     showProtocol: false,
     protocol: customProtocol,
     actions: [
-      { label: 'সেলফ রুকইয়াহ শুরু করুন', href: '/self-ruqyah', style: 'primary' },
-      { label: 'ব্লগ পড়ুন', href: '/blog', style: 'secondary' },
+      { label: 'WhatsApp আলোচনা করুন', href: getWhatsappUrl('আসসালামু আলাইকুম, আমার ডায়াগনোসিস রেজাল্ট নিয়ে পরামর্শ চাই।'), style: 'primary' },
+      { label: 'অ্যাপয়েন্টমেন্ট নিন', href: '/appointment', style: 'urgent' },
+      { label: 'সেলফ রুকইয়াহ শুরু করুন', href: '/self-ruqyah', style: 'secondary' },
     ],
   };
 }
@@ -128,8 +131,9 @@ function medResult(resultText: string, customProtocol?: Protocol): TestResult {
     showProtocol: true,
     protocol: customProtocol ?? detoxProtocol,
     actions: [
-      { label: 'সেলফ রুকইয়াহ শুরু করুন', href: '/self-ruqyah', style: 'primary' },
-      { label: 'রাকীর পরামর্শ নিন', href: '/appointment', style: 'secondary' },
+      { label: 'WhatsApp আলোচনা করুন', href: getWhatsappUrl('আসসালামু আলাইকুম, আমার ডায়াগনোসিস রেজাল্ট নিয়ে পরামর্শ চাই।'), style: 'primary' },
+      { label: 'অ্যাপয়েন্টমেন্ট নিন', href: '/appointment', style: 'urgent' },
+      { label: 'সেলফ রুকইয়াহ শুরু করুন', href: '/self-ruqyah', style: 'secondary' },
     ],
   };
 }
@@ -143,7 +147,8 @@ function highResult(resultText: string, customProtocol?: Protocol): TestResult {
     showProtocol: true,
     protocol: customProtocol ?? detoxProtocol,
     actions: [
-      { label: 'এখনই এ্যাপয়নমেন্ট নিন', href: '/appointment', style: 'urgent' },
+      { label: 'WhatsApp আলোচনা করুন', href: getWhatsappUrl('আসসালামু আলাইকুম, আমার ডায়াগনোসিস রেজাল্ট নিয়ে জরুরি পরামর্শ চাই।'), style: 'primary' },
+      { label: 'অ্যাপয়েন্টমেন্ট নিন', href: '/appointment', style: 'urgent' },
       { label: 'সেলফ রুকইয়াহ দেখুন', href: '/self-ruqyah', style: 'secondary' },
     ],
   };

@@ -1,0 +1,289 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { testimonials } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+
+const editId = Astro.url.searchParams.get('id');
+let testimonial: any = null;
+if (editId) {
+  const rows = await db.select().from(testimonials).where(eq(testimonials.id, editId));
+  testimonial = rows[0] || null;
+}
+const isEdit = !!testimonial;
+---
+
+<AdminLayout title={isEdit ? 'টেস্টিমোনিয়াল এডিট' : 'নতুন টেস্টিমোনিয়াল' + ' | Admin'}>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{isEdit ? 'টেস্টিমোনিয়াল এডিট করুন' : 'নতুন টেস্টিমোনিয়াল যোগ করুন'}</h1>
+      <p class="page-desc"><a href="/admin/testimonials" class="back-link">← টেস্টিমোনিয়াল লিস্টে ফিরুন</a></p>
+    </div>
+  </div>
+
+  <div id="formMsg" class="save-msg" style="display:none;"></div>
+
+  <form id="testimonialForm" class="admin-card">
+    <input type="hidden" id="testimonialId" value={testimonial?.id || ''} />
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="name">নাম *</label>
+        <input type="text" id="name" class="form-input" value={testimonial?.name || ''} required />
+      </div>
+      <div class="form-group">
+        <label for="role">ভূমিকা (ঐচ্ছিক)</label>
+        <input type="text" id="role" class="form-input" value={testimonial?.role || ''} placeholder="যেমন: রোগী, ক্লায়েন্ট" />
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:16px;">
+      <label for="message">মেসেজ *</label>
+      <textarea id="message" class="form-input" rows="4" required>{testimonial?.message || ''}</textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="rating">রেটিং (১-৫)</label>
+        <input type="number" id="rating" class="form-input" min="1" max="5" value={testimonial?.rating || 5} />
+      </div>
+      <div class="form-group">
+        <label for="orderIndex">অর্ডার</label>
+        <input type="number" id="orderIndex" class="form-input" value={testimonial?.orderIndex || 0} />
+      </div>
+    </div>
+
+    <!-- Image Upload with Compression -->
+    <div class="form-group" style="margin-bottom:16px;">
+      <label>প্রোফাইল ছবি</label>
+      <div class="image-upload-wrap">
+        <div class="image-preview" id="imagePreview">
+          {testimonial?.image ? (
+            <img src={testimonial.image} alt="Preview" id="previewImg" />
+          ) : (
+            <div class="image-placeholder" id="previewPlaceholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>ছবি আপলোড করুন</span>
+            </div>
+          )}
+        </div>
+        <div class="image-upload-controls">
+          <input type="file" id="imageFile" accept="image/jpeg,image/png,image/webp" style="display:none;" />
+          <button type="button" class="btn-secondary" id="chooseImageBtn">ছবি নির্বাচন করুন</button>
+          <button type="button" class="btn-secondary" id="clearImageBtn" style="display:{testimonial?.image ? 'inline-block' : 'none'};">মুছে ফেলুন</button>
+          <div id="uploadProgress" class="upload-progress-text" style="display:none;">কম্প্রেস এবং আপলোড হচ্ছে...</div>
+        </div>
+      </div>
+      <input type="hidden" id="image" value={testimonial?.image || ''} />
+      <small style="color:var(--text-muted); display:block; margin-top:4px;">ছবি অটো-কম্প্রেস হয়ে R2 স্টোরেজে সংরক্ষিত হবে (সর্বোচ্চ 400x400px)</small>
+    </div>
+
+    <div class="form-group">
+      <label>
+        <input type="checkbox" id="published" checked={testimonial?.published !== false} /> প্রকাশিত
+      </label>
+    </div>
+
+    <button type="submit" class="btn-primary" id="submitBtn">সেভ করুন</button>
+  </form>
+</AdminLayout>
+
+<style>
+.image-upload-wrap {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.image-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px dashed var(--border-color);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-light);
+}
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.image-upload-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+.upload-progress-text {
+  font-size: 13px;
+  color: var(--primary);
+}
+</style>
+
+<script>
+const imageFile = document.getElementById('imageFile') as HTMLInputElement;
+const chooseImageBtn = document.getElementById('chooseImageBtn') as HTMLButtonElement;
+const clearImageBtn = document.getElementById('clearImageBtn') as HTMLButtonElement;
+const imagePreview = document.getElementById('imagePreview') as HTMLDivElement;
+const imageInput = document.getElementById('image') as HTMLInputElement;
+const uploadProgress = document.getElementById('uploadProgress') as HTMLDivElement;
+
+chooseImageBtn.addEventListener('click', () => imageFile.click());
+
+clearImageBtn.addEventListener('click', () => {
+  imageInput.value = '';
+  imageFile.value = '';
+  imagePreview.innerHTML = `
+    <div class="image-placeholder">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span>ছবি আপলোড করুন</span>
+    </div>
+  `;
+  clearImageBtn.style.display = 'none';
+});
+
+imageFile.addEventListener('change', async () => {
+  const file = imageFile.files?.[0];
+  if (!file) return;
+
+  // Validate type
+  const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+  if (!allowed.includes(file.type)) {
+    alert('শুধুমাত্র JPG, PNG, WebP ছবি গ্রহণযোগ্য');
+    return;
+  }
+  // Validate size (before compression)
+  if (file.size > 10 * 1024 * 1024) {
+    alert('ফাইল সর্বোচ্চ ১০MB হতে পারে');
+    return;
+  }
+
+  uploadProgress.style.display = 'block';
+  chooseImageBtn.disabled = true;
+
+  try {
+    const compressedBlob = await compressImage(file, 400, 0.8);
+    const formData = new FormData();
+    formData.append('file', compressedBlob, 'testimonial.webp');
+
+    const res = await fetch('/api/admin/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json() as { success?: boolean; url?: string; error?: string };
+    if (res.ok && data.success) {
+      imageInput.value = data.url || '';
+      imagePreview.innerHTML = `<img src="${data.url}" alt="Preview" style="width:100%;height:100%;object-fit:cover;" />`;
+      clearImageBtn.style.display = 'inline-block';
+      uploadProgress.textContent = '✅ আপলোড সম্পন্ন!';
+      setTimeout(() => { uploadProgress.style.display = 'none'; uploadProgress.textContent = 'কম্প্রেস এবং আপলোড হচ্ছে...'; }, 2000);
+    } else {
+      throw new Error(data.error || 'আপলোড ব্যর্থ');
+    }
+  } catch (err: any) {
+    alert('ছবি আপলোড ব্যর্থ: ' + err.message);
+    uploadProgress.style.display = 'none';
+  } finally {
+    chooseImageBtn.disabled = false;
+  }
+});
+
+function compressImage(file: File, maxDim: number, quality: number): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { reject(new Error('Canvas context not available')); return; }
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob((blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error('Compression failed'));
+      }, 'image/webp', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
+    img.src = url;
+  });
+}
+
+// Form submission
+document.getElementById('testimonialForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn') as HTMLButtonElement;
+  const msg = document.getElementById('formMsg') as HTMLElement;
+
+  btn.disabled = true;
+  btn.textContent = 'সেভ হচ্ছে...';
+
+  const data = {
+    id: (document.getElementById('testimonialId') as HTMLInputElement)?.value || undefined,
+    name: (document.getElementById('name') as HTMLInputElement).value,
+    role: (document.getElementById('role') as HTMLInputElement).value,
+    message: (document.getElementById('message') as HTMLTextAreaElement).value,
+    rating: parseInt((document.getElementById('rating') as HTMLInputElement).value) || 5,
+    orderIndex: parseInt((document.getElementById('orderIndex') as HTMLInputElement).value) || 0,
+    image: (document.getElementById('image') as HTMLInputElement).value,
+    published: (document.getElementById('published') as HTMLInputElement).checked,
+  };
+
+  try {
+    const res = await fetch('/api/admin/testimonials/save', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      msg.textContent = '✅ সফলভাবে সেভ হয়েছে!';
+      msg.style.display = 'block';
+      msg.style.background = '#dcfce7';
+      msg.style.color = '#16a34a';
+      setTimeout(() => window.location.href = '/admin/testimonials', 1000);
+    } else {
+      const errData = await res.json().catch(() => ({})) as { error?: string };
+      throw new Error(errData.error || 'সেভ ব্যর্থ');
+    }
+  } catch (err: any) {
+    msg.textContent = '❌ সেভ ব্যর্থ হয়েছে: ' + err.message;
+    msg.style.display = 'block';
+    msg.style.background = '#fee2e2';
+    msg.style.color = '#dc2626';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'সেভ করুন';
+  }
+});
+</script>

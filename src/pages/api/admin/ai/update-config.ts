@@ -16,23 +16,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   try {
     const body = await request.json() as Record<string, any>;
-    const { dailyNeuronLimit, systemPrompt } = body;
+    const { systemPrompt } = body;
 
     const db = createDb(env.DATABASE_URL);
-
-    if (dailyNeuronLimit !== undefined) {
-      const limit = Number(dailyNeuronLimit);
-      if (!Number.isFinite(limit) || limit < 100) {
-        return new Response(JSON.stringify({ error: 'নিউরন লিমিট কমপক্ষে ১০০ হতে হবে' }), { status: 400 });
-      }
-      await db.insert(siteSettings).values({
-        key: 'ai_daily_neuron_limit',
-        value: limit,
-      }).onConflictDoUpdate({
-        target: siteSettings.key,
-        set: { value: limit, updatedAt: new Date() },
-      });
-    }
 
     if (systemPrompt !== undefined) {
       if (typeof systemPrompt !== 'string' || systemPrompt.length > 10000) {
@@ -54,7 +40,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
       entityType: 'settings',
       entityId: 'ai_config',
       details: {
-        ...(dailyNeuronLimit !== undefined ? { dailyNeuronLimit } : {}),
         ...(systemPrompt !== undefined ? { promptLength: systemPrompt.length } : {}),
       },
     });

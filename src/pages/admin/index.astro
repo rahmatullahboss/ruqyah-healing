@@ -8,7 +8,7 @@ import { Users, Calendar as CalendarIcon, CheckCircle, Clock, FileText, BookOpen
 
 export const prerender = false;
 
-const env = workerEnv || process.env;
+const env = (workerEnv || process.env) as any;
 const db = createDb(env.DATABASE_URL);
 
 // Fetch basic stats

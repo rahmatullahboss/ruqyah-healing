@@ -1,7 +1,7 @@
 import { createDb } from '../../../db/client.js';
 import { users } from '../../../db/schema.js';
 import { eq, or } from 'drizzle-orm';
-import { verifyPassword, createSession } from '../../../lib/auth.js';
+import { verifyPassword, createSession, hashPassword, needsPasswordRehash } from '../../../lib/auth.js';
 
 export const prerender = false;
 
@@ -52,6 +52,14 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 
     if (!isValid) {
       return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
+    }
+
+    if (needsPasswordRehash(user.passwordHash)) {
+      const upgradedHash = await hashPassword(password);
+      await db
+        .update(users)
+        .set({ passwordHash: upgradedHash })
+        .where(eq(users.id, user.id));
     }
 
     const token = await createSession(user.id, env);

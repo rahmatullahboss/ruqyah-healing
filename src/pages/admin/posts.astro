@@ -33,7 +33,7 @@ const posts = await getAllPostsAdmin(db);
           </tr>
         </thead>
         <tbody>
-          {posts.map((post) => (
+          {posts.map((post: (typeof posts)[number]) => (
             <tr>
               <td class="title-cell">
                 <a href={`/posts/${post.slug}`} target="_blank">{post.title.length > 50 ? post.title.substring(0, 50) + '…' : post.title}</a>

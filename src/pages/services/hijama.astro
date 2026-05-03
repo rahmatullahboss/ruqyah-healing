@@ -1,0 +1,560 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { buildFaqSchema, buildBreadcrumbSchema, buildServiceSchema } from '../../lib/seo.js';
+import { getWhatsappUrl } from '../../data/clinic.js';
+
+export const prerender = true;
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/services/hijama`;
+
+const hijamaServiceSchema = buildServiceSchema({
+  siteUrl,
+  pageUrl,
+  name: 'হিজামা থেরাপি — Hijama Cupping Treatment',
+  description: 'সুন্নাহ সম্মত হিজামা কাপিং থেরাপি। Dry, Wet ও combination cupping সহ প্রয়োজনভিত্তিক সেবা। Sunnah-based cupping therapy for pain relief, detox, and wellness.',
+  areaServed: 'Bangladesh',
+  availableLanguage: ['bn', 'en'],
+});
+
+const hijamaFaq = [
+  {
+    question: 'হিজামা কি সুন্নাহ?',
+    answer: 'হ্যাঁ, হিজামা (কাপিং থেরাপি) নবী মুহাম্মদ (সা.) কর্তৃক অনুমোদিত ও অনুশীলিত একটি চিকিৎসা পদ্ধতি। হাদিসে এসেছে: "হিজামা হলো সর্বোত্তম চিকিৎসা।" (সহীহ বুখারি ৫৬৯৬, সহীহ মুসলিম ১৫৭৭)।',
+  },
+  {
+    question: 'হিজামা থেরাপিতে কী কী সুবিধা পাওয়া যায়?',
+    answer: 'হিজামা থেরাপিতে ব্যথা ও প্রদাহ কমানো, রক্ত সঞ্চালন উন্নত করা, রোগ প্রতিরোধ ক্ষমতা বাড়ানো, মাইগ্রেন ও উচ্চ রক্তচাপ নিরাময়, মানসিক চাপ ও ক্লান্তি দূর করা — এসব সুবিধা পাওয়া যায়।',
+  },
+  {
+    question: 'হিজামা কতদিন পর পর করতে হয়?',
+    answer: 'সাধারণত মাসে ১-২ বার হিজামা করা সুন্নত। তবে রোগের ধরন ও তীব্রতা অনুযায়ী রাকী বা থেরাপিস্ট ব্যবধান নির্ধারণ করবেন।',
+  },
+  {
+    question: 'হিজামার আগে কী কী প্রস্তুতি নিতে হয়?',
+    answer: 'হিজামার আগে হালকা খাবার খান, প্রচুর পানি পান করুন, অজু করে পরিষ্কার কাপড় পরে আসুন। হিজামার ২ ঘণ্টা আগে ভারী খাবার এড়িয়ে চলুন।',
+  },
+];
+
+const faqSchema = buildFaqSchema(hijamaFaq);
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'সেবাসমূহ', url: `${siteUrl}/services` },
+  { name: 'হিজামা থেরাপি', url: pageUrl },
+]);
+
+const hijamaTypes = [
+  {
+    name: 'Dry Cupping (শুষ্কা কাপিং)',
+    desc: 'শুধু কাপ লাগিয়ে suction তৈরি করা হয়। রক্ত বের করা হয় না। ব্যথা উপশম ও রক্ত সঞ্চালন উন্নত করতে কার্যকর।',
+    descEn: 'Suction-only cupping without bloodletting. Effective for pain relief and blood circulation.',
+  },
+  {
+    name: 'Wet Cupping (ভেজা কাপিং)',
+    desc: 'কাপ লাগিয়ে হালকা কাট দিয়ে দূষিত রক্ত বের করা হয়। সুন্নত সম্মত পদ্ধতি। ডিটক্স ও রোগ নিরাময়ে সবচেয়ে কার্যকর।',
+    descEn: 'Suction with minor incisions to remove impure blood. The most effective Sunnah method for detox and healing.',
+  },
+  {
+    name: 'Fire Cupping',
+    desc: 'আগুনের তাপ ব্যবহারে কাপের ভেতর vacuum তৈরি করা হয়। ঐতিহ্যবাহী পদ্ধতি।',
+    descEn: 'Traditional method using fire to create suction vacuum inside the cups.',
+  },
+  {
+    name: 'Bamboo Cupping',
+    desc: 'বাঁশের কাপ ব্যবহার করে চিকিৎসা। প্রাকৃতিক ও পরিবেশবান্ধব পদ্ধতি।',
+    descEn: 'Eco-friendly cupping using bamboo cups for a natural therapy experience.',
+  },
+  {
+    name: 'Silicone / Plastic Cupping',
+    desc: 'নরম সিলিকন বা প্লাস্টিকের কাপ। আরামদায়ক ও সহজে ব্যবহারযোগ্য।',
+    descEn: 'Comfortable and easy-to-use silicone or plastic cups for gentle therapy.',
+  },
+  {
+    name: 'Wet + Dry Combination',
+    desc: 'প্রথমে dry cupping, তারপর wet cupping — সমন্বিত পদ্ধতি। সর্বোচ্চ আরোগ্য প্রদান করে।',
+    descEn: 'Combined dry and wet cupping for maximum therapeutic benefit.',
+  },
+];
+---
+
+<BaseLayout
+  title="হিজামা থেরাপি | Hijama Cupping Treatment — Dhaka"
+  description="সুন্নাহ সম্মত হিজামা কাপিং থেরাপি — Dry, Wet, Fire, Bamboo cupping সহ প্রয়োজনভিত্তিক সেবা। Sunnah-based Hijama cupping therapy in Dhaka, Bangladesh."
+  ogType="article"
+  keywords={['হিজামা', 'hijama', 'cupping therapy', 'hijama Dhaka', 'wet cupping', 'dry cupping', 'sunnah healing', 'Islamic cupping', 'কাপিং থেরাপি']}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(hijamaServiceSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <Header />
+
+  <main>
+    <!-- Hero -->
+    <section class="svc-hero">
+      <div class="container">
+        <span class="svc-badge">🩸 হিজামা থেরাপি</span>
+        <h1>সুন্নাহ সম্মত হিজামা কাপিং থেরাপি</h1>
+        <p class="hero-en">Hijama Cupping Therapy — Sunnah-Based Wet, Dry & Combination Cupping for Pain Relief, Detox & Wellness</p>
+        <p class="hero-desc">
+          নবী মুহাম্মদ (সা.) কর্তৃক অনুমোদিত হিজামা চিকিৎসা। ব্যথা নিরাময়, রক্ত পরিশোধন, রোগ প্রতিরোধ ক্ষমতা বৃদ্ধি — অভিজ্ঞ থেরাপিস্টদের দ্বারা।
+        </p>
+        <div class="hero-cta">
+          <a href={getWhatsappUrl('আসসালামু আলাইকুম, আমি হিজামা সেবা বুক করতে চাই।')} target="_blank" rel="noopener" class="btn btn-primary">
+            📞 WhatsApp-এ বুক করুন
+          </a>
+          <a href="/appointment" class="btn btn-outline">
+            📋 অ্যাপয়েন্টমেন্ট ফর্ম
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- What is Hijama -->
+    <section class="section svc-intro">
+      <div class="container">
+        <div class="intro-grid">
+          <div class="intro-text">
+            <h2>হিজামা কী?</h2>
+            <p>
+              <strong>হিজামা (حجامة)</strong> হলো শরীরের নির্দিষ্ট বিন্দুতে কাপ (cup) লাগিয়ে suction তৈরি করে দূষিত রক্ত ও বিষাক্ত পদার্থ বের করে নেওয়ার একটি ঐতিহ্যবাহী চিকিৎসা পদ্ধতি।
+            </p>
+            <blockquote class="hadith-ref">
+              "হিজামা হলো সর্বোত্তম চিকিৎসা যা দিয়ে তোমরা চিকিৎসা কর।"
+              <cite>— সহীহ বুখারি ৫৬৯৬, সহীহ মুসলিম ১৫৭৭</cite>
+            </blockquote>
+            <blockquote class="hadith-ref">
+              "হিজামা তোমাদের রক্ত টেনে বের করে, কোমর হালকা করে ও দৃষ্টিশক্তি তীক্ষ্ণ করে।"
+              <cite>— সুনান ইবনে মাজাহ ৩৪৭৯</cite>
+            </blockquote>
+          </div>
+          <div class="intro-what">
+            <h2>What is Hijama (Cupping Therapy)?</h2>
+            <p>
+              <strong>Hijama (Cupping Therapy)</strong> is an ancient and Prophetic healing practice where suction cups are placed on specific points of the body to draw out impure blood, toxins, and stagnant blood. It promotes <em>blood circulation, pain relief, detoxification, immune system strengthening</em>, and overall wellness.
+            </p>
+            <p>
+              The Prophet Muhammad ﷺ recommended Hijama as one of the best forms of treatment. At Ruqyah Healing Center, we offer multiple cupping modalities — <strong>Dry, Wet, Fire, Bamboo, Silicone, and Combination</strong> — performed by experienced practitioners using sterilized equipment.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefits -->
+    <section class="section svc-benefits">
+      <div class="container">
+        <h2 class="section-title">হিজামার উপকারিতা</h2>
+        <p class="section-subtitle">Benefits of Hijama Cupping Therapy</p>
+
+        <div class="benefits-grid">
+          <div class="benefit-card">
+            <div class="benefit-icon">💪</div>
+            <h3>রক্ত সঞ্চালন উন্নত করে</h3>
+            <p>Improves blood circulation throughout the body</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">🧘</div>
+            <h3>ব্যথা ও প্রদাহ কমায়</h3>
+            <p>Reduces pain, inflammation, and muscle tension</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">🛡️</div>
+            <h3>রোগ প্রতিরোধ ক্ষমতা</h3>
+            <p>Boosts immune system and natural healing</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">🧠</div>
+            <h3>মাইগ্রেন ও মাথাব্যথা</h3>
+            <p>Effective for migraines, headaches, and sinus issues</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">❤️</div>
+            <h3>উচ্চ রক্তচাপ নিয়ন্ত্রণ</h3>
+            <p>Helps regulate high blood pressure naturally</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">😌</div>
+            <h3>মানসিক চাপ দূর করে</h3>
+            <p>Relieves stress, anxiety, and mental fatigue</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cupping Types -->
+    <section class="section svc-types">
+      <div class="container">
+        <h2 class="section-title">হিজামার প্রকারভেদ</h2>
+        <p class="section-subtitle">Types of Cupping We Offer</p>
+
+        <div class="types-grid">
+          {hijamaTypes.map((type, i) => (
+            <div class="type-card">
+              <h3>{type.name}</h3>
+              <p>{type.desc}</p>
+              <p class="type-en">{type.descEn}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Pre-Session Prep -->
+    <section class="section svc-prep">
+      <div class="container">
+        <h2 class="section-title">হিজামার আগে করণীয়</h2>
+        <p class="section-subtitle">Pre-Session Preparation Checklist</p>
+
+        <div class="prep-checklist">
+          <div class="prep-item">
+            <span class="prep-check">✅</span>
+            <div>
+              <strong>হালকা খাবার খান</strong>
+              <p>হিজামার ২-৩ ঘণ্টা আগে হালকা খাবার খান। খালি পেটে হিজামা করবেন না।</p>
+            </div>
+          </div>
+          <div class="prep-item">
+            <span class="prep-check">✅</span>
+            <div>
+              <strong>প্রচুর পানি পান করুন</strong>
+              <p>হিজামার আগে ও পরে পর্যাপ্ত পানি পান করুন — এটি ডিটক্স প্রক্রিয়া সহায়তা করে।</p>
+            </div>
+          </div>
+          <div class="prep-item">
+            <span class="prep-check">✅</span>
+            <div>
+              <strong>অজু ও পরিষ্কার কাপড়</strong>
+              <p>অজু করে পরিষ্কার কাপড় পরে আসুন। পুরুষরা সুগন্ধি ব্যবহার করতে পারেন।</p>
+            </div>
+          </div>
+          <div class="prep-item">
+            <span class="prep-check">⚠️</span>
+            <div>
+              <strong>এড়িয়ে চলুন</strong>
+              <p>হিজামার ২৪ ঘণ্টা আগে caffeine, ভারী খাবার ও intense workout এড়িয়ে চলুন।</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section svc-faq">
+      <div class="container">
+        <h2 class="section-title">সচরাচর জিজ্ঞাসা</h2>
+        <p class="section-subtitle">FAQ — Hijama Cupping Therapy</p>
+
+        <div class="faq-list">
+          {hijamaFaq.map((faq, i) => (
+            <details class="faq-item">
+              <summary class="faq-question">{faq.question}</summary>
+              <div class="faq-answer">{faq.answer}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section svc-cta">
+      <div class="container">
+        <div class="cta-card">
+          <h2>সুন্নাহ সম্মত হিজামা সেবা নিতে চান?</h2>
+          <p>অভিজ্ঞ থেরাপিস্টদের দ্বারা স্টেরিলাইজড ইকুইপমেন্টে হিজামা সেবা নিন। এখনই বুক করুন।</p>
+          <div class="cta-actions">
+            <a href="/appointment" class="btn btn-primary">অ্যাপয়েন্টমেন্ট বুক করুন</a>
+            <a href={getWhatsappUrl('আসসালামু আলাইকুম, আমি হিজামা সেবা সম্পর্কে জানতে চাই।')} target="_blank" rel="noopener" class="btn btn-outline">WhatsApp-এ জানুন</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.svc-hero {
+  background: linear-gradient(135deg, #7c2d12 0%, #9a3412 50%, #c2410c 100%);
+  color: #fff;
+  padding: 64px 0 56px;
+  text-align: center;
+}
+.svc-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.svc-hero h1 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.hero-en {
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 16px;
+}
+.hero-desc {
+  font-size: 16px;
+  color: rgba(255,255,255,0.85);
+  max-width: 680px;
+  margin: 0 auto 28px;
+  line-height: 1.75;
+}
+.hero-cta {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.section { padding: 48px 0; }
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.section-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* Intro */
+.svc-intro { background: var(--bg-light); }
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+.intro-text h2, .intro-what h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.intro-text p, .intro-what p {
+  font-size: 15px;
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+.hadith-ref {
+  padding: 16px;
+  background: rgba(16,185,129,0.1);
+  border-radius: 8px;
+  border-left: 3px solid var(--primary);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.hadith-ref cite {
+  display: block;
+  margin-top: 8px;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--primary-dark);
+}
+
+/* Benefits */
+.svc-benefits { background: var(--bg-white); }
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.benefit-card {
+  background: var(--bg-light);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: box-shadow 0.2s;
+}
+.benefit-card:hover { box-shadow: var(--shadow-md); }
+.benefit-icon { font-size: 36px; margin-bottom: 12px; }
+.benefit-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.benefit-card p {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Types */
+.svc-types { background: var(--bg-light); }
+.types-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.type-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  border: 1px solid var(--border);
+}
+.type-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text-dark);
+}
+.type-card > p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-body);
+  margin-bottom: 8px;
+}
+.type-en {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Prep */
+.svc-prep { background: var(--bg-white); }
+.prep-checklist {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.prep-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: var(--bg-light);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  border: 1px solid var(--border);
+}
+.prep-check {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.prep-item strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 4px;
+  color: var(--text-dark);
+}
+.prep-item p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-body);
+  margin: 0;
+}
+
+/* FAQ */
+.svc-faq { background: var(--bg-light); }
+.faq-list {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.faq-item {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.faq-question {
+  padding: 18px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.faq-question::-webkit-details-marker { display: none; }
+.faq-question::after {
+  content: '+';
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--primary);
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+.faq-item[open] .faq-question::after { content: '−'; }
+.faq-item[open] .faq-question { background: var(--primary-light); }
+.faq-answer {
+  padding: 16px 24px 20px;
+  font-size: 15px;
+  line-height: 1.75;
+  border-top: 1px solid var(--border);
+}
+
+/* CTA */
+.svc-cta { background: var(--bg-white); }
+.cta-card {
+  background: linear-gradient(135deg, #7c2d12 0%, #9a3412 50%, #c2410c 100%);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  text-align: center;
+  color: #fff;
+}
+.cta-card h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; }
+.cta-card p { color: rgba(255,255,255,0.8); margin-bottom: 24px; }
+.cta-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.btn-primary {
+  background: #fff;
+  color: #7c2d12;
+  border: 2px solid #fff;
+}
+.btn-primary:hover { background: rgba(255,255,255,0.9); transform: translateY(-2px); }
+.btn-outline {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.5);
+}
+.btn-outline:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .intro-grid { grid-template-columns: 1fr; }
+  .benefits-grid { grid-template-columns: repeat(2, 1fr); }
+  .types-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .benefits-grid { grid-template-columns: 1fr; }
+  .types-grid { grid-template-columns: 1fr; }
+  .hero-cta, .cta-actions { flex-direction: column; }
+  .btn { width: 100%; justify-content: center; }
+}
+</style>

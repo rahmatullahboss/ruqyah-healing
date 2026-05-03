@@ -4,11 +4,11 @@ import { UserCircle, Mail, Lock, AlertCircle, ArrowRight } from '@lucide/astro';
 import { env as workerEnv } from 'cloudflare:workers';
 
 // If user is already logged in, redirect to profile
-if (Astro.locals.user) {
+if ((Astro.locals as App.Locals).user) {
   return Astro.redirect('/profile');
 }
 
-const env = workerEnv || process.env;
+const env = (workerEnv || process.env) as any;
 const googleClientId = env.GOOGLE_CLIENT_ID || '';
 ---
 
@@ -38,6 +38,20 @@ const googleClientId = env.GOOGLE_CLIENT_ID || '';
             <div class="input-wrapper">
               <Lock size={20} class="input-icon" />
               <input type="password" id="password" name="password" required placeholder="••••••••" />
+              <button
+                type="button"
+                class="password-toggle"
+                data-password-toggle
+                data-target="password"
+                aria-controls="password"
+                aria-label="পাসওয়ার্ড দেখান"
+                aria-pressed="false"
+              >
+                দেখুন
+              </button>
+            </div>
+            <div style="text-align: right; margin-top: 0.5rem;">
+              <a href="/forgot-password" class="forgot-password-link">পাসওয়ার্ড ভুলে গেছেন?</a>
             </div>
           </div>
 
@@ -76,6 +90,19 @@ const googleClientId = env.GOOGLE_CLIENT_ID || '';
   const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
   const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
   const errorText = document.getElementById('errorText') as HTMLSpanElement;
+  const passwordToggle = document.querySelector('[data-password-toggle]') as HTMLButtonElement | null;
+
+  passwordToggle?.addEventListener('click', () => {
+    const targetId = passwordToggle.dataset.target;
+    const passwordInput = targetId ? document.getElementById(targetId) as HTMLInputElement | null : null;
+    if (!passwordInput) return;
+
+    const isVisible = passwordInput.type === 'text';
+    passwordInput.type = isVisible ? 'password' : 'text';
+    passwordToggle.textContent = isVisible ? 'দেখুন' : 'লুকান';
+    passwordToggle.setAttribute('aria-label', isVisible ? 'পাসওয়ার্ড দেখান' : 'পাসওয়ার্ড লুকান');
+    passwordToggle.setAttribute('aria-pressed', String(!isVisible));
+  });
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -95,7 +122,7 @@ const googleClientId = env.GOOGLE_CLIENT_ID || '';
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
+      const result = await response.json() as any;
 
       if (response.ok && result.success) {
         window.location.href = result.redirect;
@@ -126,7 +153,7 @@ const googleClientId = env.GOOGLE_CLIENT_ID || '';
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ idToken }),
     })
-      .then(res => res.json())
+      .then(res => res.json() as Promise<any>)
       .then(result => {
         if (result.success) {
           window.location.href = result.redirect;
@@ -244,7 +271,7 @@ const googleClientId = env.GOOGLE_CLIENT_ID || '';
 
   .input-wrapper input {
     width: 100%;
-    padding: 0.875rem 1rem 0.875rem 2.75rem;
+    padding: 0.875rem 4.75rem 0.875rem 2.75rem;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     font-size: 1rem;
@@ -258,6 +285,28 @@ const googleClientId = env.GOOGLE_CLIENT_ID || '';
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 0.75rem;
+    border: none;
+    background: transparent;
+    color: var(--primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .password-toggle:hover {
+    background: rgba(16, 185, 129, 0.08);
+  }
+
+  .password-toggle:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
   }
 
   .error-message {
@@ -401,5 +450,17 @@ const googleClientId = env.GOOGLE_CLIENT_ID || '';
   .google-btn.loading {
     opacity: 0.7;
     pointer-events: none;
+  }
+
+  .forgot-password-link {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .forgot-password-link:hover {
+    color: var(--primary);
+    text-decoration: underline;
   }
 </style>

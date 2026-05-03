@@ -1,0 +1,126 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { env as workerEnv } from 'cloudflare:workers';
+import { createDb } from '../../db/client.js';
+import { getAllPosts } from '../../lib/posts.js';
+import { clinicNumbers, getWhatsappUrl, primaryPhoneContact } from '../../data/clinic.js';
+import { getEnglishCategoryLabel, getEnglishPostMeta } from '../../data/en-content';
+
+export const prerender = true;
+
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+const posts = (await getAllPosts(db)).slice(0, 3);
+---
+
+<BaseLayout
+  title="Ruqyah Healing Center | Islamic Healing Services"
+  description="Ruqyah, hijama, diagnosis support, and halal healing resources in Bangladesh."
+  locale="en"
+>
+  <Header />
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <p class="eyebrow">Qur'an and Sunnah Guided Care</p>
+        <h1>Islamic Healing and Ruqyah Support</h1>
+        <p class="sub">
+          Practical diagnosis support, self-ruqyah guidance, and appointment booking with experienced raqis.
+        </p>
+        <div class="cta-row">
+          <a href="/en/appointment" class="btn btn-primary">Book Appointment</a>
+          <a id="enHomeWhatsappLink" href={getWhatsappUrl('Assalamu Alaikum, I want to discuss my condition in English.')} class="btn btn-outline">WhatsApp</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2>Core Services</h2>
+        <div class="grid">
+          <a href="/en/ruqyah-diagnosis" class="card">
+            <h3>Ruqyah Diagnosis</h3>
+            <p>Step-by-step assessment to understand your condition and next actions.</p>
+          </a>
+          <a href="/en/symptom-diagnosis" class="card">
+            <h3>Symptom Diagnosis</h3>
+            <p>Select symptoms and move into structured ruqyah-focused screening.</p>
+          </a>
+          <a href="/en/self-ruqyah" class="card">
+            <h3>Self Ruqyah Guide</h3>
+            <p>Audio and practical routine to continue your daily protective recitation.</p>
+          </a>
+          <a href="/en/supplements" class="card">
+            <h3>Supplements</h3>
+            <p>Halal supportive products commonly used in spiritual wellness routines.</p>
+          </a>
+          <a href="/en/pdf" class="card">
+            <h3>Resources</h3>
+            <p>Downloadable guides and ruqyah reading materials.</p>
+          </a>
+          <a href="/en/blog" class="card">
+            <h3>Blog</h3>
+            <p>Articles and educational content from the Ruqyah Healing team.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt">
+      <div class="container">
+        <h2>Latest Articles</h2>
+        <div class="posts">
+          {posts.length === 0 ? (
+            <p>No posts published yet.</p>
+          ) : (
+            posts.map((post: (typeof posts)[number]) => (
+              <a href={`/en/posts/${post.slug}`} class="post-card">
+                <p class="meta">{getEnglishCategoryLabel(post.category)} · {new Date(post.date).toLocaleDateString('en-US')}</p>
+                <h3>{getEnglishPostMeta(post.slug, { title: post.title }).title}</h3>
+                <p>{getEnglishPostMeta(post.slug, { excerpt: post.excerpt }).excerpt}</p>
+              </a>
+            ))
+          )}
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container contact-box">
+        <h2>Need Help Now?</h2>
+        <p>Call or message us to discuss your report with a raqi.</p>
+        <p class="phone" id="enHomePrimaryPhone">{primaryPhoneContact?.display || clinicNumbers[0]?.display}</p>
+        <a href="/en/appointment" class="btn btn-primary">Take Appointment</a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .hero { padding: 72px 0 56px; background: linear-gradient(150deg, #022c22 0%, #065f46 100%); color: #fff; }
+  .eyebrow { color: #86efac; font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 10px; }
+  h1 { font-size: clamp(1.9rem, 4.8vw, 3.1rem); line-height: 1.2; margin-bottom: 14px; }
+  .sub { max-width: 740px; color: rgba(255, 255, 255, 0.86); }
+  .cta-row { display: flex; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
+  .section { padding: 56px 0; }
+  .alt { background: var(--bg-light); }
+  h2 { margin-bottom: 18px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { display: block; padding: 20px; border: 1px solid var(--border); border-radius: 14px; background: #fff; }
+  .card h3 { margin-bottom: 8px; font-size: 18px; }
+  .card p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+  .posts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .post-card { display: block; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+  .post-card h3 { margin: 8px 0; font-size: 17px; }
+  .post-card p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+  .post-card .meta { color: var(--primary-dark); font-weight: 600; font-size: 12px; }
+  .contact-box { text-align: center; border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
+  .phone { font-weight: 700; margin: 10px 0 16px; }
+  @media (max-width: 900px) { .grid, .posts { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { .grid, .posts { grid-template-columns: 1fr; } }
+</style>

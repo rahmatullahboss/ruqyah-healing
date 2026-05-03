@@ -9,6 +9,8 @@ export const users = pgTable('users', {
   googleId: text('google_id').unique(),
   authProvider: text('auth_provider').notNull().default('local'),
   role: text('role').notNull().default('patient'),
+  resetToken: text('reset_token'),
+  resetTokenExpires: timestamp('reset_token_expires', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 export const appointments = pgTable('appointments', {
@@ -55,7 +57,10 @@ export const posts = pgTable('posts', {
   category: text('category').notNull(),
   tags: jsonb('tags').notNull().default([]),
   date: text('date').notNull(),
-  content: text('content').notNull(),
+  content: text('content').notNull().default(''),
+  // Canonical HTML content for posts authored with the TipTap rich-text editor.
+  // NULL means the post still uses the legacy `content` (Markdown) field.
+  contentHtml: text('content_html'),
   published: boolean('published').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
@@ -77,8 +82,23 @@ export const courses = pgTable('courses', {
   rating: real('rating').notNull().default(0.0),
   desc: text('desc').notNull(),
   image: text('image').notNull(),
+  videoLink: text('video_link').notNull().default(''), // Google Drive / YouTube URL
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const courseEnrollments = pgTable('course_enrollments', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  courseId: text('course_id').notNull(),
+  status: text('status').notNull().default('pending'),
+  paymentMethod: text('payment_method'),
+  paymentNumber: text('payment_number'),
+  transactionId: text('transaction_id'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index('course_enrollments_user_idx').on(table.userId),
+  index('course_enrollments_course_idx').on(table.courseId),
+]);
 
 export const siteSettings = pgTable('site_settings', {
   key: text('key').primaryKey(),
@@ -97,8 +117,22 @@ export const notices = pgTable('notices', {
   urgent: boolean('urgent').notNull().default(false),
   published: boolean('published').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const testimonials = pgTable('testimonials', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  image: text('image'),
+  message: text('message').notNull(),
+  rating: integer('rating').notNull().default(5),
+  role: text('role'),
+  orderIndex: integer('order_index').notNull().default(0),
+  published: boolean('published').notNull().default(true),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index('testimonials_order_idx').on(table.orderIndex),
+  index('testimonials_published_idx').on(table.published),
+]);
 
 export const products = pgTable('products', {
   id: text('id').primaryKey(),
@@ -154,4 +188,23 @@ export const aiChatLogs = pgTable('ai_chat_logs', {
 }, (table) => [
   index('ai_chat_logs_session_id_idx').on(table.sessionId),
   index('ai_chat_logs_created_at_idx').on(table.createdAt),
+]);
+
+export const testResults = pgTable('test_results', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  testType: text('test_type').notNull(),
+  testTitle: text('test_title').notNull(),
+  score: integer('score').notNull(),
+  totalQuestions: integer('total_questions').notNull(),
+  yesCount: integer('yes_count').notNull().default(0),
+  maybeCount: integer('maybe_count').notNull().default(0),
+  noCount: integer('no_count').notNull().default(0),
+  resultLevel: text('result_level').notNull(),
+  resultText: text('result_text').notNull(),
+  answers: jsonb('answers').notNull().default([]),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index('test_results_user_idx').on(table.userId),
+  index('test_results_created_at_idx').on(table.createdAt),
 ]);

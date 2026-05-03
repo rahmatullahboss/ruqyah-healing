@@ -8,7 +8,7 @@ import { Plus, Edit, Trash2 } from '@lucide/astro';
 
 export const prerender = false;
 
-const env = workerEnv || process.env;
+const env = (workerEnv || process.env) as any;
 const db = createDb(env.DATABASE_URL);
 
 const allCourses = await db.select().from(courses).orderBy(desc(courses.createdAt));
@@ -97,7 +97,7 @@ const allCourses = await db.select().from(courses).orderBy(desc(courses.createdA
           body: JSON.stringify({ id: courseId })
         });
         
-        const data = await res.json();
+        const data = (await res.json()) as any;
         if (res.ok && data.success) {
           target.closest('tr')?.remove();
         } else {

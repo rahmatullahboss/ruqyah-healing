@@ -1,0 +1,502 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { buildFaqSchema, buildBreadcrumbSchema } from '../../lib/seo.js';
+
+export const prerender = true;
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/comparison/ruqyah-vs-modern-medicine`;
+
+// FAQ data for AI search
+const comparisonFaq = [
+  {
+    question: 'রুকইয়াহ কি আধুনিক চিকিৎসার বিকল্প?',
+    answer: 'রুকইয়াহ আধুনিক চিকিৎসার বিকল্প নয়, বরং এটি আধ্যাত্মিক সমস্যাগুলোর জন্য একটি পরিপূরক চিকিৎসা পদ্ধতি। শারীরিক রোগের জন্য ডাক্তার দেখা জরুরি, আর আধ্যাত্মিক সমস্যা (জ্বীন, জাদু, বদনজর) এর জন্য রুকইয়াহ কার্যকর।',
+  },
+  {
+    question: 'রুকইয়াহ কি বৈজ্ঞানিকভাবে প্রমাণিত?',
+    answer: 'রুকইয়াহ একটি ধর্মীয় ও আধ্যাত্মিক চিকিৎসা পদ্ধতি যা কুরআন ও হাদিসের উপর ভিত্তি করে। সাম্প্রতিক গবেষণায় দেখা গেছে যে কুরআন তেলাওয়াত ও ধ্যান মানসিক স্বাস্থ্যের উপর ইতিবাচক প্রভাব ফেলে। তবে এটি মূলত ঈমান ও তাওহীদের উপর নির্ভরশীল।',
+  },
+  {
+    question: 'আধুনিক চিকিৎসা ও রুকইয়াহ একসাথে নেওয়া যায়?',
+    answer: 'হ্যাঁ, আধুনিক চিকিৎসা ও রুকইয়াহ একসাথে নেওয়া সম্পূর্ণ জায়েজ। প্রকৃতপক্ষে, ইসলামে চিকিৎসা নেওয়া encouranged — হাদিসে এসেছে: "হে আল্লাহর বান্দারা, চিকিৎসা নাও।" (Sunan Ibn Majah 3436)। শারীরিক চিকিৎসার সাথে আধ্যাত্মিক চিকিৎসা সমন্বয় করলে সর্বোত্তম ফল পাওয়া যায়।',
+  },
+  {
+    question: 'রুকইয়াহ কোন ধরনের সমস্যার জন্য কার্যকর?',
+    answer: 'রুকইয়াহ মূলত আধ্যাত্মিক সমস্যার জন্য কার্যকর: জ্বীন-ভূতের আছর, কালো জাদু (সিহর), বদনজর/হাসদ, ওয়াসওয়াসা (কুমন্ত্রণা), আধ্যাত্মিক বন্ধন। শারীরিক সমস্যা (মাথাব্যথা, ডায়াবেটিস, হৃদরোগ) এর জন্য আধুনিক ডাক্তার দেখা প্রয়োজন।',
+  },
+];
+
+const faqSchema = buildFaqSchema(comparisonFaq);
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'তুলনা', url: `${siteUrl}/comparison` },
+  { name: 'রুকইয়াহ বনাম আধুনিক চিকিৎসা', url: pageUrl },
+]);
+---
+
+<BaseLayout
+  title="রুকইয়াহ বনাম আধুনিক চিকিৎসা | Ruqyah vs Modern Medicine"
+  description="রুকইয়াহ ও আধুনিক চিকিৎসার পার্থক্য, সাদৃশ্য এবং সমন্বয় পদ্ধতি। Ruqyah Shariah vs modern medicine — comparison of Islamic spiritual healing and conventional medical treatment."
+  ogType="article"
+  keywords={['রুকইয়াহ', 'আধুনিক চিকিৎসা', 'ruqyah vs medicine', 'islamic healing vs modern medicine', 'spiritual healing', 'jinn treatment', 'কুরআন চিকিৎসা']}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <Header />
+
+  <main>
+    <!-- Hero -->
+    <section class="comparison-hero">
+      <div class="container">
+        <span class="comp-badge">⚖️ তুলনা</span>
+        <h1>রুকইয়াহ বনাম আধুনিক চিকিৎসা</h1>
+        <p class="hero-sub-en">Ruqyah Shariah vs Modern Medicine — A Comprehensive Comparison of Islamic Spiritual Healing and Conventional Medical Treatment</p>
+        <p class="hero-desc">
+          রুকইয়াহ ও আধুনিক চিকিৎসা পরস্পরের পরিপূরক, বিকল্প নয়। এই তুলনায় জানুন কোন সমস্যার জন্য কোন চিকিৎসা উপযুক্ত এবং কিভাবে দুটো একসাথে সমন্বয় করবেন।
+        </p>
+      </div>
+    </section>
+
+    <!-- Definition Blocks -->
+    <section class="section comp-definitions">
+      <div class="container">
+        <div class="def-grid">
+          <div class="def-card def-ruqyah">
+            <h2>রুকইয়াহ চিকিৎসা কী?</h2>
+            <p>
+              রুকইয়াহ হলো কুরআনের আয়াত (সূরা ফাতিহা, সূরা বাকারা, আয়াতুল কুরসি, সূরা ফালাক, সূরা নাস) ও হাদিসে বর্ণিত দোয়ার মাধ্যমে আধ্যাত্মিক রোগের চিকিৎসা। এটি <strong>জ্বীন-ভূত, কালো জাদু (সিহর), বদনজর (হাসদ)</strong> ও মানসিক অস্থিরতার কার্যকর সমাধান।
+            </p>
+            <p class="ref">
+              <strong>কুরআন রেফারেন্স:</strong> "আর আমি কুরআন থেকে এমন কিছু অবতীর্ণ করি যা মুমিনদের জন্য আরোগ্য ও রহমত।" (সূরা বনী ইসরাইল ১৭:৮২)
+            </p>
+          </div>
+          <div class="def-card def-modern">
+            <h2>What is Modern Medicine?</h2>
+            <p>
+              Modern medicine (allopathic/conventional medicine) is a science-based healthcare system that diagnoses and treats physical and mental conditions using evidence-based methods, pharmaceutical drugs, surgery, and therapy. It excels at treating <em>physical diseases, infections, injuries, and clinical mental health conditions</em>.
+            </p>
+            <p class="ref">
+              <strong>Islamic perspective:</strong> The Prophet ﷺ said: "There is no disease that Allah has created, except that He also has created its treatment." (Sahih Bukhari 5678)
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comparison Table -->
+    <section class="section comp-table-section">
+      <div class="container">
+        <h2 class="section-title">রুকইয়াহ বনাম আধুনিক চিকিৎসা — তুলনামূলক ছক</h2>
+        <p class="section-subtitle">Ruqyah vs Modern Medicine — Side-by-Side Comparison</p>
+
+        <div class="comp-table-wrap">
+          <table class="comp-table">
+            <thead>
+              <tr>
+                <th>বিষয় / Criteria</th>
+                <th>রুকইয়াহ (Ruqyah)</th>
+                <th>আধুনিক চিকিৎসা (Modern Medicine)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>ভিত্তি / Foundation</strong></td>
+                <td>কুরআন, হাদিস, তাওহীদ</td>
+                <td>বৈজ্ঞানিক গবেষণা, ক্লিনিকাল ট্রায়াল</td>
+              </tr>
+              <tr>
+                <td><strong>লক্ষ্য / Target</strong></td>
+                <td>আধ্যাত্মিক রোগ (জ্বীন, জাদু, বদনজর)</td>
+                <td>শারীরিক ও মানসিক রোগ</td>
+              </tr>
+              <tr>
+                <td><strong>পদ্ধতি / Method</strong></td>
+                <td>কুরআন তেলাওয়াত, দোয়া, তাওবা</td>
+                <td>ঔষধ, সার্জারি, থেরাপি</td>
+              </tr>
+              <tr>
+                <td><strong>পার্শ্বপ্রতিক্রিয়া / Side Effects</strong></td>
+                <td>কোনো নেই (হালাল)</td>
+                <td>ঔষধের উপর নির্ভরশীল</td>
+              </tr>
+              <tr>
+                <td><strong>সময় / Duration</strong></td>
+                <td>ঈমান ও সমস্যা তীব্রতার উপর নির্ভরশীল</td>
+                <td>রোগের ধরন ও চিকিৎসা প্রোটোকল অনুযায়ী</td>
+              </tr>
+              <tr>
+                <td><strong>প্রমাণ / Evidence</strong></td>
+                <td>ধর্মীয় (কুরআন ও সহীহ হাদিস)</td>
+                <td>বৈজ্ঞানিক গবেষণা ও ক্লিনিকাল ডেটা</td>
+              </tr>
+              <tr>
+                <td><strong>চিকিৎসক / Practitioner</strong></td>
+                <td>রাকী (ইসলামী জ্ঞান সম্পন্ন)</td>
+                <td>লাইসেন্সপ্রাপ্ত ডাক্তার</td>
+              </tr>
+              <tr>
+                <td><strong>খরচ / Cost</strong></td>
+                <td>সাধারণত কম (সেবার উপর নির্ভরশীল)</td>
+                <td>রোগ ও চিকিৎসার উপর নির্ভরশীল</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- When to Use Which -->
+    <section class="section comp-guidance">
+      <div class="container">
+        <h2 class="section-title">কখন কোন চিকিৎসা নেবেন?</h2>
+        <p class="section-subtitle">When to Choose Ruqyah vs Modern Medicine</p>
+
+        <div class="guidance-grid">
+          <div class="guidance-card">
+            <h3>🕌 রুকইয়াহ নিন যখন</h3>
+            <ul>
+              <li>অস্বাভাবিক আচরণ বা ব্যক্তিগত পরিবর্তন</li>
+              <li>চিকিৎসায় ধরা পড়ে না এমন ব্যথা বা সমস্যা</li>
+              <li>বারবার দুঃস্বপ্ন বা ঘুমের সমস্যা</li>
+              <li>অজানা ভয়, উদ্বেগ বা আতঙ্ক</li>
+              <li>বিবাহ, সন্তান বা রিজিকে বাধা</li>
+              <li>জ্বীন-ভূত, জাদু বা বদনজরের সন্দেহ</li>
+            </ul>
+          </div>
+          <div class="guidance-card">
+            <h3>🏥 ডাক্তারের কাছে যান যখন</h3>
+            <ul>
+              <li>শারীরিক ব্যথা বা আঘাত</li>
+              <li>জ্বর, সংক্রমণ বা দীর্ঘস্থায়ী রোগ</li>
+              <li>ডায়াবেটিস, উচ্চ রক্তচাপ, হৃদরোগ</li>
+              <li>মানসিক অবসাদ বা ক্লিনিকাল ডিপ্রেশন</li>
+              <li>দাঁত, চোখ বা হাড়ের সমস্যা</li>
+              <li>জরুরি বা লাইফ-থ্রেটেনিং পরিস্থিতি</li>
+            </ul>
+          </div>
+          <div class="guidance-card guidance-both">
+            <h3>✅ দুটো একসাথে নিন যখন</h3>
+            <ul>
+              <li>দীর্ঘস্থায়ী রোগের সাথে আধ্যাত্মিক সমস্যা</li>
+              <li>মানসিক রোগ + জ্বীন/বদনজরের সম্ভাবনা</li>
+              <li>সার্জারি বা চিকিৎসার আগে/পরে দোয়া</li>
+              <li>ঔষধের পাশাপাশি কুরআন তেলাওয়াত</li>
+              <li>সম্পূর্ণ আরোগ্যের জন্য উভয় পদ্ধতি সমন্বয়</li>
+            </ul>
+            <p class="guidance-note">
+              <strong>ইসলামী নির্দেশনা:</strong> "হে আল্লাহর বান্দারা, চিকিৎসা নাও।" (সুনান ইবনে মাজাহ ৩৪৩৬) — শারীরিক ও আধ্যাত্মিক উভয় চিকিৎসা নেওয়া ইসলামে উৎসাহিত।
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section comp-faq">
+      <div class="container">
+        <h2 class="section-title">সচরাচর জিজ্ঞাসা</h2>
+        <p class="section-subtitle">Frequently Asked Questions — Ruqyah vs Modern Medicine</p>
+
+        <div class="faq-list">
+          {comparisonFaq.map((faq, i) => (
+            <details class="faq-item">
+              <summary class="faq-question">{faq.question}</summary>
+              <div class="faq-answer">{faq.answer}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section comp-cta">
+      <div class="container">
+        <div class="cta-card">
+          <h2>আপনার সমস্যার জন্য সঠিক চিকিৎসা খুঁজছেন?</h2>
+          <p>আমাদের অভিজ্ঞ রাকী ও চিকিৎসকরা আপনার সমস্যা বিশ্লেষণ করে সঠিক চিকিৎসা পদ্ধতি নির্ধারণ করবেন।</p>
+          <div class="cta-actions">
+            <a href="/symptom-diagnosis" class="btn btn-primary">সিমটম ডায়াগনোসিস করুন</a>
+            <a href="/appointment" class="btn btn-outline">অ্যাপয়েন্টমেন্ট নিন</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.comparison-hero {
+  background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%);
+  color: #fff;
+  padding: 64px 0 56px;
+  text-align: center;
+}
+.comp-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.comparison-hero h1 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.hero-sub-en {
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 16px;
+  max-width: 700px;
+  margin-inline: auto;
+}
+.hero-desc {
+  font-size: 16px;
+  color: rgba(255,255,255,0.85);
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.75;
+}
+
+.section { padding: 48px 0; }
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+}
+.section-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* Definition Cards */
+.comp-definitions { background: var(--bg-light); }
+.def-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.def-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  border: 1px solid var(--border);
+}
+.def-ruqyah { border-left: 4px solid var(--primary); }
+.def-modern { border-left: 4px solid #3B82F6; }
+.def-card h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-dark);
+}
+.def-card p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text-body);
+  margin-bottom: 12px;
+}
+.ref {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 12px;
+  background: var(--bg-light);
+  border-radius: 8px;
+  border-left: 3px solid var(--primary);
+}
+
+/* Comparison Table */
+.comp-table-section { background: var(--bg-white); }
+.comp-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.comp-table th {
+  background: var(--dark-section);
+  color: #fff;
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+}
+.comp-table th:nth-child(2) { background: var(--primary); }
+.comp-table th:nth-child(3) { background: #3B82F6; }
+.comp-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-body);
+  vertical-align: top;
+}
+.comp-table tr:nth-child(even) { background: var(--bg-light); }
+.comp-table tr:hover { background: var(--primary-light); }
+
+/* Guidance Cards */
+.comp-guidance { background: var(--bg-light); }
+.guidance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.guidance-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  border: 1px solid var(--border);
+}
+.guidance-both {
+  border-left: 4px solid var(--primary);
+  background: linear-gradient(135deg, var(--bg-white) 0%, var(--primary-light) 100%);
+}
+.guidance-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-dark);
+}
+.guidance-card ul {
+  padding-left: 20px;
+  margin: 0;
+  color: var(--text-body);
+  line-height: 1.8;
+}
+.guidance-note {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(16,185,129,0.1);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--primary-dark);
+}
+
+/* FAQ */
+.comp-faq { background: var(--bg-white); }
+.faq-list {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.faq-item {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.faq-question {
+  padding: 18px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.faq-question::-webkit-details-marker { display: none; }
+.faq-question::after {
+  content: '+';
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--primary);
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+.faq-item[open] .faq-question::after { content: '−'; }
+.faq-item[open] .faq-question { background: var(--primary-light); color: var(--primary-dark); }
+.faq-answer {
+  padding: 16px 24px 20px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text-body);
+  border-top: 1px solid var(--border);
+}
+
+/* CTA */
+.comp-cta { background: var(--bg-light); }
+.cta-card {
+  background: linear-gradient(135deg, var(--dark-section) 0%, #065f46 100%);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  text-align: center;
+  color: #fff;
+}
+.cta-card h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.cta-card p {
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 24px;
+  max-width: 600px;
+  margin-inline: auto;
+}
+.cta-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.btn-primary {
+  background: #fff;
+  color: var(--primary-dark);
+  border: 2px solid #fff;
+}
+.btn-primary:hover {
+  background: rgba(255,255,255,0.9);
+  transform: translateY(-2px);
+}
+.btn-outline {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.5);
+}
+.btn-outline:hover {
+  border-color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+@media (max-width: 900px) {
+  .def-grid { grid-template-columns: 1fr; }
+  .guidance-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .comparison-hero { padding: 48px 0 40px; }
+  .cta-card { padding: 28px 20px; }
+  .cta-actions { flex-direction: column; }
+  .btn { width: 100%; justify-content: center; }
+}
+</style>

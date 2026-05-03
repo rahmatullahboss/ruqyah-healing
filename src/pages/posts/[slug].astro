@@ -4,13 +4,22 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import { env as workerEnv } from 'cloudflare:workers';
 import { createDb } from '../../db/client.js';
+import { posts as postsTable } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
 import { getPostBySlug, getRelatedPosts } from '../../lib/posts.js';
-import { renderMarkdown, calculateReadingTime } from '../../lib/markdown.js';
+import { renderMarkdown, calculateReadingTime, sanitizeHtml, extractTextFromHtml } from '../../lib/markdown.js';
 
-export const prerender = false;
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const env = (workerEnv || process.env) as any;
+  const db = createDb(env.DATABASE_URL);
+  const rows = await db.select({ slug: postsTable.slug }).from(postsTable).where(eq(postsTable.published, true));
+  return rows.map((row) => ({ params: { slug: row.slug } }));
+}
 
 const { slug } = Astro.params;
-const env = workerEnv || process.env;
+const env = (workerEnv || process.env) as any;
 const db = createDb(env.DATABASE_URL);
 
 const post = await getPostBySlug(db, slug);
@@ -20,12 +29,20 @@ if (!post) {
 
 const related = await getRelatedPosts(db, post.category, post.slug, 3);
 
-const contentHtml = renderMarkdown(post.content);
-const wordCount = post.content.split(/\s+/).length;
-const readingTime = calculateReadingTime(post.content);
+// HTML-first rendering: use TipTap HTML when available, otherwise render legacy Markdown
+const contentHtml = post.contentHtml
+  ? sanitizeHtml(post.contentHtml)
+  : renderMarkdown(post.content);
+
+// Derive plain text for word count / reading time regardless of storage format
+const plainText = post.contentHtml
+  ? extractTextFromHtml(post.contentHtml)
+  : post.content;
+const wordCount = plainText.trim().split(/\s+/).filter(Boolean).length;
+const readingTime = calculateReadingTime(plainText);
 
 // JSON-LD BlogPosting schema
-const siteUrl   = Astro.site?.origin || 'https://ruqyah-healing.pages.dev';
+const siteUrl   = Astro.site?.origin || 'https://ruqyahhealing.com';
 const postUrl   = `${siteUrl}/posts/${post.slug}`;
 const tags = Array.isArray(post.tags) ? post.tags : [];
 const jsonLd = {
@@ -35,12 +52,12 @@ const jsonLd = {
   description: post.excerpt,
   url:          postUrl,
   datePublished: post.date,
-  dateModified:  post.date,
+  dateModified:  post.updatedAt || post.date,
   inLanguage:    'bn-BD',
   author: {
     '@type': 'Person',
     name:    'মুফতী মুহাম্মাদ আল-আমীন',
-    url:     `${siteUrl}/profile`,
+    url:     `${siteUrl}/author`,
   },
   publisher: {
     '@type': 'Organization',
@@ -48,7 +65,7 @@ const jsonLd = {
     url:     siteUrl,
     logo: {
       '@type': 'ImageObject',
-      url:     `${siteUrl}/favicon.svg`,
+      url:     `${siteUrl}/images/ruqyah-logo.png`,
     },
   },
   keywords: tags.join(', '),
@@ -57,6 +74,7 @@ const jsonLd = {
     '@type': 'WebPage',
     '@id':   postUrl,
   },
+  wordCount: wordCount,
 };
 
 const breadcrumbLd = {
@@ -82,6 +100,7 @@ const formattedDate = new Date(post.date).toLocaleDateString('bn-BD', {
   articleDate={post.date}
   articleSection={post.category}
   keywords={tags}
+  articleAuthorUrl="/author"
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
@@ -103,6 +122,11 @@ const formattedDate = new Date(post.date).toLocaleDateString('bn-BD', {
         <time datetime={post.date} class="post-date">
           🗓 {formattedDate}
         </time>
+        {post.updatedAt && post.updatedAt !== post.date && (
+          <time datetime={String(post.updatedAt)} class="post-updated">
+            ✏️ সর্বশেষ আপডেট: {new Date(post.updatedAt).toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' })}
+          </time>
+        )}
         <span class="reading-time">🕐 {readingTime} মিনিট পড়া</span>
         <span class="word-count">📝 ~{wordCount} শব্দ</span>
       </div>
@@ -194,6 +218,12 @@ const formattedDate = new Date(post.date).toLocaleDateString('bn-BD', {
     align-items: center;
     font-size: 13px;
     color: rgba(255,255,255,0.55);
+  }
+  .post-updated {
+    color: rgba(255,255,255,0.7);
+    font-weight: 500;
+  }
+  .post-meta-row {
     margin-bottom: 20px;
   }
   .post-excerpt {

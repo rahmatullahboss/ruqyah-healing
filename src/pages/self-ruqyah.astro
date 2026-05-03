@@ -2,6 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { buildHowToSchema, buildFaqSchema } from '../lib/seo.js';
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/self-ruqyah`;
 
 const audioList = [
   {
@@ -48,9 +52,46 @@ const steps = [
   { num: '৩', title: 'দোয়া পড়ুন', desc: 'নিচের অডিও চালু করে একসাথে পড়ুন' },
   { num: '৪', title: 'নিয়মিত আমল', desc: 'প্রতিদিন সকাল-সন্ধ্যা আমল করুন' },
 ];
+
+export const prerender = true;
+
+// HowTo schema for AI search
+const selfRuqyahHowTo = buildHowToSchema({
+  name: 'সেলফ রুকইয়াহ — Self Ruqyah at Home',
+  description: 'ঘরে বসেই কুরআন ও সুন্নাহ ভিত্তিক সেলফ রুকইয়াহ পদ্ধতি। How to perform self-ruqyah spiritual healing at home using Quran and Sunnah.',
+  url: pageUrl,
+  estimatedTime: 'PT20M',
+  steps: [
+    { name: 'পবিত্রতা অর্জন', text: 'অযু করুন এবং পবিত্র স্থানে কিবলামুখী হয়ে বসুন। Cleanse yourself with wudu and sit in a clean place facing the Qibla.' },
+    { name: 'নিয়ত করুন', text: 'আল্লাহর কাছে একনিষ্ঠভাবে সুস্থতার নিয়ত করুন। Make a sincere intention (niyyah) to Allah for healing.' },
+    { name: 'দোয়া পড়ুন', text: 'সূরা ফাতিহা, আয়াতুল কুরসি, সূরা ইখলাস, সূরা ফালাক ও সূরা নাস পড়ে হাতে ফুঁক দিয়ে শরীরে মাসেহ করুন। Recite the prescribed surahs, blow into your hands, and wipe over your body.' },
+    { name: 'নিয়মিত আমল', text: 'প্রতিদিন সকাল-সন্ধ্যা এই আমল করুন। পানিতে দম করে পান করুন বা গোসল করুন। Perform this amal daily morning and evening. Blow into water and drink or bathe with it.' },
+  ],
+});
+
+const selfRuqyahFaq = [
+  {
+    question: 'সেলফ রুকইয়াহ কি যথেষ্ট?',
+    answer: 'হালকা আধ্যাত্মিক সমস্যায় সেলফ রুকইয়াহ যথেষ্ট হতে পারে। তবে জটিল সমস্যা (জ্বীন, জাদু, তীব্র বদনজর) এর জন্য অভিজ্ঞ রাকীর কাছে যাওয়া জরুরি।',
+  },
+  {
+    question: 'সেলফ রুকইয়াহ কতবার করতে হয়?',
+    answer: 'প্রতিদিন সকাল-সন্ধ্যা সেলফ রুকইয়াহ করা উত্তম। সমস্যা তীব্র হলে দিনে ৩-৫ বার পর্যন্ত করা যেতে পারে।',
+  },
+];
+
+const faqSchemaSelf = buildFaqSchema(selfRuqyahFaq);
 ---
 
-<BaseLayout title="সেলফ রুকইয়া | Ruqyah Healing Center" description="অডিও প্লে করুন এবং একসাথে পাঠ করুন। ঘরে বসেই ইসলামিক রুকইয়াহ পদ্ধতিতে নিজের চিকিৎসা করুন।">
+<BaseLayout
+  title="সেলফ রুকইয়া | Self Ruqyah at Home | Ruqyah Healing Center"
+  description="ঘরে বসেই কুরআন ও সুন্নাহ ভিত্তিক সেলফ রুকইয়াহ পদ্ধতি। How to perform self-ruqyah spiritual healing at home using Quran and Sunnah."
+  locale="bn"
+  keywords={['সেলফ রুকইয়াহ', 'self ruqyah', 'ruqyah at home', 'how to do ruqyah', 'self healing islam', 'ruqyah audio']}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(selfRuqyahHowTo)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchemaSelf)} />
+
   <Header />
 
   <main>

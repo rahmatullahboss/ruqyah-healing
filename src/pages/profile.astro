@@ -3,14 +3,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { env as workerEnv } from 'cloudflare:workers';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { Edit, User, Mail, Phone, MapPin, Calendar, Heart, ArrowRight } from '@lucide/astro';
+import { Edit, User, Mail, Phone, MapPin, Calendar, Heart, ArrowRight, Activity } from '@lucide/astro';
 import { createDb } from '../db/client.js';
-import { appointments as appointmentsSchema } from '../db/schema';
+import { appointments as appointmentsSchema, testResults } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
 
 export const prerender = false;
 
-const user = Astro.locals.user || {
+const user = (Astro.locals as App.Locals).user || {
   fullName: 'Loading...',
   email: '',
   phone: '',
@@ -21,22 +21,28 @@ const user = Astro.locals.user || {
 
 
 // Fetch dynamic appointments based on user's phone number
-let userAppointments = [];
-if (user && user.phone) {
+let userAppointments: any[] = [];
+let userTestResults: any[] = [];
+if (user && user.id) {
   try {
-    const env = workerEnv || process.env;
+    const env = (workerEnv || process.env) as any;
     const db = createDb(env.DATABASE_URL);
     userAppointments = await db.select()
       .from(appointmentsSchema)
       .where(eq(appointmentsSchema.phone, user.phone))
       .orderBy(desc(appointmentsSchema.createdAt));
+    userTestResults = await db.select()
+      .from(testResults)
+      .where(eq(testResults.userId, user.id))
+      .orderBy(desc(testResults.createdAt))
+      .limit(10);
   } catch (error) {
-    console.error("Failed to fetch appointments:", error);
+    console.error("Failed to fetch profile data:", error);
   }
 }
 
 // Map db appointments to view model
-const appointmentsList = userAppointments.map(appt => {
+const appointmentsList = userAppointments.map((appt) => {
   let statusClass = 'upcoming';
   if (appt.status === 'completed' || appt.status === 'সম্পন্ন') statusClass = 'done';
   if (appt.status === 'pending') statusClass = 'pending';
@@ -54,8 +60,8 @@ const appointmentsList = userAppointments.map(appt => {
 // Update stats based on dynamic data
 const stats = [
   { label: 'মোট এ্যাপয়নমেন্ট', value: userAppointments.length, color: 'var(--primary)' },
-  { label: 'সম্পন্ন সেশন', value: userAppointments.filter(a => a.status === 'completed' || a.status === 'সম্পন্ন').length, color: '#22c55e' },
-  { label: 'পেন্ডিং সেশন', value: userAppointments.filter(a => a.status === 'pending').length, color: '#f59e0b' },
+  { label: 'সম্পন্ন সেশন', value: userAppointments.filter((appointment) => appointment.status === 'completed' || appointment.status === 'সম্পন্ন').length, color: '#22c55e' },
+  { label: 'পেন্ডিং সেশন', value: userAppointments.filter((appointment) => appointment.status === 'pending').length, color: '#f59e0b' },
 ];
 ---
 
@@ -152,6 +158,32 @@ const stats = [
                 )) : (
                   <div class="no-appointments">
                     <p style="color: var(--text-muted); padding: 20px 0; text-align: center;">কোনো এ্যাপয়নমেন্ট পাওয়া যায়নি</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <!-- Test Results History -->
+            <div class="appt-card">
+              <h2>রুকইয়াহ ডায়াগনোসিস ইতিহাস</h2>
+              <div class="appt-list">
+                {userTestResults.length > 0 ? userTestResults.map((tr: any) => (
+                  <div class="appt-item">
+                    <div class="appt-body">
+                      <h3>{tr.testTitle}</h3>
+                      <p class="appt-raqi">স্কোর: {tr.score}% | হ্যাঁ: {tr.yesCount} | মাঝে মধ্যে: {tr.maybeCount} | না: {tr.noCount}</p>
+                      <div class="appt-meta">
+                        <span>🗓 {new Date(tr.createdAt).toLocaleDateString('bn-BD')}</span>
+                        <span>📊 {tr.totalQuestions}টি প্রশ্ন</span>
+                      </div>
+                    </div>
+                    <span class:list={['appt-status', tr.resultLevel === 'high' ? 'pending' : tr.resultLevel === 'medium' ? 'upcoming' : 'done']}>
+                      {tr.resultLevel === 'high' ? 'উচ্চ' : tr.resultLevel === 'medium' ? 'মাঝারি' : 'স্বাভাবিক'}
+                    </span>
+                  </div>
+                )) : (
+                  <div class="no-appointments">
+                    <p style="color: var(--text-muted); padding: 20px 0; text-align: center;">কোনো ডায়াগনোসিস রেকর্ড পাওয়া যায়নি</p>
                   </div>
                 )}
               </div>

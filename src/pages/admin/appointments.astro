@@ -247,7 +247,7 @@ const statusMap: Record<string, string> = {
           body: JSON.stringify({ apptId, status: newStatus })
         });
 
-        const data = await res.json();
+        const data = (await res.json()) as any;
         if (res.ok && data.success) {
           alert('স্ট্যাটাস সাফল্যের সাথে আপডেট করা হয়েছে!');
           window.location.reload();
@@ -295,7 +295,7 @@ const statusMap: Record<string, string> = {
 
   // Bulk apply
   document.getElementById('bulkApply')?.addEventListener('click', async () => {
-    const statusSelect = document.getElementById('bulkStatus') as HTMLSelectElement;
+    const statusSelect = document.getElementById('bulkStatus') as unknown as HTMLSelectElement;
     const newStatus = statusSelect.value;
     if (!newStatus) {
       alert('অনুগ্রহ করে একটি স্ট্যাটাস বেছে নিন।');
@@ -317,7 +317,7 @@ const statusMap: Record<string, string> = {
         body: JSON.stringify({ ids, status: newStatus })
       });
 
-      const data = await res.json();
+      const data = (await res.json()) as any;
       if (res.ok && data.success) {
         alert(`${data.count} টি এ্যাপয়েন্টমেন্ট আপডেট হয়েছে!`);
         window.location.reload();

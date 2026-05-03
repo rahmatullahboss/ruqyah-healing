@@ -95,7 +95,7 @@ const user = Astro.locals.user;
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
+      const result = (await response.json()) as any;
 
       if (response.ok && result.success) {
         // Redirect back to profile page

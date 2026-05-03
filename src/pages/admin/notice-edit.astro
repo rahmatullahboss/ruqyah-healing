@@ -102,7 +102,7 @@ const isEdit = !!notice;
       eventDate: (document.getElementById('eventDate') as HTMLInputElement).value,
       icon: (document.getElementById('icon') as HTMLInputElement).value || '📢',
       badge: (document.getElementById('badge') as HTMLInputElement).value || 'নোটিশ',
-      badgeColor: (document.getElementById('badgeColor') as HTMLSelectElement).value,
+      badgeColor: (document.getElementById('badgeColor') as HTMLSelectElement | null)?.value || 'event',
       urgent: (document.getElementById('urgent') as HTMLInputElement).checked,
       published: (document.getElementById('published') as HTMLInputElement).checked,
     };

@@ -1,22 +1,14 @@
-export const clinicNumbers = [
-  {
-    label: 'প্রধান যোগাযোগ',
-    display: '01992575874',
-    international: '8801992575874',
-  },
-  {
-    label: 'সাপোর্ট',
-    display: '01336202150',
-    international: '8801336202150',
-  },
-  {
-    label: 'সাপোর্ট',
-    display: '01336202151',
-    international: '8801336202151',
-  },
-];
+import {
+  DEFAULT_CLINIC_CONTACTS,
+  getPrimaryCallContact,
+  getPrimaryWhatsappContact,
+  normalizeClinicContacts,
+} from '../lib/clinic-contacts.js';
 
-export const primaryContact = clinicNumbers[0];
+export const clinicNumbers = normalizeClinicContacts(DEFAULT_CLINIC_CONTACTS);
+
+export const primaryContact = getPrimaryWhatsappContact(clinicNumbers);
+export const primaryPhoneContact = getPrimaryCallContact(clinicNumbers);
 
 export const socialLinks = {
   facebook: 'https://www.facebook.com/Ruqyahhealingg',

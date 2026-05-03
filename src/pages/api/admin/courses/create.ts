@@ -32,7 +32,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       price: body.price !== null ? body.price : null,
       rating: body.rating || 5.0,
       desc: body.desc,
-      image: body.image
+      image: body.image,
+      videoLink: body.videoLink || ''
     });
 
     await logAuditEvent(db, {

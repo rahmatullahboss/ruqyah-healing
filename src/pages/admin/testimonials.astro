@@ -1,0 +1,88 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { testimonials } from '../../db/schema.js';
+import { desc } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+const testimonialList = await db.select().from(testimonials).orderBy(desc(testimonials.orderIndex));
+---
+
+<AdminLayout title="টেস্টিমোনিয়াল | Admin - Ruqyah Healing">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">টেস্টিমোনিয়াল ম্যানেজমেন্ট</h1>
+      <p class="page-desc">রোগীদের মতামত ও পর্যালোচনা পরিচালনা করুন</p>
+    </div>
+    <a href="/admin/testimonial-edit" class="btn-primary">+ নতুন টেস্টিমোনিয়াল</a>
+  </div>
+
+  <div class="admin-card">
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ছবি</th>
+            <th>নাম</th>
+            <th>মেসেজ</th>
+            <th>রেটিং</th>
+            <th>ভূমিকা</th>
+            <th>অর্ডার</th>
+            <th>প্রকাশিত</th>
+            <th>অ্যাকশন</th>
+          </tr>
+        </thead>
+        <tbody>
+          {testimonialList.length === 0 ? (
+            <tr><td colspan="8" style="text-align:center; padding:32px 0;">কোনো টেস্টিমোনিয়াল নেই। নতুন যোগ করুন।</td></tr>
+          ) : (
+            testimonialList.map(t => (
+              <tr>
+                <td>
+                  {t.image ? (
+                    <img src={t.image} alt={t.name} style="width:40px; height:40px; border-radius:50%; object-fit:cover;" />
+                  ) : (
+                    <div style="width:40px; height:40px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700;">{t.name.charAt(0)}</div>
+                  )}
+                </td>
+                <td style="font-weight:500;">{t.name}</td>
+                <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{t.message}</td>
+                <td>{'★'.repeat(t.rating)}</td>
+                <td>{t.role || '-'}</td>
+                <td>{t.orderIndex}</td>
+                <td>{t.published ? '✅' : '❌'}</td>
+                <td>
+                  <a href={`/admin/testimonial-edit?id=${t.id}`} class="btn-sm">এডিট</a>
+                  <button class="btn-sm btn-danger js-delete" data-id={t.id} style="margin-left:4px;">ডিলিট</button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+document.querySelectorAll('.js-delete').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    if (!confirm('ডিলিট করতে চান?')) return;
+    const id = btn.getAttribute('data-id');
+    const res = await fetch('/api/admin/testimonials/delete', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ id })
+    });
+    if (res.ok) {
+      window.location.reload();
+    } else {
+      alert('ডিলিট ব্যর্থ');
+    }
+  });
+});
+</script>

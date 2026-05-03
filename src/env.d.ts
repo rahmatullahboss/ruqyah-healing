@@ -14,17 +14,22 @@ type User = {
   createdAt: Date;
 };
 
-declare namespace App {
-  interface Locals {
-    user?: User;
+declare global {
+  namespace App {
+    interface Locals {
+      user?: User;
+    }
+  }
+
+  interface Env {
+    DATABASE_URL: string;
+    GOOGLE_CLIENT_ID?: string;
+    CLOUDFLARE_R2_ACCESS_KEY_ID?: string;
+    CLOUDFLARE_R2_SECRET_ACCESS_KEY?: string;
+    CLOUDFLARE_R2_BUCKET?: string;
+    CLOUDFLARE_R2_ACCOUNT_ID?: string;
+    CLOUDFLARE_R2_PUBLIC_URL?: string;
   }
 }
 
-interface Env {
-  DATABASE_URL: string;
-  CLOUDFLARE_R2_ACCESS_KEY_ID?: string;
-  CLOUDFLARE_R2_SECRET_ACCESS_KEY?: string;
-  CLOUDFLARE_R2_BUCKET?: string;
-  CLOUDFLARE_R2_ACCOUNT_ID?: string;
-  CLOUDFLARE_R2_PUBLIC_URL?: string;
-}
+export {};

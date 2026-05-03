@@ -1,0 +1,611 @@
+- generic [active] [ref=e1]:
+  - link "মূল বিষয়বস্তুতে যান" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Ruqyah Healing Logo Ruqyah Healing" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "Ruqyah Healing Logo" [ref=e8]
+          - generic [ref=e9]:
+            - generic [ref=e10]: Ruqyah
+            - generic [ref=e11]: Healing
+        - navigation "প্রধান নেভিগেশন" [ref=e12]:
+          - link "অ্যাপয়েন্টমেন্ট" [ref=e13] [cursor=pointer]:
+            - /url: /appointment
+          - link "হোম" [ref=e14] [cursor=pointer]:
+            - /url: /
+          - link "সিমটম ডায়াগনোসিস" [ref=e15] [cursor=pointer]:
+            - /url: /symptom-diagnosis
+          - link "রুকইয়াহ ডায়াগনোসিস" [ref=e16] [cursor=pointer]:
+            - /url: /ruqyah-diagnosis
+          - link "সেলফ রুকইয়াহ" [ref=e17] [cursor=pointer]:
+            - /url: /self-ruqyah
+          - link "রুকইয়াহ সাপ্লিমেন্ট" [ref=e18] [cursor=pointer]:
+            - /url: /supplements
+          - link "রুকইয়াহ ব্লগ" [ref=e19] [cursor=pointer]:
+            - /url: /blog
+          - link "পিডিএফ" [ref=e20] [cursor=pointer]:
+            - /url: /pdf
+          - link "কোর্স" [ref=e21] [cursor=pointer]:
+            - /url: /courses
+          - link "রাকী পরিচয়" [ref=e22] [cursor=pointer]:
+            - /url: /team
+          - link "নোটিশ" [ref=e23] [cursor=pointer]:
+            - /url: /notices
+          - link "প্রোফাইল" [ref=e24] [cursor=pointer]:
+            - /url: /profile
+        - generic "Language switcher" [ref=e25]:
+          - link "বাংলা" [ref=e26] [cursor=pointer]:
+            - /url: /
+          - link "EN" [ref=e27] [cursor=pointer]:
+            - /url: /en/
+    - main [ref=e28]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - img [ref=e32]
+          - generic [ref=e34]: কুরআন ও সুন্নাহ ভিত্তিক হিলিং
+        - heading "Ruqyah Healing — ইসলামী রুকইয়াহ চিকিৎসা" [level=1] [ref=e35]
+        - paragraph [ref=e36]
+        - paragraph [ref=e37]: কুরআন এবং সুন্নাহ ভিত্তিক চিকিৎসা পদ্ধতিতে আপনার আধ্যাত্মিক ও শারীরিক সুস্থতা নিশ্চিত করুন
+        - generic [ref=e38]:
+          - link "অ্যাপয়েন্টমেন্ট নিন" [ref=e39] [cursor=pointer]:
+            - /url: /appointment
+            - img [ref=e40]
+            - text: অ্যাপয়েন্টমেন্ট নিন
+          - link "ডায়াগনোসিস শুরু করুন" [ref=e42] [cursor=pointer]:
+            - /url: /symptom-diagnosis
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - generic "১৮০০+ সুচিকিৎসিত রোগী" [ref=e45]: 191+
+            - generic [ref=e46]: সুচিকিৎসিত রোগী
+          - generic [ref=e48]:
+            - generic "৮+ বছরের অভিজ্ঞতা" [ref=e49]: 0+
+            - generic [ref=e50]: বছরের অভিজ্ঞতা
+          - generic [ref=e52]:
+            - generic "১০০% হালাল পদ্ধতি" [ref=e53]: 10%
+            - generic [ref=e54]: হালাল পদ্ধতি
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - heading "রুকইয়াহ কী?" [level=2] [ref=e59]
+          - paragraph [ref=e60]:
+            - strong [ref=e61]: রুকইয়াহ
+            - text: হলো কুরআনের আয়াত ও হাদিসে বর্ণিত দোয়ার মাধ্যমে আধ্যাত্মিক ও শারীরিক রোগের চিকিৎসা। এটি ইসলামে স্বীকৃত একটি হালাল চিকিৎসা পদ্ধতি যা
+            - emphasis [ref=e62]: জিনের আছর, জাদু, বদনজর
+            - text: ও মানসিক সমস্যার কার্যকর সমাধান করে।
+        - generic [ref=e63]:
+          - heading "What is Ruqyah?" [level=2] [ref=e64]
+          - paragraph [ref=e65]:
+            - strong [ref=e66]: Ruqyah (رقية)
+            - text: is an Islamic spiritual healing practice using verses from the Quran and supplications from the Hadith to treat spiritual and physical ailments. It is a
+            - emphasis [ref=e67]: Sharia-compliant, halal
+            - text: method for addressing
+            - emphasis [ref=e68]: jinn possession, black magic, evil eye (hasad)
+            - text: ", and psychological distress. Ruqyah Healing Center in Dhaka, Bangladesh provides certified, sharia-compliant Ruqyah diagnosis and treatment sessions."
+      - generic [ref=e70]:
+        - heading "আমাদের কোর্স সমূহ" [level=2] [ref=e71]
+        - paragraph [ref=e72]: ইসলামিক জ্ঞান অর্জন করুন আমাদের প্রশিক্ষণ কোর্স থেকে
+        - generic [ref=e73]:
+          - link "বেসিক রুকইয়াহ ফ্রি কোর্স বেসিক রুকইয়াহ ফ্রি কোর্স বিস্তারিত দেখুন →" [ref=e74] [cursor=pointer]:
+            - /url: /courses
+            - img "বেসিক রুকইয়াহ ফ্রি কোর্স" [ref=e76]
+            - generic [ref=e77]:
+              - heading "বেসিক রুকইয়াহ ফ্রি কোর্স" [level=3] [ref=e78]
+              - text: বিস্তারিত দেখুন →
+          - link "হিজামা ফ্রি কোর্স হিজামা ফ্রি কোর্স বিস্তারিত দেখুন →" [ref=e79] [cursor=pointer]:
+            - /url: /courses
+            - img "হিজামা ফ্রি কোর্স" [ref=e81]
+            - generic [ref=e82]:
+              - heading "হিজামা ফ্রি কোর্স" [level=3] [ref=e83]
+              - text: বিস্তারিত দেখুন →
+          - link "আকুপাংচার ফ্রি কোর্স আকুপাংচার ফ্রি কোর্স বিস্তারিত দেখুন →" [ref=e84] [cursor=pointer]:
+            - /url: /courses
+            - img "আকুপাংচার ফ্রি কোর্স" [ref=e86]
+            - generic [ref=e87]:
+              - heading "আকুপাংচার ফ্রি কোর্স" [level=3] [ref=e88]
+              - text: বিস্তারিত দেখুন →
+          - link "হিজামা এডভান্স কোর্স হিজামা এডভান্স কোর্স বিস্তারিত দেখুন →" [ref=e89] [cursor=pointer]:
+            - /url: /courses
+            - img "হিজামা এডভান্স কোর্স" [ref=e91]
+            - generic [ref=e92]:
+              - heading "হিজামা এডভান্স কোর্স" [level=3] [ref=e93]
+              - text: বিস্তারিত দেখুন →
+          - link "আকুপাংচার এডভান্স কোর্স আকুপাংচার এডভান্স কোর্স বিস্তারিত দেখুন →" [ref=e94] [cursor=pointer]:
+            - /url: /courses
+            - img "আকুপাংচার এডভান্স কোর্স" [ref=e96]
+            - generic [ref=e97]:
+              - heading "আকুপাংচার এডভান্স কোর্স" [level=3] [ref=e98]
+              - text: বিস্তারিত দেখুন →
+          - link "গ্লোবাল মাস্টার হিলার কোর্স গ্লোবাল মাস্টার হিলার কোর্স বিস্তারিত দেখুন →" [ref=e99] [cursor=pointer]:
+            - /url: /courses
+            - img "গ্লোবাল মাস্টার হিলার কোর্স" [ref=e101]
+            - generic [ref=e102]:
+              - heading "গ্লোবাল মাস্টার হিলার কোর্স" [level=3] [ref=e103]
+              - text: বিস্তারিত দেখুন →
+        - link "সকল কোর্স দেখুন" [ref=e105] [cursor=pointer]:
+          - /url: /courses
+      - generic [ref=e107]:
+        - heading "রোগীদের অভিজ্ঞতা" [level=2] [ref=e108]
+        - paragraph [ref=e109]: আমাদের সেবায় সন্তুষ্ট রোগীদের মতামত
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - generic [ref=e112]:
+              - generic [ref=e114]: আ
+              - generic [ref=e115]:
+                - heading "আব্দুল্লাহ আল মামুন" [level=4] [ref=e116]
+                - text: রোগী
+            - generic [ref=e117]: ★★★★★
+            - paragraph [ref=e118]: রুকইয়াহ চিকিৎসায় আমি সম্পূর্ণ সুস্থ হয়েছি। ডাক্তার সাহেবের সেবা অসাধারণ।
+          - generic [ref=e119]:
+            - generic [ref=e120]:
+              - generic [ref=e122]: ফ
+              - generic [ref=e123]:
+                - heading "ফাতেমা বেগম" [level=4] [ref=e124]
+                - text: ক্লায়েন্ট
+            - generic [ref=e125]: ★★★★★
+            - paragraph [ref=e126]: হিজামা থেরাপি খুবই উপকারী ছিল। ব্যথা অনেক কমে গেছে।
+          - generic [ref=e127]:
+            - generic [ref=e128]:
+              - generic [ref=e130]: ম
+              - generic [ref=e131]:
+                - heading "মোহাম্মদ রফিক" [level=4] [ref=e132]
+                - text: রোগী
+            - generic [ref=e133]: ★★★★
+            - paragraph [ref=e134]: আলহামদুলিল্লাহ, আমার সমস্যার সমাধান হয়েছে। সবাইকে রুকইয়াহ হিলিং-এ আসার পরামর্শ দিচ্ছি।
+      - generic [ref=e139]:
+        - generic [ref=e140]:
+          - generic [ref=e141]:
+            - generic [ref=e142]: ঢাকা,
+            - generic [ref=e143]: বাংলাদেশ
+          - generic [ref=e144]:
+            - generic [ref=e145]: Prayer Times
+            - generic [ref=e146]:
+              - generic [ref=e147]: —
+              - generic [ref=e148]: Sunrise
+        - generic [ref=e149]:
+          - generic [ref=e150]:
+            - img [ref=e151]
+            - generic [ref=e155]: FAJR
+            - generic [ref=e156]: —
+          - generic [ref=e157]:
+            - img [ref=e158]
+            - generic [ref=e164]: ZUHR
+            - generic [ref=e165]: —
+          - generic [ref=e166]:
+            - img [ref=e167]
+            - generic [ref=e172]: ASR
+            - generic [ref=e173]: —
+          - generic [ref=e174]:
+            - img [ref=e175]
+            - generic [ref=e180]: MAGHRIB
+            - generic [ref=e181]: —
+          - generic [ref=e182]:
+            - img [ref=e183]
+            - generic [ref=e188]: ISHA
+            - generic [ref=e189]: —
+      - generic [ref=e191]:
+        - generic [ref=e192]:
+          - heading "রুকইয়াহ কি এবং কেনো করা হয়?" [level=2] [ref=e193]:
+            - text: রুকইয়াহ কি এবং
+            - text: কেনো করা হয়?
+          - paragraph [ref=e194]: রুকইয়াহ হলো কুরআনের আয়াত ও হাদিসে বর্ণিত দোয়ার মাধ্যমে আধ্যাত্মিক ও শারীরিক রোগের চিকিৎসা। ইসলামে স্বীকৃত এই পদ্ধতিতে জিনের আছর, জাদু, বদনজর ও মানসিক সমস্যার কার্যকর চিকিৎসা করা হয়।
+          - list [ref=e195]:
+            - listitem [ref=e196]: ✔ শারীরিক রোগ, যেমন মাথাব্যথা, পেটের ব্যথা, অনিদ্রা নিরাময়
+            - listitem [ref=e197]: ✔ মানসিক অস্থিরতা, ভয়, উদ্বেগ ও বিষণ্নতা থেকে মুক্তি
+            - listitem [ref=e198]: ✔ বদনজর, হাসদ ও জাদুর প্রভাব থেকে রক্ষা
+            - listitem [ref=e199]: ✔ জিনের আছর ও ওয়াসওয়াসা দূর করা
+            - listitem [ref=e200]: ✔ বিয়ে, সন্তান ও রিজিকে বাধা দূর করা
+          - 'link "WhatsApp-এ যোগাযোগ করুন: 01992575874" [ref=e201] [cursor=pointer]':
+            - /url: https://wa.me/8801336202150?text=%E0%A6%86%E0%A6%B8%E0%A6%B8%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%AE%E0%A7%81%20%E0%A6%86%E0%A6%B2%E0%A6%BE%E0%A6%87%E0%A6%95%E0%A7%81%E0%A6%AE%2C%20%E0%A6%B8%E0%A7%87%E0%A6%AC%E0%A6%BE%20%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%B0%E0%A7%8D%E0%A6%95%E0%A7%87%20%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87%E0%A5%A4
+            - img [ref=e202]
+            - generic [ref=e204]: "WhatsApp-এ যোগাযোগ করুন: 01992575874"
+        - generic [ref=e205]:
+          - img "রুকইয়াহ — কুরআন তেলাওয়াত" [ref=e207]
+          - link "অ্যাপয়েন্টমেন্ট বুক করুন" [ref=e208] [cursor=pointer]:
+            - /url: /appointment
+            - img [ref=e209]
+            - text: অ্যাপয়েন্টমেন্ট বুক করুন
+      - generic [ref=e212]:
+        - generic [ref=e214]:
+          - img "হিজামা কাপিং থেরাপি" [ref=e215]
+          - img "কুরআন ও তাসবিহ" [ref=e216]
+        - generic [ref=e217]:
+          - heading "হিজামা কি এবং কেনো করা হয়?" [level=2] [ref=e218]:
+            - text: হিজামা কি এবং
+            - text: কেনো করা হয়?
+          - paragraph [ref=e219]: হিজামা বা কাপিং থেরাপি হলো নবী মুহাম্মদ (সা.) কর্তৃক অনুমোদিত একটি চিকিৎসা পদ্ধতি। শরীরের নির্দিষ্ট স্থানে কাপ লাগিয়ে দূষিত রক্ত বের করে নেওয়া হয়।
+          - list [ref=e220]:
+            - listitem [ref=e221]: ✔ শারীরিক ব্যথা ও প্রদাহ কমায়
+            - listitem [ref=e222]: ✔ রক্ত সঞ্চালন উন্নত করে
+            - listitem [ref=e223]: ✔ রোগ প্রতিরোধ ক্ষমতা বাড়ায়
+            - listitem [ref=e224]: ✔ মাইগ্রেন, উচ্চ রক্তচাপ নিরাময়ে সহায়ক
+            - listitem [ref=e225]: ✔ মানসিক চাপ ও ক্লান্তি দূর করে
+          - 'link "সময় ও সেবা জানুন: সকাল ৯টা থেকে সন্ধ্যা ৬টা" [ref=e226] [cursor=pointer]':
+            - /url: https://wa.me/8801992575874?text=%E0%A6%86%E0%A6%B8%E0%A6%B8%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%AE%E0%A7%81%20%E0%A6%86%E0%A6%B2%E0%A6%BE%E0%A6%87%E0%A6%95%E0%A7%81%E0%A6%AE%2C%20%E0%A6%B8%E0%A7%87%E0%A6%AC%E0%A6%BE%20%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%B0%E0%A7%8D%E0%A6%95%E0%A7%87%20%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87%E0%A5%A4
+            - img [ref=e227]
+            - text: "সময় ও সেবা জানুন: সকাল ৯টা থেকে সন্ধ্যা ৬টা"
+      - generic [ref=e230]:
+        - generic [ref=e231]:
+          - heading "আমাদের সেবাসমূহ" [level=2] [ref=e232]
+          - paragraph [ref=e233]: ইসলামিক পদ্ধতিতে আপনার সুস্থতার জন্য আমাদের বিশেষ সেবাসমূহ
+        - generic [ref=e234]:
+          - link "রুকইয়াহ কুরআন ও সুন্নাহ ভিত্তিক রুকইয়াহ চিকিৎসা। জিন, জাদু ও বদনজরের চিকিৎসায় বিশেষজ্ঞ সেবা। বিস্তারিত দেখুন" [ref=e236] [cursor=pointer]:
+            - /url: /ruqyah-diagnosis
+            - generic [ref=e237]:
+              - img [ref=e239]
+              - heading "রুকইয়াহ" [level=3] [ref=e241]
+              - paragraph [ref=e242]: কুরআন ও সুন্নাহ ভিত্তিক রুকইয়াহ চিকিৎসা। জিন, জাদু ও বদনজরের চিকিৎসায় বিশেষজ্ঞ সেবা।
+            - generic [ref=e243]:
+              - text: বিস্তারিত দেখুন
+              - img [ref=e244]
+          - link "হিজামা সুন্নাহ সম্মত হিজামা থেরাপি। Dry, Wet ও combination cupping সহ প্রয়োজনভিত্তিক সেবা। বিস্তারিত দেখুন" [ref=e247] [cursor=pointer]:
+            - /url: /appointment
+            - generic [ref=e248]:
+              - img [ref=e250]
+              - heading "হিজামা" [level=3] [ref=e252]
+              - paragraph [ref=e253]: সুন্নাহ সম্মত হিজামা থেরাপি। Dry, Wet ও combination cupping সহ প্রয়োজনভিত্তিক সেবা।
+            - generic [ref=e254]:
+              - text: বিস্তারিত দেখুন
+              - img [ref=e255]
+          - link "আকুপাংচার Traditional, electroacupuncture ও supportive pain management-এর জন্য সেশনভিত্তিক সেবা। বিস্তারিত দেখুন" [ref=e258] [cursor=pointer]:
+            - /url: /appointment
+            - generic [ref=e259]:
+              - img [ref=e261]
+              - heading "আকুপাংচার" [level=3] [ref=e263]
+              - paragraph [ref=e264]: Traditional, electroacupuncture ও supportive pain management-এর জন্য সেশনভিত্তিক সেবা।
+            - generic [ref=e265]:
+              - text: বিস্তারিত দেখুন
+              - img [ref=e266]
+          - link "সিমটম ডায়াগনোসিস আপনার লক্ষণগুলি চিহ্নিত করুন এবং সঠিক চিকিৎসা পান বিস্তারিত দেখুন" [ref=e269] [cursor=pointer]:
+            - /url: /symptom-diagnosis
+            - generic [ref=e270]:
+              - img [ref=e272]
+              - heading "সিমটম ডায়াগনোসিস" [level=3] [ref=e275]
+              - paragraph [ref=e276]: আপনার লক্ষণগুলি চিহ্নিত করুন এবং সঠিক চিকিৎসা পান
+            - generic [ref=e277]:
+              - text: বিস্তারিত দেখুন
+              - img [ref=e278]
+          - link "রুকইয়া ডায়াগনোসিস ধাপে ধাপে রুকইয়াহ ডায়াগনোসিস প্রক্রিয়া বিস্তারিত দেখুন" [ref=e281] [cursor=pointer]:
+            - /url: /ruqyah-diagnosis
+            - generic [ref=e282]:
+              - img [ref=e284]
+              - heading "রুকইয়া ডায়াগনোসিস" [level=3] [ref=e286]
+              - paragraph [ref=e287]: ধাপে ধাপে রুকইয়াহ ডায়াগনোসিস প্রক্রিয়া
+            - generic [ref=e288]:
+              - text: বিস্তারিত দেখুন
+              - img [ref=e289]
+          - link "রুকইয়া সাপ্লিমেন্ট প্রাকৃতিক ও হালাল সাপ্লিমেন্ট বিস্তারিত দেখুন" [ref=e292] [cursor=pointer]:
+            - /url: /supplements
+            - generic [ref=e293]:
+              - img [ref=e295]
+              - heading "রুকইয়া সাপ্লিমেন্ট" [level=3] [ref=e297]
+              - paragraph [ref=e298]: প্রাকৃতিক ও হালাল সাপ্লিমেন্ট
+            - generic [ref=e299]:
+              - text: বিস্তারিত দেখুন
+              - img [ref=e300]
+          - link "রুকইয়াহ ডাউনলোড রুকইয়াহ কিলোওয়াট ডাউনলোড করুন বিস্তারিত দেখুন" [ref=e303] [cursor=pointer]:
+            - /url: /pdf
+            - generic [ref=e304]:
+              - img [ref=e306]
+              - heading "রুকইয়াহ ডাউনলোড" [level=3] [ref=e309]
+              - paragraph [ref=e310]: রুকইয়াহ কিলোওয়াট ডাউনলোড করুন
+            - generic [ref=e311]:
+              - text: বিস্তারিত দেখুন
+              - img [ref=e312]
+          - link "কনসাল্টেশন কাউন্সেলিং, ডায়াগনোসিস ও follow-up session বুকিং সাপোর্ট। বিস্তারিত দেখুন" [ref=e315] [cursor=pointer]:
+            - /url: /appointment
+            - generic [ref=e316]:
+              - img [ref=e318]
+              - heading "কনসাল্টেশন" [level=3] [ref=e320]
+              - paragraph [ref=e321]: কাউন্সেলিং, ডায়াগনোসিস ও follow-up session বুকিং সাপোর্ট।
+            - generic [ref=e322]:
+              - text: বিস্তারিত দেখুন
+              - img [ref=e323]
+      - generic [ref=e326]:
+        - generic [ref=e327]:
+          - generic [ref=e328]:
+            - heading "রুকইয়া ব্লগ" [level=2] [ref=e329]
+            - paragraph [ref=e330]: সর্বশেষ নিবন্ধ এবং তথ্য
+          - link "সব দেখুন" [ref=e331] [cursor=pointer]:
+            - /url: /blog
+        - generic [ref=e332]:
+          - link "ক্বরীনের জাদু (سحر القرين) কী? যাদু ১৩ এপ্রিল, ২০২৬ ক্বরীনের জাদু (سحر القرين) কী? কিছু জাদু সরাসরি মানুষকে নয়, তার ক্বরীনকে লক্ষ্য করে করা হয়। কেন এই ধরনের জাদু জটিল বলে ধরা হয় এবং এর সম্ভাব্য লক্ষণ কী হতে পারে তার একটি ধারণা। বিস্তারিত পড়ুন →" [ref=e334] [cursor=pointer]:
+            - /url: /posts/what-is-qarin-magic
+            - generic [ref=e335]:
+              - img "ক্বরীনের জাদু (سحر القرين) কী?" [ref=e336]
+              - generic [ref=e337]: যাদু
+            - generic [ref=e338]:
+              - paragraph [ref=e339]: ১৩ এপ্রিল, ২০২৬
+              - heading "ক্বরীনের জাদু (سحر القرين) কী?" [level=3] [ref=e340]
+              - paragraph [ref=e341]: কিছু জাদু সরাসরি মানুষকে নয়, তার ক্বরীনকে লক্ষ্য করে করা হয়। কেন এই ধরনের জাদু জটিল বলে ধরা হয় এবং এর সম্ভাব্য লক্ষণ কী হতে পারে তার একটি ধারণা।
+              - generic [ref=e342]: বিস্তারিত পড়ুন →
+          - link "জ্বীন শরীরে কিভাবে থাকে? জ্বীন ১৩ এপ্রিল, ২০২৬ জ্বীন শরীরে কিভাবে থাকে? যাদু বা নজরের প্রভাবে জ্বীন কীভাবে শরীরে অবস্থান করে—এ বিষয়ে প্রচলিত রুকইয়াহ ধারণা অনুযায়ী দুই ধরনের প্যাটার্নের একটি ব্যাখ্যা। বিস্তারিত পড়ুন →" [ref=e344] [cursor=pointer]:
+            - /url: /posts/how-jinn-stays-in-the-body
+            - generic [ref=e345]:
+              - img "জ্বীন শরীরে কিভাবে থাকে?" [ref=e346]
+              - generic [ref=e347]: জ্বীন
+            - generic [ref=e348]:
+              - paragraph [ref=e349]: ১৩ এপ্রিল, ২০২৬
+              - heading "জ্বীন শরীরে কিভাবে থাকে?" [level=3] [ref=e350]
+              - paragraph [ref=e351]: যাদু বা নজরের প্রভাবে জ্বীন কীভাবে শরীরে অবস্থান করে—এ বিষয়ে প্রচলিত রুকইয়াহ ধারণা অনুযায়ী দুই ধরনের প্যাটার্নের একটি ব্যাখ্যা।
+              - generic [ref=e352]: বিস্তারিত পড়ুন →
+          - link "রুকইয়াহর পরও সমস্যা বারবার আগের অবস্থায় ফিরে যায় কেন? রুকইয়াহ ১৩ এপ্রিল, ২০২৬ রুকইয়াহর পরও সমস্যা বারবার আগের অবস্থায় ফিরে যায় কেন? কিছু ক্ষেত্রে রুকইয়াহর পর সাময়িক স্বস্তি মিললেও সমস্যা আবার ফিরে আসে। জিন-সংযুক্ত জাদু, গিঁট এবং পুনরায় সক্রিয় হওয়া প্রভাব নিয়ে একটি ব্যাখ্যামূলক লেখা। বিস্তারিত পড়ুন →" [ref=e354] [cursor=pointer]:
+            - /url: /posts/why-symptoms-return-after-ruqyah
+            - generic [ref=e355]:
+              - img "রুকইয়াহর পরও সমস্যা বারবার আগের অবস্থায় ফিরে যায় কেন?" [ref=e356]
+              - generic [ref=e357]: রুকইয়াহ
+            - generic [ref=e358]:
+              - paragraph [ref=e359]: ১৩ এপ্রিল, ২০২৬
+              - heading "রুকইয়াহর পরও সমস্যা বারবার আগের অবস্থায় ফিরে যায় কেন?" [level=3] [ref=e360]
+              - paragraph [ref=e361]: কিছু ক্ষেত্রে রুকইয়াহর পর সাময়িক স্বস্তি মিললেও সমস্যা আবার ফিরে আসে। জিন-সংযুক্ত জাদু, গিঁট এবং পুনরায় সক্রিয় হওয়া প্রভাব নিয়ে একটি ব্যাখ্যামূলক লেখা।
+              - generic [ref=e362]: বিস্তারিত পড়ুন →
+          - link "সমস্যা থাকার পরেও রুকইয়াহ চলাকালীন কোনো প্রতিক্রিয়া হয় না কেন? রুকইয়াহ ১৩ এপ্রিল, ২০২৬ সমস্যা থাকার পরেও রুকইয়াহ চলাকালীন কোনো প্রতিক্রিয়া হয় না কেন? অনেক রোগীর লক্ষণ থাকলেও রুকইয়াহর সময় দৃশ্যমান কোনো রিয়াকশন দেখা যায় না। এর সম্ভাব্য কারণ ও করণীয় নিয়ে একটি ব্যাখ্যা। বিস্তারিত পড়ুন →" [ref=e364] [cursor=pointer]:
+            - /url: /posts/why-no-reaction-during-ruqyah
+            - generic [ref=e365]:
+              - img "সমস্যা থাকার পরেও রুকইয়াহ চলাকালীন কোনো প্রতিক্রিয়া হয় না কেন?" [ref=e366]
+              - generic [ref=e367]: রুকইয়াহ
+            - generic [ref=e368]:
+              - paragraph [ref=e369]: ১৩ এপ্রিল, ২০২৬
+              - heading "সমস্যা থাকার পরেও রুকইয়াহ চলাকালীন কোনো প্রতিক্রিয়া হয় না কেন?" [level=3] [ref=e370]
+              - paragraph [ref=e371]: অনেক রোগীর লক্ষণ থাকলেও রুকইয়াহর সময় দৃশ্যমান কোনো রিয়াকশন দেখা যায় না। এর সম্ভাব্য কারণ ও করণীয় নিয়ে একটি ব্যাখ্যা।
+              - generic [ref=e372]: বিস্তারিত পড়ুন →
+          - 'link "স্বামীকে বশীকরণের ভালোবাসার জাদু: ভয়াবহ পরিণতি ও কঠিন বাস্তবতা যাদু ১৩ এপ্রিল, ২০২৬ স্বামীকে বশীকরণের ভালোবাসার জাদু: ভয়াবহ পরিণতি ও কঠিন বাস্তবতা ভালোবাসার জাদু বা সিহরুল মাহাব্বাহকে অনেকেই সংসার রক্ষার উপায় ভাবলেও এর পরিণতি ভয়াবহ হতে পারে—এই বিষয়ে একটি সতর্কতামূলক আলোচনা। বিস্তারিত পড়ুন →" [ref=e374] [cursor=pointer]':
+            - /url: /posts/love-magic-and-its-consequences
+            - generic [ref=e375]:
+              - 'img "স্বামীকে বশীকরণের ভালোবাসার জাদু: ভয়াবহ পরিণতি ও কঠিন বাস্তবতা" [ref=e376]'
+              - generic [ref=e377]: যাদু
+            - generic [ref=e378]:
+              - paragraph [ref=e379]: ১৩ এপ্রিল, ২০২৬
+              - 'heading "স্বামীকে বশীকরণের ভালোবাসার জাদু: ভয়াবহ পরিণতি ও কঠিন বাস্তবতা" [level=3] [ref=e380]'
+              - paragraph [ref=e381]: ভালোবাসার জাদু বা সিহরুল মাহাব্বাহকে অনেকেই সংসার রক্ষার উপায় ভাবলেও এর পরিণতি ভয়াবহ হতে পারে—এই বিষয়ে একটি সতর্কতামূলক আলোচনা।
+              - generic [ref=e382]: বিস্তারিত পড়ুন →
+          - link "যাদুর খাদেম জ্বীন বা “মারবূত” (বাঁধাগ্রস্ত) জ্বীন কী? জ্বীন ১৩ এপ্রিল, ২০২৬ যাদুর খাদেম জ্বীন বা “মারবূত” (বাঁধাগ্রস্ত) জ্বীন কী? কখনো জাদুর খাদেম শয়তান বা জ্বীনকে এমনভাবে বাঁধা থাকে বলে বর্ণনা করা হয়, যাতে সে সহজে আক্রান্ত ব্যক্তিকে ছেড়ে যেতে না পারে। এই ধারণা নিয়ে একটি ব্যাখ্যামূলক লেখা। বিস্তারিত পড়ুন →" [ref=e384] [cursor=pointer]:
+            - /url: /posts/marbut-jinn-and-magic-servant
+            - generic [ref=e385]:
+              - img "যাদুর খাদেম জ্বীন বা “মারবূত” (বাঁধাগ্রস্ত) জ্বীন কী?" [ref=e386]
+              - generic [ref=e387]: জ্বীন
+            - generic [ref=e388]:
+              - paragraph [ref=e389]: ১৩ এপ্রিল, ২০২৬
+              - heading "যাদুর খাদেম জ্বীন বা “মারবূত” (বাঁধাগ্রস্ত) জ্বীন কী?" [level=3] [ref=e390]
+              - paragraph [ref=e391]: কখনো জাদুর খাদেম শয়তান বা জ্বীনকে এমনভাবে বাঁধা থাকে বলে বর্ণনা করা হয়, যাতে সে সহজে আক্রান্ত ব্যক্তিকে ছেড়ে যেতে না পারে। এই ধারণা নিয়ে একটি ব্যাখ্যামূলক লেখা।
+              - generic [ref=e392]: বিস্তারিত পড়ুন →
+      - generic [ref=e395]:
+        - generic [ref=e396]:
+          - heading "আমাদের রাকীগণ" [level=2] [ref=e397]
+          - paragraph [ref=e398]: অভিজ্ঞ ও প্রশিক্ষিত রাকীদের সাথে পরিচিত হন
+        - link "সবাইকে দেখুন" [ref=e399] [cursor=pointer]:
+          - /url: /team
+      - generic [ref=e401]:
+        - generic [ref=e402]:
+          - heading "আমাদের সেবা প্যাকেজ" [level=2] [ref=e403]
+          - paragraph [ref=e404]: চেম্বার, হোম সার্ভিস বা অনলাইন সমন্বয়ে আপনার সুবিধামতো সেবা নিন
+        - generic [ref=e405]:
+          - generic [ref=e406]:
+            - generic [ref=e407]:
+              - img "রুকইয়াহ প্যাকেজ" [ref=e408]
+              - generic [ref=e409]: ☪️ রুকইয়াহ
+            - generic [ref=e410]:
+              - heading "রুকইয়াহ চিকিৎসা" [level=3] [ref=e411]
+              - paragraph [ref=e412]: কুরআন ও সুন্নাহ ভিত্তিক আধ্যাত্মিক চিকিৎসা। জিন, জাদু ও বদনজরের কার্যকর সমাধান।
+              - generic [ref=e413]:
+                - link "🏢 চেম্বার সেবা" [ref=e414] [cursor=pointer]:
+                  - /url: https://wa.me/8801992575874?text=%E0%A6%86%E0%A6%B8%E0%A6%B8%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%AE%E0%A7%81%20%E0%A6%86%E0%A6%B2%E0%A6%BE%E0%A6%87%E0%A6%95%E0%A7%81%E0%A6%AE%2C%20%E0%A6%86%E0%A6%AE%E0%A6%BF%20%E0%A6%B0%E0%A7%81%E0%A6%95%E0%A6%87%E0%A6%AF%E0%A6%BC%E0%A6%BE%E0%A6%B9%20%E0%A6%B8%E0%A7%87%E0%A6%AC%E0%A6%BE%20%E0%A6%AC%E0%A7%81%E0%A6%95%20%E0%A6%95%E0%A6%B0%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87%E0%A5%A4
+                - link "📋 সব অপশন দেখুন" [ref=e415] [cursor=pointer]:
+                  - /url: /appointment
+                - link "🏠 হোম সার্ভিস" [ref=e416] [cursor=pointer]:
+                  - /url: https://wa.me/8801992575874?text=%E0%A6%86%E0%A6%B8%E0%A6%B8%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%AE%E0%A7%81%20%E0%A6%86%E0%A6%B2%E0%A6%BE%E0%A6%87%E0%A6%95%E0%A7%81%E0%A6%AE%2C%20%E0%A6%86%E0%A6%AE%E0%A6%BF%20%E0%A6%B0%E0%A7%81%E0%A6%95%E0%A6%87%E0%A6%AF%E0%A6%BC%E0%A6%BE%E0%A6%B9%20%E0%A6%B9%E0%A7%8B%E0%A6%AE%20%E0%A6%B8%E0%A6%BE%E0%A6%B0%E0%A7%8D%E0%A6%AD%E0%A6%BF%E0%A6%B8%20%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%B0%E0%A7%8D%E0%A6%95%E0%A7%87%20%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87%E0%A5%A4
+          - generic [ref=e417]:
+            - generic [ref=e418]:
+              - img "হিজামা প্যাকেজ" [ref=e419]
+              - generic [ref=e420]: 🩸 হিজামা
+            - generic [ref=e421]:
+              - heading "হিজামা থেরাপি" [level=3] [ref=e422]
+              - paragraph [ref=e423]: সুন্নাহ সম্মত কাপিং থেরাপি। শারীরিক রোগ নিরাময়ে ইসলামিক পদ্ধতিতে কার্যকর চিকিৎসা।
+              - generic [ref=e424]:
+                - link "🏢 চেম্বার সেবা" [ref=e425] [cursor=pointer]:
+                  - /url: https://wa.me/8801992575874?text=%E0%A6%86%E0%A6%B8%E0%A6%B8%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%AE%E0%A7%81%20%E0%A6%86%E0%A6%B2%E0%A6%BE%E0%A6%87%E0%A6%95%E0%A7%81%E0%A6%AE%2C%20%E0%A6%86%E0%A6%AE%E0%A6%BF%20%E0%A6%B9%E0%A6%BF%E0%A6%9C%E0%A6%BE%E0%A6%AE%E0%A6%BE%20%E0%A6%B8%E0%A7%87%E0%A6%AC%E0%A6%BE%20%E0%A6%AC%E0%A7%81%E0%A6%95%20%E0%A6%95%E0%A6%B0%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87%E0%A5%A4
+                - link "📋 সব অপশন দেখুন" [ref=e426] [cursor=pointer]:
+                  - /url: /appointment
+                - link "🏠 হোম সার্ভিস" [ref=e427] [cursor=pointer]:
+                  - /url: https://wa.me/8801992575874?text=%E0%A6%86%E0%A6%B8%E0%A6%B8%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%AE%E0%A7%81%20%E0%A6%86%E0%A6%B2%E0%A6%BE%E0%A6%87%E0%A6%95%E0%A7%81%E0%A6%AE%2C%20%E0%A6%86%E0%A6%AE%E0%A6%BF%20%E0%A6%B9%E0%A6%BF%E0%A6%9C%E0%A6%BE%E0%A6%AE%E0%A6%BE%20%E0%A6%B9%E0%A7%8B%E0%A6%AE%20%E0%A6%B8%E0%A6%BE%E0%A6%B0%E0%A7%8D%E0%A6%AD%E0%A6%BF%E0%A6%B8%20%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%B0%E0%A7%8D%E0%A6%95%E0%A7%87%20%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87%E0%A5%A4
+          - generic [ref=e428]:
+            - generic [ref=e429]:
+              - img "আকুপাংচার প্যাকেজ" [ref=e430]
+              - generic [ref=e431]: 🌿 আকুপাংচার
+            - generic [ref=e432]:
+              - heading "আকুপাংচার চিকিৎসা" [level=3] [ref=e433]
+              - paragraph [ref=e434]: ইসলামী দৃষ্টিভঙ্গিতে আকুপাংচার। শারীরিক ব্যথা, মাইগ্রেন ও দীর্ঘমেয়াদি সমস্যায় কার্যকর।
+              - generic [ref=e435]:
+                - link "🏢 চেম্বার সেবা" [ref=e436] [cursor=pointer]:
+                  - /url: https://wa.me/8801992575874?text=%E0%A6%86%E0%A6%B8%E0%A6%B8%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%AE%E0%A7%81%20%E0%A6%86%E0%A6%B2%E0%A6%BE%E0%A6%87%E0%A6%95%E0%A7%81%E0%A6%AE%2C%20%E0%A6%86%E0%A6%AE%E0%A6%BF%20%E0%A6%86%E0%A6%95%E0%A7%81%E0%A6%AA%E0%A6%BE%E0%A6%82%E0%A6%9A%E0%A6%BE%E0%A6%B0%20%E0%A6%B8%E0%A7%87%E0%A6%AC%E0%A6%BE%20%E0%A6%AC%E0%A7%81%E0%A6%95%20%E0%A6%95%E0%A6%B0%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87%E0%A5%A4
+                - link "📋 সব অপশন দেখুন" [ref=e437] [cursor=pointer]:
+                  - /url: /appointment
+                - link "🏠 হোম সার্ভিস" [ref=e438] [cursor=pointer]:
+                  - /url: https://wa.me/8801992575874?text=%E0%A6%86%E0%A6%B8%E0%A6%B8%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%AE%E0%A7%81%20%E0%A6%86%E0%A6%B2%E0%A6%BE%E0%A6%87%E0%A6%95%E0%A7%81%E0%A6%AE%2C%20%E0%A6%86%E0%A6%AE%E0%A6%BF%20%E0%A6%86%E0%A6%95%E0%A7%81%E0%A6%AA%E0%A6%BE%E0%A6%82%E0%A6%9A%E0%A6%BE%E0%A6%B0%20%E0%A6%B9%E0%A7%8B%E0%A6%AE%20%E0%A6%B8%E0%A6%BE%E0%A6%B0%E0%A7%8D%E0%A6%AD%E0%A6%BF%E0%A6%B8%20%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%B0%E0%A7%8D%E0%A6%95%E0%A7%87%20%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87%E0%A5%A4
+          - generic [ref=e439]:
+            - generic [ref=e440]:
+              - img "আকুপ্রেশার প্যাকেজ" [ref=e441]
+              - generic [ref=e442]: 💆 আকুপ্রেসার
+            - generic [ref=e443]:
+              - heading "আকুপ্রেসার ও ম্যাসাজ" [level=3] [ref=e444]
+              - paragraph [ref=e445]: প্রেশার পয়েন্ট ও থেরাপিউটিক ম্যাসাজের সমন্বয়ে স্ট্রেস, ক্লান্তি ও পেশির টান কমাতে সহায়ক।
+              - generic [ref=e446]:
+                - link "🏢 চেম্বার সেবা" [ref=e447] [cursor=pointer]:
+                  - /url: https://wa.me/8801992575874?text=%E0%A6%86%E0%A6%B8%E0%A6%B8%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%AE%E0%A7%81%20%E0%A6%86%E0%A6%B2%E0%A6%BE%E0%A6%87%E0%A6%95%E0%A7%81%E0%A6%AE%2C%20%E0%A6%86%E0%A6%AE%E0%A6%BF%20%E0%A6%86%E0%A6%95%E0%A7%81%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A7%87%E0%A6%B8%E0%A6%BE%E0%A6%B0%20%2F%20%E0%A6%AE%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%B8%E0%A6%BE%E0%A6%9C%20%E0%A6%B8%E0%A7%87%E0%A6%AC%E0%A6%BE%20%E0%A6%AC%E0%A7%81%E0%A6%95%20%E0%A6%95%E0%A6%B0%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87%E0%A5%A4
+                - link "📋 সব অপশন দেখুন" [ref=e448] [cursor=pointer]:
+                  - /url: /appointment
+                - link "🏠 হোম সার্ভিস" [ref=e449] [cursor=pointer]:
+                  - /url: https://wa.me/8801992575874?text=%E0%A6%86%E0%A6%B8%E0%A6%B8%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%AE%E0%A7%81%20%E0%A6%86%E0%A6%B2%E0%A6%BE%E0%A6%87%E0%A6%95%E0%A7%81%E0%A6%AE%2C%20%E0%A6%86%E0%A6%AE%E0%A6%BF%20%E0%A6%86%E0%A6%95%E0%A7%81%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A7%87%E0%A6%B8%E0%A6%BE%E0%A6%B0%20%E0%A6%AC%E0%A6%BE%20%E0%A6%AE%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%B8%E0%A6%BE%E0%A6%9C%20%E0%A6%B9%E0%A7%8B%E0%A6%AE%20%E0%A6%B8%E0%A6%BE%E0%A6%B0%E0%A7%8D%E0%A6%AD%E0%A6%BF%E0%A6%B8%20%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%B0%E0%A7%8D%E0%A6%95%E0%A7%87%20%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87%E0%A5%A4
+      - generic [ref=e451]:
+        - generic [ref=e452]:
+          - heading "রুকইয়াহর কোর্সসমূহ" [level=2] [ref=e453]
+          - paragraph [ref=e454]: রুকইয়াহ সংক্রান্ত গাইড এবং কোর্সসমূহ
+        - generic [ref=e455]:
+          - generic [ref=e456]:
+            - generic [ref=e457]:
+              - img "অনলাইন রুকইয়াহ কোর্স" [ref=e458]
+              - generic [ref=e459]: অনলাইন
+            - generic [ref=e460]:
+              - heading "রুকইয়াহ অনলাইন কোর্স" [level=3] [ref=e461]
+              - paragraph [ref=e462]: ঘরে বসে কুরআন ও সুন্নাহ ভিত্তিক রুকইয়াহ শিখুন
+              - link "এনরোল করুন" [ref=e463] [cursor=pointer]:
+                - /url: https://wa.me/8801992575874?text=অনলাইন+রুকইয়াহ+কোর্সে+যোগ+দিতে+চাই
+          - generic [ref=e464]:
+            - generic [ref=e465]:
+              - img "অফলাইন রুকইয়াহ কোর্স" [ref=e466]
+              - generic [ref=e467]: অফলাইন
+            - generic [ref=e468]:
+              - heading "রুকইয়াহ অফলাইন প্রশিক্ষণ" [level=3] [ref=e469]
+              - paragraph [ref=e470]: সরাসরি শায়েখের কাছে থেকে রুকইয়াহ শিখুন
+              - link "এনরোল করুন" [ref=e471] [cursor=pointer]:
+                - /url: https://wa.me/8801992575874?text=অফলাইন+রুকইয়াহ+কোর্সে+যোগ+দিতে+চাই
+          - generic [ref=e472]:
+            - generic [ref=e473]:
+              - img "হিজামা সার্টিফিকেট কোর্স" [ref=e474]
+              - generic [ref=e475]: সার্টিফিকেট
+            - generic [ref=e476]:
+              - heading "হিজামা সার্টিফিকেট কোর্স" [level=3] [ref=e477]
+              - paragraph [ref=e478]: পেশাদার হিজামা থেরাপিস্ট হিসেবে প্রশিক্ষণ নিন
+              - link "এনরোল করুন" [ref=e479] [cursor=pointer]:
+                - /url: https://wa.me/8801992575874?text=হিজামা+কোর্সে+যোগ+দিতে+চাই
+      - generic [ref=e482]:
+        - generic [ref=e483]:
+          - heading "রাকী পরিচয়" [level=3] [ref=e484]
+          - paragraph [ref=e485]: আমাদের অভিজ্ঞ রাকীদের সাথে পরিচিত হন
+          - link "রাকীদের দেখুন" [ref=e486] [cursor=pointer]:
+            - /url: /team
+        - generic [ref=e487]:
+          - heading "নোটিশ ও সুযোগ" [level=3] [ref=e488]
+          - paragraph [ref=e489]: সর্বশেষ ঘোষণা এবং সুযোগ দেখুন
+          - link "সব নোটিশ দেখুন" [ref=e490] [cursor=pointer]:
+            - /url: /notices
+      - generic [ref=e493]:
+        - heading "হোম সার্ভিস উপলব্ধ" [level=2] [ref=e494]
+        - paragraph [ref=e495]: আমরা আপনার বাড়িতে এসে রুকইয়াহ, হিজামা ও আকুপাংচার সেবা প্রদান করি। সময় ও সুবিধামতো আপনার দরজায় পৌঁছে যাচ্ছে ইসলামিক চিকিৎসা।
+        - link "এখনই অ্যাপয়েন্টমেন্ট বুক করুন" [ref=e496] [cursor=pointer]:
+          - /url: /appointment
+          - img [ref=e497]
+          - text: এখনই অ্যাপয়েন্টমেন্ট বুক করুন
+      - generic [ref=e500]:
+        - generic [ref=e501]:
+          - heading "গ্যালারি" [level=2] [ref=e502]
+          - paragraph [ref=e503]: আমাদের কার্যক্রমের ছবি
+        - generic [ref=e504]:
+          - img "রুকইয়া সেশন" [ref=e506]
+          - img "ইসলামিক আর্কিটেকচার" [ref=e508]
+          - img "হার্বাল সাপ্লিমেন্ট" [ref=e510]
+          - img "সূর্যের আলো" [ref=e512]
+      - generic [ref=e514]:
+        - generic [ref=e515]:
+          - heading "সচরাচর জিজ্ঞাসা" [level=2] [ref=e516]
+          - paragraph [ref=e517]: রুকইয়াহ ও আমাদের সেবা সম্পর্কে সাধারণ প্রশ্নাবলী
+        - generic [ref=e518]:
+          - group [ref=e519]:
+            - generic "রুকইয়াহ কী? +" [ref=e520] [cursor=pointer]
+          - group [ref=e521]:
+            - generic "রুকইয়াহ কি হালাল? +" [ref=e522] [cursor=pointer]
+          - group [ref=e523]:
+            - generic "রুকইয়াহ চিকিৎসায় কী কী সমস্যার সমাধান হয়? +" [ref=e524] [cursor=pointer]
+          - group [ref=e525]:
+            - generic "হিজামা থেরাপি কী? +" [ref=e526] [cursor=pointer]
+          - group [ref=e527]:
+            - generic "অ্যাপয়েন্টমেন্ট কীভাবে নেওয়া যায়? +" [ref=e528] [cursor=pointer]
+          - group [ref=e529]:
+            - generic "রুকইয়াহ সেশনে কী কী শর্ত মেনে চলতে হয়? +" [ref=e530] [cursor=pointer]
+          - group [ref=e531]:
+            - generic "আপনারা কি অনলাইন সেবা দেন? +" [ref=e532] [cursor=pointer]
+    - contentinfo [ref=e533]:
+      - generic [ref=e534]:
+        - generic [ref=e535]:
+          - link "Ruqyah Healing Logo Ruqyah Healing" [ref=e536] [cursor=pointer]:
+            - /url: /
+            - img "Ruqyah Healing Logo" [ref=e538]
+            - generic [ref=e540]: Ruqyah Healing
+          - paragraph [ref=e541]: ইসলামী রুকইয়ার মাধ্যমে হালাল হিলিং সার্ভিস। কুরআন ও সুন্নাহ ভিত্তিক আধ্যাত্মিক ও শারীরিক সুস্থতার পথে আপনার বিশ্বস্ত সঙ্গী।
+          - link "Facebook" [ref=e543] [cursor=pointer]:
+            - /url: https://www.facebook.com/Ruqyahhealingg
+            - img [ref=e544]
+        - generic [ref=e546]:
+          - heading "দ্রুত লিংক" [level=4] [ref=e547]
+          - list [ref=e548]:
+            - listitem [ref=e549]:
+              - link "হোম" [ref=e550] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e551]:
+              - link "অ্যাপয়েন্টমেন্ট" [ref=e552] [cursor=pointer]:
+                - /url: /appointment
+            - listitem [ref=e553]:
+              - link "সিমটম ডায়াগনোসিস" [ref=e554] [cursor=pointer]:
+                - /url: /symptom-diagnosis
+            - listitem [ref=e555]:
+              - link "রুকইয়াহ ডায়াগনোসিস" [ref=e556] [cursor=pointer]:
+                - /url: /ruqyah-diagnosis
+            - listitem [ref=e557]:
+              - link "সেলফ রুকইয়াহ" [ref=e558] [cursor=pointer]:
+                - /url: /self-ruqyah
+            - listitem [ref=e559]:
+              - link "রুকইয়াহ ব্লগ" [ref=e560] [cursor=pointer]:
+                - /url: /blog
+        - generic [ref=e561]:
+          - heading "আমাদের সেবা" [level=4] [ref=e562]
+          - list [ref=e563]:
+            - listitem [ref=e564]:
+              - link "রুকইয়াহ সাপ্লিমেন্ট" [ref=e565] [cursor=pointer]:
+                - /url: /supplements
+            - listitem [ref=e566]:
+              - link "পিডিএফ গাইড" [ref=e567] [cursor=pointer]:
+                - /url: /pdf
+            - listitem [ref=e568]:
+              - link "কোর্স" [ref=e569] [cursor=pointer]:
+                - /url: /courses
+            - listitem [ref=e570]:
+              - link "রাকী পরিচয়" [ref=e571] [cursor=pointer]:
+                - /url: /team
+            - listitem [ref=e572]:
+              - link "নোটিশ ও চাকরি" [ref=e573] [cursor=pointer]:
+                - /url: /notices
+        - generic [ref=e574]:
+          - heading "যোগাযোগ" [level=4] [ref=e575]
+          - list [ref=e576]:
+            - listitem [ref=e577]:
+              - img [ref=e578]
+              - text: "প্রধান যোগাযোগ: 01992575874 (কল)"
+            - listitem [ref=e580]:
+              - img [ref=e581]
+              - text: "সাপোর্ট: 01336202151 (কল)"
+            - listitem [ref=e583]:
+              - img [ref=e584]
+              - text: "WhatsApp সাপোর্ট: 01336202150 (WhatsApp)"
+            - listitem [ref=e586]:
+              - img [ref=e587]
+              - generic [ref=e590]: info@ruqyahhealing.com
+            - listitem [ref=e591]:
+              - img [ref=e592]
+              - generic [ref=e595]: ঢাকা, বাংলাদেশ
+            - listitem [ref=e596]:
+              - img [ref=e597]
+              - generic [ref=e600]: শুক্রবার থেকে শুক্রবার | সকাল ৯টা থেকে সন্ধ্যা ৬টা
+            - listitem [ref=e601]:
+              - img [ref=e602]
+              - link "WhatsApp-এ যোগাযোগ করুন" [ref=e604] [cursor=pointer]:
+                - /url: https://wa.me/8801336202150?text=%E0%A6%86%E0%A6%B8%E0%A6%B8%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%AE%E0%A7%81%20%E0%A6%86%E0%A6%B2%E0%A6%BE%E0%A6%87%E0%A6%95%E0%A7%81%E0%A6%AE%2C%20%E0%A6%85%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%AA%E0%A6%AF%E0%A6%BC%E0%A7%87%E0%A6%A8%E0%A7%8D%E0%A6%9F%E0%A6%AE%E0%A7%87%E0%A6%A8%E0%A7%8D%E0%A6%9F%20%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%B0%E0%A7%8D%E0%A6%95%E0%A7%87%20%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87%E0%A5%A4
+      - paragraph [ref=e607]: © 2026 Ruqyah Healing Center। সর্বস্বত্ব সংরক্ষিত।
+  - link "WhatsApp করুন" [ref=e608] [cursor=pointer]:
+    - /url: https://wa.me/8801336202150?text=%E0%A6%86%E0%A6%B8%E0%A6%B8%E0%A6%BE%E0%A6%B2%E0%A6%BE%E0%A6%AE%E0%A7%81%20%E0%A6%86%E0%A6%B2%E0%A6%BE%E0%A6%87%E0%A6%95%E0%A7%81%E0%A6%AE%2C%20%E0%A6%85%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%AA%E0%A6%AF%E0%A6%BC%E0%A7%87%E0%A6%A8%E0%A7%8D%E0%A6%9F%E0%A6%AE%E0%A7%87%E0%A6%A8%E0%A7%8D%E0%A6%9F%20%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%B0%E0%A7%8D%E0%A6%95%E0%A7%87%20%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87%E0%A5%A4
+    - img [ref=e609]
+    - generic: WhatsApp করুন
+  - button "এআই সহায়ক খুলুন" [ref=e612] [cursor=pointer]:
+    - img [ref=e614]
+  - generic [ref=e619]:
+    - button "Menu" [ref=e620]:
+      - img [ref=e622]
+      - generic: Menu
+    - button "Inspect" [ref=e626]:
+      - img [ref=e628]
+      - generic: Inspect
+    - button "Audit" [ref=e630]:
+      - img [ref=e632]
+      - generic: Audit
+    - button "Settings" [ref=e635]:
+      - img [ref=e637]
+      - generic: Settings

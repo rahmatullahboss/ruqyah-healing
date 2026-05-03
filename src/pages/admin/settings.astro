@@ -3,6 +3,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import { createDb } from '../../db/client.js';
 import { siteSettings } from '../../db/schema.js';
 import { env as workerEnv } from 'cloudflare:workers';
+import { DEFAULT_CLINIC_CONTACTS, normalizeClinicContacts } from '../../lib/clinic-contacts.js';
+import { DEFAULT_FLOATING_WHATSAPP, normalizeFloatingWhatsappSettings } from '../../lib/floating-whatsapp.js';
 
 export const prerender = false;
 
@@ -16,11 +18,7 @@ for (const row of rows) {
 }
 
 // Defaults
-const clinicPhones = settings.clinic_phones || [
-  { label: 'প্রধান যোগাযোগ', display: '01992575874', international: '8801992575874' },
-  { label: 'সাপোর্ট', display: '01336202150', international: '8801336202150' },
-  { label: 'সাপোর্ট', display: '01336202151', international: '8801336202151' },
-];
+const clinicPhones = normalizeClinicContacts(settings.clinic_phones, DEFAULT_CLINIC_CONTACTS);
 
 const schedule = settings.clinic_schedule || { days: 'শুক্রবার থেকে শুক্রবার', hours: 'সকাল ৯টা থেকে সন্ধ্যা ৬টা' };
 
@@ -34,6 +32,7 @@ const payment = settings.payment_details || {
 };
 
 const social = settings.social_links || { facebook: 'https://www.facebook.com/Ruqyahhealingg' };
+const floatingWhatsapp = normalizeFloatingWhatsappSettings(settings.floating_whatsapp || DEFAULT_FLOATING_WHATSAPP);
 ---
 
 <AdminLayout title="সাইট সেটিংস | Admin - Ruqyah Healing">
@@ -49,12 +48,18 @@ const social = settings.social_links || { facebook: 'https://www.facebook.com/Ru
   <!-- Clinic Phone Numbers -->
   <div class="admin-card settings-section">
     <h2 class="section-title">📞 যোগাযোগ নাম্বার</h2>
+    <p class="section-help">প্রতি নাম্বারের জন্য ঠিক করুন এটি কলে ব্যবহার হবে, WhatsApp-এ ব্যবহার হবে, নাকি দুইভাবেই দেখানো হবে।</p>
     <div id="phoneList">
       {clinicPhones.map((p: any, i: number) => (
         <div class="phone-row" data-index={i}>
-          <input type="text" class="settings-input phone-label" value={p.label} placeholder="লেবেল" />
-          <input type="text" class="settings-input phone-display" value={p.display} placeholder="নাম্বার" />
-          <input type="text" class="settings-input phone-intl" value={p.international} placeholder="আন্তর্জাতিক" />
+          <input type="text" class="settings-input phone-label" value={p.label} placeholder="যেমন: কল সাপোর্ট / WhatsApp বুকিং" />
+          <input type="text" class="settings-input phone-display" value={p.display} placeholder="সাইটে দেখানোর নাম্বার" />
+          <input type="text" class="settings-input phone-intl" value={p.international} placeholder="WhatsApp-এর জন্য 8801..." />
+          <select class="settings-input phone-type" aria-label="যোগাযোগের ধরন">
+            <option value="both" selected={p.type === 'both'}>কল + WhatsApp</option>
+            <option value="call" selected={p.type === 'call'}>শুধু কল</option>
+            <option value="whatsapp" selected={p.type === 'whatsapp'}>শুধু WhatsApp</option>
+          </select>
           <button type="button" class="btn-remove-phone" title="মুছুন">✕</button>
         </div>
       ))}
@@ -127,6 +132,31 @@ const social = settings.social_links || { facebook: 'https://www.facebook.com/Ru
     </div>
   </div>
 
+  <div class="admin-card settings-section">
+    <h2 class="section-title">🟢 Floating WhatsApp Button</h2>
+    <p class="section-help">সাইটের ডান পাশে যে WhatsApp floating button দেখা যায়, সেটার text, number, message আর visibility এখানে control করুন।</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>বাটন টেক্সট</label>
+        <input type="text" id="floatingWhatsappLabel" class="settings-input" value={floatingWhatsapp.label} placeholder="WhatsApp করুন" />
+      </div>
+      <div class="form-group">
+        <label>WhatsApp নাম্বার (8801...)</label>
+        <input type="text" id="floatingWhatsappNumber" class="settings-input" value={floatingWhatsapp.number} placeholder="8801..." />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label>ক্লিক করলে পাঠানো মেসেজ</label>
+        <textarea id="floatingWhatsappMessage" class="settings-input" rows="3" placeholder="আসসালামু আলাইকুম, কী বিষয়ে জানতে চান লিখুন">{floatingWhatsapp.message}</textarea>
+      </div>
+    </div>
+    <label class="checkbox-inline">
+      <input type="checkbox" id="floatingWhatsappEnabled" checked={floatingWhatsapp.enabled} />
+      <span>সাইটে floating WhatsApp button দেখান</span>
+    </label>
+  </div>
+
   <div class="save-bar">
     <button type="button" id="saveSettingsBtn" class="btn-save">💾 সব সেভ করুন</button>
   </div>
@@ -142,9 +172,14 @@ const social = settings.social_links || { facebook: 'https://www.facebook.com/Ru
     div.className = 'phone-row';
     div.dataset.index = String(idx);
     div.innerHTML = `
-      <input type="text" class="settings-input phone-label" value="" placeholder="লেবেল" />
-      <input type="text" class="settings-input phone-display" value="" placeholder="নাম্বার" />
+      <input type="text" class="settings-input phone-label" value="" placeholder="যেমন: কল সাপোর্ট / WhatsApp বুকিং" />
+      <input type="text" class="settings-input phone-display" value="" placeholder="সাইটে দেখানোর নাম্বার" />
       <input type="text" class="settings-input phone-intl" value="" placeholder="আন্তর্জাতিক (88...)" />
+      <select class="settings-input phone-type" aria-label="যোগাযোগের ধরন">
+        <option value="both">কল + WhatsApp</option>
+        <option value="call">শুধু কল</option>
+        <option value="whatsapp">শুধু WhatsApp</option>
+      </select>
       <button type="button" class="btn-remove-phone" title="মুছুন">✕</button>
     `;
     list.appendChild(div);
@@ -171,7 +206,8 @@ const social = settings.social_links || { facebook: 'https://www.facebook.com/Ru
       const label = (row.querySelector('.phone-label') as HTMLInputElement).value.trim();
       const display = (row.querySelector('.phone-display') as HTMLInputElement).value.trim();
       const intl = (row.querySelector('.phone-intl') as HTMLInputElement).value.trim();
-      if (display) phones.push({ label, display, international: intl });
+      const type = (row.querySelector('.phone-type') as HTMLSelectElement | null)?.value || 'both';
+      if (display) phones.push({ label, display, international: intl, type });
     });
 
     const payload: Record<string, any> = {
@@ -191,6 +227,12 @@ const social = settings.social_links || { facebook: 'https://www.facebook.com/Ru
       social_links: {
         facebook: (document.getElementById('socialFacebook') as HTMLInputElement).value,
         youtube: (document.getElementById('socialYoutube') as HTMLInputElement).value,
+      },
+      floating_whatsapp: {
+        enabled: (document.getElementById('floatingWhatsappEnabled') as HTMLInputElement).checked,
+        label: (document.getElementById('floatingWhatsappLabel') as HTMLInputElement).value,
+        number: (document.getElementById('floatingWhatsappNumber') as HTMLInputElement).value,
+        message: (document.getElementById('floatingWhatsappMessage') as HTMLTextAreaElement).value,
       },
     };
 
@@ -222,9 +264,11 @@ const social = settings.social_links || { facebook: 'https://www.facebook.com/Ru
 <style>
   .settings-section { margin-bottom: 24px; }
   .section-title { font-size: 1.15rem; font-weight: 700; margin: 0 0 20px 0; color: var(--admin-text); }
+  .section-help { margin: -8px 0 18px; color: var(--admin-text-light); font-size: 0.9rem; line-height: 1.5; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
   .form-group { display: flex; flex-direction: column; gap: 6px; }
   .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--admin-text-light); }
+  .checkbox-inline { display: inline-flex; align-items: center; gap: 10px; font-size: 0.95rem; color: var(--admin-text); }
   .settings-input {
     padding: 10px 14px;
     border: 1px solid var(--admin-border);
@@ -238,7 +282,7 @@ const social = settings.social_links || { facebook: 'https://www.facebook.com/Ru
 
   .phone-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
+    grid-template-columns: 1.2fr 1.1fr 1.1fr 0.9fr auto;
     gap: 12px;
     margin-bottom: 12px;
     align-items: center;

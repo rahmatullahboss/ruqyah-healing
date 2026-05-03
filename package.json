@@ -16,24 +16,29 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:seed-posts": "node scripts/migrate-posts.mjs",
-    "test": "node --test tests/*.test.mjs"
+    "db:backfill-html": "node scripts/backfill-content-html.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:production": "NODE_ENV=production node --test tests/smoke.test.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
-    "@astrojs/cloudflare": "^13.1.4",
-    "@astrojs/mdx": "^5.0.2",
+    "@astrojs/cloudflare": "^13.2.1",
+    "@astrojs/mdx": "^5.0.4",
     "@lucide/astro": "^1.7.0",
     "@neondatabase/serverless": "^1.0.2",
-    "astro": "^6.0.6",
+    "astro": "^6.1.9",
     "drizzle-orm": "^0.45.2",
     "jose": "^6.2.2",
     "marked": "^17.0.5",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "resend": "^4.8.0",
     "typescript": "^5.9.3",
     "wrangler": "^4.75.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@astrojs/sitemap": "^3.7.1",
+    "@astrojs/sitemap": "^3.7.2",
     "drizzle-kit": "^0.31.10",
     "gray-matter": "^4.0.3",
     "sharp": "^0.34.5"

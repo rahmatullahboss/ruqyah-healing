@@ -30,6 +30,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const env = (workerEnv || process.env) as any;
   const db = createDb(env.DATABASE_URL);
+  const r2 = env.R2_IMAGES;
 
   const raw = await request.json();
   const parsed = productUpdateSchema.safeParse(raw);
@@ -40,6 +41,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
   const body = parsed.data;
+
+  const oldProductRes = await db.select().from(products).where(eq(products.id, body.id));
+  if (oldProductRes.length > 0) {
+    const oldImg = oldProductRes[0].image;
+    if (body.image !== undefined && oldImg && oldImg !== body.image && oldImg.startsWith('/api/images/') && r2) {
+      const key = oldImg.replace('/api/images/', '');
+      await r2.delete(key).catch(console.error);
+    }
+  }
 
   await db.update(products).set({
     name: body.name,

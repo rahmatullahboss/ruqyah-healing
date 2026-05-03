@@ -23,6 +23,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const db = createDb((env as any).DATABASE_URL);
+    const r2 = (env as any).R2_IMAGES;
+
+    // Fetch the course before deletion to get its image URL
+    const courseToDelete = await db.select().from(courses).where(eq(courses.id, id));
+    if (courseToDelete.length > 0) {
+      const courseImg = courseToDelete[0].image;
+      if (courseImg && courseImg.startsWith('/api/images/') && r2) {
+        const key = courseImg.replace('/api/images/', '');
+        await r2.delete(key).catch(console.error);
+      }
+    }
 
     await db.delete(courses).where(eq(courses.id, id));
 

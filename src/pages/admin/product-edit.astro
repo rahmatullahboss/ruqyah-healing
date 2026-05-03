@@ -110,7 +110,7 @@ const isEdit = !!product;
       description: (document.getElementById('description') as HTMLTextAreaElement).value,
       price: (document.getElementById('price') as HTMLInputElement).value,
       benefit: (document.getElementById('benefit') as HTMLInputElement).value,
-      category: (document.getElementById('category') as HTMLSelectElement).value,
+      category: (document.getElementById('category') as HTMLSelectElement | null)?.value || 'অন্যান্য',
       image: (document.getElementById('image') as HTMLInputElement).value,
       badge: (document.getElementById('badge') as HTMLInputElement).value || null,
       rating: (document.getElementById('rating') as HTMLInputElement).value,

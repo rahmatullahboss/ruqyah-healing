@@ -1,5 +1,6 @@
 ---
 import { clinicNumbers, clinicSchedule, getWhatsappUrl, socialLinks } from '../data/clinic.js';
+import { contactSupportsCall, contactSupportsWhatsapp } from '../lib/clinic-contacts.js';
 ---
 <footer class="site-footer">
   <div class="container footer-inner">
@@ -15,21 +16,10 @@ import { clinicNumbers, clinicSchedule, getWhatsappUrl, socialLinks } from '../d
       </a>
       <p class="footer-desc">ইসলামী রুকইয়ার মাধ্যমে হালাল হিলিং সার্ভিস। কুরআন ও সুন্নাহ ভিত্তিক আধ্যাত্মিক ও শারীরিক সুস্থতার পথে আপনার বিশ্বস্ত সঙ্গী।</p>
       <div class="social-links">
-        <a href={socialLinks.facebook} class="social-icon" aria-label="Facebook" title="Facebook" target="_blank" rel="noopener noreferrer">
+        <a href={socialLinks.facebook} id="footerFacebookLink" class="social-icon" aria-label="Facebook" title="Facebook" target="_blank" rel="noopener noreferrer">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
         </a>
-        <!-- TODO: Add real Twitter/X URL when available -->
-        <a href="#" class="social-icon" aria-label="Twitter / X" title="Twitter / X" target="_blank" rel="noopener noreferrer">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
-        </a>
-        <!-- TODO: Add real Instagram URL when available -->
-        <a href="#" class="social-icon" aria-label="Instagram" title="Instagram" target="_blank" rel="noopener noreferrer">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-        </a>
-        <!-- TODO: Add real YouTube URL when available -->
-        <a href="#" class="social-icon" aria-label="YouTube" title="YouTube" target="_blank" rel="noopener noreferrer">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#064E3B"/></svg>
-        </a>
+
       </div>
     </div>
 
@@ -61,11 +51,15 @@ import { clinicNumbers, clinicSchedule, getWhatsappUrl, socialLinks } from '../d
     <!-- Contact -->
     <div class="footer-col">
       <h4 class="footer-heading">যোগাযোগ</h4>
-      <ul class="footer-contact">
+      <ul class="footer-contact" id="footerContactPhoneList">
         {clinicNumbers.map((contact) => (
           <li>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            <span>{contact.display}</span>
+            <span>
+              {contact.label}: {contact.display}
+              {contactSupportsWhatsapp(contact) && !contactSupportsCall(contact) ? ' (WhatsApp)' : ''}
+              {contactSupportsCall(contact) && !contactSupportsWhatsapp(contact) ? ' (কল)' : ''}
+            </span>
           </li>
         ))}
         <li>
@@ -78,11 +72,11 @@ import { clinicNumbers, clinicSchedule, getWhatsappUrl, socialLinks } from '../d
         </li>
         <li>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          <span>{clinicSchedule.days} | {clinicSchedule.hours}</span>
+          <span id="footerScheduleCombined">{clinicSchedule.days} | {clinicSchedule.hours}</span>
         </li>
         <li>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          <a href={getWhatsappUrl('আসসালামু আলাইকুম, অ্যাপয়েন্টমেন্ট সম্পর্কে জানতে চাই।')} target="_blank" rel="noopener">WhatsApp-এ যোগাযোগ করুন</a>
+          <a id="footerWhatsappLink" href={getWhatsappUrl('আসসালামু আলাইকুম, অ্যাপয়েন্টমেন্ট সম্পর্কে জানতে চাই।')} target="_blank" rel="noopener">WhatsApp-এ যোগাযোগ করুন</a>
         </li>
       </ul>
     </div>

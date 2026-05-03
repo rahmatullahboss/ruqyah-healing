@@ -1,0 +1,480 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { createDb } from '../../db/client.js';
+import { courses } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+
+const { id } = Astro.params;
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+
+const course = await db.select().from(courses).where(eq(courses.id, id)).then(res => res[0]);
+
+if (!course) {
+  return Astro.redirect('/courses');
+}
+
+const priceDisplay = course.price === null ? 'ফ্রি' : `৳ ${course.price.toLocaleString()}`;
+---
+
+<BaseLayout title={`${course.title} | Ruqyah Healing Center`} description={course.desc}>
+  <Header />
+
+  <main class="course-details-container">
+    <div class="container">
+      <!-- Course Header -->
+      <div class="course-header">
+        <div class="header-top">
+          <div class="rating-badge">
+            <div class="stars">
+              <span class="star filled">★</span>
+              <span class="star filled">★</span>
+              <span class="star filled">★</span>
+              <span class="star filled">★</span>
+              <span class="star">★</span>
+            </div>
+            <span class="rating-text">{course.rating.toFixed(1)} (4 Ratings)</span>
+          </div>
+          <h1 class="course-title">{course.title}</h1>
+        </div>
+        <div class="header-meta">
+          <div class="categories">
+            Categories: <span class="cat-link">রুকইয়াহ শারইয়াহ</span>
+          </div>
+          <div class="header-actions">
+            <button class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Wishlist</button>
+            <button class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="course-main-grid">
+        <!-- Left: Cover Video/Image -->
+        <div class="course-visual">
+          <div class="video-wrapper">
+            {course.videoLink ? (
+              <iframe 
+                src={course.videoLink.replace('watch?v=', 'embed/')} 
+                title={course.title}
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            ) : (
+              <img src={course.image} alt={course.title} />
+            )}
+          </div>
+        </div>
+
+        <!-- Right: Sidebar -->
+        <div class="course-sidebar">
+          <div class="price-card">
+            <div class="price-row">
+              <span class="current-price">{priceDisplay}</span>
+              {course.price !== null && <span class="old-price">৳ {(course.price * 1.2).toLocaleString()}</span>}
+            </div>
+            <button class="enroll-btn">Add to cart</button>
+            
+            <ul class="course-meta-list">
+              <li><span class="icon">📊</span> {course.level}</li>
+              <li><span class="icon">👥</span> {course.students} Total Enrolled</li>
+              <li><span class="icon">📅</span> Updated March 18, 2026</li>
+              <li><span class="icon">📜</span> Certificate of completion</li>
+            </ul>
+          </div>
+
+          <div class="instructor-card">
+            <p class="instructor-label">A course by</p>
+            <div class="instructor-info">
+              <div class="instructor-avatar">{course.instructor.charAt(0)}</div>
+              <span class="instructor-name">{course.instructor}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs Section -->
+      <div class="tabs-container">
+        <div class="tabs-header">
+          <button class="tab-btn active" data-tab="info">Course Info</button>
+          <button class="tab-btn" data-tab="reviews">Reviews</button>
+        </div>
+
+        <div class="tab-content active" id="info">
+          <div class="about-section">
+            <h3>About Course</h3>
+            <p>{course.desc}</p>
+          </div>
+          
+          <div class="content-section">
+            <h3>Course Content</h3>
+            <div class="content-accordion">
+              <div class="accordion-item">
+                <div class="accordion-header">
+                  <span>{course.title}</span>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="accordion-body">
+                  <div class="lesson-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>{course.title} (Intro)</span>
+                    <span class="duration">34:52</span>
+                    <span class="lock">🔒</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="reviews">
+          <div class="reviews-summary">
+            <div class="big-rating">
+              <span class="score">5.0</span>
+              <div class="stars">★★★★★</div>
+              <span class="total">Total 4 Ratings</span>
+            </div>
+            <div class="rating-bars">
+              {[5,4,3,2,1].map(num => (
+                <div class="bar-row">
+                  <span>{num} ★</span>
+                  <div class="bar-bg"><div class="bar-fill" style={`width: ${num === 5 ? '100%' : '0%'}`}></div></div>
+                  <span>{num === 5 ? '4 Ratings' : '0 Rating'}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="reviews-list">
+            <div class="review-card">
+              <div class="user-info">
+                <div class="avatar">KO</div>
+                <div>
+                  <div class="name">K.M. Ome</div>
+                  <div class="date">3 months ago</div>
+                </div>
+              </div>
+              <div class="stars">★★★★★</div>
+              <p>Alhamdulillah, Very Good</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</div>
+
+<style>
+  .course-details-container {
+    padding: 60px 0;
+    font-family: 'Inter', sans-serif;
+    color: #1e293b;
+  }
+  .course-header {
+    margin-bottom: 40px;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .rating-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fefce8;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid #fef08a;
+  }
+  .stars { color: #facc15; font-size: 14px; }
+  .rating-text { font-size: 13px; font-weight: 600; color: #854d0e; }
+  .course-title {
+    font-family: 'Lora', serif;
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 700;
+    margin: 0;
+  }
+  .header-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #64748b;
+    font-size: 14px;
+  }
+  .cat-link { color: var(--primary); font-weight: 600; cursor: pointer; }
+  .header-actions { display: flex; gap: 12px; }
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #64748b;
+    transition: all 0.2s;
+  }
+  .action-btn:hover { background: #f8fafc; color: #1e293b; }
+
+  .course-main-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 32px;
+    margin-bottom: 60px;
+  }
+  .video-wrapper {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    background: #000;
+  }
+  .video-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  .video-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .price-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  }
+  .price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .current-price { font-size: 28px; font-weight: 800; color: #1e293b; }
+  .old-price { text-decoration: line-through; color: #94a3b8; font-size: 16px; }
+  .enroll-btn {
+    width: 100%;
+    background: #475569;
+    color: #fff;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 24px;
+    transition: background 0.2s;
+  }
+  .enroll-btn:hover { background: #334155; }
+  .course-meta-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .course-meta-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #64748b;
+  }
+  .course-meta-list .icon { font-size: 18px; }
+
+  .instructor-card {
+    margin-top: 24px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+  .instructor-label { font-size: 13px; color: #64748b; margin-bottom: 12px; }
+  .instructor-info { display: flex; align-items: center; gap: 12px; }
+  .instructor-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+  .instructor-name { font-weight: 600; color: #1e293b; }
+
+  .tabs-container { margin-top: 40px; }
+  .tabs-header {
+    display: flex;
+    gap: 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .tab-btn {
+    padding: 12px 0;
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+  }
+  .tab-btn.active {
+    color: #1e293b;
+  }
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary);
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .about-section, .content-section {
+    max-width: 800px;
+    margin-bottom: 40px;
+  }
+  .about-section h3, .content-section h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .about-section p {
+    line-height: 1.8;
+    color: #475569;
+  }
+
+  .content-accordion {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .accordion-item { border-bottom: 1px solid var(--border); }
+  .accordion-header {
+    padding: 16px 20px;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .accordion-body {
+    padding: 0 20px 16px;
+    background: #fcfcfc;
+  }
+  .lesson-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  .lesson-item .duration { margin-left: auto; color: #64748b; font-size: 12px; }
+  .lesson-item .lock { color: #94a3b8; }
+
+  .reviews-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+    margin-bottom: 40px;
+    padding: 32px;
+    background: #f8fafc;
+    border-radius: 24px;
+  }
+  .big-rating { text-align: center; }
+  .big-rating .score {
+    font-size: 64px;
+    font-weight: 800;
+    display: block;
+    line-height: 1;
+  }
+  .big-rating .stars { font-size: 24px; color: #facc15; margin: 8px 0; }
+  .big-rating .total { color: #64748b; font-size: 14px; }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .bar-bg {
+    flex: 1;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill { height: 100%; background: #facc15; }
+
+  .review-card {
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 16px;
+  }
+  .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .user-info .avatar {
+    width: 40px;
+    height: 40px;
+    background: #e2e8f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  .user-info .name { font-weight: 600; font-size: 14px; }
+  .user-info .date { font-size: 12px; color: #94a3b8; }
+  .review-card .stars { margin-bottom: 8px; display: block; }
+  .review-card p { font-size: 14px; color: #475569; line-height: 1.6; }
+
+  @media (max-width: 900px) {
+    .course-main-grid { grid-template-columns: 1fr; }
+    .reviews-summary { grid-template-columns: 1fr; text-align: center; }
+    .bar-row { justify-content: center; }
+  }
+</style>
+
+<script>
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      tabContents.forEach(content => {
+        content.classList.remove('active');
+        if (content.id === target) {
+          content.classList.add('active');
+        }
+      });
+    });
+  });
+</script>

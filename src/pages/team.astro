@@ -9,6 +9,9 @@ import {
   getWhatsappUrl,
   primaryContact,
 } from '../data/clinic.js';
+import { contactSupportsCall, contactSupportsWhatsapp } from '../lib/clinic-contacts.js';
+
+export const prerender = true;
 ---
 
 <BaseLayout title="রাকী পরিচয় ও যোগাযোগ | Ruqyah Healing Center" description="রাকী টিমের সাথে যোগাযোগ, সময়সূচী ও বুকিং নির্দেশনা।">
@@ -27,6 +30,7 @@ import {
 
           <div class="cta-row">
             <a
+              id="teamPrimaryWhatsappCta"
               href={getWhatsappUrl('আসসালামু আলাইকুম, আমি রাকীর সাথে যোগাযোগ করতে চাই।', primaryContact.international)}
               target="_blank"
               rel="noopener noreferrer"
@@ -40,29 +44,40 @@ import {
 
         <div class="team-card">
           <h2>যোগাযোগ নাম্বার</h2>
-          <div class="phone-list">
+          <div class="phone-list" id="teamPhoneList">
             {clinicNumbers.map((contact) => (
               <div class="phone-item">
                 <div>
                   <p class="phone-label">{contact.label}</p>
-                  <a href={`tel:${contact.display}`} class="phone-number">{contact.display}</a>
+                  {contactSupportsCall(contact) ? (
+                    <a href={`tel:${contact.display}`} class="phone-number">{contact.display}</a>
+                  ) : (
+                    <span class="phone-number">{contact.display}</span>
+                  )}
                 </div>
-                <a
-                  href={getWhatsappUrl('আসসালামু আলাইকুম, আমি রাকীর সাথে যোগাযোগ করতে চাই।', contact.international)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="phone-wa"
-                >
-                  WhatsApp
-                </a>
+                <div class="phone-actions">
+                  {contactSupportsCall(contact) && (
+                    <a href={`tel:${contact.display}`} class="phone-call">কল</a>
+                  )}
+                  {contactSupportsWhatsapp(contact) && (
+                    <a
+                      href={getWhatsappUrl('আসসালামু আলাইকুম, আমি রাকীর সাথে যোগাযোগ করতে চাই।', contact.international)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="phone-wa"
+                    >
+                      WhatsApp
+                    </a>
+                  )}
+                </div>
               </div>
             ))}
           </div>
 
           <div class="schedule-box">
             <h3>সময়সূচী</h3>
-            <p>{clinicSchedule.days}</p>
-            <p>{clinicSchedule.hours}</p>
+            <p id="teamScheduleDays">{clinicSchedule.days}</p>
+            <p id="teamScheduleHours">{clinicSchedule.hours}</p>
           </div>
         </div>
       </div>
@@ -183,13 +198,28 @@ import {
   color: var(--text-dark);
 }
 
+.phone-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.phone-call,
 .phone-wa {
   padding: 10px 14px;
   border-radius: 999px;
-  background: #22c55e;
-  color: #fff;
   font-weight: 700;
   font-size: 13px;
+}
+
+.phone-call {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.phone-wa {
+  background: #22c55e;
+  color: #fff;
 }
 
 .schedule-box {

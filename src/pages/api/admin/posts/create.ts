@@ -1,29 +1,49 @@
 import { createDb } from '../../../../db/client.js';
 import { createPost } from '../../../../lib/posts.js';
 import { logAuditEvent } from '../../../../lib/audit.js';
+import { sanitizeHtml } from '../../../../lib/markdown.js';
 
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { env as workerEnv } from 'cloudflare:workers';
 
+interface CreatePostBody {
+  title: string;
+  slug: string;
+  excerpt: string;
+  category: string;
+  tags?: string[];
+  date: string;
+  content?: string;
+  contentHtml?: string;
+  published?: boolean;
+}
+
 export const POST: APIRoute = async ({ request, locals }) => {
   if (!locals.user || locals.user.role !== 'admin') {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 403 });
   }
 
-  const env = workerEnv || process.env;
+  const env = (workerEnv || process.env) as Record<string, string>;
 
   try {
-    const data = await request.json();
-    const { title, slug, excerpt, category, tags, date, content, published } = data;
+    const data = (await request.json()) as CreatePostBody;
+    const { title, slug, excerpt, category, tags, date, published, content, contentHtml } = data;
 
-    if (!title || !slug || !excerpt || !category || !date || !content) {
+    // Basic required metadata must always be present
+    if (!title || !slug || !excerpt || !category || !date) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
     }
 
-    // Content size limit: 500KB
-    if (typeof content === 'string' && content.length > 500_000) {
+    // At least one content form must be provided
+    if (!contentHtml && !content) {
+      return new Response(JSON.stringify({ error: 'কন্টেন্ট প্রয়োজন' }), { status: 400 });
+    }
+
+    // Content size limit: 500KB (check whichever field is present)
+    const contentToCheck = contentHtml ?? content ?? '';
+    if (contentToCheck.length > 500_000) {
       return new Response(JSON.stringify({ error: 'কন্টেন্ট খুব বড়। সর্বোচ্চ ৫০০KB অনুমোদিত।' }), { status: 400 });
     }
 
@@ -32,7 +52,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(JSON.stringify({ error: 'স্লাগ শুধু ছোট হাতের অক্ষর, সংখ্যা এবং হাইফেন হতে পারে' }), { status: 400 });
     }
 
-    const db = createDb(env.DATABASE_URL);
+    // Sanitize TipTap HTML before persistence
+    const sanitizedHtml = contentHtml ? sanitizeHtml(contentHtml) : null;
+
+    const db = createDb(env['DATABASE_URL']);
     await createPost(db, {
       slug,
       title,
@@ -40,7 +63,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
       category,
       tags: tags || [],
       date,
-      content,
+      // Legacy Markdown field — kept for backward compat; empty for new TipTap posts
+      content: content ?? '',
+      // New canonical HTML field — set for all TipTap posts
+      contentHtml: sanitizedHtml,
       published: published !== false,
     });
 
@@ -50,7 +76,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       action: 'create',
       entityType: 'post',
       entityId: slug,
-      details: { title },
+      details: { title, format: contentHtml ? 'html' : 'markdown' },
     });
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });

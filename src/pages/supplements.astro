@@ -60,6 +60,8 @@ const products = [
   },
 ];
 
+export const prerender = true;
+
 function starRating(rating: number) {
   const full = Math.floor(rating);
   const half = rating % 1 >= 0.5;

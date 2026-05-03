@@ -3,309 +3,254 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { testCategories } from '../data/test-data';
-import { Activity, Eye, Moon, Ghost, Brain, Baby } from '@lucide/astro';
+import { HelpCircle, Eye, Wand2, Flame, Wind, Brain, Baby, Clock, Link2, ChevronRight } from '@lucide/astro';
+import { buildBreadcrumbSchema, buildFaqSchema, buildWebPageSchema } from '../lib/seo.js';
 
-const icons = {
-  activity: Activity,
-  eye: Eye,
-  moon: Moon,
-  ghost: Ghost,
-  brain: Brain,
-  baby: Baby
-};
+// Map existing test categories to the card layout from the screenshot
+const testCards = [
+  {
+    id: 'general',
+    title: 'অনিদ্রা',
+    icon: HelpCircle,
+    href: '/ruqyah-diagnosis/general',
+  },
+  {
+    id: 'evil-eye',
+    title: 'বদ নজর',
+    icon: Eye,
+    href: '/ruqyah-diagnosis/evil-eye',
+  },
+  {
+    id: 'magic',
+    title: 'ঝাদু সমস্যা',
+    icon: Wand2,
+    href: '/ruqyah-diagnosis/magic',
+  },
+  {
+    id: 'jinn',
+    title: 'জীন সমস্যা',
+    icon: Flame,
+    href: '/ruqyah-diagnosis/jinn',
+  },
+  {
+    id: 'waswasa',
+    title: 'ওয়াসওয়াসা',
+    icon: Wind,
+    href: '/ruqyah-diagnosis/waswasa',
+  },
+  {
+    id: 'kids',
+    title: 'বাচ্চাদের সমস্যা',
+    icon: Baby,
+    href: '/ruqyah-diagnosis/kids',
+  },
+  {
+    id: 'history',
+    title: 'পূর্বের পরীক্ষার ফলাফল',
+    icon: Clock,
+    href: '/profile',
+  },
+  {
+    id: 'links',
+    title: 'প্রয়োজনীয় লিংক',
+    icon: Link2,
+    href: '/self-ruqyah',
+  },
+];
 
-const categories = testCategories.map(c => ({
-  id:          c.id,
-  title:       c.title,
-  subtitle:    c.subtitle,
-  description: c.description,
-  icon:        c.icon,
-  IconCmp:     icons[c.icon as keyof typeof icons] || Activity,
-  color:       c.color,
-  colorLight:  c.colorLight,
-  count:       c.id === 'kids' ? '6 / 19' : c.questions.length.toString(),
-}));
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/ruqyah-diagnosis`;
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'রুকইয়াহ ডায়াগনোসিস', url: pageUrl },
+]);
+const pageLd = buildWebPageSchema({
+  pageUrl,
+  name: 'সেলফ রুকইয়াহ ডায়াগনোসিস',
+  description: 'সমস্যার ধরন অনুযায়ী স্ব-মূল্যায়নের জন্য রুকইয়াহ ডায়াগনোসিস পেজ। জীন, জাদু, বদনজর, ওয়াসওয়াসা ও অন্যান্য সমস্যা নির্ণয় করুন।',
+  inLanguage: 'bn-BD',
+});
+const faqLd = buildFaqSchema([
+  {
+    question: 'এই ডায়াগনোসিস কি চূড়ান্ত রায়?',
+    answer: 'না। এটি প্রাথমিক self-assessment; গুরুতর অবস্থায় রাকী বা ডাক্তারের সাথে আলোচনা করা উচিত।',
+  },
+  {
+    question: 'রেজাল্টে কি রাকীর সাথে যোগাযোগের পরামর্শ আছে?',
+    answer: 'হ্যাঁ। প্রতিটি রেজাল্টে WhatsApp আলোচনা এবং অ্যাপয়েন্টমেন্ট CTA রাখা হয়েছে।',
+  },
+  {
+    question: 'শিশুদের জন্য কি আলাদা মূল্যায়ন আছে?',
+    answer: 'হ্যাঁ। বাচ্চাদের জন্য আলাদা question set এবং age-based flow আছে।',
+  },
+]);
 ---
 
 <BaseLayout
-  title="রুকইয়াহ ডায়াগনোসিস | Ruqyah Healing Center"
+  title="সেলফ রুকইয়াহ ডায়াগনোসিস | Ruqyah Healing Center"
   description="রুকইয়াহ ডায়াগনোসিস - আপনার সমস্যাটি কি শারীরিক, মানসিক নাকি আসলেই জিন বা জাদুর প্রভাব? বিজ্ঞানসম্মত ও শরয়ী পদ্ধতিতে নিজে নিজে যাচাই করুন।"
+  locale="bn"
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(pageLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqLd)} />
   <Header />
 
-  <main>
-    <div class="page-header">
-      <div class="container">
-        <!-- Breadcrumb -->
-        <nav class="breadcrumb" aria-label="breadcrumb">
-          <a href="/">হোম</a>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-          <span>রুকইয়াহ ডায়াগনোসিস</span>
-        </nav>
+  <main class="diagnosis-page">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href="/">হোম</a>
+        <ChevronRight size={14} stroke-width={2.5} />
+        <span>রুকইয়াহ ডায়াগনোসিস</span>
+      </nav>
+
+      <!-- Page Title -->
+      <h1 class="page-title">সেলফ রুকইয়াহ ডায়াগনোসিস</h1>
+
+      <!-- Diagnosis Grid -->
+      <div class="diagnosis-grid">
+        {testCards.map((card) => (
+          <a href={card.href} class="diagnosis-card">
+            <div class="card-icon">
+              <card.icon size={32} stroke-width={1.5} />
+            </div>
+            <span class="card-label">{card.title}</span>
+          </a>
+        ))}
       </div>
-    </div>
 
-    <!-- Hero -->
-    <section class="test-hero">
-      <div class="container">
-        <div class="hero-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          আধ্যাত্মিক ডায়াগনোসিস
-        </div>
-        <h1>সেলফ রুকইয়াহ<br /><span>ডায়াগনোসিস সিস্টেম</span></h1>
-        <p>আপনার সমস্যার ধরন অনুযায়ী টেস্ট বেছে নিন। প্রতিটি প্রশ্নের সৎ উত্তর দিন —<br class="br-desk"/>ফলাফল আপনাকে সঠিক পদক্ষেপ নিতে সাহায্য করবে ইনশাআল্লাহ।</p>
-
-        <div class="hero-meta">
-          <span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            ৫–১৫ মিনিট
-          </span>
-          <span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            সম্পূর্ণ গোপনীয়
-          </span>
-          <span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            বিনামূল্যে
-          </span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Disclaimer -->
-    <div class="disclaimer">
-      <div class="container">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <!-- Disclaimer -->
+      <div class="disclaimer">
+        <HelpCircle size={16} stroke-width={2} />
         <p>এই টেস্ট শুধুমাত্র প্রাথমিক পর্যায়ের মূল্যায়নের জন্য। এটি কোনো মেডিকেল বা ধর্মীয় ফতোয়া নয়। উচ্চ মাত্রার লক্ষণে অবশ্যই অভিজ্ঞ রাকীর শরণাপন্ন হোন।</p>
       </div>
     </div>
-
-    <!-- Test Cards -->
-    <section class="tests-section">
-      <div class="container">
-        <div class="section-label">টেস্ট বেছে নিন</div>
-        <div class="tests-grid">
-          {categories.map(cat => (
-            <a
-              href={`/ruqyah-diagnosis/${cat.id}`}
-              class="test-card"
-              style={`--card-color:${cat.color};--card-light:${cat.colorLight}`}
-            >
-              <div class="card-icon" style={`background:${cat.colorLight}; color: ${cat.color};`}>
-                <cat.IconCmp size={28} stroke-width={2.5} />
-              </div>
-              <div class="card-body">
-                <div class="card-subtitle">{cat.subtitle}</div>
-                <h2 class="card-title">{cat.title}</h2>
-                <p class="card-desc">{cat.description}</p>
-                <div class="card-footer">
-                  <span class="q-count">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    {cat.count} প্রশ্ন
-                  </span>
-                  <span class="start-link">
-                    শুরু করুন
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-                  </span>
-                </div>
-              </div>
-              <div class="card-accent" style={`background:${cat.color}`}></div>
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <!-- How it works -->
-    <section class="how-section">
-      <div class="container">
-        <h2>কীভাবে কাজ করে?</h2>
-        <p class="section-sub">তিনটি সহজ ধাপে আপনার সমস্যা চিহ্নিত করুন</p>
-        <div class="steps-row">
-          <div class="step">
-            <div class="step-num">১</div>
-            <h3>টেস্ট বেছে নিন</h3>
-            <p>আপনার সমস্যার ধরন অনুযায়ী উপযুক্ত টেস্ট সিলেক্ট করুন</p>
-          </div>
-          <div class="step-arrow" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-          <div class="step">
-            <div class="step-num">২</div>
-            <h3>প্রশ্নের উত্তর দিন</h3>
-            <p>প্রতিটি প্রশ্নে সৎভাবে হ্যাঁ, মাঝেমাঝে বা না বেছে নিন</p>
-          </div>
-          <div class="step-arrow" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-          <div class="step">
-            <div class="step-num">৩</div>
-            <h3>সমাধান পান</h3>
-            <p>স্কোর অনুযায়ী ব্যক্তিগত সুপারিশ ও পরবর্তী পদক্ষেপ জানুন</p>
-          </div>
-        </div>
-      </div>
-    </section>
   </main>
 
   <Footer />
 </BaseLayout>
 
 <style>
-.page-header { padding: 14px 0; border-bottom: 1px solid var(--border); }
-.breadcrumb { display: flex; gap: 6px; align-items: center; font-size: 14px; color: var(--text-muted); }
-.breadcrumb a { color: var(--primary); text-decoration: none; }
+  .diagnosis-page {
+    background: linear-gradient(180deg, #f8f7f4 0%, #f0efe9 100%);
+    min-height: 100vh;
+    padding-bottom: 48px;
+  }
 
-/* Hero */
-.test-hero {
-  padding: 60px 0 48px;
-  text-align: center;
-  background: linear-gradient(180deg, #ecfdf5 0%, #f9fffe 60%, #fff 100%);
-}
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: var(--primary); color: #fff;
-  font-size: 13px; font-weight: 600; padding: 5px 16px;
-  border-radius: 20px; margin-bottom: 20px;
-}
-.test-hero h1 {
-  font-size: clamp(1.8rem, 5vw, 2.8rem);
-  font-weight: 800; color: var(--text-dark);
-  line-height: 1.2; margin-bottom: 16px;
-}
-.test-hero h1 span { color: var(--primary); }
-.test-hero p {
-  font-size: 1rem; color: var(--text-muted);
-  max-width: 560px; margin: 0 auto 28px; line-height: 1.7;
-}
-.br-desk { display: none; }
-@media (min-width: 600px) { .br-desk { display: block; } }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 0;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .breadcrumb a:hover {
+    color: var(--primary);
+  }
+  .breadcrumb svg {
+    color: var(--text-muted);
+  }
 
-.hero-meta {
-  display: inline-flex; gap: 20px; flex-wrap: wrap; justify-content: center;
-  background: #fff; border: 1.5px solid var(--border);
-  border-radius: 40px; padding: 10px 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-.hero-meta span {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 13px; color: var(--text-medium); font-weight: 500;
-}
-.hero-meta svg { color: var(--primary); }
+  .page-title {
+    text-align: center;
+    font-size: clamp(1.2rem, 4vw, 1.6rem);
+    font-weight: 800;
+    color: var(--text-dark);
+    margin: 8px 0 28px;
+    letter-spacing: 0.3px;
+  }
 
-/* Disclaimer */
-.disclaimer {
-  background: #fffbeb; border-top: 1px solid #fde68a; border-bottom: 1px solid #fde68a;
-  padding: 12px 0;
-}
-.disclaimer .container { display: flex; align-items: flex-start; gap: 10px; }
-.disclaimer svg { color: #d97706; flex-shrink: 0; margin-top: 2px; }
-.disclaimer p { font-size: 13px; color: #78350f; line-height: 1.6; }
+  /* ── Diagnosis Grid ── */
+  .diagnosis-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
 
-/* Tests Grid */
-.tests-section { padding: 48px 0 64px; }
-.section-label {
-  font-size: 13px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 24px;
-}
-.tests-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
+  .diagnosis-card {
+    background: #fff;
+    border-radius: 16px;
+    aspect-ratio: 1 / 1.05;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    border: 1.5px solid var(--border);
+    padding: 20px;
+  }
+  .diagnosis-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.1);
+    border-color: var(--primary);
+  }
+  .diagnosis-card:active {
+    transform: scale(0.97);
+  }
 
-.test-card {
-  position: relative;
-  background: #fff;
-  border: 1.5px solid var(--border);
-  border-radius: 20px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  text-decoration: none;
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-.test-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 36px rgba(0,0,0,0.1);
-  border-color: var(--card-color);
-}
-.test-card:hover .start-link { color: var(--card-color); }
+  .card-icon {
+    color: var(--primary);
+    opacity: 0.9;
+  }
 
-.card-icon {
-  width: 56px; height: 56px; border-radius: 16px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px; flex-shrink: 0;
-}
+  .card-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    text-align: center;
+    line-height: 1.4;
+  }
 
-.card-body { flex: 1; }
-.card-subtitle {
-  font-size: 11px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.6px; color: var(--card-color, var(--primary));
-  margin-bottom: 6px;
-}
-.card-title {
-  font-size: 1.15rem; font-weight: 800;
-  color: var(--text-dark); margin-bottom: 8px; line-height: 1.3;
-}
-.card-desc {
-  font-size: 13px; color: var(--text-muted);
-  line-height: 1.6; margin-bottom: 16px;
-}
-.card-footer {
-  display: flex; align-items: center;
-  justify-content: space-between;
-}
-.q-count {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 12px; color: var(--text-muted); font-weight: 500;
-}
-.q-count svg { color: var(--card-color, var(--primary)); }
-.start-link {
-  display: flex; align-items: center; gap: 4px;
-  font-size: 13px; font-weight: 700; color: var(--text-muted);
-  transition: color 0.18s;
-}
+  /* ── Disclaimer ── */
+  .disclaimer {
+    max-width: 520px;
+    margin: 28px auto 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .disclaimer svg {
+    color: #d97706;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .disclaimer p {
+    font-size: 12px;
+    color: #78350f;
+    line-height: 1.6;
+    margin: 0;
+  }
 
-/* Decorative top accent bar */
-.card-accent {
-  position: absolute; top: 0; left: 0; right: 0;
-  height: 4px; opacity: 0;
-  transition: opacity 0.2s;
-}
-.test-card:hover .card-accent { opacity: 1; }
-
-/* How it works */
-.how-section {
-  padding: 60px 0 80px;
-  background: var(--bg-light, #f9fafb);
-}
-.how-section h2 { text-align: center; font-size: 1.75rem; font-weight: 800; margin-bottom: 8px; }
-.section-sub { text-align: center; color: var(--text-muted); margin-bottom: 48px; font-size: 15px; }
-.steps-row {
-  display: flex; align-items: flex-start; justify-content: center;
-  gap: 0; max-width: 760px; margin: 0 auto;
-}
-.step {
-  flex: 1; text-align: center; padding: 0 20px;
-}
-.step-num {
-  width: 56px; height: 56px; background: var(--primary); color: #fff;
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-size: 22px; font-weight: 700; margin: 0 auto 16px;
-}
-.step h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text-dark); }
-.step p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-.step-arrow { padding-top: 14px; flex-shrink: 0; }
-
-/* Responsive */
-@media (max-width: 960px) { .tests-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) {
-  .tests-grid { grid-template-columns: 1fr; }
-  .test-hero { padding: 40px 0 32px; }
-  .steps-row { flex-direction: column; align-items: center; gap: 24px; }
-  .step-arrow { display: none; }
-}
+  /* ── Desktop tweaks ── */
+  @media (min-width: 640px) {
+    .diagnosis-grid {
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 680px;
+      gap: 16px;
+    }
+    .diagnosis-card {
+      aspect-ratio: 1 / 1;
+    }
+    .card-label {
+      font-size: 15px;
+    }
+    .disclaimer {
+      max-width: 680px;
+    }
+  }
 </style>

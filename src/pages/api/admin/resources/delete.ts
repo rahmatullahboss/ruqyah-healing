@@ -15,7 +15,18 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const env = (workerEnv || process.env) as any;
   const db = createDb(env.DATABASE_URL);
+  const r2 = env.R2_IMAGES;
   const body = await request.json() as any;
+
+  // Fetch the resource before deletion to get its file URL
+  const oldRes = await db.select().from(resources).where(eq(resources.id, body.id));
+  if (oldRes.length > 0) {
+    const oldUrl = oldRes[0].fileUrl;
+    if (oldUrl && oldUrl.startsWith('/api/images/') && r2) {
+      const key = oldUrl.replace('/api/images/', '');
+      await r2.delete(key).catch(console.error);
+    }
+  }
 
   await db.delete(resources).where(eq(resources.id, body.id));
 

@@ -21,6 +21,8 @@ import {
   durationOptions,
   genderOptions,
 } from '../data/clinic.js';
+import { buildBreadcrumbSchema, buildFaqSchema, buildServiceSchema } from '../lib/seo.js';
+import { contactSupportsCall, contactSupportsWhatsapp } from '../lib/clinic-contacts.js';
 
 const preferredTimeSlots = [
   'সকাল ৯:০০',
@@ -34,12 +36,44 @@ const preferredTimeSlots = [
   'বিকেল ৫:০০',
   'সন্ধ্যা ৬:০০',
 ];
+
+export const prerender = true;
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/appointment`;
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'অ্যাপয়েন্টমেন্ট', url: pageUrl },
+]);
+const serviceLd = buildServiceSchema({
+  siteUrl,
+  pageUrl,
+  name: 'রুকইয়াহ অ্যাপয়েন্টমেন্ট',
+  description: 'রুকইয়াহ, হিজামা, আকুপাংচার এবং supportive care সেশনের জন্য বুকিং পেজ।',
+});
+const faqLd = buildFaqSchema([
+  {
+    question: 'অ্যাপয়েন্টমেন্ট নেওয়ার আগে কী করতে হবে?',
+    answer: 'সমস্যার সংক্ষিপ্ত বিবরণ, প্রয়োজনীয় তথ্য এবং পছন্দের সময় প্রস্তুত রেখে বুকিং করুন।',
+  },
+  {
+    question: 'রুকইয়াহ কি মেডিকেল চিকিৎসার বিকল্প?',
+    answer: 'না। জরুরি শারীরিক বা মানসিক উপসর্গ থাকলে ডাক্তার দেখানো জরুরি।',
+  },
+  {
+    question: 'ফলাফল নিয়ে কি রাকীর সাথে আলোচনা করা যাবে?',
+    answer: 'হ্যাঁ। ডায়াগনোসিস বা উপসর্গ অনুযায়ী রাকীর সাথে আলোচনা করে পরবর্তী পদক্ষেপ নেওয়া যায়।',
+  },
+]);
 ---
 
 <BaseLayout
   title="অ্যাপয়েন্টমেন্ট নিন | Ruqyah Healing Center"
   description="রুকইয়াহ, হিজামা, আকুপাংচার, আকুপ্রেসার, ম্যাসাজ ও ন্যাচারোপ্যাথি সেবার জন্য অ্যাপয়েন্টমেন্ট বুক করুন।"
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqLd)} />
   <Header />
 
   <main class="appt-page">
@@ -297,11 +331,11 @@ const preferredTimeSlots = [
               <div class="form-section">
                 <h3>৫. পেমেন্ট ও বুকিং কনফার্মেশন</h3>
                 <div class="payment-box">
-                  <p><strong>বুকিং ফি:</strong> {paymentDetails.bookingFee}</p>
-                  <p><strong>ব্যাংক:</strong> {paymentDetails.bankName}, {paymentDetails.branch}</p>
-                  <p><strong>একাউন্ট নাম:</strong> {paymentDetails.accountName}</p>
-                  <p><strong>একাউন্ট নাম্বার:</strong> {paymentDetails.accountNumber}</p>
-                  <p><strong>বিকাশ / নগদ:</strong> {paymentDetails.accountPhone}</p>
+                  <p><strong>বুকিং ফি:</strong> <span id="appointmentBookingFee">{paymentDetails.bookingFee}</span></p>
+                  <p><strong>ব্যাংক:</strong> <span id="appointmentBankName">{paymentDetails.bankName}</span>, <span id="appointmentBankBranch">{paymentDetails.branch}</span></p>
+                  <p><strong>একাউন্ট নাম:</strong> <span id="appointmentAccountName">{paymentDetails.accountName}</span></p>
+                  <p><strong>একাউন্ট নাম্বার:</strong> <span id="appointmentAccountNumber">{paymentDetails.accountNumber}</span></p>
+                  <p><strong>বিকাশ / নগদ:</strong> <span id="appointmentAccountPhone">{paymentDetails.accountPhone}</span></p>
                 </div>
 
                 <div class="form-grid form-grid--two">
@@ -363,23 +397,34 @@ const preferredTimeSlots = [
         <aside class="appt-sidebar">
           <section class="sidebar-card sidebar-card--accent">
             <h2>যোগাযোগ তথ্য</h2>
-            <p>এই নাম্বারগুলোতে কল করুন অথবা WhatsApp-এ message পাঠান।</p>
+            <p>প্রতিটি নাম্বারের পাশে কীভাবে যোগাযোগ করা যাবে তা আলাদা করে দেখানো আছে।</p>
 
-            <div class="contact-list">
+            <div class="contact-list" id="appointmentPhoneList">
               {clinicNumbers.map((contact) => (
                 <div class="contact-row">
                   <div>
                     <p class="contact-label">{contact.label}</p>
-                    <a href={`tel:${contact.display}`} class="contact-value">{contact.display}</a>
+                    {contactSupportsCall(contact) ? (
+                      <a href={`tel:${contact.display}`} class="contact-value">{contact.display}</a>
+                    ) : (
+                      <span class="contact-value">{contact.display}</span>
+                    )}
                   </div>
-                  <a
-                    class="contact-wa"
-                    href={getWhatsappUrl('আসসালামু আলাইকুম, অ্যাপয়েন্টমেন্ট সম্পর্কে জানতে চাই।', contact.international)}
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    WhatsApp
-                  </a>
+                  <div class="contact-actions">
+                    {contactSupportsCall(contact) && (
+                      <a class="contact-call" href={`tel:${contact.display}`}>কল</a>
+                    )}
+                    {contactSupportsWhatsapp(contact) && (
+                      <a
+                        class="contact-wa"
+                        href={getWhatsappUrl('আসসালামু আলাইকুম, অ্যাপয়েন্টমেন্ট সম্পর্কে জানতে চাই।', contact.international)}
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        WhatsApp
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -387,9 +432,10 @@ const preferredTimeSlots = [
 
           <section class="sidebar-card">
             <h2>সময়সূচী</h2>
-            <p class="sidebar-strong">{clinicSchedule.days}</p>
-            <p>{clinicSchedule.hours}</p>
+            <p class="sidebar-strong" id="appointmentScheduleDays">{clinicSchedule.days}</p>
+            <p id="appointmentScheduleHours">{clinicSchedule.hours}</p>
             <a
+              id="appointmentTimeLink"
               class="btn btn-outline sidebar-btn"
               href={getWhatsappUrl('আসসালামু আলাইকুম, আমি অ্যাপয়েন্টমেন্টের সময় সম্পর্কে জানতে চাই।')}
               target="_blank"
@@ -417,6 +463,7 @@ const preferredTimeSlots = [
             <h2>দ্রুত বুকিং</h2>
             <p>ফর্ম পূরণ করার আগে জরুরি কথা বলতে চাইলে সরাসরি WhatsApp করুন।</p>
             <a
+              id="appointmentQuickBookingLink"
               class="btn btn-primary sidebar-btn"
               href={getWhatsappUrl('আসসালামু আলাইকুম, আমি দ্রুত অ্যাপয়েন্টমেন্ট বুক করতে চাই।', primaryContact.international)}
               target="_blank"
@@ -994,16 +1041,31 @@ textarea {
   color: var(--text-dark);
 }
 
+.contact-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.contact-call,
 .contact-wa {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 10px 14px;
-  border-radius: 999px;
-  background: #22c55e;
-  color: #fff;
   font-weight: 700;
   font-size: 13px;
+  border-radius: 999px;
+}
+
+.contact-call {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.contact-wa {
+  background: #22c55e;
+  color: #fff;
 }
 
 .sidebar-btn {

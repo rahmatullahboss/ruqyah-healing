@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+export const prerender = true;
+
+const symptoms = [
+  'Sleep disturbance and nightmares',
+  'Unexplained headaches',
+  'Heavy chest and anxiety',
+  'Unusual fear when alone',
+  'Persistent sadness and low mood',
+  'Sudden anger or emotional instability',
+  'Discomfort during Quran recitation',
+  'Repeated family conflict patterns',
+  'Concentration and memory decline',
+  'Recurring body pain without clear cause',
+  'Strong waswasa or intrusive thoughts',
+  'Work or marriage blockage patterns',
+];
+---
+
+<BaseLayout
+  title="Symptom Diagnosis | Ruqyah Healing Center"
+  description="Select your symptoms and continue to the ruqyah diagnosis flow."
+  locale="en"
+>
+  <Header />
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <nav class="breadcrumb">
+          <a href="/en/">Home</a><span>/</span><span>Symptom Diagnosis</span>
+        </nav>
+        <h1>Symptom Diagnosis</h1>
+        <p>Select symptoms that match your condition, then continue to full diagnosis.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="grid" id="symptomGrid">
+          {symptoms.map((item, index) => (
+            <label class="item">
+              <input type="checkbox" value={index + 1} />
+              <span>{item}</span>
+            </label>
+          ))}
+        </div>
+
+        <div class="cta">
+          <p id="selectionText">No symptom selected yet.</p>
+          <a href="/en/ruqyah-diagnosis" class="btn btn-primary" id="continueBtn">Start Ruqyah Diagnosis</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  const selectionText = document.getElementById('selectionText');
+  const checkboxes = document.querySelectorAll('#symptomGrid input[type="checkbox"]');
+  const updateText = () => {
+    const selected = [...checkboxes].filter((box) => box.checked).length;
+    selectionText.textContent = selected > 0
+      ? `${selected} symptom(s) selected. Continue to detailed diagnosis.`
+      : 'No symptom selected yet.';
+  };
+  checkboxes.forEach((checkbox) => checkbox.addEventListener('change', updateText));
+</script>
+
+<style>
+  .hero { padding: 46px 0 20px; }
+  .breadcrumb { display: flex; gap: 8px; color: var(--text-muted); font-size: 14px; margin-bottom: 14px; }
+  .hero p { color: var(--text-muted); }
+  .section { padding: 20px 0 64px; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .item { display: flex; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: #fff; cursor: pointer; }
+  .item span { line-height: 1.5; }
+  .item input { margin-top: 3px; }
+  .cta { margin-top: 16px; border: 1px solid var(--border); border-radius: 14px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .cta p { color: var(--text-medium); }
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    .cta { flex-direction: column; align-items: flex-start; }
+  }
+</style>

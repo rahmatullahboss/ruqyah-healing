@@ -1,0 +1,591 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { buildFaqSchema, buildBreadcrumbSchema, buildServiceSchema } from '../../lib/seo.js';
+import { getWhatsappUrl } from '../../data/clinic.js';
+
+export const prerender = true;
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/services/ruqyah`;
+
+const ruqyahServiceSchema = buildServiceSchema({
+  siteUrl,
+  pageUrl,
+  name: 'রুকইয়াহ চিকিৎসা — Ruqyah Shariah Treatment',
+  description: 'কুরআন ও সুন্নাহ ভিত্তিক রুকইয়াহ চিকিৎসা সেবা। জিন, জাদু ও বদনজরের চিকিৎসায় বিশেষজ্ঞ। Quran and Sunnah-based spiritual healing for jinn possession, black magic, and evil eye.',
+  areaServed: 'Bangladesh',
+  availableLanguage: ['bn', 'en'],
+});
+
+const serviceFaq = [
+  {
+    question: 'রুকইয়াহ চিকিৎসা কিভাবে কাজ করে?',
+    answer: 'রুকইয়াহ চিকিৎসায় কুরআনের নির্দিষ্ট আয়াত (সূরা ফাতিহা, আয়াতুল কুরসি, সূরা বাকারা, সূরা ফালাক, সূরা নাস) ও হাদিসে বর্ণিত দোয়া পড়ে রোগীর উপর ফুঁক দেওয়া হয়। এটি আধ্যাত্মিক শক্তিকে সক্রিয় করে জ্বীন, জাদু ও বদনজরের প্রভাব দূর করে।',
+  },
+  {
+    question: 'রুকইয়াহ সেশনে কী কী করা হয়?',
+    answer: 'রুকইয়াহ সেশনে প্রথমে রোগীর সমস্যা শোনা হয় (ডায়াগনোসিস)। তারপর কুরআন তেলাওয়াত, দোয়া, এবং ইসলামী কাউন্সেলিং করা হয়। প্রয়োজনে নির্দিষ্ট আমল ও রুটিন দেওয়া হয়। সেশন সাধারণত ৩০ মিনিট থেকে ১ ঘণ্টা স্থায়ী হয়।',
+  },
+  {
+    question: 'রুকইয়াহ চিকিৎসায় কত সময় লাগে?',
+    answer: 'রুকইয়াহ চিকিৎসার সময়কাল সমস্যার তীব্রতা ও রোগীর ঈমানের উপর নির্ভর করে। হালকা সমস্যায় ১-৩ সেশনে আরোগ্য সম্ভব। জটিল ক্ষেত্রে (দীর্ঘমেয়াদী জাদু বা জ্বীন) ৫-১০ সেশন বা তার বেশি লাগতে পারে। চূড়ান্ত শিফা আল্লাহর পক্ষ থেকে আসে।',
+  },
+  {
+    question: 'রুকইয়াহ চিকিৎসার খরচ কত?',
+    answer: 'রুকইয়াহ সেবার খরচ সেবার ধরনের উপর নির্ভরশীল। চেম্বার সেবা, হোম সার্ভিস ও অনলাইন সেশনের জন্য আলাদা রেট। সঠিক খরচ জানতে অ্যাপয়েন্টমেন্ট পেজে দেখুন বা WhatsApp-এ যোগাযোগ করুন।',
+  },
+];
+
+const faqSchema = buildFaqSchema(serviceFaq);
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'সেবাসমূহ', url: `${siteUrl}/services` },
+  { name: 'রুকইয়াহ চিকিৎসা', url: pageUrl },
+]);
+
+const ruqyahSteps = [
+  { name: 'ডায়াগনোসিস সেশন বুক করুন', text: '/appointment পেজে গিয়ে ডায়াগনোসিস সেশনের জন্য অ্যাপয়েন্টমেন্ট বুক করুন। বুকিং ফি ৫০০ টাকা অগ্রিম পরিশোধ করুন।' },
+  { name: 'প্রস্তুতি নিন', text: 'অজু করে, পরিষ্কার কাপড় পরে আসুন। পুরুষরা সুগন্ধি ব্যবহার করুন। কোনো তাবিজ বা শিরকি বস্তু থাকলে খুলে ফেলুন।' },
+  { name: 'ডায়াগনোসিস সেশন', text: 'রাকী আপনার সমস্যা শুনে কুরআন ও সুন্নাহ ভিত্তিক ডায়াগনোসিস করবেন। প্রয়োজনে নির্দিষ্ট আয়াত পড়ে প্রতিক্রিয়া পর্যবেক্ষণ করা হয়।' },
+  { name: 'চিকিৎসা পরিকল্পনা', text: 'ডায়াগনোসিসের পর রাকী আপনার জন্য একটি ব্যক্তিগত চিকিৎসা পরিকল্পনা তৈরি করবেন — সেশন সংখ্যা, আমল ও রুটিন সহ।' },
+  { name: 'নিয়মিত সেশন ও আমল', text: 'নির্ধারিত সময়ে সেশনে উপস্থিত হোন এবং বাসায় দেওয়া আমল ও দোয়া নিয়মিত করুন। ধৈর্য্য ও ঈমান বজায় রাখুন।' },
+];
+---
+
+<BaseLayout
+  title="রুকইয়াহ চিকিৎসা সেবা | Ruqyah Shariah Treatment — Dhaka"
+  description="কুরআন ও সুন্নাহ ভিত্তিক রুকইয়াহ চিকিৎসা সেবা — জ্বীন, জাদু, বদনজর ও আধ্যাত্মিক সমস্যার হালাল সমাধান। Quran and Sunnah-based Ruqyah healing in Dhaka, Bangladesh."
+  ogType="article"
+  keywords={['রুকইয়াহ', 'ruqyah', 'ruqyah treatment', 'islamic healing', 'jinn treatment', 'black magic removal', 'evil eye cure', 'spiritual healing Dhaka']}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(ruqyahServiceSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <Header />
+
+  <main>
+    <!-- Hero -->
+    <section class="svc-hero">
+      <div class="container">
+        <span class="svc-badge">☪️ রুকইয়াহ চিকিৎসা</span>
+        <h1>ইসলামী রুকইয়াহ চিকিৎসা সেবা</h1>
+        <p class="hero-en">Ruqyah Shariah Treatment — Quran & Sunnah-Based Spiritual Healing for Jinn, Black Magic & Evil Eye</p>
+        <p class="hero-desc">
+          কুরআন ও সুন্নাহ ভিত্তিক সম্পূর্ণ হালাল ও শিরকমুক্ত রুকইয়াহ চিকিৎসা। জ্বীন-ভূত, কালো জাদু, বদনজর ও আধ্যাত্মিক সমস্যার কার্যকর সমাধান — অভিজ্ঞ রাকীদের দ্বারা।
+        </p>
+        <div class="hero-cta">
+          <a href={getWhatsappUrl('আসসালামু আলাইকুম, আমি রুকইয়াহ সেবা বুক করতে চাই।')} target="_blank" rel="noopener" class="btn btn-primary">
+            📞 WhatsApp-এ বুক করুন
+          </a>
+          <a href="/symptom-diagnosis" class="btn btn-outline">
+            🔍 সিমটম ডায়াগনোসিস
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- What is Ruqyah -->
+    <section class="section svc-intro">
+      <div class="container">
+        <div class="intro-grid">
+          <div class="intro-text">
+            <h2>রুকইয়াহ কী?</h2>
+            <p>
+              <strong>রুকইয়াহ (رقية)</strong> হলো কুরআনের আয়াত ও হাদিসে বর্ণিত দোয়ার মাধ্যমে আধ্যাত্মিক ও শারীরিক রোগের চিকিৎসা। এটি ইসলামে স্বীকৃত একটি হালাল চিকিৎসা পদ্ধতি।
+            </p>
+            <blockquote class="quran-ref">
+              "আর আমি কুরআন থেকে এমন কিছু অবতীর্ণ করি যা মুমিনদের জন্য আরোগ্য ও রহমত।"
+              <cite>— সূরা বনী ইসরাইল ১৭:৮২</cite>
+            </blockquote>
+            <blockquote class="hadith-ref">
+              "রুকইয়াহ তখনই ক্ষতি করবে না যতক্ষণ তা আল্লাহর কালাম দ্বারা হয়।"
+              <cite>— সহীহ মুসলিম ২২০০</cite>
+            </blockquote>
+          </div>
+          <div class="intro-what">
+            <h2>What is Ruqyah Shariah?</h2>
+            <p>
+              <strong>Ruqyah Shariah</strong> is the Islamic practice of spiritual healing using Quranic verses and prophetic supplications to treat spiritual afflictions including <em>jinn possession, black magic (sihr), evil eye (hasad)</em>, and psychological distress caused by spiritual factors.
+            </p>
+            <p>
+              It is practiced exclusively through <strong>Tawheed (monotheism)</strong> — relying solely on Allah for cure — and contains no shirk, bid'ah, or forbidden practices. Ruqyah Healing Center in Dhaka follows this strict Shariah-compliant methodology.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Conditions Treated -->
+    <section class="section svc-conditions">
+      <div class="container">
+        <h2 class="section-title">যেসব সমস্যার চিকিৎসা করা হয়</h2>
+        <p class="section-subtitle">Conditions We Treat — Ruqyah Diagnosis & Treatment</p>
+
+        <div class="conditions-grid">
+          <div class="condition-card">
+            <div class="condition-icon">👻</div>
+            <h3>জ্বীন-ভূতের আছর</h3>
+            <p>Jinn Possession / Affliction</p>
+            <ul>
+              <li>অস্বাভাবিক আচরণ ও কথাবার্তা</li>
+              <li>হঠাৎ ব্যক্তিত্ব পরিবর্তন</li>
+              <li>নির্জনতা ও অবসাদ</li>
+              <li>কুরআন শুনলে প্রতিক্রিয়া</li>
+            </ul>
+          </div>
+          <div class="condition-card">
+            <div class="condition-icon">🔮</div>
+            <h3>কালো জাদু / সিহর</h3>
+            <p>Black Magic (Sihr)</p>
+            <ul>
+              <li>বিবাহে বাধা</li>
+              <li>ব্যবসায় ক্ষতি</li>
+              <li>দাম্পত্য কলহ</li>
+              <li>অস্বাভাবিক দুঃস্বপ্ন</li>
+            </ul>
+          </div>
+          <div class="condition-card">
+            <div class="condition-icon">👁️</div>
+            <h3>বদনজর / হাসদ</h3>
+            <p>Evil Eye (Hasad)</p>
+            <ul>
+              <li>হঠাৎ ব্যর্থতা</li>
+              <li>সৌন্দর্য বা স্বাস্থ্য ক্ষয়</li>
+              <li>অকারণে ভয় ও উদ্বেগ</li>
+              <li>শিশুর কান্না ও অসুস্থতা</li>
+            </ul>
+          </div>
+          <div class="condition-card">
+            <div class="condition-icon">🧠</div>
+            <h3>ওয়াসওয়াসা / কুমন্ত্রণা</h3>
+            <p>OCD / Intrusive Thoughts</p>
+            <ul>
+              <li>বারবার একই চিন্তা</li>
+              <li>ইবাদতে সন্দেহ</li>
+              <li>আল্লাহ সম্পর্কে খারাপ ধারণা</li>
+              <li>মানসিক অস্থিরতা</li>
+            </ul>
+          </div>
+          <div class="condition-card">
+            <div class="condition-icon">😰</div>
+            <h3>মানসিক অস্থিরতা</h3>
+            <p>Anxiety & Depression (Spiritual)</p>
+            <ul>
+              <li>অজানা ভয় ও আতঙ্ক</li>
+              <li>ঘুমের সমস্যা / দুঃস্বপ্ন</li>
+              <li>বিষণ্নতা ও হতাশা</li>
+              <li>একা থাকতে ইচ্ছা</li>
+            </ul>
+          </div>
+          <div class="condition-card">
+            <div class="condition-icon">⛓️</div>
+            <h3>আধ্যাত্মিক বন্ধন</h3>
+            <p>Spiritual Blockages</p>
+            <ul>
+              <li>রিজিকে বাধা</li>
+              <li>সন্তানহীনতা</li>
+              <li>পড়ালেখায় বাধা</li>
+              <li>বারবার ব্যর্থতা</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section svc-process">
+      <div class="container">
+        <h2 class="section-title">চিকিৎসা প্রক্রিয়া</h2>
+        <p class="section-subtitle">Treatment Process — Step by Step</p>
+
+        <div class="process-timeline">
+          {ruqyahSteps.map((step, i) => (
+            <div class="process-step">
+              <div class="step-number">{i + 1}</div>
+              <div class="step-content">
+                <h3>{step.name}</h3>
+                <p>{step.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Service Types -->
+    <section class="section svc-types">
+      <div class="container">
+        <h2 class="section-title">সেবার ধরন</h2>
+        <p class="section-subtitle">Service Types — Choose Your Preferred Mode</p>
+
+        <div class="types-grid">
+          <div class="type-card">
+            <div class="type-icon">🏢</div>
+            <h3>চেম্বার সেবা</h3>
+            <p>চেম্বারে এসে সরাসরি রাকীর সাথে সেশন করুন।</p>
+            <p class="type-en">In-clinic session at our Dhaka location</p>
+            <a href="/appointment" class="btn btn-sm btn-primary">বুক করুন</a>
+          </div>
+          <div class="type-card">
+            <div class="type-icon">🏠</div>
+            <h3>হোম সার্ভিস</h3>
+            <p>আপনার বাসায় গিয়ে সেবা প্রদান করা হয়।</p>
+            <p class="type-en">Home visit service at your location</p>
+            <a href={getWhatsappUrl('আসসালামু আলাইকুম, আমি রুকইয়াহ হোম সার্ভিস সম্পর্কে জানতে চাই।')} target="_blank" rel="noopener" class="btn btn-sm btn-primary">জানতে চাই</a>
+          </div>
+          <div class="type-card">
+            <div class="type-icon">💻</div>
+            <h3>অনলাইন সেবা</h3>
+            <p>ভিডিও কলের মাধ্যমে দূর থেকে পরামর্শ ও চিকিৎসা।</p>
+            <p class="type-en">Online consultation via video call</p>
+            <a href="/appointment" class="btn btn-sm btn-primary">বুক করুন</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section svc-faq">
+      <div class="container">
+        <h2 class="section-title">সচরাচর জিজ্ঞাসা</h2>
+        <p class="section-subtitle">FAQ — Ruqyah Treatment</p>
+
+        <div class="faq-list">
+          {serviceFaq.map((faq, i) => (
+            <details class="faq-item">
+              <summary class="faq-question">{faq.question}</summary>
+              <div class="faq-answer">{faq.answer}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section svc-cta">
+      <div class="container">
+        <div class="cta-card">
+          <h2>আপনার আধ্যাত্মিক সমস্যার সমাধান খুঁজছেন?</h2>
+          <p>আমাদের অভিজ্ঞ রাকীরা আপনার সমস্যা ডায়াগনোসিস করে সঠিক চিকিৎসা দেবেন। এখনই অ্যাপয়েন্টমেন্ট নিন।</p>
+          <div class="cta-actions">
+            <a href="/appointment" class="btn btn-primary">অ্যাপয়েন্টমেন্ট বুক করুন</a>
+            <a href="/symptom-diagnosis" class="btn btn-outline">সিমটম ডায়াগনোসিস করুন</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.svc-hero {
+  background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%);
+  color: #fff;
+  padding: 64px 0 56px;
+  text-align: center;
+}
+.svc-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.svc-hero h1 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.hero-en {
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 16px;
+}
+.hero-desc {
+  font-size: 16px;
+  color: rgba(255,255,255,0.85);
+  max-width: 680px;
+  margin: 0 auto 28px;
+  line-height: 1.75;
+}
+.hero-cta {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.section { padding: 48px 0; }
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.section-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* Intro */
+.svc-intro { background: var(--bg-light); }
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+.intro-text h2, .intro-what h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.intro-text p, .intro-what p {
+  font-size: 15px;
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+.quran-ref, .hadith-ref {
+  padding: 16px;
+  background: rgba(16,185,129,0.1);
+  border-radius: 8px;
+  border-left: 3px solid var(--primary);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.quran-ref cite, .hadith-ref cite {
+  display: block;
+  margin-top: 8px;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--primary-dark);
+}
+
+/* Conditions */
+.svc-conditions { background: var(--bg-white); }
+.conditions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.condition-card {
+  background: var(--bg-light);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  border: 1px solid var(--border);
+  transition: box-shadow 0.2s;
+}
+.condition-card:hover { box-shadow: var(--shadow-md); }
+.condition-icon { font-size: 36px; margin-bottom: 12px; }
+.condition-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.condition-card p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.condition-card ul {
+  padding-left: 18px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-body);
+}
+
+/* Process */
+.svc-process { background: var(--bg-light); }
+.process-timeline {
+  max-width: 700px;
+  margin: 0 auto;
+  position: relative;
+}
+.process-timeline::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--primary);
+  opacity: 0.3;
+}
+.process-step {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 24px;
+  position: relative;
+}
+.step-number {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  flex-shrink: 0;
+  z-index: 1;
+}
+.step-content h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.step-content p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-body);
+  margin: 0;
+}
+
+/* Service Types */
+.svc-types { background: var(--bg-white); }
+.types-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.type-card {
+  background: var(--bg-light);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.type-icon { font-size: 40px; margin-bottom: 12px; }
+.type-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.type-card p {
+  font-size: 14px;
+  color: var(--text-body);
+  margin-bottom: 4px;
+}
+.type-en {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.btn-sm {
+  padding: 8px 20px;
+  font-size: 14px;
+}
+
+/* FAQ */
+.svc-faq { background: var(--bg-light); }
+.faq-list {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.faq-item {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.faq-question {
+  padding: 18px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.faq-question::-webkit-details-marker { display: none; }
+.faq-question::after {
+  content: '+';
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--primary);
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+.faq-item[open] .faq-question::after { content: '−'; }
+.faq-item[open] .faq-question { background: var(--primary-light); }
+.faq-answer {
+  padding: 16px 24px 20px;
+  font-size: 15px;
+  line-height: 1.75;
+  border-top: 1px solid var(--border);
+}
+
+/* CTA */
+.svc-cta { background: var(--bg-white); }
+.cta-card {
+  background: linear-gradient(135deg, var(--dark-section) 0%, #065f46 100%);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  text-align: center;
+  color: #fff;
+}
+.cta-card h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; }
+.cta-card p { color: rgba(255,255,255,0.8); margin-bottom: 24px; }
+.cta-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.btn-primary {
+  background: #fff;
+  color: var(--primary-dark);
+  border: 2px solid #fff;
+}
+.btn-primary:hover { background: rgba(255,255,255,0.9); transform: translateY(-2px); }
+.btn-outline {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.5);
+}
+.btn-outline:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .intro-grid { grid-template-columns: 1fr; }
+  .conditions-grid { grid-template-columns: repeat(2, 1fr); }
+  .types-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .conditions-grid { grid-template-columns: 1fr; }
+  .types-grid { grid-template-columns: 1fr; }
+  .hero-cta, .cta-actions { flex-direction: column; }
+  .btn { width: 100%; justify-content: center; }
+}
+</style>

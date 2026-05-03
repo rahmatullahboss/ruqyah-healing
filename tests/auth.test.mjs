@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { hashPassword, verifyPassword } from '../src/lib/auth.js';
+import { createHash } from 'node:crypto';
+
+import { hashPassword, verifyPassword, needsPasswordRehash } from '../src/lib/auth.js';
 
 test('hashPassword produces salt:hash format', async () => {
   const hash = await hashPassword('test-password-123');
@@ -37,6 +39,24 @@ test('verifyPassword returns false for null/undefined hash', async () => {
 
 test('verifyPassword returns false for malformed hash (no colon)', async () => {
   assert.equal(await verifyPassword('test', 'nocolonhere'), false);
+});
+
+test('verifyPassword returns true for legacy plaintext password', async () => {
+  const result = await verifyPassword('legacy-password', 'legacy-password');
+  assert.equal(result, true);
+});
+
+test('verifyPassword returns true for legacy sha256 hex password', async () => {
+  const legacyHash = createHash('sha256').update('legacy-password').digest('hex');
+  const result = await verifyPassword('legacy-password', legacyHash);
+  assert.equal(result, true);
+});
+
+test('needsPasswordRehash returns true for legacy password formats', () => {
+  const sha256Hash = createHash('sha256').update('legacy-password').digest('hex');
+  assert.equal(needsPasswordRehash('legacy-password'), true);
+  assert.equal(needsPasswordRehash(sha256Hash), true);
+  assert.equal(needsPasswordRehash('ab'.repeat(16) + ':' + 'cd'.repeat(32)), false);
 });
 
 test('getSecretKey throws when JWT_SECRET is missing', async () => {

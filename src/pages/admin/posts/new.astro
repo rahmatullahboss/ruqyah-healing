@@ -7,7 +7,7 @@ import { getCategories } from '../../../lib/posts.js';
 export const prerender = false;
 
 const env = workerEnv || process.env;
-const db = createDb(env.DATABASE_URL);
+const db = createDb((env as any).DATABASE_URL);
 const existingCategories = await getCategories(db);
 ---
 
@@ -45,7 +45,7 @@ const existingCategories = await getCategories(db);
         <label for="category">বিভাগ *</label>
         <input type="text" id="category" name="category" required list="categoryList" placeholder="বিভাগ নির্বাচন বা লিখুন" />
         <datalist id="categoryList">
-          {existingCategories.map(cat => <option value={cat} />)}
+          {existingCategories.map((cat: string) => <option value={cat} />)}
         </datalist>
       </div>
       <div class="form-group">
@@ -61,10 +61,57 @@ const existingCategories = await getCategories(db);
       </div>
     </div>
 
+    <!-- TipTap Rich-Text Editor -->
     <div class="form-row">
       <div class="form-group full">
-        <label for="content">কন্টেন্ট (Markdown) *</label>
-        <textarea id="content" name="content" rows="20" required placeholder="## শিরোনাম&#10;&#10;আপনার কন্টেন্ট এখানে লিখুন..."></textarea>
+        <label>কন্টেন্ট *</label>
+
+        <!-- Toolbar -->
+        <div id="editor-toolbar" class="editor-toolbar" role="toolbar" aria-label="Editor toolbar">
+          <div class="toolbar-group">
+            <button type="button" class="tb-btn" data-action="paragraph" title="অনুচ্ছেদ">¶</button>
+            <button type="button" class="tb-btn" data-action="h2" title="শিরোনাম ২">H2</button>
+            <button type="button" class="tb-btn" data-action="h3" title="শিরোনাম ৩">H3</button>
+          </div>
+          <div class="toolbar-sep"></div>
+          <div class="toolbar-group">
+            <button type="button" class="tb-btn" data-action="bold" title="গাঢ়"><strong>B</strong></button>
+            <button type="button" class="tb-btn" data-action="italic" title="তির্যক"><em>I</em></button>
+            <button type="button" class="tb-btn" data-action="underline" title="আন্ডারলাইন"><u>U</u></button>
+            <button type="button" class="tb-btn" data-action="strike" title="স্ট্রাইকথ্রু"><s>S</s></button>
+          </div>
+          <div class="toolbar-sep"></div>
+          <div class="toolbar-group">
+            <button type="button" class="tb-btn" data-action="bulletList" title="বুলেট তালিকা">• —</button>
+            <button type="button" class="tb-btn" data-action="orderedList" title="ক্রমিক তালিকা">1.</button>
+          </div>
+          <div class="toolbar-sep"></div>
+          <div class="toolbar-group">
+            <button type="button" class="tb-btn" data-action="blockquote" title="ব্লককোট">❝</button>
+            <button type="button" class="tb-btn" data-action="codeBlock" title="কোড ব্লক">&lt;/&gt;</button>
+            <button type="button" class="tb-btn" data-action="hr" title="আনুভূমিক রেখা">—</button>
+          </div>
+          <div class="toolbar-sep"></div>
+          <div class="toolbar-group">
+            <button type="button" class="tb-btn" data-action="link" title="লিংক যোগ করুন">🔗</button>
+            <button type="button" class="tb-btn" data-action="unlink" title="লিংক সরান">🔗✕</button>
+            <button type="button" class="tb-btn" data-action="image" title="ছবি যোগ করুন">🖼</button>
+          </div>
+          <div class="toolbar-sep"></div>
+          <div class="toolbar-group">
+            <button type="button" class="tb-btn" data-action="undo" title="পূর্বাবস্থায় ফিরুন">↩</button>
+            <button type="button" class="tb-btn" data-action="redo" title="পুনরায় করুন">↪</button>
+          </div>
+        </div>
+
+        <!-- Editor mount target -->
+        <div id="editor" class="tiptap-editor" role="textbox" aria-multiline="true" aria-label="পোস্ট কন্টেন্ট"></div>
+
+        <!-- Hidden field synced from editor.getHTML() -->
+        <input type="hidden" id="contentHtml" name="contentHtml" />
+
+        <small class="editor-hint">এডিটরে সরাসরি টাইপ করুন বা টুলবার ব্যবহার করুন</small>
+        <input type="file" id="editorImageInput" accept="image/jpeg,image/png,image/webp" style="display:none;" />
       </div>
     </div>
 
@@ -85,23 +132,34 @@ const existingCategories = await getCategories(db);
   </form>
 </AdminLayout>
 
-<script>
-  const titleInput = document.getElementById('title') as HTMLInputElement;
-  const slugInput = document.getElementById('slug') as HTMLInputElement;
-  const slugPreview = document.getElementById('slugPreview');
-  const form = document.getElementById('postForm') as HTMLFormElement;
-  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
-  const errorMsg = document.getElementById('errorMessage') as HTMLDivElement;
+<script type="module">
+  // TipTap loaded from esm.sh CDN — official recommended CDN for no-build setups
+  // https://tiptap.dev/docs/editor/getting-started/install/vanilla-javascript
+  import { Editor } from 'https://esm.sh/@tiptap/core@2';
+  import StarterKit from 'https://esm.sh/@tiptap/starter-kit@2';
+  import Underline from 'https://esm.sh/@tiptap/extension-underline@2';
+  import Link from 'https://esm.sh/@tiptap/extension-link@2';
+  import Image from 'https://esm.sh/@tiptap/extension-image@2';
+  import TextAlign from 'https://esm.sh/@tiptap/extension-text-align@2';
 
-  // Auto-generate slug from title
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  const titleInput  = /** @type {HTMLInputElement}   */ (document.getElementById('title'));
+  const slugInput   = /** @type {HTMLInputElement}   */ (document.getElementById('slug'));
+  const slugPreview = document.getElementById('slugPreview');
+  const form        = /** @type {HTMLFormElement}    */ (document.getElementById('postForm'));
+  const submitBtn   = /** @type {HTMLButtonElement}  */ (document.getElementById('submitBtn'));
+  const errorMsg    = /** @type {HTMLDivElement}     */ (document.getElementById('errorMessage'));
+  const hiddenHtml  = /** @type {HTMLInputElement}   */ (document.getElementById('contentHtml'));
+  const dateInput   = /** @type {HTMLInputElement}   */ (document.getElementById('date'));
+
+  // ── Slug auto-generation ──────────────────────────────────────────────────
   let slugManuallyEdited = false;
   slugInput.addEventListener('input', () => { slugManuallyEdited = true; });
 
   titleInput.addEventListener('input', () => {
     if (!slugManuallyEdited) {
       const slug = titleInput.value
-        .toLowerCase()
-        .trim()
+        .toLowerCase().trim()
         .replace(/[^\w\s\u0980-\u09FF-]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-');
@@ -114,35 +172,181 @@ const existingCategories = await getCategories(db);
     if (slugPreview) slugPreview.textContent = slugInput.value || '...';
   });
 
-  // Set today's date
-  const dateInput = document.getElementById('date') as HTMLInputElement;
+  // ── Default date to today ─────────────────────────────────────────────────
   dateInput.value = new Date().toISOString().split('T')[0];
 
+  // ── TipTap editor init ────────────────────────────────────────────────────
+  const editor = new Editor({
+    element: document.getElementById('editor'),
+    extensions: [
+      StarterKit,
+      Underline,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
+      }),
+      Image.configure({ inline: false, allowBase64: false }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+    ],
+    content: '<p></p>',
+    onUpdate({ editor }) {
+      hiddenHtml.value = editor.getHTML();
+    },
+  });
+
+  // Sync initial state
+  hiddenHtml.value = editor.getHTML();
+
+  // ── Toolbar wiring ────────────────────────────────────────────────────────
+  document.getElementById('editor-toolbar').addEventListener('click', (e) => {
+    const btn = /** @type {HTMLElement} */ (e.target.closest('[data-action]'));
+    if (!btn) return;
+    e.preventDefault();
+
+    const action = btn.dataset.action;
+    const chain  = editor.chain().focus();
+
+    switch (action) {
+      case 'paragraph':   chain.setParagraph().run(); break;
+      case 'h2':          chain.toggleHeading({ level: 2 }).run(); break;
+      case 'h3':          chain.toggleHeading({ level: 3 }).run(); break;
+      case 'bold':        chain.toggleBold().run(); break;
+      case 'italic':      chain.toggleItalic().run(); break;
+      case 'underline':   chain.toggleUnderline().run(); break;
+      case 'strike':      chain.toggleStrike().run(); break;
+      case 'bulletList':  chain.toggleBulletList().run(); break;
+      case 'orderedList': chain.toggleOrderedList().run(); break;
+      case 'blockquote':  chain.toggleBlockquote().run(); break;
+      case 'codeBlock':   chain.toggleCodeBlock().run(); break;
+      case 'hr':          chain.setHorizontalRule().run(); break;
+      case 'undo':        chain.undo().run(); break;
+      case 'redo':        chain.redo().run(); break;
+      case 'link': {
+        const url = window.prompt('লিংক URL দিন:');
+        if (url) chain.extendMarkRange('link').setLink({ href: url }).run();
+        break;
+      }
+      case 'unlink':
+        chain.extendMarkRange('link').unsetLink().run();
+        break;
+      case 'image': {
+        document.getElementById('editorImageInput').click();
+        break;
+      }
+    }
+
+    // Update active state on toolbar buttons
+    updateToolbarState();
+  });
+
+  // ── Image upload with browser compression ───────────────────────────────────
+  const imageInput = document.getElementById('editorImageInput');
+  imageInput?.addEventListener('change', async () => {
+    const file = imageInput.files?.[0];
+    if (!file) return;
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) { alert('JPG, PNG, WebP ছবি গ্রহণযোগ্য'); return; }
+    if (file.size > 10 * 1024 * 1024) { alert('ফাইল সর্বোচ্চ ১০MB'); return; }
+
+    try {
+      const compressed = await compressImage(file, 1200, 0.85);
+      const formData = new FormData();
+      formData.append('file', compressed, 'blog-image.webp');
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        editor.chain().focus().setImage({ src: data.url }).run();
+      } else {
+        throw new Error(data.error || 'Upload failed');
+      }
+    } catch (err) {
+      alert('ছবি আপলোড ব্যর্থ: ' + err.message);
+    } finally {
+      imageInput.value = '';
+    }
+  });
+
+  function compressImage(file, maxDim, quality) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) { height = Math.round((height * maxDim) / width); width = maxDim; }
+          else { width = Math.round((width * maxDim) / height); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { reject(new Error('Canvas not supported')); return; }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => { if (blob) resolve(blob); else reject(new Error('Compression failed')); }, 'image/webp', quality);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
+      img.src = url;
+    });
+  }
+
+  // ── Toolbar active-state visual feedback ──────────────────────────────────
+  function updateToolbarState() {
+    const btns = document.querySelectorAll('#editor-toolbar [data-action]');
+    btns.forEach((btn) => {
+      const action = btn.dataset.action;
+      let active = false;
+      if (action === 'bold')        active = editor.isActive('bold');
+      else if (action === 'italic') active = editor.isActive('italic');
+      else if (action === 'underline') active = editor.isActive('underline');
+      else if (action === 'strike') active = editor.isActive('strike');
+      else if (action === 'h2')     active = editor.isActive('heading', { level: 2 });
+      else if (action === 'h3')     active = editor.isActive('heading', { level: 3 });
+      else if (action === 'bulletList')  active = editor.isActive('bulletList');
+      else if (action === 'orderedList') active = editor.isActive('orderedList');
+      else if (action === 'blockquote')  active = editor.isActive('blockquote');
+      else if (action === 'codeBlock')   active = editor.isActive('codeBlock');
+      else if (action === 'link')   active = editor.isActive('link');
+      btn.classList.toggle('is-active', active);
+    });
+  }
+
+  editor.on('selectionUpdate', updateToolbarState);
+  editor.on('update', updateToolbarState);
+
+  // ── Form submission ───────────────────────────────────────────────────────
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     submitBtn.disabled = true;
     errorMsg.style.display = 'none';
 
-    const tagsRaw = (document.getElementById('tags') as HTMLInputElement).value;
-    const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
-    const published = (document.getElementById('published') as HTMLInputElement).checked;
+    const html = editor.getHTML();
+    if (!html || html === '<p></p>') {
+      errorMsg.textContent = 'কন্টেন্ট লিখুন';
+      errorMsg.style.display = 'block';
+      submitBtn.disabled = false;
+      return;
+    }
 
-    const data = {
+    const tagsRaw  = document.getElementById('tags').value;
+    const tags     = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+    const published = document.getElementById('published').checked;
+
+    const payload = {
       title: titleInput.value,
       slug: slugInput.value,
-      excerpt: (document.getElementById('excerpt') as HTMLTextAreaElement).value,
-      category: (document.getElementById('category') as HTMLInputElement).value,
+      excerpt: document.getElementById('excerpt').value,
+      category: document.getElementById('category').value,
       tags,
       date: dateInput.value,
-      content: (document.getElementById('content') as HTMLTextAreaElement).value,
+      contentHtml: html,   // ← TipTap HTML; server sanitizes before save
       published,
     };
 
     try {
-      const res = await fetch('/api/admin/posts/create', {
+      const res    = await fetch('/api/admin/posts/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       const result = await res.json();
       if (res.ok && result.success) {
@@ -150,7 +354,7 @@ const existingCategories = await getCategories(db);
       } else {
         throw new Error(result.error || 'সেভ করতে সমস্যা হয়েছে');
       }
-    } catch (err: any) {
+    } catch (err) {
       errorMsg.textContent = err.message;
       errorMsg.style.display = 'block';
     } finally {
@@ -160,15 +364,10 @@ const existingCategories = await getCategories(db);
 </script>
 
 <style>
-  .btn-back {
-    color: var(--admin-text-light);
-    font-size: 14px;
-    text-decoration: none;
-    font-weight: 500;
-  }
+  .btn-back { color: var(--admin-text-light); font-size: 14px; text-decoration: none; font-weight: 500; }
   .btn-back:hover { color: var(--admin-primary); }
 
-  .post-form { max-width: 900px; }
+  .post-form { max-width: 960px; }
 
   .form-row {
     display: grid;
@@ -212,12 +411,113 @@ const existingCategories = await getCategories(db);
     box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
   }
 
-  .form-group textarea#content {
+  /* ── TipTap Toolbar ───────────────────────────────────────────────────── */
+  .editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    background: #f8fafc;
+    border: 1px solid var(--admin-border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 6px 8px;
+  }
+  .toolbar-group { display: flex; gap: 2px; }
+  .toolbar-sep {
+    width: 1px;
+    height: 24px;
+    background: var(--admin-border);
+    margin: 0 4px;
+    align-self: center;
+  }
+  .tb-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 30px;
+    padding: 0 6px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background: transparent;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--admin-text);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .tb-btn:hover { background: #e2e8f0; border-color: #cbd5e1; }
+  .tb-btn.is-active {
+    background: var(--admin-primary);
+    border-color: var(--admin-primary);
+    color: #fff;
+  }
+
+  /* ── TipTap Editor Content Area ──────────────────────────────────────── */
+  .tiptap-editor {
+    min-height: 420px;
+    border: 1px solid var(--admin-border);
+    border-radius: 0 0 8px 8px;
+    background: #fff;
+    padding: 16px 18px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--admin-text);
+    line-height: 1.75;
+    overflow-y: auto;
+    outline: none;
+  }
+  .tiptap-editor:focus-within {
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+  }
+
+  /* ProseMirror content styles */
+  .tiptap-editor :global(.ProseMirror) { outline: none; }
+  .tiptap-editor :global(h2) { font-size: 1.4rem; font-weight: 700; margin: 1.2em 0 0.4em; }
+  .tiptap-editor :global(h3) { font-size: 1.15rem; font-weight: 700; margin: 1em 0 0.3em; }
+  .tiptap-editor :global(p) { margin: 0.6em 0; }
+  .tiptap-editor :global(ul), .tiptap-editor :global(ol) { padding-left: 1.6em; margin: 0.6em 0; }
+  .tiptap-editor :global(li)  { margin: 0.25em 0; }
+  .tiptap-editor :global(blockquote) {
+    border-left: 4px solid var(--admin-primary);
+    margin: 1em 0;
+    padding: 8px 16px;
+    color: var(--admin-text-light);
+    background: #f0f9ff;
+    border-radius: 0 6px 6px 0;
+  }
+  .tiptap-editor :global(pre) {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 1em 0;
+    overflow-x: auto;
     font-family: 'SF Mono', 'Fira Code', monospace;
     font-size: 13px;
-    line-height: 1.6;
-    resize: vertical;
   }
+  .tiptap-editor :global(code) {
+    background: #f1f5f9;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+  }
+  .tiptap-editor :global(a) { color: var(--admin-primary); text-decoration: underline; }
+  .tiptap-editor :global(hr) { border: none; border-top: 2px solid var(--admin-border); margin: 1.5em 0; }
+  .tiptap-editor :global(img) { max-width: 100%; border-radius: 6px; margin: 0.5em 0; }
+  .tiptap-editor :global(p.is-editor-empty:first-child::before) {
+    content: attr(data-placeholder);
+    color: #94a3b8;
+    pointer-events: none;
+    float: left;
+    height: 0;
+  }
+
+  .editor-hint { font-size: 12px; color: var(--admin-text-light); margin-top: 6px; display: block; }
 
   .checkbox-label {
     display: flex;
@@ -256,5 +556,7 @@ const existingCategories = await getCategories(db);
 
   @media (max-width: 640px) {
     .form-row { grid-template-columns: 1fr; }
+    .editor-toolbar { gap: 1px; }
+    .tb-btn { min-width: 28px; height: 27px; font-size: 12px; }
   }
 </style>

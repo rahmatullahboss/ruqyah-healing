@@ -15,7 +15,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const env = (workerEnv || process.env) as any;
   const db = createDb(env.DATABASE_URL);
+  const r2 = env.R2_IMAGES;
   const body = await request.json() as any;
+
+  const oldRes = await db.select().from(resources).where(eq(resources.id, body.id));
+  if (oldRes.length > 0) {
+    const oldUrl = oldRes[0].fileUrl;
+    if (body.fileUrl !== undefined && oldUrl && oldUrl !== body.fileUrl && oldUrl.startsWith('/api/images/') && r2) {
+      const key = oldUrl.replace('/api/images/', '');
+      await r2.delete(key).catch(console.error);
+    }
+  }
 
   await db.update(resources).set({
     title: body.title,

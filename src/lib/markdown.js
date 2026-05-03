@@ -2,24 +2,13 @@ import { marked } from 'marked';
 
 /**
  * Lightweight HTML sanitizer for Cloudflare Workers environment.
- * Strips dangerous tags and attributes while preserving safe markdown HTML.
+ * Strips dangerous tags and attributes while preserving safe HTML.
+ * Used for BOTH Markdown post-processing AND TipTap HTML output.
+ *
+ * @param {string} html
+ * @returns {string}
  */
-const ALLOWED_TAGS = new Set([
-  'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'del',
-  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'ul', 'ol', 'li',
-  'a', 'img',
-  'blockquote', 'pre', 'code',
-  'table', 'thead', 'tbody', 'tr', 'th', 'td',
-  'hr', 'div', 'span', 'sup', 'sub',
-]);
-
-const ALLOWED_ATTRS = new Set([
-  'href', 'src', 'alt', 'title', 'class', 'id',
-  'target', 'rel', 'width', 'height',
-]);
-
-function sanitizeHtml(html) {
+export function sanitizeHtml(html) {
   // Remove script tags and their content
   html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
 
@@ -53,6 +42,27 @@ function sanitizeHtml(html) {
   return html;
 }
 
+/**
+ * Strips all HTML tags and returns plain text, suitable for word count
+ * and reading-time calculation when the post uses TipTap HTML storage.
+ *
+ * @param {string} html
+ * @returns {string}
+ */
+export function extractTextFromHtml(html) {
+  if (!html) return '';
+  return html
+    .replace(/<[^>]+>/g, ' ')   // replace tags with spaces
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 marked.setOptions({
   gfm: true,
   breaks: true,
@@ -66,13 +76,27 @@ marked.use({
   },
 });
 
+/**
+ * Render Markdown string to sanitized HTML.
+ *
+ * @param {string} content - Raw Markdown text
+ * @returns {string} Safe HTML
+ */
 export function renderMarkdown(content) {
   if (!content) return '';
   return marked.parse(content);
 }
 
-export function calculateReadingTime(content) {
-  if (!content) return 1;
-  const wordCount = content.split(/\s+/).length;
-  return Math.max(1, Math.ceil(wordCount / 150)); // ~150 words/min for Bengali
+/**
+ * Estimate reading time in minutes.
+ * Works for both plain Markdown text and extracted HTML text.
+ * ~150 words/min is a comfortable pace for Bengali readers.
+ *
+ * @param {string} text - Plain text (not HTML, not Markdown)
+ * @returns {number} Estimated minutes (minimum 1)
+ */
+export function calculateReadingTime(text) {
+  if (!text) return 1;
+  const wordCount = text.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(wordCount / 150));
 }

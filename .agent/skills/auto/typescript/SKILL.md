@@ -1,6 +1,6 @@
 ---
 name: typescript
-description: "Typescript for ruqyah-healing. 2 gotchas, 8 conventions, 8 fixes."
+description: "Typescript for ruqyah-healing. 3 gotchas, 16 conventions, 9 fixes."
 domain: typescript
 triggers:
   - glob: "**/*.ts"
@@ -11,34 +11,39 @@ enabled: true
 
 # Typescript
 
-Auto-compiled from **42 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on typescript files.
+Auto-compiled from **63 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on typescript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
 > **CRITICAL:** These are real gotchas from this project. Ignoring them WILL cause bugs.
 
-### ❌ ⚠️ GOTCHA: Fixed null crash in APIRoute — protects against XSS and CSRF token theft
-- export const POST = async ({ request, locals, cookies }) => {
-+ import type { APIRoute } from 'astro';
--   const env = locals.runtime?.env || process.env;
-+ 
-- 
-+ export const POST: APIRoute = async ({ request, locals, cookies }) => {
--   try {
-+  
-- Modified 1 files
-- identifier: APIRoute
-- identifier: POST
-
-### ❌ gotcha in test-data.ts
-- // ─── Result helpers ──────────────────────────────────────────────────────────
-+ // ─── Evil Eye (বদনজর) Protocol ───────────────────────────────────────────────
-- function lowResult(resultText: string): TestResult {
-+ const evilEyeProtocol: Prot
-- Modified 1 files
-
+| ❌ Don't | Details |
+|----------|----------|
+| ⚠️ GOTCHA: Fixed null crash in Record — protects a | - export const POST: APIRoute = async ({ request, locals, cookies }) => { + function getAdminEmails( |
+| ⚠️ GOTCHA: Fixed null crash in APIRoute — protects | - export const POST = async ({ request, locals, cookies }) => { + import type { APIRoute } from 'ast |
+| gotcha in test-data.ts | - // ─── Result helpers ────────────────────────────────────────────────────────── + // ─── Evil Eye |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in Response — filters out falsy/null values explicitly
+- 
++   const r2 = env.R2_IMAGES;
+-   const raw = await request.json();
++ 
+-   const parsed = productUpdateSchema.safeParse(raw);
++   const raw = await request.json();
+-   if (!parsed.success) {
++   const parsed = productUpdateSchema.safeParse(raw);
+-     return new Response(JSON.stringify({ error: 'Validation failed', details: parsed.error.issues }), {
++   if (!parsed.success) {
+-       status: 40
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Response
+3. identifier: JSON
+4. identifier: Validation
+5. identifier: Content
 
 ### Fixed null crash in Check — hardens HTTP security headers
 -     // By default, assume local Ollama running on default port.
@@ -184,6 +189,27 @@ Auto-compiled from **42 real patterns** in **ruqyah-healing**. This skill is aut
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
+- 📐 **Strengthened types CartItem — formalizes the data contract with explicit types** — -   setCartItems,
++   addToCart as addCartItem,
+-   addToCart as addCartItem,
++   updateCartItemQuan
+- 📐 **Strengthened types Health — formalizes the data contract with explicit types** — -     // ── Testimonials ──────────────────────────────────────────────────────
++     // ── My Healt
+- 📐 **convention in patient-dashboard.spec.ts** — File updated (external): web/e2e/patient-dashboard.spec.ts
+
+Content summary (406 lines):
+import { te
+- 📐 **Strengthened types Testimonials — formalizes the data contract with explicit ...** — -     // ── Hero ──────────────────────────────────────────────────────────────
++     // ── Testimon
+- 📐 **Strengthened types Object — hardens HTTP security headers** — - export const languages = Object.keys({"en":{"nav.home":"Home","nav.biography":"Biography","nav.pub
+- 📐 **what-changed in middleware-loader.entry.ts — confirmed 3x** — File updated (external): .wrangler/tmp/bundle-9eEYLI/middleware-loader.entry.ts
+
+Content summary (13
+- 📐 **Updated schema clientjs — confirmed 3x** — - import { createDb } from '../../../../../db/client.js';
++ import { createDb } from '../../../../db
+- 📐 **what-changed in middleware-loader.entry.ts — confirmed 3x** — File updated (external): .wrangler/tmp/bundle-0dM7y5/middleware-loader.entry.ts
+
+Content summary (13
 - 📐 **Fixed null crash in APIRoute — protects against XSS and CSRF token theft — confirmed 3x** — - export const POST = async ({ request, locals, cookies }) => {
 + import type { APIRoute } from 'ast
 - 📐 **decision in test-data.ts — confirmed 3x** — -     icon: '🔍',
@@ -210,6 +236,13 @@ declare module 'astro:con
 Content summary (2 lines):
 /// <reference types="astro/c
 
+## 🔵 Architecture
+
+### how-it-works in i18n.ts
+-     'pain.link': 'Health SaaS solves all three problems — in one system',
++     'pain.link': 'Ozzyl Health solves all three problems — in one system',
+-     'sol.h2': 'Why is Health SaaS Different?'
+
 ## 🤔 Decisions & Trade-offs
 
 - **decision in test-data.ts** — -     subtitle: 'প্রাথমিক সমস্যা যাচাই',
@@ -230,4 +263,4 @@ Content summary (2 lines):
 📌 IDE AST Context: 
 
 ---
-*Auto-generated by BrainSync 🧠 | 42 patterns | 2026-04-03*
+*Auto-generated by BrainSync 🧠 | 63 patterns | 2026-04-14*

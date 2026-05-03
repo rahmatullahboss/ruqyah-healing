@@ -1,6 +1,6 @@
 ---
 name: config
-description: "Config for ruqyah-healing. 5 conventions."
+description: "Config for ruqyah-healing. 7 gotchas, 53 conventions, 18 fixes."
 domain: config
 triggers:
   - glob: "**/*.yaml"
@@ -13,30 +13,345 @@ enabled: true
 
 # Config
 
-Auto-compiled from **21 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on config files.
+Auto-compiled from **194 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on config files.
+
+## ⚠️ Anti-Patterns & Gotchas
+
+> **CRITICAL:** These are real gotchas from this project. Ignoring them WILL cause bugs.
+
+| ❌ Don't | Details |
+|----------|----------|
+| gotcha in shared-context.json | -     } +     }, -   ] +     { - } +       "id": "6b53f5086fac5cd6", +       "ts": "2026-04-13T21:09 |
+| gotcha in shared-context.json | -     } +     }, -   ] +     { - } +       "id": "ec268f63edee713b", +       "ts": "2026-04-09T08:57 |
+| gotcha in shared-context.json | -     } +     }, -   ] +     { - } +       "id": "e664d7843fc829cb", +       "ts": "2026-04-08T11:55 |
+| gotcha in shared-context.json | -     } +     }, -   ] +     { - } +       "id": "b5c3b1d5eab794e2", +       "ts": "2026-04-08T11:35 |
+| gotcha in shared-context.json | -     } +     }, -   ] +     { - } +       "id": "797635525f9811b7", +       "ts": "2026-04-08T09:45 |
+| gotcha in shared-context.json | -     } +     }, -   ] +     { - } +       "id": "6f90f7cd77947663", +       "ts": "2026-04-07T03:10 |
+| gotcha in shared-context.json | -     } +     }, -   ] +     { - } +       "id": "ee969516aeaf84bf", +       "ts": "2026-04-07T02:57 |
+
+## 🔧 Problem Playbooks
+
+### Patched security issue QTvijtKPcx
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "cccc75db3468cca5",
++       "ts": "2026-04-13T21:50:50.285Z",
++       "by": "rahmatullahzisan",
++       "data": "kZuzsHB9ZLjSZh2BLmKKVrVD0shTh4tMhbqg8QxcYH6hb6lmoW5qWOkA6Zhc+hQf0mrgsn9GKfpjFEqYkARJ9no1B8GGIDxq0K0JpMsZs6bUssnuk/Kyi0cwXX49xfFlEmQgRmtsNQjiLetxhJrFCZ0btoLsIc5BGoSc7+w7wGZDYuYUZsWe/jPDp/9whIsITTfIdm7fwC5D1eRP2s8YKGLvOgUMCNdsQ3SzMxUVIj96U6
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: QTvijtKPcx
+3. identifier: NeXuuCFCJ
+
+### Patched security issue PwZUPq
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "2a2fd2cc87de1582",
++       "ts": "2026-04-13T21:50:40.797Z",
++       "by": "rahmatullahzisan",
++       "data": "YSnffqGu7qrc7FVNmrTyCkv2BXt8sVrPx4vdXm7IBMY+5ZxezVcnVH6KGg+cAV/fuunf5Gf9rtEQIbNK8L/af5Tq1Nikdzl31Jv+tqUHUC/nclqRcCRRWlLkU1w41UTHOeueUhiySMrkqg6E6BXEEoe4TycRgepxZqnqE60O15IK793P0FipUPq+4+FCdMZcPgs1rlYL0OciwdXuDS2aFJZY7a4ypxB0L4mDZS86PI28RE
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: XeO
+3. identifier: PwZUPq
+
+### problem-fix in shared-context.json
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "9a61e4eb1a754266",
++       "ts": "2026-04-13T21:09:23.214Z",
++       "by": "rahmatullahzisan",
++       "data": "MbNsv2cnbp/5DEN3YxlzTQMZpGmc56dJwq0RX+ln85KuVlL0h1rMMfiX6OUbiEAr+X9tzeZYOWs6AHW1J7JPkzg/Ai3+02u3i0fBlkseUDqKzWC3RFltWFtjMyaILwx2l3R1y3z0zSMSpQXYaYqwIvBmcvTMXFPu8UjaWWUgbIVwqvGAY9ntyirVZN2KPxMGu70sXAh+5SXvdDxJYHKtdSSyzmIAvrxq35PJVG2nBscyVZ
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in shared-context.json
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "d7c00c1c278e272e",
++       "ts": "2026-04-13T18:40:53.885Z",
++       "by": "rahmatullahzisan",
++       "data": "EVZtJGGipuK6Ze7kfRju+Ml0CfDlPJRNL1+GPuSLrU5wsNxDa71V8KpEv1WG6AG31/J/X2o8METJyhiD8zftHyQFKwtShBmlUYfx5uc/Z862wh/2lnU+omNmP68N37FpBVh52OIDOmz7f3FxIUFJQDCURpzSojbouq5pqwpJabI0Uy4oahDG+NV5IHE0i2ZgG6PGwwJ5sSAsEY1bxkAJdFDkiuILJ0FxwLNO0QO2mj9y4t
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### Patched security issue ASiNZ
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "3b136cb51ff39b24",
++       "ts": "2026-04-13T15:21:21.363Z",
++       "by": "rahmatullahzisan",
++       "data": "TLwNhM7+S8bGPAlTAxSCRYbs3cvKSSH3oWELwzOGW2ogK4yxiHZLbbPGTIoJmnvr5FeS1cGMPmCdI0hJHDJzCYgvrEgmo7oRAvj/gPNs+i0cbvrWQOmY5VIu8TEzl3WI8AbDirKIIySyyI5W773B8mHtvE80NLGpDEq8X069BtEP2fDwrk1KQs7HILTskJiUaNJr6MtN7HVDqTlaZIhdD9+znWOgnmEbTNFCPkk5lp81Jl
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: ASiNZ
+3. identifier: SKxqROuVYdl
+
+### problem-fix in shared-context.json
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "7bc50b55465d1b47",
++       "ts": "2026-04-13T12:40:26.682Z",
++       "by": "rahmatullahzisan",
++       "data": "ycv/wr6pCaVrW5Zu+RIYzykVCTTey8aRib4LaTBLKgJLE63kp5trLNcRgRi9ZgCP3smy33I/4bCw7epYbrlL7KfvX7cUO14PgSeqSA4Q5ap5IZGiG/FYvGhi6bhzeponYvLhwyxQRMeo2g7jDCL5IRGIuU8ryvydn7sEKC37H7YzA4duhOM9E3qR1tSr++1RjTc/8rrMTxMTB8F5o82ulUYtk/A1Zuul2yVRTMM06F8nUi
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### Patched security issue RMQJxqeutKgaYph
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "fb261bb9a3187e88",
++       "ts": "2026-04-13T12:40:17.195Z",
++       "by": "rahmatullahzisan",
++       "data": "42HG5F89SrOQRkdo5eTeHmjq1nZo/bdYzgZa4TdrGUdncrhWecIIaJJAtGcZ3XYrPEB5YNiHcnupQTYzIIeGlXsiOTmFGybzxWS2QA4RGhIuDCXaogVaXAH6rDr8yru/kJIUQOQ4E5wGlwrk6UeosVaS+0B69TOa9wiodgBG1p3gl2LLBXoURUg4j4b5XXkOql3/ZWoyr2Nvceuf2sLk/Uxq2OzKAszU/EC4Q4oU+3sOYa
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: RMQJxqeutKgaYph
+3. identifier: XrJ
+4. identifier: EFPRRCQqOWVtrbfo
+5. identifier: LvLtOP
+
+### Patched security issue UiLR
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "bbb8e27efcac8f44",
++       "ts": "2026-04-08T15:14:16.325Z",
++       "by": "rahmatullahzisan",
++       "data": "u5YNbti847k2dDvoSRBnDxZGHeKIM0Ds59aZcz0D0TKzWqQM0+pw2tSOgtR0FdhXPJwST7hQEPkvLnpDPRLWhiSqGc9GwYeO3105LEXi8rDZ5aw3l2Kx7t4Mt8PLP/3SNb3p/zPRT8uAiGPk/ivCvj7xWrh77frpwiWiAnd5apbSAPXKgwlBbHuxQWFEa0HFZ8pWlcCYkgHamXTc7ePNN7lbUa2IUQPYqmPssvSC42jUR8
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: UiLR
+3. identifier: Umd
+4. identifier: SeETLHEcuNDSUglfdCunAyDjy
+
+### Patched security issue RofTHcBrHlxQwCPEi
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "cb65ebbe2d1037eb",
++       "ts": "2026-04-08T14:56:28.453Z",
++       "by": "rahmatullahzisan",
++       "data": "+0UQSAm6gV6euMdEpmCg+Zlqqc4K7UAnvsaoC3I+RofTHcBrHlxQwCPEi+coaFwDBKLLsisvY9vwl6KCVBtb6yv5pXyHfkm/h+mHNBeYCQb9JegM0ArHlTM2kcej7pLiudYdDYFrVyleQaXRmqei83xwZCJsIgU/XP2ja/sXwAFrnxC73Y9WFfmYXpqi3Gx+hxTd2K5wnXkMFJ6eM+NYstvDXsSiishVmlP135oPCUQ/Cr
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: RofTHcBrHlxQwCPEi
+
+### Patched security issue XXNtOQ
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "57fac39e100c05f8",
++       "ts": "2026-04-08T11:55:20.062Z",
++       "by": "rahmatullahzisan",
++       "data": "H8PLKz1gDw3ylsVhsM3XxlOhvHAJMu+oMYOyO/b2eFIrUp5g/pEna6N8ufOn1JCjNJsiaBhr5dF7xulbWUElX+NVfXY5hoAGze3m2ZjXHgcvIyDaUAelfbSxRM8xHUJ6vWfBoF9RoJeia+Ro+KvL+4NMYtypKWASOoZ8DKvTissTb0tMdW/FE9oJvEQ4wG2CSFBj4LMz89oleKP5FiakhG4u29K4OozJ9Hi8Pdb6QFHAGl
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: KvL
+3. identifier: XXNtOQ
+
+### problem-fix in shared-context.json
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "de93e317a61da80f",
++       "ts": "2026-04-08T10:15:20.029Z",
++       "by": "rahmatullahzisan",
++       "data": "HbYmYeZuoXv5HNUPKJD3RdpDOlIKCM6EazSvjw4Sn2xe5kpMLppwZFMNJ+3DwJvYcLSMFOj2mt5jcB+FeTCLiOvOG21nZKuTtYP+3F9hzBqCeQNZltxpgBQMZEMBRsTaQxPd3upM7QhXMddK6+WPvWpy54l/MfvWhG4DMm9OOmblQZutQyNfiX2+/Clo4Wa/St0gI9fsNA1cUHsrqns3HQA8KWsWmzstWp71vPEL9XSXJW
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### Patched security issue OYxNBYmEdPxkePDE
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "fc147719eadfa2bf",
++       "ts": "2026-04-08T09:15:22.101Z",
++       "by": "rahmatullahzisan",
++       "data": "fSy9imnbBT0dlGZfGN/AN5WTzqnCOkc/LcYUU8AjbCCaPFoAiS6UXK4GMcT8omexUXzXCuer1XsSDk7WsrgIMI1EEI/JSbCBKuGI1bdhiz7T+QA6WV/OYxNBYmEdPxkePDE/kX4ohPTCwgEHTXqAEFvbKcgQtuxOKyXVjFIM5tBqudpC8AIvP2HYkmQf0fYAiEapTNGAMnzfwCeTU/aLvg9L6YTd1x9fZeH6xws5U/mANW
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: OYxNBYmEdPxkePDE
+3. identifier: ERB
+4. identifier: PMfBoiB
+5. identifier: SeUtvj
+
+### problem-fix in shared-context.json
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "7a340d27d281cd34",
++       "ts": "2026-04-08T09:15:19.960Z",
++       "by": "rahmatullahzisan",
++       "data": "uCaUVujI9vHrex2cmByOj+EhAeJrWig9tRQSVa/fcoGpvMxP+dUZu/zigNVEcv3lKcH1Nup0mmJ3u3YBt/jOJJ0t+1yerPSda0xEe3VVQHjoGbLj857/mA3EytZdyo0y6HXMAVmD0OGuPTo1NGzkOjtVD44vzRWPk7N4YKWCBgTD3PrxQ6AUzCX0MN3WIMtn+45Z0ZJnPbd3pAH4IWM3d27HQVoRJtEtxEJkyvnLjJ/bJo
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### Patched security issue KCnqZCF
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "56c239e48530fc46",
++       "ts": "2026-04-08T08:55:24.209Z",
++       "by": "rahmatullahzisan",
++       "data": "WUzSg6/792ZfKBrWbzW0ze5+uZduehAR5+NzURxErtkxAk6Ab/OgJF92spCSZUmC4J6lFptx1yJ77UkfNsN9A8NlPhrDAli5LBVrn9rvxD+DVPxIhjQ53SRCvN4PFOMPHSb7yJ57NtO5occ/y9Ex/D3w/D1yC3/dfEMuF5rY058GoMbktlAwjDGTuVb/4SvNNSpDtFZl/Z++jaClelMwlScAAKgl8TUN8ZiKumaNoFyBnX
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: KCnqZCF
+3. identifier: GVNCztjDTPz
+4. identifier: NSX
+
+### Patched security issue VtFjRZ
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "2fa54d938dc76557",
++       "ts": "2026-04-08T08:55:22.082Z",
++       "by": "rahmatullahzisan",
++       "data": "E6HtqXl13XgFQe5FaWSYj+reQ5NiEaZFmsmYkXNG1RDrbg1tXG/kUhDQ8rw1Fnd5JQmwhNTxmGP8sfJ3wpPbbRk7TftbE11ZzGplJQ8WLBx60MYAs3i4UrvuubNHGuNwDV6KkojotUig0q6POGnEF9es+g9iXe2RXtWovNIOQFVPZqKK0tmGdVCqmjnEKE0qYjBA0AMnqODy+R6gyOq4egcJvT6UBqZFCE2kSKsl/c/mfd
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: VtFjRZ
+3. identifier: TGnt
+4. identifier: SHdvC
+5. identifier: UQHaOs
+
+### Patched security issue HwfTxS
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "b982bcf930e13d2c",
++       "ts": "2026-04-08T08:55:19.953Z",
++       "by": "rahmatullahzisan",
++       "data": "jymOGmAZassxorLRpr+y61/W4l+7AyMAd095gzQTBNL3IfrQxOcqA1uL/ZYKjDR9mMluni1lPB6sLivXvLnM9SSY7OpuXYKRYaV3j2Xs36BVcXr9E4El4ynefSpWyNiUUI4CLGjM4+w/VZraFf2isIivMsR7L4Dr/z+ayRQRS0pWh0GjLCWlJry/x6NL3wXzQfmZ5tmg4/25jBvX0vMdJFFGPycpvR0WQgBC2xLMvVI+7a
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: HwfTxS
+3. identifier: PxzuPDJUo
+4. identifier: KWD
+5. identifier: ReYC
+
+### problem-fix in shared-context.json
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "b71a5af16fe6a590",
++       "ts": "2026-04-07T03:11:01.897Z",
++       "by": "rahmatullahzisan",
++       "data": "MQEmxu/JxEN+Yl/+zfhFzUGzRjEtT3uC5xrpSFPELiWOCP53RQAM9Iz6uuwM26G+vCF8HM8zYvnq5ls8y8Pu/0AUj/3vlpmzqQLMZXTcGWwqTDH3reQliYL9PiLenrDHVZBfsXb17GGmVe24dvvJdnGXGjICpg3JOMsx0Tp4RJwRJQXHyQo9rmCnRMVwiom0cexn0C/mmp8wNDJjWFSttPepZ7etI1wMttg/uFmZ/UG3xL
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### Patched security issue shared-context
+-     }
++     },
+-   ]
++     {
+- }
++       "id": "9a064f97c66123c8",
++       "ts": "2026-04-07T03:01:06.988Z",
++       "by": "rahmatullahzisan",
++       "data": "qsx2h1KeV6Zo2yH8zhK26WCbApsmro+2Cuv1zJpSwUuh2kNeyc62KRA2wdTjesJBWLFwzg9Lpb+EJz9L2pjwLPAGbVRnWvqu4rbrjJReWJedB0Wsz8vhlepYo90wjLch4CX71VnqQaHD6hu24r4TIUI4Z0BxOhd+bHmpi6Qy7EpNKja6kXyR2z0ogPWMp2V8AYMYTsTNqHuOcgAlPTaCQ5xk/eysqg/58KRHPN6d3Qnmni
+
+**Actionable Steps:**
+1. Modified 1 files
 
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
-- 📐 **what-changed in package.json — confirmed 3x** — -     "typescript": "^5.9.3",
-+     "jose": "^6.2.2",
--     "wrangler": "^4.75.0",
-+     "typescript
-- 📐 **what-changed in posts.schema.json — confirmed 3x** — File updated (external): .astro/collections/posts.schema.json
+- 📐 **what-changed in shared-context.json — confirmed 5x** — -     }
++     },
+-   ]
++     {
+- }
++       "id": "6a297b4424cf8aca",
++       "ts": "2026-04-13T21:51
+- 📐 **what-changed in shared-context.json — confirmed 3x** — -     }
++     },
+-   ]
++     {
+- }
++       "id": "4241059c2f9ae231",
++       "ts": "2026-04-13T21:25
+- 📐 **Added JWT tokens authentication — confirmed 3x** — -     }
++     },
+-   ]
++     {
+- }
++       "id": "0468774f444a34a7",
++       "ts": "2026-04-13T21:09
+- 📐 **what-changed in shared-context.json — confirmed 3x** — -     }
++     },
+-   ]
++     {
+- }
++       "id": "7cf833297c4c2acb",
++       "ts": "2026-04-13T20:43
+- 📐 **Patched security issue MvNDAbZV — confirmed 3x** — -     }
++     },
+-   ]
++     {
+- }
++       "id": "2c02926b4ffa2e47",
++       "ts": "2026-04-13T20:27
+- 📐 **what-changed in shared-context.json — confirmed 3x** — -    
 
-Content summary (34 lines):
-{
-  "$sch
-- 📐 **what-changed in package.json — confirmed 3x** — -     "typescript": "^5.9.3",
-+     "ollama": "^0.6.3",
--     "wrangler": "^4.75.0"
-+     "typescrip
-- 📐 **what-changed in config.json — confirmed 3x** — - {"configPath":"../../dist/dist/server/wrangler.json","auxiliaryWorkers":[],"prerenderWorkerConfigP
-- 📐 **what-changed in posts.schema.json — confirmed 3x** — File updated (external): .astro/collections/posts.schema.json
-
-Content summary (34 lines):
-{
-  "$sch
-
----
-*Auto-generated by BrainSync 🧠 | 21 patterns | 2026-04-03*
+... [Truncated — see individual observations for full content]
