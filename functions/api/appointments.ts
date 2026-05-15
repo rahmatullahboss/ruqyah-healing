@@ -5,6 +5,10 @@ import {
   appointmentSubmissionSchema,
   mapAppointmentToInsert,
 } from '../../src/lib/appointments.js';
+import {
+  getAnalyticsContext,
+  sendMetaCAPIEvent,
+} from '../../src/lib/analytics.ts';
 
 const ALLOWED_ORIGINS = [
   'https://ruqyahhealing.com',
@@ -29,6 +33,14 @@ function json(obj: unknown, status = 200, request?: Request) {
       'Content-Type': 'application/json',
     },
   });
+}
+
+function getClientIp(request: Request): string | undefined {
+  return (
+    request.headers.get('cf-connecting-ip') ||
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    undefined
+  );
 }
 
 export function onRequestOptions(context: any) {
@@ -65,9 +77,36 @@ export async function onRequestPost(context: any) {
 
     await db.insert(appointments).values(insertRow);
 
+    const eventId = parsed.eventId || `lead-${insertRow.id}`;
+    const capiPromise = sendMetaCAPIEvent(
+      'Lead',
+      {
+        content_category: 'ruqyah_booking',
+        content_name: parsed.treatmentTypeLabel,
+        currency: 'BDT',
+        value: 500,
+      },
+      {
+        ...getAnalyticsContext(context.request, getClientIp(context.request)),
+        externalId: insertRow.id,
+        phone: parsed.phone,
+      },
+      {
+        eventId,
+        env: context.env,
+      },
+    );
+
+    if (typeof context.waitUntil === 'function') {
+      context.waitUntil(capiPromise);
+    } else {
+      await capiPromise;
+    }
+
     return json({
       ok: true,
       appointmentId: insertRow.id,
+      eventId,
       message: 'আপনার বুকিং তথ্য ডাটাবেজে সংরক্ষণ করা হয়েছে।',
     }, 200, context.request);
   } catch (error) {

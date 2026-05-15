@@ -29,6 +29,19 @@ declare global {
     CLOUDFLARE_R2_BUCKET?: string;
     CLOUDFLARE_R2_ACCOUNT_ID?: string;
     CLOUDFLARE_R2_PUBLIC_URL?: string;
+    PUBLIC_GA_MEASUREMENT_ID?: string;
+    GA_API_SECRET?: string;
+    PUBLIC_META_PIXEL_ID?: string;
+    META_ACCESS_TOKEN?: string;
+    META_TEST_EVENT_CODE?: string;
+  }
+
+  interface Window {
+    gtag?: (...args: any[]) => void;
+    fbq?: (...args: any[]) => void;
+    __THREE__?: any;
+    __heroThreeCleanup?: (() => void) | null;
+    __heroThreePageLoadBound?: boolean;
   }
 }
 

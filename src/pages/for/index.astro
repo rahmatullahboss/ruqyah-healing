@@ -1,0 +1,333 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { buildBreadcrumbSchema, buildCollectionPageSchema } from '../../lib/seo.js';
+import { audiences } from '../../data/audience-data.js';
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/for`;
+
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'রুকইয়াহ চিকিৎসা', url: `${siteUrl}/ruqyah-diagnosis` },
+  { name: 'লক্ষ্যবস্তু গোষ্ঠী', url: pageUrl },
+]);
+
+const collectionLd = buildCollectionPageSchema({
+  pageUrl,
+  name: 'রুকইয়াহ চিকিৎসা - নির্দিষ্ট গোষ্ঠী',
+  description: 'বিভিন্ন গোষ্ঠীর জন্য রুকইয়াহ চিকিৎসা - মহিলা, পিতামাতা, মানসিক স্বাস্থ্য, ব্যবসায়ী এবং আরও অনেক কিছু',
+  items: audiences.map(a => ({
+    type: 'WebPage',
+    name: `${a.name} - ${a.nameBn}`,
+    url: `${pageUrl}/${a.slug}`,
+    inLanguage: 'bn-BD',
+  })),
+});
+
+const audienceCategories = [
+  {
+    key: 'life-stage',
+    name: 'জীবন-পর্যায়',
+    icon: '👨‍👩‍👧‍👦',
+    description: 'বিভিন্ন জীবন-পর্যায়ে রুকইয়াহ চিকিৎসা'
+  },
+  {
+    key: 'health-concern',
+    name: 'স্বাস্থ্য-সমস্যা',
+    icon: '🧠',
+    description: 'নির্দিষ্ট স্বাস্থ্য সমস্যার জন্য রুকইয়াহ'
+  },
+  {
+    key: 'protection',
+    name: 'সুরক্ষা',
+    icon: '🛡️',
+    description: 'সুরক্ষা ও প্রতিরোধমূলক রুকইয়াহ'
+  },
+];
+---
+
+<BaseLayout
+  title="রুকইয়াহ কার জন্য | Ruqyah for Everyone"
+  description="মহিলা, পিতামাতা, মানসিক স্বাস্থ্য, ব্যবসায়ী এবং আরও অনেকের জন্য রুকইয়াহ চিকিৎসা। আপনার পরিস্থিতি অনুযায়ী চিকিৎসা পান।"
+  keywords={['রুকইয়াহ', 'মহিলাদের রুকইয়াহ', 'শিশুদের রুকইয়াহ', 'মানসিক রুকইয়াহ', 'সুরক্ষার রুকইয়াহ']}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(collectionLd)} slot="head" />
+
+  <Header />
+
+  <main class="audiences-page">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href="/">হোম</a>
+        <span class="separator">›</span>
+        <a href="/ruqyah-diagnosis">রুকইয়াহ চিকিৎসা</a>
+        <span class="separator">›</span>
+        <span class="current">কার জন্য</span>
+      </nav>
+
+      <header class="page-header">
+        <h1 class="page-title">রুকইয়াহ কার জন্য?</h1>
+        <p class="page-subtitle">আপনার পরিস্থিতি অনুযায়ী রুকইয়াহ চিকিৎসা</p>
+        <p class="page-description">
+          বিভিন্ন গোষ্ঠীর জন্য রুকইয়াহ চিকিৎসা আলাদা হতে পারে। নিচের তালিকা থেকে আপনার পরিস্থিতি বেছে নিন এবং উপযুক্ত চিকিৎসা সম্পর্কে জানুন।
+        </p>
+      </header>
+
+      <section class="audiences-grid-section">
+        <div class="audiences-grid">
+          {audiences.map(audience => (
+            <a href={`/for/${audience.slug}`} class="audience-card">
+              <div class="audience-card-header">
+                <h2 class="audience-name">{audience.nameBn}</h2>
+                <span class="audience-name-en">{audience.targetQueryEn}</span>
+              </div>
+              <p class="audience-intro">{audience.introBn}</p>
+              <div class="audience-meta">
+                <span class="issue-count">{audience.issues.length} টি সমস্যা</span>
+                <span class="arrow">→</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="cta-section">
+        <h2>আপনার সমস্যা চিহ্নিত করতে সাহায্য প্রয়োজন?</h2>
+        <p>আমাদের অভিজ্ঞ রাকীদের সাথে কথা বলুন</p>
+        <div class="cta-actions">
+          <a href="/ruqyah-diagnosis" class="btn btn-primary">সেলফ ডায়াগনোসিস করুন</a>
+          <a href="/appointment" class="btn btn-outline">অ্যাপয়েন্টমেন্ট নিন</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .audiences-page {
+    padding: 40px 0 80px;
+    background: var(--bg-primary);
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .separator {
+    color: var(--text-muted);
+  }
+
+  .current {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .page-title {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  .page-subtitle {
+    font-size: 20px;
+    color: var(--primary);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .page-description {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .audiences-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .audience-card {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-light);
+  }
+
+  .audience-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: var(--primary);
+  }
+
+  .audience-card-header {
+    margin-bottom: 12px;
+  }
+
+  .audience-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  .audience-name-en {
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .audience-intro {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    flex: 1;
+    margin-bottom: 16px;
+  }
+
+  .audience-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .issue-count {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .arrow {
+    font-size: 18px;
+    color: var(--primary);
+    transition: transform 0.2s ease;
+  }
+
+  .audience-card:hover .arrow {
+    transform: translateX(4px);
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-light) 100%);
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    margin-top: 48px;
+  }
+
+  .cta-section h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .cta-section p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .btn-outline:hover {
+    background: var(--primary-light);
+  }
+
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 32px;
+    }
+
+    .audiences-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cta-section {
+      padding: 24px;
+    }
+
+    .cta-actions {
+      flex-direction: column;
+    }
+  }
+</style>

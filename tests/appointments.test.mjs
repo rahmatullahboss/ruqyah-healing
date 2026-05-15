@@ -32,6 +32,7 @@ test('serializeAppointmentPayload builds a normalized booking payload from raw f
     paymentMethod: 'বিকাশ',
     transactionId: 'TEST123',
     paymentTimestamp: '2026-04-10T10:30',
+    eventId: 'lead-test-event',
   });
 
   assert.equal(payload.fullName, 'টেস্ট রোগী');
@@ -41,6 +42,7 @@ test('serializeAppointmentPayload builds a normalized booking payload from raw f
     'Long Session - লং সেশন',
   ]);
   assert.equal(payload.paymentTimestamp, '2026-04-10T10:30');
+  assert.equal(payload.eventId, 'lead-test-event');
 });
 
 test('appointmentSubmissionSchema rejects malformed booking data', () => {

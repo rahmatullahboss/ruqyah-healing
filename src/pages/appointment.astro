@@ -494,8 +494,14 @@ const faqLd = buildFaqSchema([
 
   type AppointmentApiResponse = {
     appointmentId?: string;
+    eventId?: string;
     message?: string;
   };
+
+  function createEventId() {
+    if (window.crypto?.randomUUID) return `lead-${window.crypto.randomUUID()}`;
+    return `lead-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
 
   const treatmentCatalogData = document.getElementById('treatmentCatalogData');
   const treatmentCatalog: TreatmentCatalogItem[] = treatmentCatalogData
@@ -611,6 +617,7 @@ const faqLd = buildFaqSchema([
         paymentMethod: String(formData.get('paymentMethod') || ''),
         transactionId: String(formData.get('transactionId') || ''),
         paymentTimestamp: String(formData.get('paymentTimestamp') || ''),
+        eventId: createEventId(),
       });
 
       const response = await fetch('/api/appointments', {
@@ -630,6 +637,7 @@ const faqLd = buildFaqSchema([
       }
 
       const appointmentId = result.appointmentId || 'N/A';
+      const eventId = result.eventId || values.eventId;
 
       const message = buildAppointmentWhatsappMessage({
         ...values,
@@ -645,6 +653,17 @@ const faqLd = buildFaqSchema([
       const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
       if (!opened) {
         submitStatus.textContent = 'ডাটাবেজে সেভ হয়েছে, কিন্তু WhatsApp ট্যাব খুলতে বাধা পেয়েছে। অনুগ্রহ করে pop-up allow করে আবার চেষ্টা করুন।';
+      }
+
+      if (window.gtag) {
+        window.gtag('event', 'generate_lead', {
+          event_category: 'appointment_booking',
+          currency: 'BDT',
+          value: 500,
+        });
+      }
+      if (window.fbq) {
+        window.fbq('track', 'Lead', { content_category: 'ruqyah_booking' }, { eventID: eventId });
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'বুকিং তথ্য সংরক্ষণ করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।';
@@ -1000,72 +1019,19 @@ textarea {
   top: calc(var(--nav-height) + 16px);
 }
 
-.sidebar-card--accent {
-  background: linear-gradient(180deg, #f3fff8 0%, #ffffff 100%);
-}
-
-.sidebar-card--muted {
-  background: linear-gradient(180deg, #ffffff 0%, #f4fff8 100%);
-}
-
-.contact-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 16px;
-}
-
-.contact-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.92);
-}
-
-.contact-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.contact-value,
 .sidebar-strong {
   font-size: 18px;
   font-weight: 700;
   color: var(--text-dark);
 }
 
-.contact-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+/* Sidebar specific */
+.sidebar-card--accent {
+  background: linear-gradient(180deg, #f3fff8 0%, #ffffff 100%);
 }
 
-.contact-call,
-.contact-wa {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 14px;
-  font-weight: 700;
-  font-size: 13px;
-  border-radius: 999px;
-}
-
-.contact-call {
-  background: #ecfdf5;
-  color: #047857;
-}
-
-.contact-wa {
-  background: #22c55e;
-  color: #fff;
+.sidebar-card--muted {
+  background: linear-gradient(180deg, #ffffff 0%, #f4fff8 100%);
 }
 
 .sidebar-btn {
@@ -1110,6 +1076,26 @@ textarea {
   .section-head h2,
   .sidebar-card h2 {
     font-size: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .contact-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .contact-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .contact-call,
+  .contact-wa {
+    flex: 1;
+    text-align: center;
+    max-width: 140px;
   }
 }
 </style>

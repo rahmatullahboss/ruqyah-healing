@@ -28,9 +28,15 @@
 	"observability": {
 		"enabled": true
 	},
-	// ADMIN_EMAILS should be set as a secret, not a plaintext var:
+	// Secrets should be set with wrangler secret put, not plaintext vars:
 	//   wrangler secret put ADMIN_EMAILS
-	"vars": {},
+	//   wrangler secret put GA_API_SECRET
+	//   wrangler secret put META_ACCESS_TOKEN
+	//   wrangler secret put META_TEST_EVENT_CODE
+	"vars": {
+		"PUBLIC_GA_MEASUREMENT_ID": "G-84MP9XBX3P",
+		"PUBLIC_META_PIXEL_ID": ""
+	},
 	"r2_buckets": [
 		{
 			"bucket_name": "ruqyah-healing-images",

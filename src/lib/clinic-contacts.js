@@ -3,8 +3,8 @@ export const CONTACT_TYPES = ['call', 'whatsapp', 'both'];
 export const DEFAULT_CLINIC_CONTACTS = [
   {
     label: 'প্রধান যোগাযোগ',
-    display: '01992575874',
-    international: '8801992575874',
+    display: '01336202150',
+    international: '8801336202150',
     type: 'both',
   },
   {

@@ -6,6 +6,10 @@ import {
   appointmentSubmissionSchema,
   mapAppointmentToInsert,
 } from '../../lib/appointments.js';
+import {
+  getAnalyticsContext,
+  sendMetaCAPIEvent,
+} from '../../lib/analytics.ts';
 
 export const prerender = false;
 
@@ -45,6 +49,26 @@ function json(request: Request, payload: unknown, status = 200) {
   });
 }
 
+function getClientIp(request: Request): string | undefined {
+  return (
+    request.headers.get('cf-connecting-ip') ||
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    undefined
+  );
+}
+
+function runAfterResponse(locals: App.Locals | undefined, task: Promise<unknown>) {
+  const waitUntil = (locals as any)?.cfContext?.waitUntil;
+  if (typeof waitUntil === 'function') {
+    waitUntil.call((locals as any).cfContext, task);
+    return;
+  }
+
+  task.catch((error) => {
+    console.error('[Appointments API] Background task failed:', error);
+  });
+}
+
 export const OPTIONS: APIRoute = async ({ request }) =>
   new Response(null, {
     status: 204,
@@ -55,7 +79,7 @@ export const OPTIONS: APIRoute = async ({ request }) =>
     },
   });
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const env = await getRuntimeEnv();
     const databaseUrl = env?.DATABASE_URL;
@@ -78,11 +102,33 @@ export const POST: APIRoute = async ({ request }) => {
 
     await db.insert(appointments).values(insertRow);
 
+    const eventId = parsed.eventId || `lead-${insertRow.id}`;
+    const capiPromise = sendMetaCAPIEvent(
+      'Lead',
+      {
+        content_category: 'ruqyah_booking',
+        content_name: parsed.treatmentTypeLabel,
+        currency: 'BDT',
+        value: 500,
+      },
+      {
+        ...getAnalyticsContext(request, getClientIp(request)),
+        externalId: insertRow.id,
+        phone: parsed.phone,
+      },
+      {
+        eventId,
+        env,
+      },
+    );
+    runAfterResponse(locals, capiPromise);
+
     return json(
       request,
       {
         ok: true,
         appointmentId: insertRow.id,
+        eventId,
         message: 'আপনার বুকিং তথ্য ডাটাবেজে সংরক্ষণ করা হয়েছে।',
       },
       200,

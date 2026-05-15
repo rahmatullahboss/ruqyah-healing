@@ -545,8 +545,12 @@ function updateSelectionUI() {
     bottomCta.classList.add('visible');
     bottomCta.removeAttribute('aria-hidden');
     
-    // Pass symptom IDs as query param and route to exact test
-    diagnosisBtn.href = `/ruqyah-diagnosis/${testId}?symptoms=${[...selected].join(',')}`;
+    // Pass symptom titles as query param and route to exact test
+    const selectedTitles = [...selected].map(id => {
+      const card = document.querySelector(`[data-id="${id}"]`);
+      return card ? card.querySelector('h3').textContent : id;
+    });
+    diagnosisBtn.href = `/ruqyah-diagnosis/${testId}?symptoms=${encodeURIComponent(selectedTitles.join(', '))}`;
   }
 }
 

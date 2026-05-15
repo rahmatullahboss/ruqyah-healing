@@ -1,0 +1,150 @@
+---
+const steps = [
+  {
+    num: '১',
+    title: 'ফর্ম পূরণ করুন',
+    desc: 'নিচের ফর্মটি পূরণ করে সাবমিট করুন অথবা সরাসরি WhatsApp-এ মেসেজ দিন।',
+    icon: `<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>`,
+  },
+  {
+    num: '২',
+    title: 'বুকিং নিশ্চিত করুন',
+    desc: 'অগ্রিম বুকিং ফি পরিশোধ করে Trx ID দিন — বিকাশ বা নগদে।',
+    icon: `<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>`,
+  },
+  {
+    num: '৩',
+    title: 'সেশন নিন',
+    desc: 'পেমেন্ট নিশ্চিত হলে আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবে এবং সেশন শিডিউল করা হবে।',
+    icon: `<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>`,
+  },
+];
+---
+
+<section class="how-it-works">
+  <div class="container">
+    <h2 class="section-title">কিভাবে কাজ করে?</h2>
+    <p class="section-sub">মাত্র ৩টি সহজ ধাপে আপনার রুকইয়াহ সেশন বুক করুন</p>
+    <div class="steps">
+      {steps.map((step) => (
+        <div class="step">
+          <div class="step-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <Fragment set:html={step.icon} />
+            </svg>
+            <span class="step-num">{step.num}</span>
+          </div>
+          <h3>{step.title}</h3>
+          <p>{step.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+.how-it-works {
+  padding: 64px 0;
+  background: var(--bg-white);
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-title {
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 700;
+  color: var(--text-dark);
+  text-align: center;
+  margin: 0 0 8px;
+}
+
+.section-sub {
+  font-size: 16px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0 0 48px;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  position: relative;
+}
+
+.steps::before {
+  content: '';
+  position: absolute;
+  top: 40px;
+  left: calc(16.67% + 20px);
+  right: calc(16.67% + 20px);
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.step-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  border: 2px solid var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  position: relative;
+}
+
+.step-num {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.step p {
+  font-size: 14px;
+  color: var(--text-medium);
+  line-height: 1.7;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .steps {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .steps::before { display: none; }
+}
+</style>

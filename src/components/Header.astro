@@ -9,14 +9,18 @@ const navGroups = pageLocale === 'en'
   ? [
       { label: 'Appointment', href: '/en/appointment', highlight: true },
       { label: 'Home', href: '/en/' },
+      { label: 'Conditions', href: '/conditions' },
       {
         label: 'Ruqyah',
         children: [
           { label: 'Ruqyah Diagnosis', href: '/en/ruqyah-diagnosis' },
           { label: 'Symptom Diagnosis', href: '/en/symptom-diagnosis' },
           { label: 'Self Ruqyah', href: '/en/self-ruqyah' },
+          { label: 'For Whom', href: '/en/for' },
+          { label: 'Our Locations', href: '/en/location' },
         ],
       },
+      { label: 'Glossary', href: '/en/glossary' },
       { label: 'Supplements', href: '/en/supplements' },
       {
         label: 'Resources',
@@ -38,14 +42,18 @@ const navGroups = pageLocale === 'en'
   : [
       { label: 'অ্যাপয়েন্টমেন্ট', href: '/appointment', highlight: true },
       { label: 'হোম', href: '/' },
+      { label: 'সমস্যা ও লক্ষণ', href: '/conditions' },
       {
         label: 'রুকইয়াহ',
         children: [
           { label: 'রুকইয়াহ ডায়াগনোসিস', href: '/ruqyah-diagnosis' },
           { label: 'সিমটম ডায়াগনোসিস', href: '/symptom-diagnosis' },
           { label: 'সেলফ রুকইয়াহ', href: '/self-ruqyah' },
+          { label: 'কার জন্য', href: '/for' },
+          { label: 'আমাদের এলাকাসমূহ', href: '/location' },
         ],
       },
+      { label: 'শব্দকোষ', href: '/glossary' },
       { label: 'রুকইয়াহ সাপ্লিমেন্ট', href: '/supplements' },
       {
         label: 'রিসোর্স',
@@ -447,10 +455,15 @@ const navGroups = pageLocale === 'en'
   .dropdown-inner::before { display: none; }
   .nav-dropdown.is-open .dropdown-menu {
     display: block;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
   }
   .dropdown-link {
     padding: 10px 14px;
     font-size: 14px;
+    color: var(--text-medium);
+    display: block;
   }
 }
 </style>
@@ -500,7 +513,7 @@ toggle?.addEventListener('click', () => {
 overlay?.addEventListener('click', closeMenu);
 
 // Close on nav link click (mobile)
-nav?.querySelectorAll('.nav-link, .dropdown-link').forEach(link => {
+nav?.querySelectorAll('.nav-link:not(.nav-dropdown-toggle), .dropdown-link').forEach(link => {
   link.addEventListener('click', closeMenu);
 });
 
@@ -513,11 +526,13 @@ document.addEventListener('keydown', (e) => {
 document.querySelectorAll('[data-dropdown]').forEach(dropdown => {
   const toggleBtn = dropdown.querySelector('.nav-dropdown-toggle');
   toggleBtn?.addEventListener('click', (e) => {
+    // Stop propagation so hamburger menu doesn't close
+    e.stopPropagation();
+
     // Only on mobile (when dropdown-menu is hidden by CSS)
     const menu = dropdown.querySelector('.dropdown-menu') as HTMLElement;
     if (menu && getComputedStyle(menu).display === 'none') {
       e.preventDefault();
-      e.stopPropagation();
       const isOpen = dropdown.classList.contains('is-open');
       // Close others
       document.querySelectorAll('[data-dropdown]').forEach(d => {
@@ -525,7 +540,19 @@ document.querySelectorAll('[data-dropdown]').forEach(dropdown => {
       });
       dropdown.classList.toggle('is-open', !isOpen);
       toggleBtn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+    } else {
+      // Dropdown already open - just close it (don't navigate)
+      e.preventDefault();
+      dropdown.classList.remove('is-open');
+      toggleBtn.setAttribute('aria-expanded', 'false');
     }
+  });
+});
+
+// Also stop propagation on dropdown inner links (mobile)
+document.querySelectorAll('.dropdown-link').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.stopPropagation();
   });
 });
 

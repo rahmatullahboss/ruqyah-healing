@@ -1,0 +1,349 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { buildBreadcrumbSchema, buildCollectionPageSchema } from '../../lib/seo.js';
+import { conditions } from '../../data/conditions-data.js';
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/conditions`;
+
+const categories = {
+  'spiritual-affliction': { name: 'আধ্যাত্মিক আক্রমণ', icon: '👁️' },
+  'mental-health': { name: 'মানসিক স্বাস্থ্য', icon: '🧠' },
+  'relationships': { name: 'সম্পর্কের সমস্যা', icon: '💑' },
+  'children': { name: 'শিশুদের সমস্যা', icon: '👶' },
+};
+
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'ডায়াগনোসিস', url: `${siteUrl}/ruqyah-diagnosis` },
+  { name: 'শর্তাবলী ও লক্ষণ', url: pageUrl },
+]);
+
+const collectionLd = buildCollectionPageSchema({
+  pageUrl,
+  name: 'রোগের লক্ষণ ও কারণ',
+  description: 'রুকইয়াহ চিকিৎসার জন্য প্রয়োজনীয় সমস্যাগুলির লক্ষণ ও কারণ সম্পর্কে জানুন',
+  items: conditions.map(c => ({
+    type: 'WebPage',
+    name: `${c.name} - ${c.nameBn}`,
+    url: `${pageUrl}/${c.slug}`,
+    inLanguage: 'bn-BD',
+  })),
+});
+---
+
+<BaseLayout
+  title="সমস্যা ও লক্ষণ | Ruqyah Conditions"
+  description="রুকইয়াহ চিকিৎসার জন্য প্রয়োজনীয় বিভিন্ন সমস্যা এবং তাদের লক্ষণ সম্পর্কে জানুন। জিন, যাদু, বদনজর এবং অন্যান্য আধ্যাত্মিক সমস্যার লক্ষণ।"
+  keywords={['রুকইয়াহ', 'লক্ষণ', 'জিন', 'বদনজর', 'যাদু', 'রুকyah diagnosis']}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(collectionLd)} slot="head" />
+
+  <Header />
+
+  <main class="conditions-page">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href="/">হোম</a>
+        <span class="separator">›</span>
+        <a href="/ruqyah-diagnosis">ডায়াগনোসিস</a>
+        <span class="separator">›</span>
+        <span class="current">শর্তাবলী ও লক্ষণ</span>
+      </nav>
+
+      <header class="page-header">
+        <h1 class="page-title">সমস্যা ও লক্ষণ</h1>
+        <p class="page-subtitle">বিভিন্ন আধ্যাত্মিক সমস্যার লক্ষণ ও কারণ সম্পর্কে জানুন</p>
+        <p class="page-description">
+          নিচের তালিকা থেকে আপনার সমস্যার ধরন সম্পর্কে জানুন। প্রতিটি শর্তে লক্ষণ, সম্ভাব্য কারণ এবং চিকিৎসার নির্দেশনা রয়েছে।
+        </p>
+      </header>
+
+      {Object.entries(categories).map(([catKey, cat]) => {
+        const catConditions = conditions.filter(c => c.category === catKey);
+        if (catConditions.length === 0) return null;
+        return (
+          <section class="category-section">
+            <h2 class="category-title">
+              <span class="category-icon">{cat.icon}</span>
+              {cat.name}
+            </h2>
+            <div class="conditions-grid">
+              {catConditions.map(condition => (
+                <a href={`/conditions/${condition.slug}`} class="condition-card">
+                  <div class="condition-header">
+                    <h3 class="condition-name">{condition.nameBn}</h3>
+                    <span class="condition-name-en">{condition.name}</span>
+                  </div>
+                  <p class="condition-intro">{condition.introBn}</p>
+                  <div class="condition-meta">
+                    <span class="symptom-count">{condition.symptoms.length} টি লক্ষণ</span>
+                    <span class="arrow">→</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        );
+      })}
+
+      <section class="cta-section">
+        <h2>আপনার সমস্যা চিহ্নিত করতে সাহায্য প্রয়োজন?</h2>
+        <p>আমাদের অভিজ্ঞ রাকীদের সাথে কথা বলুন</p>
+        <div class="cta-actions">
+          <a href="/ruqyah-diagnosis" class="btn btn-primary">সেলফ ডায়াগনোসিস করুন</a>
+          <a href="/appointment" class="btn btn-outline">অ্যাপয়েন্টমেন্ট নিন</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .conditions-page {
+    padding: 40px 0 80px;
+    background: var(--bg-primary);
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .separator {
+    color: var(--text-muted);
+  }
+
+  .current {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .page-title {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  .page-subtitle {
+    font-size: 20px;
+    color: var(--primary);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .page-description {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .category-section {
+    margin-bottom: 48px;
+  }
+
+  .category-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-light);
+  }
+
+  .category-icon {
+    font-size: 24px;
+  }
+
+  .conditions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .condition-card {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-light);
+  }
+
+  .condition-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: var(--primary);
+  }
+
+  .condition-header {
+    margin-bottom: 12px;
+  }
+
+  .condition-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  .condition-name-en {
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .condition-intro {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    flex: 1;
+    margin-bottom: 16px;
+  }
+
+  .condition-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .symptom-count {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .arrow {
+    font-size: 18px;
+    color: var(--primary);
+    transition: transform 0.2s ease;
+  }
+
+  .condition-card:hover .arrow {
+    transform: translateX(4px);
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-light) 100%);
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    margin-top: 48px;
+  }
+
+  .cta-section h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .cta-section p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .btn-outline:hover {
+    background: var(--primary-light);
+  }
+
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 32px;
+    }
+
+    .conditions-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cta-section {
+      padding: 24px;
+    }
+
+    .cta-actions {
+      flex-direction: column;
+    }
+  }
+</style>

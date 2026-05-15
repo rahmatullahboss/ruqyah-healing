@@ -2,7 +2,7 @@
 ---
 <section class="hero">
   <!-- Three.js WebGL Canvas — floating Islamic star particles -->
-  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <canvas id="hero-landing-canvas" aria-hidden="true"></canvas>
 
   <!-- Floating orb decorations (CSS) -->
   <div class="hero-orb hero-orb--1" aria-hidden="true"></div>
@@ -21,7 +21,7 @@
     <p class="hero-desc">জিন, জাদু ও বদনজরের কারণে সৃষ্ট সমস্যার সমাধান — কুরআন ও সুন্নাহ ভিত্তিক ১০০% হালাল পদ্ধতে</p>
 
     <div class="hero-actions">
-      <a href="/appointment" class="btn btn-hero-primary">
+      <a href="#booking-section" class="btn btn-hero-primary">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
@@ -84,7 +84,7 @@
   // Cache Three.js module globally to avoid re-importing on each navigation
   // window.__THREE__ is set after first successful import
   function initThree(THREE) {
-    const canvas = document.getElementById('hero-canvas');
+    const canvas = document.getElementById('hero-landing-canvas');
     if (!canvas) return;
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -321,7 +321,7 @@ document.addEventListener('astro:page-load', initCounters);
   overflow: hidden;
 }
 
-#hero-canvas {
+#hero-landing-canvas {
   position: absolute;
   inset: 0;
   width: 100%;

@@ -1,0 +1,119 @@
+---
+const trustItems = [
+  {
+    icon: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`,
+    title: 'সম্পূর্ণ পর্দা বজায়',
+    desc: 'মহিলা রোগীদের জন্য মাহরাম উপস্থিতি বাধ্যতামূলক ও সম্পূর্ণ পর্দা নিশ্চিত করা হয়',
+  },
+  {
+    icon: `<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 7c0 2.537 1.014 4.882 2.659 6.615"/>`,
+    title: '১০০% হালাল ও শিরকমুক্ত',
+    desc: 'কুরআন, হাদিসের আলোকে প্রমাণিত দুআ ও আমল — কোনো শিরক, বিদআত বা জাদু নেই',
+  },
+  {
+    icon: `<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>`,
+    title: 'প্রামাণিক দুআ ও আমল',
+    desc: 'রাসূল (সা.)-এর হাদিসে বর্ণিত দুআ ও আমল — কোনো বানোয়াট বা অশ্লীল শব্দ নেই',
+  },
+  {
+    icon: `<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>`,
+    title: 'অভিজ্ঞ ও প্রশিক্ষিত রুকী',
+    desc: '৮+ বছরের অভিজ্ঞ রুকি দ্বারা পরিচালিত — প্রতিটি সেশন সতর্কতার সাথে সম্পাদিত',
+  },
+];
+---
+
+<section class="trust-section">
+  <div class="container">
+    <div class="trust-grid">
+      {trustItems.map((item) => (
+        <div class="trust-item">
+          <div class="trust-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <Fragment set:html={item.icon} />
+            </svg>
+          </div>
+          <div class="trust-text">
+            <h3>{item.title}</h3>
+            <p>{item.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+.trust-section {
+  padding: 48px 0;
+  background: var(--dark-section);
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.trust-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1.5px solid rgba(16, 185, 129, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+
+.trust-text h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 6px;
+}
+
+.trust-text p {
+  font-size: 13px;
+  color: rgba(255,255,255,0.72);
+  margin: 0;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .trust-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 500px) {
+  .trust-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .trust-item {
+    flex-direction: row;
+    text-align: left;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .trust-text h3 { font-size: 14px; }
+  .trust-text p { font-size: 12px; }
+}
+</style>

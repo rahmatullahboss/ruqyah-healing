@@ -99,7 +99,6 @@ const services = [
   },
 ];
 
-const rakis = [];
 
 const packages = [
   {
@@ -133,12 +132,7 @@ const videos = [
   { id: '', title: 'আমাদের সেন্টার পরিচিতি' },
 ];
 
-const galleryImages = [
-  { src: 'https://images.unsplash.com/photo-1585036156171-384164a8c675?w=300&h=300&fit=crop&q=40&fm=webp', alt: 'রুকইয়া সেশন' },
-  { src: 'https://images.unsplash.com/photo-1564121211835-e88c852648ab?w=300&h=300&fit=crop&q=40&fm=webp', alt: 'ইসলামিক আর্কিটেকচার' },
-  { src: 'https://images.unsplash.com/photo-1606819717115-9159c900370b?w=300&h=300&fit=crop&q=40&fm=webp', alt: 'হার্বাল সাপ্লিমেন্ট' },
-  { src: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=300&h=300&fit=crop&q=40&fm=webp', alt: 'সূর্যের আলো' },
-];
+
 
 const primaryPhone = primaryPhoneContact?.display || clinicNumbers[0]?.display || '';
 const generalContactLink = getWhatsappUrl('আসসালামু আলাইকুম, সেবা সম্পর্কে জানতে চাই।');
@@ -320,66 +314,6 @@ const faqSchema = buildFaqSchema(homepageFaq);
     </section>
     )}
 
-    <!-- ⑦ রাকী ক্যারোসেল -->
-    <section class="section reveal" style="background:var(--bg-light)">
-      <div class="container">
-        <div class="section-header-row scroll-reveal">
-          <div>
-            <h2>আমাদের রাকীগণ</h2>
-            <p>অভিজ্ঞ ও প্রশিক্ষিত রাকীদের সাথে পরিচিত হন</p>
-          </div>
-          <a href="/team" class="btn btn-outline btn-sm">সবাইকে দেখুন</a>
-        </div>
-
-        <!-- Desktop: 3-column grid -->
-        <div class="raki-grid-desktop">
-          {rakis.map((r, i) => (
-            <div class="raki-card scroll-reveal-child" style={`--stagger-delay:${i*80}ms`}>
-              <div class="raki-avatar-wrap">
-                <div class="raki-avatar">
-                  <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5">
-                    <circle cx="12" cy="8" r="4"/>
-                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-                  </svg>
-                </div>
-              </div>
-              <div class="raki-info">
-                <h3>{r.name}</h3>
-                <p>{r.role}</p>
-                <a href={r.href} class="btn btn-outline btn-sm" style="margin-top:12px">বিস্তারিত</a>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <!-- Mobile: snap-scroll carousel -->
-        <div class="raki-swipe-mobile" id="raki-swipe">
-          {rakis.map((r) => (
-            <div class="raki-swipe-item">
-              <div class="raki-card">
-                <div class="raki-avatar-wrap">
-                  <div class="raki-avatar">
-                    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5">
-                      <circle cx="12" cy="8" r="4"/>
-                      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-                    </svg>
-                  </div>
-                </div>
-                <div class="raki-info">
-                  <h3>{r.name}</h3>
-                  <p>{r.role}</p>
-                  <a href={r.href} class="btn btn-outline btn-sm" style="margin-top:12px">বিস্তারিত</a>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <!-- Dots for mobile carousel -->
-        <div class="raki-dots" id="raki-dots" aria-hidden="true">
-          {rakis.map((_, i) => <span class={`raki-dot${i===0?' active':''}`} data-i={i}></span>)}
-        </div>
-      </div>
-    </section>
 
     <!-- ⑧ আমাদের প্যাকেজগুলি -->
 
@@ -568,22 +502,7 @@ const faqSchema = buildFaqSchema(homepageFaq);
       </div>
     </section>
 
-    <!-- ⑪ গ্যালারি -->
-    <section class="section reveal">
-      <div class="container">
-        <div class="section-header scroll-reveal" style="text-align: center;">
-          <h2>গ্যালারি</h2>
-          <p>আমাদের কার্যক্রমের ছবি</p>
-        </div>
-        <div class="gallery-grid">
-          {galleryImages.map((img, i) => (
-            <div class="gallery-item scroll-reveal-child" style={`--stagger-delay: ${i * 50}ms`}>
-              <img src={img.src} alt={img.alt} loading="lazy" decoding="async" fetchpriority="low" width="300" height="300" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+
 
     <!-- ⑫ সচরাচর জিজ্ঞাসা (FAQ) -->
     <section class="section reveal" style="background:var(--bg-light)">
@@ -637,36 +556,6 @@ const faqSchema = buildFaqSchema(homepageFaq);
       setTimeout(() => swipeHint.classList.add('faded'), 2500);
     }
 
-    // ── Raki mobile carousel dots
-    const rakiSwipe = document.getElementById('raki-swipe') as HTMLElement | null;
-    const rakiDots  = document.querySelectorAll('#raki-dots .raki-dot');
-
-    function setRakiDot(i: number) {
-      rakiDots.forEach((d, idx) => d.classList.toggle('active', idx === i));
-    }
-
-    // Dots → scroll
-    rakiDots.forEach((dot, i) => {
-      dot.addEventListener('click', () => {
-        if (!rakiSwipe) return;
-        const items = rakiSwipe.querySelectorAll('.raki-swipe-item');
-        if (items[i]) (items[i] as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-        setRakiDot(i);
-      });
-    });
-
-    // Scroll → dots
-    if (rakiSwipe) {
-      let rakiScrollTimer: ReturnType<typeof setTimeout>;
-      rakiSwipe.addEventListener('scroll', () => {
-        clearTimeout(rakiScrollTimer);
-        rakiScrollTimer = setTimeout(() => {
-          const itemW = (rakiSwipe.querySelector('.raki-swipe-item') as HTMLElement)?.offsetWidth ?? 1;
-          const idx = Math.round(rakiSwipe.scrollLeft / itemW);
-          setRakiDot(idx);
-        }, 80);
-      }, { passive: true });
-    }
   }
 
   // ── Prayer Times (Aladhan API) ──────────────────────────
@@ -1126,79 +1015,6 @@ const faqSchema = buildFaqSchema(homepageFaq);
   line-height: 1.4;
 }
 
-/* ── Raki Section ── */
-
-/* Desktop grid */
-.raki-grid-desktop {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-/* Mobile swipe carousel */
-.raki-swipe-mobile {
-  display: none; /* shown on mobile via media query */
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  gap: 16px;
-  padding-bottom: 8px;
-  margin-bottom: 16px;
-}
-.raki-swipe-mobile::-webkit-scrollbar { display: none; }
-.raki-swipe-item {
-  scroll-snap-align: start;
-  flex: 0 0 85%;
-  min-width: 0;
-}
-
-/* Raki card — used in both desktop and mobile */
-.raki-card {
-  background: #fff;
-  border-radius: var(--radius-lg);
-  padding: 28px 24px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
-  border: 1px solid var(--border);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  height: 100%;
-}
-.raki-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(0,0,0,0.12); }
-
-.raki-avatar-wrap { flex-shrink: 0; }
-.raki-avatar {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  background: var(--primary-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.raki-info { display: flex; flex-direction: column; }
-.raki-info h3 { font-size: 17px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
-.raki-info p  { font-size: 13px; color: var(--text-medium); }
-
-/* Dots — hidden on desktop */
-.raki-dots {
-  display: none;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 4px;
-}
-.raki-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--border);
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
-}
-.raki-dot.active { background: var(--primary); transform: scale(1.3); }
 
 
 /* ── Package cards (old emoji style — kept as fallback) ── */
@@ -1433,24 +1249,7 @@ const faqSchema = buildFaqSchema(homepageFaq);
 .blog-swipe-mobile { display: none; }
 .swipe-hint { display: none; }
 
-/* Gallery */
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-.gallery-item {
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  aspect-ratio: 1;
-}
-.gallery-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.35s ease;
-}
-.gallery-item:hover img { transform: scale(1.06); }
+
 
 /* ── Scroll-reveal transitions ── */
 .scroll-reveal {
@@ -1520,12 +1319,8 @@ const faqSchema = buildFaqSchema(homepageFaq);
     transition: opacity 0.6s ease;
   }
   .swipe-hint.faded span { opacity: 0; }
-  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-  /* Raki: hide desktop grid, show mobile swipe carousel */
+
   .raki-grid-desktop { display: none; }
-  .raki-swipe-mobile { display: flex; }
-  .raki-dots { display: flex; }
-  .raki-swipe-item { flex: 0 0 85vw; }
 }
 
 @media (max-width: 600px) {

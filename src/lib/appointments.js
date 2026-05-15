@@ -35,6 +35,7 @@ export const appointmentSubmissionSchema = z
     paymentMethod: requiredString('পেমেন্ট মাধ্যম'),
     transactionId: requiredString('Trx ID'),
     paymentTimestamp: requiredString('পেমেন্টের সময়'),
+    eventId: optionalString(),
   })
   .superRefine((payload, context) => {
     if (payload.previousTreatment === 'হ্যাঁ' && !payload.previousTreatmentDetails) {
@@ -73,6 +74,7 @@ export function serializeAppointmentPayload(rawValues) {
     paymentMethod: rawValues.paymentMethod ?? '',
     transactionId: rawValues.transactionId ?? '',
     paymentTimestamp: rawValues.paymentTimestamp ?? '',
+    eventId: rawValues.eventId ?? '',
   };
 
   return appointmentSubmissionSchema.parse(payload);

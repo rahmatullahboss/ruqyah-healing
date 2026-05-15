@@ -3,62 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
-const products = [
-  {
-    name: 'জমজম পানি',
-    desc: 'পবিত্র জমজম কূপের পানি',
-    price: 500,
-    rating: 5,
-    benefit: 'আধ্যাত্মিক ও শারীরিক নিরাময়',
-    img: '/supplements/zamzam_water.webp',
-    badge: 'বেস্টসেলার',
-  },
-  {
-    name: 'কালো জিরা তেল',
-    desc: 'খাঁটি কালো জিরার তেল',
-    price: 350,
-    rating: 4.5,
-    benefit: 'রোগ প্রতিরোধ ক্ষমতা বৃদ্ধি',
-    img: '/supplements/black_seed_oil.webp',
-    badge: 'সুন্নাহ প্রস্তাবিত',
-  },
-  {
-    name: 'মধু',
-    desc: 'প্রাকৃতিক খাঁটি মধু',
-    price: 600,
-    rating: 4,
-    benefit: 'সুস্বাস্থ্য ও শক্তি বৃদ্ধি',
-    img: '/supplements/pure_honey.webp',
-    badge: null,
-  },
-  {
-    name: 'জাফরান',
-    desc: 'প্রিমিয়াম জাফরান',
-    price: 1200,
-    rating: 5,
-    benefit: 'মানসিক সুস্থতা ও শক্তি',
-    img: '/supplements/saffron_spice.webp',
-    badge: 'প্রিমিয়াম',
-  },
-  {
-    name: 'আজওয়া খেজুর',
-    desc: 'মদিনা থেকে আনা আজওয়া খেজুর',
-    price: 800,
-    rating: 5,
-    benefit: 'শক্তিবর্ধক ও নিরাময়',
-    img: '/supplements/ajwa_dates.webp',
-    badge: 'বেস্টসেলার',
-  },
-  {
-    name: 'জলপাই তেল',
-    desc: 'এক্সট্রা ভার্জিন অলিভ অয়েল',
-    price: 450,
-    rating: 4,
-    benefit: 'ত্বক ও শরীরের যত্ন',
-    img: '/supplements/olive_oil.webp',
-    badge: null,
-  },
-];
+const products = [];
 
 export const prerender = true;
 
@@ -99,45 +44,53 @@ function starRating(rating: number) {
     <section class="products-section">
       <div class="container">
         <div class="products-grid">
-          {products.map((p) => (
-            <div class="product-card">
-              <div class="product-img">
-                {p.badge && <span class="product-badge">{p.badge}</span>}
-                <button class="wishlist-btn" aria-label="উইশলিস্টে যোগ করুন">♡</button>
-                <img
-                  src={p.img}
-                  alt={p.name}
-                  loading="lazy"
-                  decoding="async"
-                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-                />
-                <div class="product-placeholder" style="display:none">
-                  <span class="product-emoji">🌿</span>
+          {products.length > 0 ? (
+            products.map((p) => (
+              <div class="product-card">
+                <div class="product-img">
+                  {p.badge && <span class="product-badge">{p.badge}</span>}
+                  <button class="wishlist-btn" aria-label="উইশলিস্টে যোগ করুন">♡</button>
+                  <img
+                    src={p.img}
+                    alt={p.name}
+                    loading="lazy"
+                    decoding="async"
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                  />
+                  <div class="product-placeholder" style="display:none">
+                    <span class="product-emoji">🌿</span>
+                  </div>
+                </div>
+                <div class="product-body">
+                  <div class="product-rating">
+                    <span class="stars">{'★'.repeat(Math.floor(p.rating))}</span>
+                    <span class="rating-val">{p.rating}</span>
+                  </div>
+                  <h3>{p.name}</h3>
+                  <p class="product-desc">{p.desc}</p>
+                  <div class="product-benefit">
+                    <strong>উপকারিতা:</strong> {p.benefit}
+                  </div>
+                  <div class="product-footer">
+                    <span class="product-price">৳{p.price.toLocaleString()} টাকা</span>
+                    <button class="add-cart-btn">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                      </svg>
+                      কার্টে যোগ করুন
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div class="product-body">
-                <div class="product-rating">
-                  <span class="stars">{'★'.repeat(Math.floor(p.rating))}</span>
-                  <span class="rating-val">{p.rating}</span>
-                </div>
-                <h3>{p.name}</h3>
-                <p class="product-desc">{p.desc}</p>
-                <div class="product-benefit">
-                  <strong>উপকারিতা:</strong> {p.benefit}
-                </div>
-                <div class="product-footer">
-                  <span class="product-price">৳{p.price.toLocaleString()} টাকা</span>
-                  <button class="add-cart-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                    </svg>
-                    কার্টে যোগ করুন
-                  </button>
-                </div>
-              </div>
+            ))
+          ) : (
+            <div class="empty-state">
+              <span class="empty-icon">🛒</span>
+              <h3>বর্তমানে কোনো পণ্য উপলব্ধ নেই</h3>
+              <p>শীঘ্রই নতুন পণ্য যুক্ত করা হবে। অনুগ্রহ করে পরে আবার চেক করুন।</p>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </section>
@@ -189,4 +142,16 @@ function starRating(rating: number) {
 
 @media (max-width: 900px) { .products-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .products-grid { grid-template-columns: 1fr; } }
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 20px;
+  background: #fff;
+  border: 2px dashed var(--border);
+  border-radius: 24px;
+}
+.empty-icon { font-size: 64px; display: block; margin-bottom: 16px; }
+.empty-state h3 { font-size: 20px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+.empty-state p { color: var(--text-muted); font-size: 15px; }
 </style>
