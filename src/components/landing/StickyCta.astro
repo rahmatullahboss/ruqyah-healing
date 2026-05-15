@@ -142,7 +142,24 @@ function initStickyCta() {
   }
 
   // Track click
-  stickyWhatsapp?.addEventListener('click', () => {
+  stickyWhatsapp?.addEventListener('click', async () => {
+    // Track via API
+    try {
+      const eventId = `wa-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      await fetch('/api/tracking/whatsapp-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventName: 'Contact',
+          source: 'sticky_cta_whatsapp',
+          campaign: utmCampaign,
+          eventId,
+        }),
+      });
+    } catch (e) {
+      // Silent fail
+    }
+
     if (window.gtag) {
       window.gtag('event', 'click_book_whatsapp', {
         event_category: 'landing',

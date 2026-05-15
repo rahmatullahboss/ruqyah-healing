@@ -452,12 +452,31 @@ function initBookingForm() {
   updateWhatsappUrl();
   prefillFromUrl();
 
-  // WhatsApp direct button — attach UTM-aware URL on load
+  // Track WhatsApp click
   if (whatsappDirectBtn) {
     const utmSource = getUrlParam('utm_source');
     const msg = `আসসালামু আলাইকুম, আমি রুকইয়াহ সেবা বুক করতে চাই।${utmSource ? ` (Source: ${utmSource})` : ''}`;
     const waUrl = `https://wa.me/8801336202150?text=${encodeURIComponent(msg)}`;
     whatsappDirectBtn.href = waUrl;
+
+    // Track WhatsApp click via API
+    whatsappDirectBtn.addEventListener('click', async () => {
+      const eventId = createEventId();
+      try {
+        await fetch('/api/tracking/whatsapp-click', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventName: 'Contact',
+            source: 'landing_page_booking_form',
+            campaign: getUrlParam('utm_campaign'),
+            eventId,
+          }),
+        });
+      } catch (e) {
+        // Silent fail - don't block WhatsApp redirect
+      }
+    });
   }
 
   form.addEventListener('submit', async (e) => {
