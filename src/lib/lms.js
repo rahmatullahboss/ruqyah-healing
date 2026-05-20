@@ -108,12 +108,24 @@ export async function updateCourseLessonStats(db, courseId) {
 
   const totalLessons = lessons.length;
 
-  // Parse and sum durations (format: "MM:SS" or "HH:MM:SS")
+  // Parse and sum durations
   let totalSeconds = 0;
   for (const lesson of lessons) {
     if (lesson.duration) {
-      const parts = lesson.duration.split(':').map(Number);
-      if (parts.length === 2) {
+      // Convert Bengali digits to English digits
+      const bnDigits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+      let durationStr = String(lesson.duration).trim();
+      for (let i = 0; i < 10; i++) {
+        durationStr = durationStr.replaceAll(bnDigits[i], String(i));
+      }
+      
+      const parts = durationStr.split(':').map(val => Number(val.trim()));
+      if (parts.some(isNaN)) {
+        continue;
+      }
+      if (parts.length === 1) {
+        totalSeconds += parts[0] * 60;
+      } else if (parts.length === 2) {
         totalSeconds += parts[0] * 60 + parts[1];
       } else if (parts.length === 3) {
         totalSeconds += parts[0] * 3600 + parts[1] * 60 + parts[2];

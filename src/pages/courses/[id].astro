@@ -58,6 +58,12 @@ const contentTree = modules.map(mod => ({
 // Free preview lessons
 const freePreviewLessons = lessons.filter(l => l.isFreePreview);
 const heroPreviewLesson = freePreviewLessons.find(l => ['video', 'mixed'].includes(l.contentType) && l.videoUrl);
+
+function toBengaliNum(n: any) {
+  if (n === null || n === undefined) return '';
+  const arr = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+  return String(n).replace(/[0-9]/g, w => arr[+w]);
+}
 ---
 
 <BaseLayout title={`${course.title} | Ruqyah Healing Center`} description={course.desc}>
@@ -74,7 +80,7 @@ const heroPreviewLesson = freePreviewLessons.find(l => ['video', 'mixed'].includ
                 <span class:list={['star', i <= Math.round(course.rating) && 'filled']}>★</span>
               ))}
             </div>
-            <span class="rating-text">{course.rating.toFixed(1)} ({reviews.length} Reviews)</span>
+            <span class="rating-text">{toBengaliNum(course.rating.toFixed(1))} ({toBengaliNum(reviews.length)} Reviews)</span>
           </div>
           <h1 class="course-title">{course.title}</h1>
         </div>
@@ -109,7 +115,7 @@ const heroPreviewLesson = freePreviewLessons.find(l => ['video', 'mixed'].includ
             <div class="tab-nav">
               <button class="tab-btn active" data-tab="info">কোর্স ইনফো</button>
               <button class="tab-btn" data-tab="content">কোর্স কন্টেন্ট</button>
-              <button class="tab-btn" data-tab="reviews">রিভিউ ({reviews.length})</button>
+              <button class="tab-btn" data-tab="reviews">রিভিউ ({toBengaliNum(reviews.length)})</button>
             </div>
 
             {/* Course Info Tab */}
@@ -153,9 +159,9 @@ const heroPreviewLesson = freePreviewLessons.find(l => ['video', 'mixed'].includ
             <div class="tab-content" id="tab-content">
               <div class="content-overview">
                 <div class="content-stats">
-                  <span><BookOpen size={16} /> {course.totalLessons || lessons.length} টি লেসন</span>
-                  <span><Clock size={16} /> {course.totalDuration || course.hours}</span>
-                  <span><ListChecks size={16} /> {quizzes.length} টি কুইজ</span>
+                  <span><BookOpen size={16} /> {toBengaliNum(course.totalLessons || lessons.length)} টি লেসন</span>
+                  <span><Clock size={16} /> {toBengaliNum(course.totalDuration || course.hours)}</span>
+                  <span><ListChecks size={16} /> {toBengaliNum(quizzes.length)} টি কুইজ</span>
                 </div>
               </div>
 
@@ -169,8 +175,8 @@ const heroPreviewLesson = freePreviewLessons.find(l => ['video', 'mixed'].includ
                           <span class="module-name">{mod.title}</span>
                         </div>
                         <span class="module-meta">
-                          {mod.lessons.length} লেসন
-                          {mod.quizzes.length > 0 && `, ${mod.quizzes.length} কুইজ`}
+                          {toBengaliNum(mod.lessons.length)} লেসন
+                          {mod.quizzes.length > 0 && `, ${toBengaliNum(mod.quizzes.length)} কুইজ`}
                         </span>
                       </div>
                       <div class="module-lessons" style="display:none;">
@@ -186,7 +192,7 @@ const heroPreviewLesson = freePreviewLessons.find(l => ['video', 'mixed'].includ
                               {lesson.isFreePreview && <span class="free-tag">ফ্রি প্রিভিউ</span>}
                             </div>
                             <span class="lesson-duration">
-                              {lesson.duration || ''}
+                              {toBengaliNum(lesson.duration) || ''}
                               {!lesson.isFreePreview && !isEnrolled && <Lock size={14} />}
                             </span>
                           </div>
@@ -298,19 +304,19 @@ const heroPreviewLesson = freePreviewLessons.find(l => ['video', 'mixed'].includ
             <div class="sidebar-features">
               <div class="feature-item">
                 <BookOpen size={16} />
-                <span>{course.totalLessons || lessons.length} টি লেসন</span>
+                <span>{toBengaliNum(course.totalLessons || lessons.length)} টি লেসন</span>
               </div>
               <div class="feature-item">
                 <Clock size={16} />
-                <span>{course.totalDuration || course.hours}</span>
+                <span>{toBengaliNum(course.totalDuration || course.hours)}</span>
               </div>
               <div class="feature-item">
                 <Users size={16} />
-                <span>{course.students} জন শিক্ষার্থী</span>
+                <span>{toBengaliNum(course.students)} জন শিক্ষার্থী</span>
               </div>
               <div class="feature-item">
                 <Star size={16} />
-                <span>{course.rating.toFixed(1)} রেটিং</span>
+                <span>{toBengaliNum(course.rating.toFixed(1))} রেটিং</span>
               </div>
               {course.certificateEnabled !== false && (
                 <div class="feature-item">
