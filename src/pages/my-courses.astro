@@ -1,0 +1,346 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { createDb } from '../db/client.js';
+import { courses, courseEnrollments, courseProgress, courseLessons } from '../db/schema.js';
+import { eq, and, sql } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+import { BookOpen, PlayCircle, Award, Clock } from '@lucide/astro';
+
+export const prerender = false;
+
+const user = (Astro.locals as any).user;
+if (!user) return Astro.redirect('/login');
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+
+// Get enrolled courses with progress
+const enrolledCourses = await db.select({
+  enrollmentId: courseEnrollments.id,
+  courseId: courseEnrollments.courseId,
+  status: courseEnrollments.status,
+  completedAt: courseEnrollments.completedAt,
+  certificateUrl: courseEnrollments.certificateUrl,
+  enrolledAt: courseEnrollments.createdAt,
+  courseTitle: courses.title,
+  courseImage: courses.image,
+  courseInstructor: courses.instructor,
+  coursePrice: courses.price,
+  courseLevel: courses.level,
+  totalLessons: courses.totalLessons,
+  certificateEnabled: courses.certificateEnabled,
+})
+.from(courseEnrollments)
+.leftJoin(courses, eq(courseEnrollments.courseId, courses.id))
+.where(eq(courseEnrollments.userId, user.id))
+.orderBy(courseEnrollments.createdAt);
+
+// Get progress for each enrolled course
+const courseProgressMap = new Map();
+for (const ec of enrolledCourses) {
+  if (ec.status !== 'approved') continue;
+  const total = ec.totalLessons || 0;
+  const completed = await db.select({ count: sql`count(*)` })
+    .from(courseProgress)
+    .where(and(
+      eq(courseProgress.userId, user.id),
+      eq(courseProgress.courseId, ec.courseId),
+      eq(courseProgress.completed, true)
+    ));
+  const completedCount = Number(completed[0]?.count || 0);
+  const percentage = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+  courseProgressMap.set(ec.courseId, { total, completed: completedCount, percentage });
+}
+
+const approvedCourses = enrolledCourses.filter(ec => ec.status === 'approved');
+const pendingCourses = enrolledCourses.filter(ec => ec.status === 'pending');
+const revokedCourses = enrolledCourses.filter(ec => ec.status === 'revoked');
+---
+
+<BaseLayout title="আমার কোর্স | Ruqyah Healing Center">
+  <Header />
+
+  <main class="my-courses-page">
+    <div class="container">
+      <h1 class="page-title">আমার কোর্সসমূহ</h1>
+
+      {approvedCourses.length === 0 && pendingCourses.length === 0 && revokedCourses.length === 0 ? (
+        <div class="empty-state">
+          <BookOpen size={64} />
+          <h2>আপনি এখনো কোনো কোর্সে এনরোল করেননি</h2>
+          <p>আমাদের কোর্স ক্যাটালগ থেকে আপনার পছন্দের কোর্সটি বেছে নিন।</p>
+          <a href="/courses" class="browse-btn">কোর্স দেখুন</a>
+        </div>
+      ) : (
+        <>
+          {/* Active Courses */}
+          {approvedCourses.length > 0 && (
+            <section class="courses-section">
+              <h2 class="section-title">চলমান কোর্স</h2>
+              <div class="courses-grid">
+                {approvedCourses.map(ec => {
+                  const progress = courseProgressMap.get(ec.courseId);
+                  const isComplete = ec.completedAt !== null;
+                  return (
+                    <div class:list={['course-card', isComplete && 'completed']}>
+                      <div class="card-image">
+                        <img src={ec.courseImage} alt={ec.courseTitle} loading="lazy" />
+                        {isComplete && (
+                          <div class="completed-overlay">
+                            <Award size={32} />
+                            <span>সম্পন্ন</span>
+                          </div>
+                        )}
+                      </div>
+                      <div class="card-body">
+                        <h3 class="card-title">{ec.courseTitle}</h3>
+                        <p class="card-instructor">{ec.courseInstructor}</p>
+
+                        {progress && (
+                          <div class="progress-section">
+                            <div class="progress-bar">
+                              <div class="progress-fill" style={`width: ${progress.percentage}%`}></div>
+                            </div>
+                            <span class="progress-text">
+                              {progress.completed}/{progress.total} লেসন ({progress.percentage}%)
+                            </span>
+                          </div>
+                        )}
+
+                        <div class="card-actions">
+                          {isComplete && ec.certificateEnabled !== false ? (
+                            <a href={`/courses/${ec.courseId}/certificate`} class="cert-btn">
+                              <Award size={16} />
+                              সার্টিফিকেট
+                            </a>
+                          ) : null}
+                          <a href={`/courses/${ec.courseId}/learn`} class="continue-btn">
+                            <PlayCircle size={16} />
+                            {isComplete ? 'আবার দেখুন' : 'শেখা চালিয়ে যান'}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Pending Courses */}
+          {pendingCourses.length > 0 && (
+            <section class="courses-section">
+              <h2 class="section-title">অনুমোদনের অপেক্ষায়</h2>
+              <div class="courses-grid">
+                {pendingCourses.map(ec => (
+                  <div class="course-card pending">
+                    <div class="card-image">
+                      <img src={ec.courseImage} alt={ec.courseTitle} loading="lazy" />
+                      <div class="pending-overlay">
+                        <Clock size={32} />
+                        <span>অপেক্ষমাণ</span>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <h3 class="card-title">{ec.courseTitle}</h3>
+                      <p class="card-instructor">{ec.courseInstructor}</p>
+                      <p class="pending-note">পেমেন্ট যাচাই করা হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন।</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {revokedCourses.length > 0 && (
+            <section class="courses-section">
+              <h2 class="section-title">অ্যাক্সেস রিমুভ করা হয়েছে</h2>
+              <div class="courses-grid">
+                {revokedCourses.map(ec => (
+                  <div class="course-card pending">
+                    <div class="card-image">
+                      <img src={ec.courseImage} alt={ec.courseTitle} loading="lazy" />
+                      <div class="pending-overlay revoked">
+                        <Clock size={32} />
+                        <span>রিমুভড</span>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <h3 class="card-title">{ec.courseTitle}</h3>
+                      <p class="card-instructor">{ec.courseInstructor}</p>
+                      <p class="pending-note">এই কোর্সের অ্যাক্সেস রিমুভ করা হয়েছে। প্রয়োজনে অ্যাডমিনের সাথে যোগাযোগ করুন।</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      )}
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .my-courses-page {
+    min-height: calc(100vh - 70px);
+    background: #f8fafc;
+    padding: 40px 20px;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .page-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0 0 32px;
+    color: #0f172a;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 32px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    color: #64748b;
+  }
+  .empty-state h2 { margin: 16px 0 8px; color: #0f172a; }
+  .browse-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 28px;
+    background: #0891b2;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  .browse-btn:hover { background: #06b6d4; }
+
+  .courses-section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 20px;
+    color: #0f172a;
+  }
+
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .course-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .course-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .course-card.completed { border-color: #bbf7d0; }
+  .course-card.pending { opacity: 0.8; }
+
+  .card-image {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+  }
+  .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .completed-overlay, .pending-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .completed-overlay { background: rgba(22, 163, 74, 0.8); }
+  .pending-overlay { background: rgba(100, 116, 139, 0.7); }
+  .pending-overlay.revoked { background: rgba(220, 38, 38, 0.72); }
+
+  .card-body { padding: 20px; }
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #0f172a;
+  }
+  .card-instructor {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0 0 16px;
+  }
+
+  .progress-section { margin-bottom: 16px; }
+  .progress-bar {
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0891b2, #06b6d4);
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .progress-text { font-size: 0.8rem; color: #64748b; }
+
+  .card-actions { display: flex; gap: 10px; }
+  .continue-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #0891b2;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+  }
+  .continue-btn:hover { background: #06b6d4; }
+  .cert-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #fef3c7;
+    color: #92400e;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+  }
+  .cert-btn:hover { background: #fde68a; }
+  .pending-note {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-style: italic;
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .courses-grid { grid-template-columns: 1fr; }
+  }
+</style>

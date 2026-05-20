@@ -58,6 +58,7 @@ const allCourses = await db.select().from(courses).orderBy(desc(courses.createdA
                   {c.price === null ? <span style="color:#10b981; font-weight:600;">ফ্রি</span> : `৳${c.price}`}
                 </td>
                 <td>
+                  <span class:list={['status-badge', c.status || 'published']}>{c.status || 'published'}</span>
                   <span class="level-badge">{c.level}</span>
                 </td>
                 <td>
@@ -161,13 +162,27 @@ const allCourses = await db.select().from(courses).orderBy(desc(courses.createdA
   }
 
   .level-badge {
+    display: inline-block;
     background: #f1f5f9;
     color: #475569;
     padding: 4px 10px;
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 600;
+    margin-left: 6px;
   }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+  .status-badge.published { background: #dcfce7; color: #16a34a; }
+  .status-badge.draft { background: #fef3c7; color: #b45309; }
+  .status-badge.unpublished { background: #f1f5f9; color: #64748b; }
 
   .action-btn {
     background: none;

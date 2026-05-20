@@ -20,17 +20,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   // Validate type
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
-  if (!allowedTypes.includes(file.type)) {
+  const allowedTypes = new Map([
+    ['image/jpeg', ['jpg', 'jpeg']],
+    ['image/png', ['png']],
+    ['image/webp', ['webp']],
+    ['image/gif', ['gif']],
+    ['application/pdf', ['pdf']],
+    ['video/mp4', ['mp4']],
+    ['video/webm', ['webm']],
+    ['video/quicktime', ['mov']],
+  ]);
+  const extension = file.name.split('.').pop()?.toLowerCase() || '';
+  const allowedExtensions = allowedTypes.get(file.type);
+  if (!allowedExtensions || !allowedExtensions.includes(extension)) {
     return new Response(JSON.stringify({ error: 'অসমর্থিত ফাইল টাইপ' }), { status: 400 });
   }
 
-  // Size limit: 10MB
-  if (file.size > 10 * 1024 * 1024) {
-    return new Response(JSON.stringify({ error: 'ফাইল খুব বড় (সর্বোচ্চ ১০MB)' }), { status: 400 });
+  const isVideo = file.type.startsWith('video/');
+  const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+  if (file.size > maxSize) {
+    return new Response(JSON.stringify({ error: isVideo ? 'ভিডিও খুব বড় (সর্বোচ্চ ১০০MB)' : 'ফাইল খুব বড় (সর্বোচ্চ ১০MB)' }), { status: 400 });
   }
 
-  const folder = file.type === 'application/pdf' ? 'pdfs' : 'images';
+  const folder = isVideo ? 'videos' : file.type === 'application/pdf' ? 'pdfs' : 'images';
   const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
   const key = `${folder}/${Date.now()}-${safeName}`;
 

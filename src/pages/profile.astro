@@ -5,7 +5,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { Edit, User, Mail, Phone, MapPin, Calendar, Heart, ArrowRight, Activity } from '@lucide/astro';
 import { createDb } from '../db/client.js';
-import { appointments as appointmentsSchema, testResults } from '../db/schema';
+import { appointments as appointmentsSchema, testResults, courseEnrollments, courses } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
 
 export const prerender = false;
@@ -23,6 +23,7 @@ const user = (Astro.locals as App.Locals).user || {
 // Fetch dynamic appointments based on user's phone number
 let userAppointments: any[] = [];
 let userTestResults: any[] = [];
+let userEnrolledCourses: any[] = [];
 if (user && user.id) {
   try {
     const env = (workerEnv || process.env) as any;
@@ -36,6 +37,19 @@ if (user && user.id) {
       .where(eq(testResults.userId, user.id))
       .orderBy(desc(testResults.createdAt))
       .limit(10);
+    userEnrolledCourses = await db.select({
+      courseId: courseEnrollments.courseId,
+      status: courseEnrollments.status,
+      completedAt: courseEnrollments.completedAt,
+      enrolledAt: courseEnrollments.createdAt,
+      courseTitle: courses.title,
+      courseImage: courses.image,
+      courseInstructor: courses.instructor,
+    })
+      .from(courseEnrollments)
+      .leftJoin(courses, eq(courseEnrollments.courseId, courses.id))
+      .where(eq(courseEnrollments.userId, user.id))
+      .orderBy(desc(courseEnrollments.createdAt));
   } catch (error) {
     console.error("Failed to fetch profile data:", error);
   }
@@ -184,6 +198,43 @@ const stats = [
                 )) : (
                   <div class="no-appointments">
                     <p style="color: var(--text-muted); padding: 20px 0; text-align: center;">কোনো ডায়াগনোসিস রেকর্ড পাওয়া যায়নি</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <!-- Enrolled Courses -->
+            <div class="appt-card">
+              <div class="card-top" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h2 style="margin:0;">আমার কোর্স</h2>
+                <a href="/my-courses" class="edit-btn" style="font-size:0.85rem;">সব দেখুন →</a>
+              </div>
+              <div class="appt-list">
+                {userEnrolledCourses.length > 0 ? userEnrolledCourses.slice(0, 3).map((ec: any) => (
+                  <div class="appt-item">
+                    <div class="appt-body" style="display:flex; align-items:center; gap:12px;">
+                      <img src={ec.courseImage} alt={ec.courseTitle} style="width:48px; height:48px; border-radius:8px; object-fit:cover;" />
+                      <div>
+                        <h3 style="margin:0; font-size:0.95rem;">{ec.courseTitle}</h3>
+                        <p class="appt-raqi" style="margin:2px 0 0;">{ec.courseInstructor}</p>
+                      </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      {ec.completedAt && (
+                        <span class="appt-status done">সম্পন্ন</span>
+                      )}
+                      {ec.status === 'approved' && !ec.completedAt && (
+                        <a href={`/courses/${ec.courseId}/learn`} class="edit-btn" style="font-size:0.8rem; padding:4px 12px;">শিখুন</a>
+                      )}
+                      {ec.status === 'pending' && (
+                        <span class="appt-status pending">পেন্ডিং</span>
+                      )}
+                    </div>
+                  </div>
+                )) : (
+                  <div class="no-appointments">
+                    <p style="color: var(--text-muted); padding: 20px 0; text-align: center;">আপনি এখনো কোনো কোর্সে এনরোল করেননি</p>
+                    <a href="/courses" class="edit-btn" style="display:inline-flex; margin:0 auto;">কোর্স দেখুন</a>
                   </div>
                 )}
               </div>

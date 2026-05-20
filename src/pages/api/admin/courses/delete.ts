@@ -1,8 +1,20 @@
 import { createDb } from '../../../../db/client.js';
-import { courses } from '../../../../db/schema.js';
+import {
+  courses,
+  courseEnrollments,
+  courseLessons,
+  courseModules,
+  courseOrders,
+  coursePayments,
+  courseProgress,
+  courseQuizAttempts,
+  courseQuizQuestions,
+  courseQuizzes,
+  courseReviews,
+} from '../../../../db/schema.js';
 import type { APIRoute } from 'astro';
 import { env as workerEnv } from 'cloudflare:workers';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { logAuditEvent } from '../../../../lib/audit.js';
 
 export const prerender = false;
@@ -25,6 +37,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const db = createDb((env as any).DATABASE_URL);
     const r2 = (env as any).R2_IMAGES;
 
+    const protectedRows = await db.select({ id: courseEnrollments.id })
+      .from(courseEnrollments)
+      .where(eq(courseEnrollments.courseId, id))
+      .limit(1);
+    const protectedOrders = await db.select({ id: courseOrders.id })
+      .from(courseOrders)
+      .where(eq(courseOrders.courseId, id))
+      .limit(1);
+    const protectedPayments = await db.select({ id: coursePayments.id })
+      .from(coursePayments)
+      .where(eq(coursePayments.courseId, id))
+      .limit(1);
+
+    if (protectedRows.length > 0 || protectedOrders.length > 0 || protectedPayments.length > 0) {
+      return new Response(JSON.stringify({ error: 'This course has enrollment/payment history. Unpublish it instead of deleting.' }), { status: 409 });
+    }
+
     // Fetch the course before deletion to get its image URL
     const courseToDelete = await db.select().from(courses).where(eq(courses.id, id));
     if (courseToDelete.length > 0) {
@@ -35,6 +64,27 @@ export const POST: APIRoute = async ({ request, locals }) => {
       }
     }
 
+    const quizzes = await db.select({ id: courseQuizzes.id })
+      .from(courseQuizzes)
+      .where(eq(courseQuizzes.courseId, id));
+    const quizIds = quizzes.map((quiz) => quiz.id);
+
+    if (quizIds.length > 0) {
+      await db.delete(courseQuizQuestions).where(inArray(courseQuizQuestions.quizId, quizIds));
+      await db.delete(courseQuizAttempts).where(inArray(courseQuizAttempts.quizId, quizIds));
+    }
+    await db.delete(courseQuizzes).where(eq(courseQuizzes.courseId, id));
+
+    const lessons = await db.select({ id: courseLessons.id })
+      .from(courseLessons)
+      .where(eq(courseLessons.courseId, id));
+    const lessonIds = lessons.map((lesson) => lesson.id);
+    if (lessonIds.length > 0) {
+      await db.delete(courseProgress).where(inArray(courseProgress.lessonId, lessonIds));
+    }
+    await db.delete(courseLessons).where(eq(courseLessons.courseId, id));
+    await db.delete(courseModules).where(eq(courseModules.courseId, id));
+    await db.delete(courseReviews).where(eq(courseReviews.courseId, id));
     await db.delete(courses).where(eq(courses.id, id));
 
     await logAuditEvent(db, {

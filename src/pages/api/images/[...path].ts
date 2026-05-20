@@ -33,6 +33,7 @@ export const GET: APIRoute = async ({ request, params, locals }) => {
     object.writeHttpMetadata(headers);
     headers.set('etag', object.httpEtag);
     headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    headers.set('X-Content-Type-Options', 'nosniff');
     
     // The bucket returns a readable stream
     return new Response(object.body, {

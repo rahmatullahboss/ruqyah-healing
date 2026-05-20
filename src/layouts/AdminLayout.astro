@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
-import { LayoutDashboard, Users, Calendar, Settings, LogOut, Heart, Menu, FileText, BookOpen, Bell, ShoppingBag, FileDown, Image, MessageSquare, ClipboardList, MessageCircle } from '@lucide/astro';
+import { LayoutDashboard, Users, Calendar, Settings, LogOut, Heart, Menu, FileText, BookOpen, Bell, ShoppingBag, FileDown, Image, MessageSquare, ClipboardList, MessageCircle, ListChecks } from '@lucide/astro';
 
 interface Props {
   title?: string;
@@ -315,6 +315,10 @@ const user = (Astro.locals as App.Locals).user;
           <a href="/admin/enrollments" class:list={['nav-item', currentPath.startsWith('/admin/enrollment') && 'active']}>
             <Users size={20} stroke-width={2} />
             কোর্স এনরোলমেন্টস
+          </a>
+          <a href="/admin/quizzes" class:list={['nav-item', currentPath.startsWith('/admin/quiz') && 'active']}>
+            <ListChecks size={20} stroke-width={2} />
+            কুইজ ম্যানেজমেন্ট
           </a>
           <a href="/admin/notices" class:list={['nav-item', currentPath.startsWith('/admin/notice') && 'active']}>
             <Bell size={20} stroke-width={2} />

@@ -1,0 +1,309 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { courseLessons, courseModules } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+import { ArrowLeft, Save } from '@lucide/astro';
+import { safeJsonArray } from '../../lib/lms-access.js';
+
+export const prerender = false;
+
+const env = workerEnv || process.env;
+const db = createDb((env as any).DATABASE_URL);
+
+const id = Astro.url.searchParams.get('id');
+const moduleId = Astro.url.searchParams.get('moduleId');
+const courseId = Astro.url.searchParams.get('courseId');
+
+let lesson: any = null;
+let module: any = null;
+let resourcesText = '';
+
+if (id) {
+  const result = await db.select().from(courseLessons).where(eq(courseLessons.id, id));
+  if (result.length > 0) lesson = result[0];
+  if (lesson) {
+    resourcesText = safeJsonArray(lesson.resources)
+      .map((item: any) => `${item.title || ''} | ${item.url || ''}`.trim())
+      .filter(Boolean)
+      .join('\n');
+  }
+}
+
+if (moduleId) {
+  const modResult = await db.select().from(courseModules).where(eq(courseModules.id, moduleId));
+  if (modResult.length > 0) module = modResult[0];
+}
+
+const effectiveCourseId = lesson?.courseId || courseId;
+const effectiveModuleId = lesson?.moduleId || moduleId;
+---
+
+<AdminLayout title={lesson ? 'লেসন এডিট' : 'নতুন লেসন'}>
+  <div class="page-header">
+    <div>
+      <a href={`/admin/course-edit?id=${effectiveCourseId}`} class="back-link">
+        <ArrowLeft size={16} /> কোর্সে ফিরে যান
+      </a>
+      <h1 class="page-title">{lesson ? 'লেসন এডিট করুন' : 'নতুন লেসন তৈরি করুন'}</h1>
+      {module && <p class="page-desc">মডিউল: {module.title}</p>}
+    </div>
+  </div>
+
+  <div class="admin-card max-w-3xl">
+    <form id="lessonForm">
+      <input type="hidden" name="id" value={lesson?.id || 'new'} />
+      <input type="hidden" name="moduleId" value={effectiveModuleId} />
+      <input type="hidden" name="courseId" value={effectiveCourseId} />
+
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>লেসনের নাম *</label>
+          <input type="text" name="title" required value={lesson?.title || ''} placeholder="যেমন: রুকইয়াহ পরিচিতি" />
+        </div>
+
+        <div class="form-group full-width">
+          <label>লেসনের সংক্ষিপ্ত বিবরণ</label>
+          <textarea name="description" rows="2" placeholder="এই লেসনে কী শেখানো হবে">{lesson?.description || ''}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>কন্টেন্ট টাইপ *</label>
+          <select name="contentType" id="contentTypeSelect">
+            <option value="video" selected={lesson?.contentType === 'video'}>ভিডিও</option>
+            <option value="text" selected={lesson?.contentType === 'text'}>টেক্সট</option>
+            <option value="mixed" selected={lesson?.contentType === 'mixed'}>ভিডিও + টেক্সট</option>
+            <option value="resource" selected={lesson?.contentType === 'resource'}>রিসোর্স / ডাউনলোড</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>সময়কাল</label>
+          <input type="text" name="duration" value={lesson?.duration || ''} placeholder="যেমন: 12:30" />
+        </div>
+
+        <!-- Video Section -->
+        <div id="videoSection" class="form-group full-width">
+          <label>ভিডিও URL *</label>
+          <input type="text" name="videoUrl" id="videoUrlInput" value={lesson?.videoUrl || ''} placeholder="YouTube / Google Drive / Embed URL / R2 key" />
+          <small class="hint">R2 প্রোভাইডার হলে এখানে R2 key থাকবে। নিচের আপলোড বাটন ব্যবহার করলে সেটি অটো বসবে।</small>
+        </div>
+
+        <div id="providerSection" class="form-group">
+          <label>ভিডিও প্রোভাইডার</label>
+          <select name="videoProvider" id="videoProviderSelect">
+            <option value="youtube" selected={lesson?.videoProvider === 'youtube'}>YouTube</option>
+            <option value="google_drive" selected={lesson?.videoProvider === 'google_drive'}>Google Drive</option>
+            <option value="embed" selected={lesson?.videoProvider === 'embed'}>Embed (iframe)</option>
+            <option value="r2" selected={lesson?.videoProvider === 'r2'}>Private R2 Video</option>
+          </select>
+        </div>
+
+        <div id="videoUploadSection" class="form-group full-width">
+          <label>প্রাইভেট ভিডিও আপলোড</label>
+          <input type="file" id="videoFileInput" accept="video/mp4,video/webm,video/quicktime" />
+          <small class="hint" id="videoUploadHint">MP4/WebM/MOV, সর্বোচ্চ ১০০MB। আপলোড হলে ভিডিও URL ফিল্ডে R2 key বসবে।</small>
+        </div>
+
+        <div class="form-group">
+          <label>ফ্রি প্রিভিউ</label>
+          <select name="isFreePreview">
+            <option value="false" selected={!lesson?.isFreePreview}>না (শুধু এনরোল করা শিক্ষার্থী)</option>
+            <option value="true" selected={lesson?.isFreePreview}>হ্যাঁ (সবাই দেখতে পাবে)</option>
+          </select>
+        </div>
+
+        <!-- Text Section -->
+        <div id="textSection" class="form-group full-width">
+          <label>টেক্সট কন্টেন্ট (HTML)</label>
+          <textarea name="textContent" id="textContentArea" rows="12" placeholder="লেসনের লিখিত কন্টেন্ট লিখুন...">{lesson?.textContent || ''}</textarea>
+          <small class="hint">HTML ট্যাগ ব্যবহার করতে পারেন। যেমন: &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt; ইত্যাদি।</small>
+        </div>
+
+        <div class="form-group full-width">
+          <label>রিসোর্স / ডাউনলোড</label>
+          <textarea name="resources" rows="4" placeholder={`রিসোর্স নাম | /api/images/pdfs/file.pdf\nআরেকটি রিসোর্স | https://example.com/file.pdf`}>{resourcesText}</textarea>
+          <small class="hint">প্রতি লাইনে একটি রিসোর্স দিন: নাম | URL</small>
+        </div>
+
+        <div class="form-group">
+          <label>রিসোর্স ডাউনলোড</label>
+          <select name="allowResourceDownload">
+            <option value="false" selected={!lesson?.allowResourceDownload}>বন্ধ</option>
+            <option value="true" selected={lesson?.allowResourceDownload}>চালু</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a href={`/admin/course-edit?id=${effectiveCourseId}`} class="btn-cancel">বাতিল</a>
+        <button type="submit" class="btn-save" id="saveBtn">
+          <Save size={18} />
+          সেভ করুন
+        </button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<script>
+  const form = document.getElementById('lessonForm');
+  const saveBtn = document.getElementById('saveBtn');
+  const contentTypeSelect = document.getElementById('contentTypeSelect');
+  const videoProviderSelect = document.getElementById('videoProviderSelect');
+  const videoSection = document.getElementById('videoSection');
+  const providerSection = document.getElementById('providerSection');
+  const videoUploadSection = document.getElementById('videoUploadSection');
+  const videoFileInput = document.getElementById('videoFileInput');
+  const videoUrlInput = document.getElementById('videoUrlInput');
+  const textSection = document.getElementById('textSection');
+
+  function updateSections() {
+    const type = contentTypeSelect.value;
+    const hasVideo = type === 'video' || type === 'mixed';
+    videoSection.style.display = hasVideo ? 'flex' : 'none';
+    providerSection.style.display = hasVideo ? 'flex' : 'none';
+    videoUploadSection.style.display = hasVideo && videoProviderSelect.value === 'r2' ? 'flex' : 'none';
+    textSection.style.display = (type === 'text' || type === 'mixed') ? 'flex' : 'none';
+  }
+
+  contentTypeSelect.addEventListener('change', updateSections);
+  videoProviderSelect.addEventListener('change', updateSections);
+  updateSections();
+
+  videoFileInput?.addEventListener('change', async () => {
+    const file = videoFileInput.files?.[0];
+    if (!file) return;
+
+    saveBtn.disabled = true;
+    const previousText = saveBtn.textContent;
+    saveBtn.textContent = 'ভিডিও আপলোড হচ্ছে...';
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+      const result = await res.json();
+      if (!res.ok || !result.success) throw new Error(result.error || 'ভিডিও আপলোড ব্যর্থ');
+      videoProviderSelect.value = 'r2';
+      videoUrlInput.value = result.key;
+      updateSections();
+    } catch (err) {
+      alert(err.message || 'ভিডিও আপলোড সমস্যা।');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = previousText;
+    }
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    saveBtn.disabled = true;
+    const prevText = saveBtn.textContent;
+    saveBtn.textContent = 'সেভ হচ্ছে...';
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    data.isFreePreview = data.isFreePreview === 'true';
+    data.allowResourceDownload = data.allowResourceDownload === 'true';
+
+    const endpoint = data.id === 'new' ? '/api/admin/lessons/create' : '/api/admin/lessons/update';
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (res.ok && result.success) {
+        alert('সফলভাবে সেভ হয়েছে!');
+        window.location.href = `/admin/course-edit?id=${data.courseId}`;
+      } else {
+        throw new Error(result.error || 'সেভ সমস্যা।');
+      }
+    } catch (err) {
+      alert(err.message);
+      saveBtn.disabled = false;
+      saveBtn.textContent = prevText;
+    }
+  });
+</script>
+
+<style>
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--admin-text-light);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .back-link:hover { color: var(--admin-primary); }
+  .max-w-3xl { max-width: 800px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .full-width { grid-column: 1 / -1; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  label { font-size: 0.9rem; font-weight: 600; color: var(--admin-text); }
+
+  input, select, textarea {
+    padding: 10px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #f8fafc;
+    outline: none;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus {
+    background: #fff;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px var(--admin-primary-light);
+  }
+  textarea { resize: vertical; }
+  .hint { font-size: 0.8rem; color: var(--admin-text-light); }
+
+  .form-actions {
+    margin-top: 32px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--admin-border);
+  }
+  .btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--admin-primary);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-save:hover { background: #06b6d4; }
+  .btn-save:disabled { opacity: 0.7; cursor: not-allowed; }
+  .btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 24px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    background: white;
+    text-decoration: none;
+    color: var(--admin-text);
+    font-weight: 500;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+</style>

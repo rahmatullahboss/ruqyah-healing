@@ -1,0 +1,233 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Header from '../../../components/Header.astro';
+import { createDb } from '../../../db/client.js';
+import { courses, courseEnrollments } from '../../../db/schema.js';
+import { eq, and } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+import { Award, Download } from '@lucide/astro';
+
+export const prerender = false;
+
+const { id: courseId } = Astro.params;
+const env = workerEnv || process.env;
+const db = createDb((env as any).DATABASE_URL);
+const user = (Astro.locals as any).user;
+
+if (!user) return Astro.redirect('/login');
+
+const course = await db.select().from(courses).where(eq(courses.id, courseId)).then(r => r[0]);
+if (!course) return Astro.redirect('/courses');
+if (course.certificateEnabled === false) return Astro.redirect(`/courses/${courseId}`);
+
+const enrollment = await db.select().from(courseEnrollments)
+  .where(and(
+    eq(courseEnrollments.userId, user.id),
+    eq(courseEnrollments.courseId, courseId),
+    eq(courseEnrollments.status, 'approved')
+  ));
+
+if (enrollment.length === 0 || !enrollment[0].completedAt) {
+  return Astro.redirect(`/courses/${courseId}`);
+}
+
+const completionDate = new Date(enrollment[0].completedAt).toLocaleDateString('bn-BD', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout title={`সার্টিফিকেট | ${course.title}`}>
+  <Header />
+
+  <main class="cert-page">
+    <div class="container">
+      <div class="cert-actions-top">
+        <a href="/my-courses" class="back-link">← আমার কোর্স</a>
+        <button class="print-btn" onclick="window.print()">
+          <Download size={18} />
+          প্রিন্ট / ডাউনলোড
+        </button>
+      </div>
+
+      <div class="certificate-wrapper">
+        <div class="certificate">
+          <div class="cert-border">
+            <div class="cert-header">
+              <div class="cert-logo">
+                <Award size={48} />
+              </div>
+              <h2 class="cert-org">Ruqyah Healing Center</h2>
+              <p class="cert-subtitle">সার্টিফিকেট অব কমপ্লিশন</p>
+            </div>
+
+            <div class="cert-body">
+              <p class="cert-text">এই সার্টিফিকেট প্রমাণ করে যে</p>
+              <h1 class="cert-name">{user.fullName}</h1>
+              <p class="cert-text">সফলভাবে সম্পন্ন করেছেন</p>
+              <h2 class="cert-course">{course.title}</h2>
+              <p class="cert-date">{completionDate}</p>
+            </div>
+
+            <div class="cert-footer">
+              <div class="cert-signature">
+                <div class="sig-line"></div>
+                <p class="sig-name">{course.instructor}</p>
+                <p class="sig-title">ইন্সট্রাক্টর</p>
+              </div>
+              <div class="cert-seal">
+                <Award size={64} />
+              </div>
+              <div class="cert-signature">
+                <div class="sig-line"></div>
+                <p class="sig-name">Ruqyah Healing Center</p>
+                <p class="sig-title">প্রতিষ্ঠান</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .cert-page {
+    min-height: calc(100vh - 70px);
+    background: #f1f5f9;
+    padding: 32px 20px;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+
+  .cert-actions-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .back-link {
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .back-link:hover { color: #0891b2; }
+  .print-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #0891b2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .print-btn:hover { background: #06b6d4; }
+
+  .certificate-wrapper {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+
+  .certificate {
+    aspect-ratio: 1.414;
+    background: linear-gradient(135deg, #fefce8, #fffbeb, #fef3c7);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .cert-border {
+    height: 100%;
+    border: 3px solid #b45309;
+    border-radius: 8px;
+    margin: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    position: relative;
+  }
+  .cert-border::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid #d97706;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  .cert-header { margin-bottom: 24px; }
+  .cert-logo { color: #b45309; margin-bottom: 8px; }
+  .cert-org {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #92400e;
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+  .cert-subtitle {
+    font-size: 0.9rem;
+    color: #b45309;
+    margin: 4px 0 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .cert-body { margin-bottom: 32px; }
+  .cert-text {
+    font-size: 0.95rem;
+    color: #78716c;
+    margin: 8px 0;
+  }
+  .cert-name {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 8px 0;
+    border-bottom: 2px solid #d97706;
+    display: inline-block;
+    padding-bottom: 4px;
+  }
+  .cert-course {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #b45309;
+    margin: 8px 0;
+  }
+  .cert-date {
+    font-size: 0.85rem;
+    color: #78716c;
+    margin: 8px 0 0;
+  }
+
+  .cert-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    padding-top: 24px;
+  }
+  .cert-signature { text-align: center; flex: 1; }
+  .sig-line {
+    width: 120px;
+    height: 1px;
+    background: #92400e;
+    margin: 0 auto 8px;
+  }
+  .sig-name { font-size: 0.85rem; font-weight: 600; color: #0f172a; margin: 0; }
+  .sig-title { font-size: 0.75rem; color: #78716c; margin: 2px 0 0; }
+  .cert-seal { color: #b45309; opacity: 0.3; }
+
+  @media print {
+    .cert-actions-top, header, footer { display: none !important; }
+    .cert-page { padding: 0; background: white; }
+    .certificate-wrapper { box-shadow: none; padding: 0; }
+    .certificate { break-inside: avoid; }
+  }
+</style>

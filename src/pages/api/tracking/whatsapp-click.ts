@@ -3,7 +3,7 @@
  * Tracks WhatsApp button clicks via Meta CAPI for analytics
  */
 
-import { getAnalyticsContext, sendGA4Event, sendMetaCAPIEvent } from '../../lib/analytics';
+import { getAnalyticsContext, sendGA4Event, sendMetaCAPIEvent } from '../../../lib/analytics';
 
 export const prerender = false;
 

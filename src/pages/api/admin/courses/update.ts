@@ -4,6 +4,7 @@ import type { APIRoute } from 'astro';
 import { env as workerEnv } from 'cloudflare:workers';
 import { eq } from 'drizzle-orm';
 import { logAuditEvent } from '../../../../lib/audit.js';
+import { faqFromTextarea, listFromTextarea } from '../../../../lib/lms-access.js';
 
 export const prerender = false;
 
@@ -24,6 +25,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const db = createDb((env as any).DATABASE_URL);
     const r2 = (env as any).R2_IMAGES;
+    const price = body.price === null || body.price === '' || body.price === undefined ? null : Number(body.price);
+    const salePrice = body.salePrice === null || body.salePrice === '' || body.salePrice === undefined ? null : Number(body.salePrice);
 
     const oldCourseRes = await db.select().from(courses).where(eq(courses.id, body.id));
     if (oldCourseRes.length > 0) {
@@ -42,11 +45,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
         classCount: body.classCount,
         hours: body.hours,
         level: body.level,
-        price: body.price !== null ? body.price : null,
+        price,
+        salePrice,
         rating: body.rating || 5.0,
         desc: body.desc,
+        shortDescription: body.shortDescription || body.desc || '',
+        fullDescription: body.fullDescription || body.desc || '',
         image: body.image,
-        videoLink: body.videoLink || ''
+        videoLink: body.videoLink || '',
+        category: body.category || 'রুকইয়াহ শারইয়াহ',
+        status: body.status || 'draft',
+        language: body.language || 'বাংলা',
+        outcomes: listFromTextarea(body.outcomes),
+        requirements: listFromTextarea(body.requirements),
+        faq: faqFromTextarea(body.faq),
+        accessMode: body.accessMode === 'sequential' ? 'sequential' : 'open',
+        certificateEnabled: body.certificateEnabled !== false && body.certificateEnabled !== 'false',
       })
       .where(eq(courses.id, body.id));
 

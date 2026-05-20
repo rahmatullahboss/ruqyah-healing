@@ -13,14 +13,18 @@ import { clinicNumbers, clinicSchedule, getWhatsappUrl, primaryPhoneContact } fr
 import { buildFaqSchema } from '../lib/seo.js';
 import { desc, eq } from 'drizzle-orm';
 
-export const prerender = true;
+export const prerender = false;
 
 const env = workerEnv || process.env;
 const db = createDb(env.DATABASE_URL);
 
 const allPosts = await getAllPosts(db);
 
-const coursesList = await db.select().from(courses).orderBy(desc(courses.createdAt)).limit(6);
+const coursesList = await db.select()
+  .from(courses)
+  .where(eq(courses.status, 'published'))
+  .orderBy(desc(courses.createdAt))
+  .limit(6);
 const testimonialList = await db.select().from(testimonials).where(eq(testimonials.published, true)).orderBy(desc(testimonials.orderIndex)).limit(6);
 const blogs = allPosts
   .slice(0, 6)
@@ -232,10 +236,8 @@ const faqSchema = buildFaqSchema(homepageFaq);
         
         <div class="courses-preview-grid">
           {coursesList.map((course) => {
-            const priceDisplay = course.price === null ? 'ফ্রি' : `৳ ${course.price.toLocaleString()}`;
-            
             return (
-            <a href="/courses" class="course-preview-card">
+            <a href={`/courses/${course.id}`} class="course-preview-card">
               <div class="course-preview-img">
                 <img src={course.image} alt={course.title} loading="lazy" decoding="async" />
               </div>
