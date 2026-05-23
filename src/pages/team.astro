@@ -9,12 +9,125 @@ import {
   getWhatsappUrl,
   primaryContact,
 } from '../data/clinic.js';
+import { contactSupportsCall, contactSupportsWhatsapp } from '../lib/clinic-contacts.js';
+
+export const prerender = true;
 ---
 
 <BaseLayout title="রাকী পরিচয় ও যোগাযোগ | Ruqyah Healing Center" description="রাকী টিমের সাথে যোগাযোগ, সময়সূচী ও বুকিং নির্দেশনা।">
   <Header />
 
   <main class="team-page">
+    <!-- Raqi Profile Section - Top -->
+    <section class="raqi-profile">
+      <div class="container">
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <img src="/images/raqi-omor.webp" alt="ওমর হাসান আজমি" class="profile-img" />
+            </div>
+            <div class="profile-title">
+              <h2>রাকী পরিচিতি</h2>
+              <p class="profile-name">ওমর হাসান আজমি</p>
+              <span class="profile-badge">ইসলামী রুকইয়াহ চিকিৎসক</span>
+            </div>
+          </div>
+
+          <div class="profile-stats">
+            <div class="stat-item">
+              <span class="stat-num">১৮০০+</span>
+              <span class="stat-label">সুচিকিৎসিত রোগী</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num">৮+</span>
+              <span class="stat-label">বছরের অভিজ্ঞতা</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num">১০০%</span>
+              <span class="stat-label">সুন্নাহ পদ্ধতি</span>
+            </div>
+          </div>
+
+          <div class="profile-intro">
+            <p>আল্লাহর অশেষ রহমতে একজন নিবেদিতপ্রাণ রাকী, ইসলামী চিকিৎসা শাস্ত্রের অনুশীলনকারী এবং সুন্নাহভিত্তিক স্বাস্থ্যসেবা প্রচারে প্রতিশ্রুতিবদ্ধ।</p>
+            <p>মিশরের খ্যাতনামা আলেকজান্দ্রিয়া ইউনিভার্সিটির শাখা আন-নুখবা একাডেমি থেকে ইসলামী শরীয়াহ, রুকইয়াহ এবং প্রাকৃতিক চিকিৎসা পদ্ধতিতে গভীর জ্ঞান অর্জন করি।</p>
+          </div>
+
+          <div class="specializations">
+            <h3>বিশেষ দক্ষতাসমূহ</h3>
+            <div class="spec-grid">
+              <div class="spec-item">
+                <span class="spec-icon">🍀</span>
+                <div>
+                  <strong>রুকইয়াহ শারীয়াহ</strong>
+                  <p>কুরআনের পবিত্র আয়াতসমূহের মাধ্যমে জিনের কুপ্রভাব, বদনজর, শয়তানি ধোঁকা এবং মানসিক অশান্তির নিরাময়।</p>
+                </div>
+              </div>
+              <div class="spec-item">
+                <span class="spec-icon">🍀</span>
+                <div>
+                  <strong>হিজামা (সুন্নাহ কাপিং থেরাপি)</strong>
+                  <p>শরীর থেকে বিষাক্ত উপাদান দূর করে রক্ত সঞ্চালন বৃদ্ধি, প্রতিরোধ ক্ষমতা জাগ্রত এবং স্বাস্থ্যের পুনরুদ্ধার।</p>
+                </div>
+              </div>
+              <div class="spec-item">
+                <span class="spec-icon">🍀</span>
+                <div>
+                  <strong>আকুপাংচার</strong>
+                  <p>শরীরের নির্দিষ্ট পয়েন্টে সূচ প্রয়োগের মাধ্যমে প্রাকৃতিক শক্তি উত্তেজনা এবং ব্যথা, ক্লান্তি ও মানসিক চাপ হ্রাস।</p>
+                </div>
+              </div>
+              <div class="spec-item">
+                <span class="spec-icon">🍀</span>
+                <div>
+                  <strong>ম্যাসাজ থেরাপি</strong>
+                  <p>আরামদায়ক স্পর্শের মাধ্যমে শারীরিক প্রশান্তি এবং মানসিক ভারসাম্য অর্জনে সহায়ক থেরাপি।</p>
+                </div>
+              </div>
+              <div class="spec-item">
+                <span class="spec-icon">🍀</span>
+                <div>
+                  <strong>ইসলামী কাউন্সেলিং</strong>
+                  <p>পারিবারিক, দাম্পত্য ও সামাজিক জটিলতার ইসলামী সমাধান—কুরআন ও সুন্নাহর আলোকে পরামর্শ প্রদান।</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="approach">
+            <h3>চিকিৎসা পদ্ধতির বৈশিষ্ট্য</h3>
+            <ul class="approach-list">
+              <li>শরীয়াহ-সম্মত ও সুন্নাহভিত্তিক পদ্ধতি</li>
+              <li>আধুনিক বিজ্ঞান ও প্রাচীন জ্ঞানের সমন্বয়</li>
+              <li>রোগের মূল কারণ চিহ্নিত করে সমাধানে মনোযোগ</li>
+              <li>রোগীর আত্মিক উন্নয়ন ও আল্লাহর নৈকট্য অর্জনে সহায়তা</li>
+            </ul>
+          </div>
+
+          <div class="vision">
+            <h3>আমার লক্ষ্য ও দৃষ্টিভঙ্গি</h3>
+            <p>আমার লক্ষ্য হলো—মানুষের জীবনে শান্তি ফিরিয়ে আনা, রোগ-শোক থেকে মুক্তি প্রদান এবং তাদের আল্লাহর দিকে প্রত্যাবর্তনে সহায়তা করা। আমি বিশ্বাস করি, আল্লাহর কিতাব ও নবীজীর সুন্নাহর মধ্যে প্রতিটি রোগের নিরাময় নিহিত আছে।</p>
+          </div>
+
+          <div class="why-choose">
+            <h3>আপনি কেন আমার কাছে আসবেন?</h3>
+            <ul class="why-list">
+              <li>দীর্ঘদিনের অভিজ্ঞতা ও ইসলামি জ্ঞানভিত্তিক চিকিৎসা</li>
+              <li>আন্তরিকতা, সততা ও রোগীর প্রতি সহানুভূতিশীল মনোভাব</li>
+              <li>সম্পূর্ণ গোপনীয়তা ও নিরাপদ চিকিৎসা পরিবেশ</li>
+              <li>জীবন ঘুরিয়ে দেওয়ার মত সেবা প্রদানের চেষ্টা</li>
+            </ul>
+          </div>
+
+          <div class="profile-cta">
+            <p>আপনার জীবনের যে সমস্যাই হোক না কেন—শারীরিক, মানসিক কিংবা আত্মিক—আল্লাহর ইচ্ছায়, আপনি সমাধান পেতে পারেন।</p>
+            <a href="/appointment" class="btn btn-primary">অ্যাপয়েন্টমেন্ট বুক করুন</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact & Booking Section -->
     <section class="team-hero">
       <div class="container team-layout">
         <div class="team-copy">
@@ -27,6 +140,7 @@ import {
 
           <div class="cta-row">
             <a
+              id="teamPrimaryWhatsappCta"
               href={getWhatsappUrl('আসসালামু আলাইকুম, আমি রাকীর সাথে যোগাযোগ করতে চাই।', primaryContact.international)}
               target="_blank"
               rel="noopener noreferrer"
@@ -40,29 +154,40 @@ import {
 
         <div class="team-card">
           <h2>যোগাযোগ নাম্বার</h2>
-          <div class="phone-list">
+          <div class="phone-list" id="teamPhoneList">
             {clinicNumbers.map((contact) => (
               <div class="phone-item">
                 <div>
                   <p class="phone-label">{contact.label}</p>
-                  <a href={`tel:${contact.display}`} class="phone-number">{contact.display}</a>
+                  {contactSupportsCall(contact) ? (
+                    <a href={`tel:${contact.display}`} class="phone-number">{contact.display}</a>
+                  ) : (
+                    <span class="phone-number">{contact.display}</span>
+                  )}
                 </div>
-                <a
-                  href={getWhatsappUrl('আসসালামু আলাইকুম, আমি রাকীর সাথে যোগাযোগ করতে চাই।', contact.international)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="phone-wa"
-                >
-                  WhatsApp
-                </a>
+                <div class="phone-actions">
+                  {contactSupportsCall(contact) && (
+                    <a href={`tel:${contact.display}`} class="phone-call">কল</a>
+                  )}
+                  {contactSupportsWhatsapp(contact) && (
+                    <a
+                      href={getWhatsappUrl('আসসালামু আলাইকুম, আমি রাকীর সাথে যোগাযোগ করতে চাই।', contact.international)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="phone-wa"
+                    >
+                      WhatsApp
+                    </a>
+                  )}
+                </div>
               </div>
             ))}
           </div>
 
           <div class="schedule-box">
             <h3>সময়সূচী</h3>
-            <p>{clinicSchedule.days}</p>
-            <p>{clinicSchedule.hours}</p>
+            <p id="teamScheduleDays">{clinicSchedule.days}</p>
+            <p id="teamScheduleHours">{clinicSchedule.hours}</p>
           </div>
         </div>
       </div>
@@ -152,46 +277,6 @@ import {
   margin-bottom: 18px;
 }
 
-.phone-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.phone-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: center;
-  padding: 16px;
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  background: #fbfffd;
-}
-
-.phone-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.phone-number {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-dark);
-}
-
-.phone-wa {
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: #22c55e;
-  color: #fff;
-  font-weight: 700;
-  font-size: 13px;
-}
-
 .schedule-box {
   margin-top: 18px;
   padding: 18px;
@@ -253,6 +338,264 @@ import {
   .team-card h2,
   .rules-card h2 {
     font-size: 24px;
+  }
+}
+
+/* Raqi Profile Section */
+.raqi-profile {
+  padding: 48px 0 72px;
+}
+
+.profile-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: 28px;
+  box-shadow: var(--shadow-sm);
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profile-header {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-title {
+  flex: 1;
+}
+
+.profile-title h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.profile-name {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.profile-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.profile-intro {
+  margin-bottom: 32px;
+}
+
+.profile-intro p {
+  color: var(--text-medium);
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+.specializations {
+  margin-bottom: 32px;
+}
+
+.specializations h3,
+.approach h3,
+.vision h3,
+.why-choose h3 {
+  font-size: 20px;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+}
+
+.spec-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.spec-item {
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  background: var(--bg-light);
+  border-radius: 18px;
+}
+
+.spec-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.spec-item strong {
+  display: block;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.spec-item p {
+  color: var(--text-medium);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.approach {
+  margin-bottom: 32px;
+}
+
+.approach-list,
+.why-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.approach-list li,
+.why-list li {
+  position: relative;
+  padding-left: 22px;
+  color: var(--text-medium);
+  line-height: 1.6;
+}
+
+.approach-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.why-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.vision {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: var(--bg-light);
+  border-radius: 18px;
+}
+
+.vision p {
+  color: var(--text-medium);
+  line-height: 1.8;
+}
+
+.why-choose {
+  margin-bottom: 32px;
+}
+
+.profile-cta {
+  text-align: center;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.profile-cta p {
+  color: var(--text-medium);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  padding: 20px;
+  background: var(--bg-light);
+  border-radius: 18px;
+  margin-bottom: 32px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-num {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+  .profile-card {
+    padding: 24px 18px;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-name {
+    font-size: 24px;
+  }
+
+  .spec-item {
+    flex-direction: column;
+  }
+
+  .spec-icon {
+    font-size: 20px;
+  }
+
+  .profile-stats {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .stat-item {
+    min-width: 80px;
+  }
+
+  .team-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .team-hero {
+    padding: 24px 0 16px;
   }
 }
 </style>

@@ -1,0 +1,279 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import { testCategories, kidsQuestions, type TestCategory } from '../../../data/test-data';
+import { getEnglishCategoryMeta } from '../../../data/diagnosis-en';
+import { buildBreadcrumbSchema, buildWebPageSchema } from '../../../lib/seo.js';
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  return testCategories.map((category) => ({ params: { testId: category.id } }));
+}
+
+const { testId } = Astro.params;
+const category = testCategories.find((item) => item.id === testId) as TestCategory | undefined;
+if (!category) {
+  return Astro.redirect('/en/ruqyah-diagnosis');
+}
+
+const enMeta = getEnglishCategoryMeta(category);
+const isKids = category.id === 'kids';
+const questions = isKids ? [] : category.questions;
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/en/ruqyah-diagnosis/${category.id}`;
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'Home', url: `${siteUrl}/en/` },
+  { name: 'Ruqyah Diagnosis', url: `${siteUrl}/en/ruqyah-diagnosis` },
+  { name: enMeta.title, url: pageUrl },
+]);
+const pageLd = buildWebPageSchema({
+  pageUrl,
+  name: enMeta.title,
+  description: enMeta.description,
+  inLanguage: 'en-US',
+});
+---
+
+<BaseLayout
+  title={`${enMeta.title} | Ruqyah Healing Center`}
+  description={enMeta.description}
+  locale="en"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(pageLd)} />
+  <Header />
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <nav class="breadcrumb">
+          <a href="/en/">Home</a><span>/</span><a href="/en/ruqyah-diagnosis">Ruqyah Diagnosis</a><span>/</span><span>{enMeta.title}</span>
+        </nav>
+        <h1>{enMeta.title}</h1>
+        <p>{enMeta.description}</p>
+      </div>
+    </section>
+
+    {isKids && (
+      <section class="section" id="ageSection">
+        <div class="container card">
+          <h2>Select Child Age Group</h2>
+          <div class="age-row">
+            <button class="btn btn-outline" onclick="selectAge('infant')">0-2 Years (6 questions)</button>
+            <button class="btn btn-outline" onclick="selectAge('child')">2-12 Years (19 questions)</button>
+          </div>
+        </div>
+      </section>
+    )}
+
+    <section class="section" id="quizSection" class:list={[isKids && 'hidden']}>
+      <div class="container card">
+        <div class="progress-row">
+          <span id="progressText">Question 1 / 1</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress"><span id="progressFill"></span></div>
+
+        <h2 id="questionText">Loading question...</h2>
+
+        <div class="answers">
+          <button class="answer" onclick="selectAnswer(2)">Yes</button>
+          <button class="answer" onclick="selectAnswer(1)">Sometimes</button>
+          <button class="answer" onclick="selectAnswer(0)">No</button>
+        </div>
+
+        <div class="nav-row">
+          <button class="btn btn-outline" id="prevBtn" onclick="prevQuestion()" disabled>Previous</button>
+          <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section hidden" id="resultSection">
+      <div class="container card">
+        <p class="badge" id="riskLabel">Result</p>
+        <h2 id="resultTitle">Assessment Result</h2>
+        <p id="resultDescription"></p>
+
+        <div class="score-grid">
+          <div><strong id="scorePercent">0%</strong><span>Score</span></div>
+          <div><strong id="yesCount">0</strong><span>Yes</span></div>
+          <div><strong id="maybeCount">0</strong><span>Sometimes</span></div>
+          <div><strong id="noCount">0</strong><span>No</span></div>
+        </div>
+
+        <div class="note">
+          Discuss this result with a qualified raqi before making major decisions. For urgent physical or mental symptoms, seek medical care immediately.
+        </div>
+
+        <div class="actions" id="resultActions"></div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script define:vars={{
+  isKids,
+  serverQuestions: questions,
+  infantQs: kidsQuestions.infant,
+  childQs: kidsQuestions.child,
+  lowResult: category.getResult(0),
+  mediumResult: category.getResult(30),
+  highResult: category.getResult(60),
+  thresholds: { low: 30, high: 55 },
+}}>
+  let questions = isKids ? [] : serverQuestions;
+  let answers = [];
+  let currentIndex = 0;
+
+  const quizSection = document.getElementById('quizSection');
+  const ageSection = document.getElementById('ageSection');
+  const resultSection = document.getElementById('resultSection');
+
+  function localizeUrl(url) {
+    if (!url || !url.startsWith('/')) return url;
+    if (url === '/en' || url.startsWith('/en/')) return url;
+    return `/en${url}`;
+  }
+
+  function actionLabel(label, url) {
+    if ((label || '').toLowerCase().includes('whatsapp')) return 'Discuss on WhatsApp';
+    if ((label || '').toLowerCase().includes('appointment') || (label || '').includes('অ্যাপয়েন্টমেন্ট')) return 'Take Appointment';
+    if ((label || '').toLowerCase().includes('self') || (url || '').includes('/self-ruqyah')) return 'Start Self Ruqyah';
+    return 'Open';
+  }
+
+  function selectAge(group) {
+    questions = group === 'infant' ? infantQs : childQs;
+    answers = new Array(questions.length).fill(null);
+    currentIndex = 0;
+    ageSection?.classList.add('hidden');
+    quizSection?.classList.remove('hidden');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    if (!questions.length) return;
+    const question = questions[currentIndex];
+    const progress = Math.round(((currentIndex + 1) / questions.length) * 100);
+    document.getElementById('questionText').textContent = question.text;
+    document.getElementById('progressText').textContent = `Question ${currentIndex + 1} / ${questions.length}`;
+    document.getElementById('progressPct').textContent = `${progress}%`;
+    document.getElementById('progressFill').style.width = `${progress}%`;
+    document.getElementById('prevBtn').disabled = currentIndex === 0;
+    document.getElementById('nextBtn').textContent = currentIndex === questions.length - 1 ? 'Finish' : 'Next';
+  }
+
+  function selectAnswer(value) {
+    answers[currentIndex] = value;
+    const buttons = document.querySelectorAll('.answer');
+    buttons.forEach((button) => button.classList.remove('selected'));
+    const selectedBtn = value === 2 ? buttons[0] : value === 1 ? buttons[1] : buttons[2];
+    selectedBtn?.classList.add('selected');
+  }
+
+  function nextQuestion() {
+    if (answers[currentIndex] === null || answers[currentIndex] === undefined) return;
+    if (currentIndex < questions.length - 1) {
+      currentIndex += 1;
+      renderQuestion();
+      document.querySelectorAll('.answer').forEach((button) => button.classList.remove('selected'));
+      return;
+    }
+    showResult();
+  }
+
+  function prevQuestion() {
+    if (currentIndex <= 0) return;
+    currentIndex -= 1;
+    renderQuestion();
+    document.querySelectorAll('.answer').forEach((button) => button.classList.remove('selected'));
+    const value = answers[currentIndex];
+    const buttons = document.querySelectorAll('.answer');
+    const selectedBtn = value === 2 ? buttons[0] : value === 1 ? buttons[1] : value === 0 ? buttons[2] : null;
+    selectedBtn?.classList.add('selected');
+  }
+
+  function getResultByPercent(percent) {
+    if (percent >= thresholds.high) return highResult;
+    if (percent >= thresholds.low) return mediumResult;
+    return lowResult;
+  }
+
+  function showResult() {
+    const totalScore = answers.reduce((sum, value) => sum + (value ?? 0), 0);
+    const maxScore = questions.length * 2;
+    const percent = maxScore === 0 ? 0 : Math.round((totalScore / maxScore) * 100);
+    const yes = answers.filter((value) => value === 2).length;
+    const maybe = answers.filter((value) => value === 1).length;
+    const no = answers.filter((value) => value === 0).length;
+    const result = getResultByPercent(percent);
+
+    document.getElementById('scorePercent').textContent = `${percent}%`;
+    document.getElementById('yesCount').textContent = `${yes}`;
+    document.getElementById('maybeCount').textContent = `${maybe}`;
+    document.getElementById('noCount').textContent = `${no}`;
+    document.getElementById('riskLabel').textContent = result.riskLevel || 'Result';
+    document.getElementById('resultTitle').textContent = result.title || 'Assessment result';
+    document.getElementById('resultDescription').textContent = result.description || '';
+
+    const actionsContainer = document.getElementById('resultActions');
+    actionsContainer.innerHTML = '';
+    (result.actions || []).forEach((action) => {
+      const link = document.createElement('a');
+      link.href = localizeUrl(action.url);
+      link.textContent = actionLabel(action.label, action.url);
+      link.className = action.type === 'primary' ? 'btn btn-primary' : 'btn btn-outline';
+      if (action.url.startsWith('http')) {
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+      }
+      actionsContainer.appendChild(link);
+    });
+
+    quizSection?.classList.add('hidden');
+    resultSection?.classList.remove('hidden');
+  }
+
+  window.selectAge = selectAge;
+  window.selectAnswer = selectAnswer;
+  window.nextQuestion = nextQuestion;
+  window.prevQuestion = prevQuestion;
+
+  if (!isKids) {
+    answers = new Array(questions.length).fill(null);
+    renderQuestion();
+  }
+</script>
+
+<style>
+  .hero { padding: 46px 0 20px; text-align: center; background: linear-gradient(180deg, #ecfdf5 0%, #fff 100%); }
+  .breadcrumb { display: inline-flex; gap: 8px; font-size: 14px; color: var(--text-muted); margin-bottom: 12px; }
+  .hero p { color: var(--text-muted); max-width: 700px; margin: 0 auto; }
+  .section { padding: 20px 0 50px; }
+  .card { max-width: 900px; border: 1px solid var(--border); border-radius: 14px; padding: 18px; background: #fff; }
+  .hidden { display: none; }
+  .age-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .progress-row { display: flex; justify-content: space-between; color: var(--text-medium); font-size: 14px; margin-bottom: 8px; }
+  .progress { width: 100%; height: 10px; border-radius: 999px; background: #e5e7eb; margin-bottom: 16px; overflow: hidden; }
+  .progress span { display: block; height: 100%; background: var(--primary); width: 0%; }
+  .answers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+  .answer { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: #fff; cursor: pointer; font: inherit; }
+  .answer.selected { border-color: var(--primary); background: #ecfdf5; color: #065f46; font-weight: 600; }
+  .nav-row { display: flex; justify-content: space-between; gap: 10px; }
+  .badge { display: inline-flex; background: #ecfdf5; color: #065f46; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+  .score-grid { margin-top: 14px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .score-grid div { border: 1px solid var(--border); border-radius: 10px; padding: 10px; text-align: center; }
+  .score-grid strong { font-size: 20px; display: block; }
+  .score-grid span { font-size: 12px; color: var(--text-muted); }
+  .note { margin-top: 14px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 12px; color: #92400e; }
+  .actions { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+  @media (max-width: 720px) {
+    .answers { grid-template-columns: 1fr; }
+    .score-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

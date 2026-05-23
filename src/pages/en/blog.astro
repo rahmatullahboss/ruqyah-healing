@@ -1,0 +1,159 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import { env as workerEnv } from 'cloudflare:workers';
+import { createDb } from '../../db/client.js';
+import { getAllPosts, getCategories } from '../../lib/posts.js';
+import { getEnglishCategoryLabel, getEnglishPostMeta } from '../../data/en-content';
+
+export const prerender = true;
+
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+const posts = await getAllPosts(db);
+const categoryList = await getCategories(db);
+
+const featuredPost = posts[0];
+const gridPosts = posts.slice(1);
+const categories = ['All', ...categoryList];
+
+const urlCategory = Astro.url.searchParams.get('cat') || 'All';
+const pageParam = Astro.url.searchParams.get('page') || '1';
+let currentPage = parseInt(pageParam, 10);
+if (isNaN(currentPage) || currentPage < 1) currentPage = 1;
+
+let filteredPosts = gridPosts;
+const isFeaturedVisible = urlCategory === 'All' || featuredPost?.category === urlCategory;
+if (urlCategory !== 'All') {
+  filteredPosts = gridPosts.filter((post) => post.category === urlCategory);
+}
+
+const POSTS_PER_PAGE = 12;
+const totalPosts = filteredPosts.length;
+const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
+if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+
+const start = (currentPage - 1) * POSTS_PER_PAGE;
+const end = start + POSTS_PER_PAGE;
+const paginatedPosts = filteredPosts.slice(start, end);
+
+function getPageUrl(cat: string, pageNum: number) {
+  const url = new URL(Astro.url.href);
+  url.searchParams.set('cat', cat);
+  url.searchParams.set('page', pageNum.toString());
+  return url.toString();
+}
+
+const pages = [];
+for (let i = 1; i <= totalPages; i++) {
+  if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+    pages.push(i);
+  } else if (pages[pages.length - 1] !== '...') {
+    pages.push('...');
+  }
+}
+---
+
+<BaseLayout
+  title="Ruqyah Blog | Ruqyah Healing Center"
+  description="Educational ruqyah articles, case-oriented guidance, and practical spiritual care."
+  locale="en"
+>
+  <Header />
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1>Ruqyah Blog</h1>
+        <p>Educational resources and guidance for spiritual wellness.</p>
+        <div class="stats">
+          <span>{posts.length} articles</span>
+          <span>{categories.length - 1} categories</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="cat-bar">
+      <div class="container tabs">
+        {categories.map((cat) => (
+          <a href={getPageUrl(cat, 1)} class:list={['tab', cat === urlCategory && 'active']}>
+            {cat === 'All' ? 'All' : getEnglishCategoryLabel(cat)}
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="container">
+        {featuredPost && isFeaturedVisible && currentPage === 1 && (
+          <article class="featured">
+            <p class="meta">Featured · {getEnglishCategoryLabel(featuredPost.category)}</p>
+            <h2>{getEnglishPostMeta(featuredPost.slug, { title: featuredPost.title }).title}</h2>
+            <p>{getEnglishPostMeta(featuredPost.slug, { excerpt: featuredPost.excerpt }).excerpt}</p>
+            <a href={`/en/posts/${featuredPost.slug}`} class="btn btn-primary">Read article</a>
+          </article>
+        )}
+
+        <div class="grid">
+          {paginatedPosts.map((post: (typeof paginatedPosts)[number]) => (
+            <BlogCard
+              title={getEnglishPostMeta(post.slug, { title: post.title }).title}
+              excerpt={getEnglishPostMeta(post.slug, { excerpt: post.excerpt }).excerpt}
+              category={getEnglishCategoryLabel(post.category)}
+              date={new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              href={`/en/posts/${post.slug}`}
+            />
+          ))}
+        </div>
+
+        {totalPosts === 0 && (
+          <div class="empty">
+            <h3>No posts found</h3>
+            <p>There are no posts in this category yet.</p>
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <nav class="pager" aria-label="Blog pagination">
+            <a href={currentPage > 1 ? getPageUrl(urlCategory, currentPage - 1) : '#'} class:list={['page-btn', currentPage === 1 && 'disabled']}>Previous</a>
+            {pages.map((value) => (
+              value === '...' ? (
+                <span class="dots">…</span>
+              ) : (
+                <a href={getPageUrl(urlCategory, value as number)} class:list={['page-btn', value === currentPage && 'active']}>{value}</a>
+              )
+            ))}
+            <a href={currentPage < totalPages ? getPageUrl(urlCategory, currentPage + 1) : '#'} class:list={['page-btn', currentPage === totalPages && 'disabled']}>Next</a>
+          </nav>
+        )}
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .hero { padding: 52px 0 36px; background: linear-gradient(160deg, #022c22 0%, #065f46 100%); color: #fff; text-align: center; }
+  .hero p { color: rgba(255, 255, 255, 0.82); }
+  .stats { display: flex; justify-content: center; gap: 18px; margin-top: 14px; color: rgba(255, 255, 255, 0.76); font-size: 14px; }
+  .cat-bar { padding: 12px 0; border-bottom: 1px solid var(--border); background: #fff; position: sticky; top: var(--nav-height); z-index: 10; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tab { padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px; font-size: 13px; }
+  .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .section { padding: 26px 0 64px; }
+  .featured { border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 18px; background: #fff; }
+  .featured .meta { color: var(--primary-dark); font-weight: 600; font-size: 12px; }
+  .featured h2 { margin: 8px 0; }
+  .featured p { color: var(--text-muted); margin-bottom: 10px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .empty { text-align: center; border: 1px dashed var(--border); border-radius: 14px; padding: 30px; }
+  .pager { margin-top: 22px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .page-btn { padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px; }
+  .page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .page-btn.disabled { pointer-events: none; opacity: 0.4; }
+  @media (max-width: 980px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+</style>

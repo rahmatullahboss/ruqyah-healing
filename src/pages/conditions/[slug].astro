@@ -1,0 +1,564 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { buildBreadcrumbSchema, buildFaqSchema, buildWebPageSchema } from '../../lib/seo.js';
+import { getWhatsappUrl } from '../../data/clinic.js';
+import { conditions, getRelatedConditions } from '../../data/conditions-data.js';
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  return conditions.map((condition) => ({
+    params: { slug: condition.slug },
+    props: { condition },
+  }));
+}
+
+const { condition } = Astro.props;
+const {
+  slug,
+  name,
+  nameBn,
+  intro,
+  introBn,
+  symptoms,
+  causes,
+  treatment,
+  treatmentBn,
+  selfHelp,
+  whenToSeekHelp,
+  whenToSeekHelpBn,
+  relatedConditions: relatedSlugs,
+} = condition;
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/conditions/${slug}`;
+
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'সমস্যা ও লক্ষণ', url: `${siteUrl}/conditions` },
+  { name: nameBn, url: pageUrl },
+]);
+
+const pageLd = buildWebPageSchema({
+  pageUrl,
+  name: `${name} - ${nameBn}`,
+  description: introBn,
+  inLanguage: 'bn-BD',
+});
+
+const faqItems = [
+  { question: `${nameBn} এর প্রধান লক্ষণ কি কি?`, answer: symptoms.map(s => s.bn).join('। ') },
+  { question: `${nameBn} হলে কি করব?`, answer: selfHelp.map(s => s.bn).join('। ') },
+];
+---
+
+<BaseLayout
+  title={`${nameBn} | রুকইয়াহ চিকিৎসা`}
+  description={introBn}
+  keywords={[name, nameBn, 'রুকইয়াহ', 'আধ্যাত্মিক চিকিৎসা']}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(pageLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(buildFaqSchema(faqItems))} slot="head" />
+
+  <Header />
+
+  <main class="condition-page">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href="/">হোম</a>
+        <span class="separator">›</span>
+        <a href="/conditions">সমস্যা ও লক্ষণ</a>
+        <span class="separator">›</span>
+        <span class="current">{nameBn}</span>
+      </nav>
+
+      <article class="condition-article">
+        <header class="condition-header">
+          <span class="condition-category-label">আধ্যাত্মিক সমস্যা</span>
+          <h1 class="condition-title">{nameBn}</h1>
+          <p class="condition-title-en">{name}</p>
+          <p class="condition-intro">{introBn}</p>
+        </header>
+
+        <section class="content-section symptoms-section">
+          <h2>প্রধান লক্ষণসমূহ</h2>
+          <p class="section-intro">নিচের লক্ষণগুলি থাকলে আপনার আধ্যাত্মিক চিকিৎসা প্রয়োজন হতে পারে:</p>
+          <ul class="symptoms-list">
+            {symptoms.map((symptom, i) => (
+              <li class="symptom-item">
+                <span class="symptom-number">{i + 1}</span>
+                <div class="symptom-content">
+                  <span class="symptom-bn">{symptom.bn}</span>
+                  <span class="symptom-en">{symptom.en}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {causes.length > 0 && (
+          <section class="content-section causes-section">
+            <h2>সম্ভাব্য কারণ</h2>
+            <p class="section-intro">এই সমস্যা হতে পারে এমন কারণগুলি জানুন:</p>
+            <ul class="causes-list">
+              {causes.map(cause => (
+                <li>
+                  <span class="cause-bn">{cause.bn}</span>
+                  <span class="cause-en">{cause.en}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <section class="content-section treatment-section">
+          <h2>রুকইয়াহ চিকিৎসা</h2>
+          <p class="treatment-text">{treatmentBn}</p>
+          <div class="treatment-actions">
+            <a href={getWhatsappUrl(`আসসালামু আলাইকুম, আমার ${nameBn} সমস্যা আছে। চিকিৎসা সম্পর্কে জানতে চাই।`)} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+              WhatsApp এ আলোচনা করুন
+            </a>
+            <a href="/appointment" class="btn btn-secondary">অ্যাপয়েন্টমেন্ট নিন</a>
+          </div>
+        </section>
+
+        {selfHelp.length > 0 && (
+          <section class="content-section selfhelp-section">
+            <h2>সেলফ রুকইয়াহ পদ্ধতি</h2>
+            <p class="section-intro">বাড়িতে নিজে করার জন্য এই পদক্ষেপগুলি নিন:</p>
+            <ul class="selfhelp-list">
+              {selfHelp.map((help, i) => (
+                <li class="selfhelp-item">
+                  <span class="selfhelp-number">{i + 1}</span>
+                  <div class="selfhelp-content">
+                    <span class="selfhelp-bn">{help.bn}</span>
+                    <span class="selfhelp-en">{help.en}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <section class="content-section helptime-section">
+          <h2>কখন পেশাদার সাহায্য নেবেন?</h2>
+          <p class="helptime-text">{whenToSeekHelpBn}</p>
+          <div class="helptime-actions">
+            <a href={getWhatsappUrl(`আসসালামু আলাইকুম, আমার ${nameBn} সমস্যা প্রভাবিত হচ্ছে। জরুরি পরামর্শ চাই।`)} class="btn btn-urgent" target="_blank" rel="noopener noreferrer">
+              জরুরি যোগাযোগ
+            </a>
+            <a href="/ruqyah-diagnosis" class="btn btn-outline">সেলফ ডায়াগনোসিস</a>
+          </div>
+        </section>
+
+        {relatedSlugs && relatedSlugs.length > 0 && (
+          <section class="content-section related-section">
+            <h2>সম্পর্কিত সমস্যা</h2>
+            <div class="related-links">
+              {relatedSlugs.map(relSlug => {
+                const relCondition = conditions.find(c => c.slug === relSlug);
+                if (!relCondition) return null;
+                return (
+                  <a href={`/conditions/${relSlug}`} class="related-link">
+                    <span class="related-name">{relCondition.nameBn}</span>
+                    <span class="related-arrow">→</span>
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+        )}
+      </article>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .condition-page {
+    padding: 40px 0 80px;
+    background: var(--bg-primary);
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .separator {
+    color: var(--text-muted);
+  }
+
+  .current {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .condition-article {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .condition-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--border-light);
+  }
+
+  .condition-category-label {
+    display: inline-block;
+    padding: 6px 16px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .condition-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  .condition-title-en {
+    font-size: 14px;
+    color: var(--primary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+
+  .condition-intro {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    max-width: 650px;
+    margin: 0 auto;
+  }
+
+  .content-section {
+    margin-bottom: 36px;
+  }
+
+  .content-section h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .content-section h2::before {
+    content: '';
+    width: 4px;
+    height: 22px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+
+  .section-intro {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+
+  .symptoms-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .symptom-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+    background: var(--bg-light);
+    border-radius: 10px;
+    border-left: 3px solid var(--primary);
+  }
+
+  .symptom-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .symptom-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .symptom-bn {
+    font-size: 16px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .symptom-en {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .causes-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .causes-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 16px;
+    background: var(--bg-light);
+    border-radius: 8px;
+  }
+
+  .cause-bn {
+    font-size: 15px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .cause-en {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .treatment-text {
+    font-size: 16px;
+    color: var(--text-primary);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+
+  .treatment-actions,
+  .helptime-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .selfhelp-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .selfhelp-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-light) 100%);
+    border-radius: 10px;
+    border: 1px solid var(--primary);
+  }
+
+  .selfhelp-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .selfhelp-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .selfhelp-bn {
+    font-size: 16px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .selfhelp-en {
+    font-size: 13px;
+    color: var(--primary);
+  }
+
+  .helptime-section {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FEF9C3 100%);
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid #F59E0B;
+  }
+
+  .helptime-section h2::before {
+    background: #F59E0B;
+  }
+
+  .helptime-text {
+    font-size: 16px;
+    color: var(--text-primary);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .related-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .related-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--bg-light);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .related-link:hover {
+    background: var(--primary-light);
+  }
+
+  .related-name {
+    font-size: 15px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .related-arrow {
+    font-size: 16px;
+    color: var(--primary);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: var(--bg-light);
+    color: var(--text-primary);
+    border-color: var(--border-light);
+  }
+
+  .btn-secondary:hover {
+    background: var(--bg-hover);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .btn-outline:hover {
+    background: var(--primary-light);
+  }
+
+  .btn-urgent {
+    background: #DC2626;
+    color: white;
+  }
+
+  .btn-urgent:hover {
+    background: #B91C1C;
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    .condition-article {
+      padding: 24px;
+    }
+
+    .condition-title {
+      font-size: 28px;
+    }
+
+    .treatment-actions,
+    .helptime-actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+    }
+  }
+</style>

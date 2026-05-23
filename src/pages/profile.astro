@@ -1,27 +1,81 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { env as workerEnv } from 'cloudflare:workers';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { Edit, User, Mail, Phone, MapPin, Calendar, Heart, ArrowRight, Activity } from '@lucide/astro';
+import { createDb } from '../db/client.js';
+import { appointments as appointmentsSchema, testResults, courseEnrollments, courses } from '../db/schema';
+import { eq, desc } from 'drizzle-orm';
 
-const user = {
-  name: 'মোহাম্মদ রহিম',
-  email: 'rahim@email.com',
-  phone: '+880 1XXX-XXXXXX',
-  address: 'মিরপুর, ঢাকা',
-  dob: '১৯৯০-০৬-১৫',
-  gender: 'পুরুষ',
+export const prerender = false;
+
+const user = (Astro.locals as App.Locals).user || {
+  fullName: 'Loading...',
+  email: '',
+  phone: '',
+  address: '',
+  dob: '',
+  gender: ''
 };
 
-const stats = [
-  { label: 'মোট এ্যাপয়নমেন্ট', value: 3, color: 'var(--primary)' },
-  { label: 'সম্পন্ন সেশন', value: 2, color: '#22c55e' },
-  { label: 'আসর সেশন', value: 1, color: '#f59e0b' },
-];
 
-const appointments = [
-  { title: 'রুকইয়াহ চিকিৎসা', raqi: 'মাওলানা আব্দুল্লাহ', date: '১৫ নভেম্বর, ২০২৫', time: 'সকাল ১০:০০', status: 'সম্পন্ন', statusClass: 'done' },
-  { title: 'সিমটম ডায়াগনোসিস', raqi: 'ডা. ফাতিমা রহমান', date: '২০ নভেম্বর, ২০২৫', time: 'দুপুর ২:০০', status: 'সম্পন্ন', statusClass: 'done' },
-  { title: 'ফলো-আপ সেশন', raqi: 'মাওলানা আব্দুল্লাহ', date: '৫ ডিসেম্বর, ২০২৫', time: 'সকাল ১১:০০', status: 'আসন্ন', statusClass: 'upcoming' },
+// Fetch dynamic appointments based on user's phone number
+let userAppointments: any[] = [];
+let userTestResults: any[] = [];
+let userEnrolledCourses: any[] = [];
+if (user && user.id) {
+  try {
+    const env = (workerEnv || process.env) as any;
+    const db = createDb(env.DATABASE_URL);
+    userAppointments = await db.select()
+      .from(appointmentsSchema)
+      .where(eq(appointmentsSchema.phone, user.phone))
+      .orderBy(desc(appointmentsSchema.createdAt));
+    userTestResults = await db.select()
+      .from(testResults)
+      .where(eq(testResults.userId, user.id))
+      .orderBy(desc(testResults.createdAt))
+      .limit(10);
+    userEnrolledCourses = await db.select({
+      courseId: courseEnrollments.courseId,
+      status: courseEnrollments.status,
+      completedAt: courseEnrollments.completedAt,
+      enrolledAt: courseEnrollments.createdAt,
+      courseTitle: courses.title,
+      courseImage: courses.image,
+      courseInstructor: courses.instructor,
+    })
+      .from(courseEnrollments)
+      .leftJoin(courses, eq(courseEnrollments.courseId, courses.id))
+      .where(eq(courseEnrollments.userId, user.id))
+      .orderBy(desc(courseEnrollments.createdAt));
+  } catch (error) {
+    console.error("Failed to fetch profile data:", error);
+  }
+}
+
+// Map db appointments to view model
+const appointmentsList = userAppointments.map((appt) => {
+  let statusClass = 'upcoming';
+  if (appt.status === 'completed' || appt.status === 'সম্পন্ন') statusClass = 'done';
+  if (appt.status === 'pending') statusClass = 'pending';
+  
+  return {
+    title: appt.treatmentTypeLabel || 'রুকইয়াহ চিকিৎসা',
+    raqi: appt.serviceMode || 'অনলাইন/অফলাইন',
+    date: appt.preferredDate || '',
+    time: appt.preferredTime || '',
+    status: appt.status === 'pending' ? 'পেন্ডিং' : appt.status === 'completed' ? 'সম্পন্ন' : appt.status,
+    statusClass
+  };
+});
+
+// Update stats based on dynamic data
+const stats = [
+  { label: 'মোট এ্যাপয়নমেন্ট', value: userAppointments.length, color: 'var(--primary)' },
+  { label: 'সম্পন্ন সেশন', value: userAppointments.filter((appointment) => appointment.status === 'completed' || appointment.status === 'সম্পন্ন').length, color: '#22c55e' },
+  { label: 'পেন্ডিং সেশন', value: userAppointments.filter((appointment) => appointment.status === 'pending').length, color: '#f59e0b' },
 ];
 ---
 
@@ -47,70 +101,52 @@ const appointments = [
             <div class="info-card">
               <div class="card-top">
                 <h2>ব্যক্তিগত তথ্য</h2>
-                <button class="edit-btn">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
+                <a href="/profile/edit" class="edit-btn">
+                  <Edit size={16} />
                   সম্পাদনা
-                </button>
+                </a>
               </div>
 
               <div class="info-grid">
                 <div class="info-field">
                   <label>নাম</label>
                   <div class="info-value">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    {user.name}
+                    <User size={16} />
+                    {user.fullName}
                   </div>
                 </div>
                 <div class="info-field">
                   <label>ইমেইল</label>
                   <div class="info-value">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                      <polyline points="22,6 12,13 2,6"/>
-                    </svg>
-                    {user.email}
+                    <Mail size={16} />
+                    {user.email || 'দেওয়া হয়নি'}
                   </div>
                 </div>
                 <div class="info-field">
                   <label>ফোন</label>
                   <div class="info-value">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.5 2 2 0 0 1 3.6 1.32h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16a1 1 0 0 1 .27-.08z"/>
-                    </svg>
+                    <Phone size={16} />
                     {user.phone}
                   </div>
                 </div>
                 <div class="info-field">
                   <label>ঠিকানা</label>
                   <div class="info-value">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-                    </svg>
-                    {user.address}
+                    <MapPin size={16} />
+                    {user.address || 'দেওয়া হয়নি'}
                   </div>
                 </div>
                 <div class="info-field">
                   <label>জন্ম তারিখ</label>
                   <div class="info-value">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-                      <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                    {user.dob}
+                    <Calendar size={16} />
+                    {user.dob || 'দেওয়া হয়নি'}
                   </div>
                 </div>
                 <div class="info-field">
                   <label>লিঙ্গ</label>
                   <div class="info-value">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                    </svg>
+                    <Heart size={16} />
                     {user.gender}
                   </div>
                 </div>
@@ -121,7 +157,7 @@ const appointments = [
             <div class="appt-card">
               <h2>এ্যাপয়নমেন্ট ইতিহাস</h2>
               <div class="appt-list">
-                {appointments.map(appt => (
+                {appointmentsList.length > 0 ? appointmentsList.map((appt: any) => (
                   <div class="appt-item">
                     <div class="appt-body">
                       <h3>{appt.title}</h3>
@@ -133,7 +169,74 @@ const appointments = [
                     </div>
                     <span class:list={['appt-status', appt.statusClass]}>{appt.status}</span>
                   </div>
-                ))}
+                )) : (
+                  <div class="no-appointments">
+                    <p style="color: var(--text-muted); padding: 20px 0; text-align: center;">কোনো এ্যাপয়নমেন্ট পাওয়া যায়নি</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <!-- Test Results History -->
+            <div class="appt-card">
+              <h2>রুকইয়াহ ডায়াগনোসিস ইতিহাস</h2>
+              <div class="appt-list">
+                {userTestResults.length > 0 ? userTestResults.map((tr: any) => (
+                  <div class="appt-item">
+                    <div class="appt-body">
+                      <h3>{tr.testTitle}</h3>
+                      <p class="appt-raqi">স্কোর: {tr.score}% | হ্যাঁ: {tr.yesCount} | মাঝে মধ্যে: {tr.maybeCount} | না: {tr.noCount}</p>
+                      <div class="appt-meta">
+                        <span>🗓 {new Date(tr.createdAt).toLocaleDateString('bn-BD')}</span>
+                        <span>📊 {tr.totalQuestions}টি প্রশ্ন</span>
+                      </div>
+                    </div>
+                    <span class:list={['appt-status', tr.resultLevel === 'high' ? 'pending' : tr.resultLevel === 'medium' ? 'upcoming' : 'done']}>
+                      {tr.resultLevel === 'high' ? 'উচ্চ' : tr.resultLevel === 'medium' ? 'মাঝারি' : 'স্বাভাবিক'}
+                    </span>
+                  </div>
+                )) : (
+                  <div class="no-appointments">
+                    <p style="color: var(--text-muted); padding: 20px 0; text-align: center;">কোনো ডায়াগনোসিস রেকর্ড পাওয়া যায়নি</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <!-- Enrolled Courses -->
+            <div class="appt-card">
+              <div class="card-top" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h2 style="margin:0;">আমার কোর্স</h2>
+                <a href="/my-courses" class="edit-btn" style="font-size:0.85rem;">সব দেখুন →</a>
+              </div>
+              <div class="appt-list">
+                {userEnrolledCourses.length > 0 ? userEnrolledCourses.slice(0, 3).map((ec: any) => (
+                  <div class="appt-item">
+                    <div class="appt-body" style="display:flex; align-items:center; gap:12px;">
+                      <img src={ec.courseImage} alt={ec.courseTitle} style="width:48px; height:48px; border-radius:8px; object-fit:cover;" />
+                      <div>
+                        <h3 style="margin:0; font-size:0.95rem;">{ec.courseTitle}</h3>
+                        <p class="appt-raqi" style="margin:2px 0 0;">{ec.courseInstructor}</p>
+                      </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      {ec.completedAt && (
+                        <span class="appt-status done">সম্পন্ন</span>
+                      )}
+                      {ec.status === 'approved' && !ec.completedAt && (
+                        <a href={`/courses/${ec.courseId}/learn`} class="edit-btn" style="font-size:0.8rem; padding:4px 12px;">শিখুন</a>
+                      )}
+                      {ec.status === 'pending' && (
+                        <span class="appt-status pending">পেন্ডিং</span>
+                      )}
+                    </div>
+                  </div>
+                )) : (
+                  <div class="no-appointments">
+                    <p style="color: var(--text-muted); padding: 20px 0; text-align: center;">আপনি এখনো কোনো কোর্সে এনরোল করেননি</p>
+                    <a href="/courses" class="edit-btn" style="display:inline-flex; margin:0 auto;">কোর্স দেখুন</a>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -143,12 +246,10 @@ const appointments = [
             <div class="avatar-card">
               <div class="avatar-wrap">
                 <div class="avatar-big">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                  </svg>
+                  <User size={48} stroke="#999" strokeWidth={1.5} />
                 </div>
               </div>
-              <h3>{user.name}</h3>
+              <h3>{user.fullName}</h3>
               <p>{user.email}</p>
               <button class="upload-btn">ছবি আপলোড করুন</button>
             </div>
@@ -168,11 +269,27 @@ const appointments = [
             <a href="/appointment" class="new-appt-btn">
               + নতুন এ্যাপয়নমেন্ট
             </a>
+            <button class="logout-btn" onclick="logout()">
+              লগআউট করুন
+            </button>
           </div>
         </div>
       </div>
     </section>
   </main>
+
+  <script>
+    async function logout() {
+      try {
+        const res = await fetch('/api/auth/logout', { method: 'POST' });
+        if (res.ok) window.location.href = '/login';
+      } catch (err) {
+        console.error('Logout failed', err);
+      }
+    }
+    // Make it available globally for the inline onclick
+    (window as any).logout = logout;
+  </script>
 
   <Footer />
 </BaseLayout>
@@ -224,8 +341,11 @@ const appointments = [
 .stat-label { font-size: 14px; color: var(--text-medium); }
 .stat-val { font-size: 1.25rem; font-weight: 700; }
 
-.new-appt-btn { display: block; text-align: center; background: var(--primary); color: #fff; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.2s; }
+.new-appt-btn { display: block; text-align: center; background: var(--primary); color: #fff; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.2s; margin-bottom: 12px; }
 .new-appt-btn:hover { background: var(--primary-dark); }
+
+.logout-btn { display: block; width: 100%; text-align: center; background: #fee2e2; color: #ef4444; padding: 12px; border: 1px solid #fecaca; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.logout-btn:hover { background: #fecaca; }
 
 @media (max-width: 900px) {
   .profile-layout { grid-template-columns: 1fr; }

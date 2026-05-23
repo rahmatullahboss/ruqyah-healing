@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ruqyah-healing. 37 gotchas, 59 conventions, 8 fixes."
+description: "Project for ruqyah-healing. 74 gotchas, 298 conventions, 22 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **176 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **805 real patterns** in **ruqyah-healing**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -18,6 +18,43 @@ Auto-compiled from **176 real patterns** in **ruqyah-healing**. This skill is au
 
 | ❌ Don't | Details |
 |----------|----------|
+| ⚠️ GOTCHA: Optimized GOTCHA | - - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for speed + - ⚠️ GOTCHA: Optimized GO |
+| ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy compu | - - ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy computation off the main thread + - ⚠️ GOTCHA: Opti |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 905 notes - Score threshold: >40 + > 907 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 901 notes - Score threshold: >40 + > 905 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 895 notes - Score threshold: >40 + > 901 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy compu | - - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for speed + - gotcha in shared-contex |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 886 notes - Score threshold: >40 + > 891 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: problem-fix in agent-rules.md | - - problem-fix in shared-context.json + - Patched security issue MvNDAbZV - - Patched security issu |
+| ⚠️ GOTCHA: Optimized GOTCHA | - - ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy computation off the main thread + - ⚠️ GOTCHA: Opti |
+| ⚠️ GOTCHA: Optimized GOTCHA | - - ⚠️ GOTCHA: Strengthened types Patched — offloads heavy computation off the main thread + - ⚠️ GO |
+| ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy compu | - - ⚠️ GOTCHA: problem-fix in agent-rules.md + - ⚠️ GOTCHA: Strengthened types Patched — offloads he |
+| ⚠️ GOTCHA: Strengthened types Patched — offloads h | - - problem-fix in shared-context.json + - Patched security issue RMQJxqeutKgaYph - - problem-fix in |
+| ⚠️ GOTCHA: problem-fix in agent-rules.md | - - Patched security issue RMQJxqeutKgaYph + - problem-fix in shared-context.json - - Fixed null cra |
+| ⚠️ GOTCHA: Fixed null crash in BaseLayout — preven | - const videos: any[] = []; + const videos = [ - const galleryImages: any[] = []; +   { id: 'dQw4w9W |
+| ⚠️ GOTCHA: Fixed null crash in Desktop — prevents  | -             <li>রোগ প্রতিরোধ ক্ষমতা বাড়ায়</li> +             <li>রোগ প্র�        <div class="vid |
+| gotcha in agent-rules.md | File updated (external): .brainsync/agent-rules.md  Content summary (82 lines): # Project Intelligen |
+| ⚠️ GOTCHA: Optimized Score | - > 605 notes - Score threshold: >40 + > 610 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 600 notes - Score threshold: >40 + > 605 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 598 notes - Score threshold: >40 + > 600 notes - Score threshold: >40 - - **gotcha in shared-con |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 595 notes - Score threshold: >40 + > 598 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized Score | - > 586 notes - Score threshold: >40 + > 591 notes - Score threshold: >40 - - Strengthened types Com |
+| ⚠️ GOTCHA: Strengthened types Patched — offloads h | - - problem-fix in agent-rules.md + - problem-fix in shared-context.json - - problem-fix in agent-ru |
+| ⚠️ GOTCHA: problem-fix in agent-rules.md | - - Fixed null crash in HTMLFormElement + - problem-fix in agent-rules.md - - problem-fix in shared- |
+| gotcha in agent-rules.md | File updated (external): .brainsync/agent-rules.md  Content summary (85 lines): # Project Intelligen |
+| ⚠️ GOTCHA: Optimized Score — offloads heavy comput | - > 521 notes - Score threshold: >40 + > 530 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized GOTCHA | - - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for speed + - ⚠️ GOTCHA: Optimized GO |
+| ⚠️ GOTCHA: Optimized GOTCHA | - - ⚠️ GOTCHA: Optimized GOTCHA + - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for s |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 511 notes - Score threshold: >40 + > 521 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized GOTCHA | - - gotcha in shared-context.json + - ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy computation off t |
+| ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy compu | - - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for speed + - gotcha in shared-contex |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 507 notes - Score threshold: >40 + > 511 notes - Score threshold: >40 - - **⚠️ GOTCHA: Optimized |
+| ⚠️ GOTCHA: Optimized GOTCHA | - - gotcha in agent-rules.md + - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for spee |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 503 notes - Score threshold: >40 + > 507 notes - Score threshold: >40 - - **gotcha in agent-rule |
+| ⚠️ GOTCHA: Optimized Score — parallelizes async op | - > 501 notes - Score threshold: >40 + > 503 notes - Score threshold: >40 - - Strengthened types Pat |
+| gotcha in agent-rules.md | File updated (external): .brainsync/agent-rules.md  Content summary (80 lines): # Project Intelligen |
+| gotcha in destroy-the-black-magic.md | File updated (external): src/content/posts/destroy-the-black-magic.md  Content summary (52 lines): - |
+| gotcha in [testId].astro | -       <span class="rc-warning-icon">⚠️</span> +       <span class="rc-warning-icon"><svg width="20 |
 | gotcha in check.log | File updated (external): check.log  Content summary (161 lines): 13:03:01 [@astrojs/cloudflare] Enab |
 | ⚠️ GOTCHA: Fixed null crash in Left — prevents nul | -     <!-- ② রুকইয়াহ কি এবং কেনো করা হয়? --> +     <!-- ⑦.৫ নামাজের ওয়াক্ত --> -     <section cla |
 | Use async error handler middleware — don't let err | Use async error handler middleware — don't let errors crash server |
@@ -31,251 +68,138 @@ Auto-compiled from **176 real patterns** in **ruqyah-healing**. This skill is au
 | Don't use "any" type in TypeScript — define proper | Don't use "any" type in TypeScript — define proper types/interfaces |
 | Handle Promise rejections — always .catch() or try | Handle Promise rejections — always .catch() or try/catch with await |
 | Use === not == — strict equality prevents type coe | Use === not == — strict equality prevents type coercion bugs |
-| Agent: follow existing project patterns — don't in | Agent: follow existing project patterns — don't introduce a different style |
-| Agent: don't generate code with "any" type — defin | Agent: don't generate code with "any" type — define proper TypeScript types |
-| Agent: always handle loading/error states — don't  | Agent: always handle loading/error states — don't just render data |
-| Agent: don't use deprecated APIs — check library v | Agent: don't use deprecated APIs — check library version, use current API |
-| Agent: check existing code before creating utility | Agent: check existing code before creating utility functions — avoid duplicates |
-| Don't expose database errors to clients — map to u | Don't expose database errors to clients — map to user-friendly messages |
-| Always validate data on the SERVER — client valida | Always validate data on the SERVER — client validation is for UX only |
-| Don't fetch data inside render loops or hot paths | Don't fetch data inside render loops or hot paths |
-| Don't swallow errors silently — empty catch blocks | Don't swallow errors silently — empty catch blocks hide bugs |
-| Never store session tokens in localStorage — use h | Never store session tokens in localStorage — use httpOnly cookies |
-| Use parameterized queries — never string concatena | Use parameterized queries — never string concatenation for SQL |
-| Don't store passwords in plain text — use bcrypt,  | Don't store passwords in plain text — use bcrypt, argon2, or scrypt |
-| Don't use innerHTML — use textContent or sanitized | Don't use innerHTML — use textContent or sanitized rendering |
-| Sanitize ALL user input before database queries —  | Sanitize ALL user input before database queries — prevent SQL injection |
-| Never use eval(), exec(), or Function() with user  | Never use eval(), exec(), or Function() with user input |
-| Don't hardcode API keys, passwords, database URLs, | Don't hardcode API keys, passwords, database URLs, or secrets anywhere |
-| Don't leave console.log, print(), debugger, or TOD | Don't leave console.log, print(), debugger, or TODO in production code |
-| Don't commit .env, secrets, API keys, or credentia | Don't commit .env, secrets, API keys, or credentials — add to .gitignore |
-| Never force push to main, master, or production br | Never force push to main, master, or production branches |
-| ⚠️ GOTCHA: Fixed null crash in ServiceCard — preve | - import PrayerTimes from '../components/PrayerTimes.astro'; + import ServiceCard from '../component |
-| gotcha in [testId].astro | -   background: #fff; border: 1.5px solid var(--border); -   border-radius: 24px; -   box-shadow: 0  |
-| gotcha in [testId].astro | - .result-card { + <style is:global> -   max-width: 720px; margin: 0 auto; + /* ════════════════════ |
-| gotcha in [testId].astro | - /* ── Result Section ── */ +  - .result-section { padding: 60px 0 80px; } + /* ── Result Section ─ |
-| gotcha in [testId].astro | - /* Result Header */ + /* ── Result Section ── */ - .result-header-block { + .result-section { padd |
 
 ## 🔧 Problem Playbooks
 
-### Patched security issue Helper — prevents XSS injection attacks
--     // Simple markdown to HTML parser for basic output (bold, lists, links)
-+     // Helper to escape HTML to prevent XSS
+### problem-fix in agent-rules.md
+- - Fixed null crash in HTMLFormElement
++ - problem-fix in agent-rules.md
+- - problem-fix in shared-context.json
++ - Fixed null crash in HTMLFormElement
+- - Patched security issue shared-context
++ - problem-fix in shared-context.json
+- - Fixed null crash in Math — hardens HTTP security headers
++ - Patched security issue shared-context
+- - Fixed null crash in Date — hardens HTTP security headers
++ 
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in agent-rules.md
+- - problem-fix in shared-context.json
++ - Fixed null crash in HTMLFormElement
+- - Patched security issue shared-context
++ - problem-fix in shared-context.json
+- - Fixed null crash in Math — hardens HTTP security headers
++ - Patched security issue shared-context
+- - Fixed null crash in Date — hardens HTTP security headers
++ - Fixed null crash in Math — hardens HTTP security headers
+- - problem-fix
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in chat-worker.test.mjs
+File updated (external): tests/chat-worker.test.mjs
+
+Content summary (156 lines):
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+import {
+  calculateNeuronsFromUsage,
+  createOpenAiCompatibleSseResponse,
+  createSseResponseFromText,
+  estimateRequestNeurons,
+  handleChatRequest,
+  isWorkersAiFreeLimitError,
+} from '../src/lib/ai/chat.js';
+
+test('converts Workers AI text ou
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### Patched security issue Input — prevents XSS injection attacks
+-         <div class="ai-msg-meta">সহকারী</div>
++         <div class="ai-msg-shell ai">
+-         <div class="ai-msg-shell ai">
++           <div class="ai-avatar" aria-hidden="true">AI</div>
+-           <div class="ai-avatar" aria-hidden="true">AI</div>
++           <div class="ai-bubble-ai">
+-           <div class="ai-bubble-ai">
++             আপনার লক্ষণ, রুকইয়াহ টেস্ট, সেলফ রুকইয়াহ বা অ্যাপয়েন্ট
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Input
+3. identifier: Area
+4. identifier: Toggle
+5. identifier: Button
+
+### Fixed null crash in Simple — prevents XSS injection attacks
+-     // Simple markdown to HTML parser for sections, lists, and links
++     const extractStandaloneHeading = (line: string) => {
 -     const parseMarkdown = (text: string) => {
-+     const escapeHTML = (str: string) => {
--       let html = text
-+       return str
--         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-+         .replace(/&/g, '&amp;')
--         .replace(/\*(.*?)\*/g, '<em>$1</em>')
++       const match = line.match(/^\*\*(.+?)\*\*$/);
+-       const escaped = escapeHTML(text.trim());
++       return match ? match[1].trim() : '';
+-       const blocks = escaped.split(/\n{2,}/).filter(Boolean);
++     };
+- 
 
 **Actionable Steps:**
 1. Modified 1 files
-2. identifier: Helper
+2. identifier: Simple
 3. identifier: HTML
-4. identifier: XSS
-5. identifier: Simple
+4. identifier: Boolean
+5. identifier: Builders
 
-### Fixed null crash in Component — prevents null/undefined runtime crashes
--   import { marked } from 'marked'; // Optional: Use marked if you want to render markdown out of the box. Assuming not installed yet, we'll write a lightweight parser or install marked. Wait, let's use a simple renderer.
-+   // Component setup
+### Fixed null crash in Content — prevents null/undefined runtime crashes
+-           throw new Error('API Error: ' + res.statusText);
++           let message = 'AI সার্ভিসে সাময়িক সমস্যা হচ্ছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+-         }
++           const contentType = res.headers.get('Content-Type') || '';
+-         // 4. Stream reading
++           if (contentType.includes('application/json')) {
+-         const reader = res.body?.getReader();
++             const erro
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Content
+3. identifier: Type
+4. identifier: Error
+5. identifier: Stream
+
+### Patched security issue Input — prevents XSS injection attacks
+-         <div class="ai-bubble-ai">
++         <div class="ai-msg-meta">সহকারী</div>
+-           আপনার লক্ষণ, রুকইয়াহ টেস্ট, সেলফ রুকইয়াহ বা অ্যাপয়েন্টমেন্ট নিয়ে জানতে লিখুন।
++         <div class="ai-bubble-ai">
+-         </div>
++           আপনার লক্ষণ, রুকইয়াহ টেস্ট, সেলফ রুকইয়াহ বা অ্যাপয়েন্টমেন্ট নিয়ে জানতে লিখুন।
+-       </div>
++         </div>
+-     </div>
++       </div>
 - 
-+   document.addEventListener('DOMContentLoaded', () => {
--   // Component setup
-+     const toggleBtn = document.getElementById('ai-toggle-btn');
--   
++     </div>
+-    
 
 **Actionable Steps:**
 1. Modified 1 files
-2. identifier: Component
-3. identifier: DOMContentLoaded
-4. identifier: HTMLFormElement
-5. identifier: HTMLInputElement
+2. identifier: Input
+3. identifier: Area
+4. identifier: Toggle
+5. identifier: Button
 
-### problem-fix in .gitignore
-File updated (external): .gitignore
-
-Content summary (40 lines):
-# build output
-dist/
-# generated types
-.astro/
-
-# dependencies
-node_modules/
-
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# environment variables
-.env
-.env.production
-
-# macOS-specific files
-.DS_Store
-
-# jetbrains setting folder
-.idea/
-
-# Cloudflare / Wrangler
-.wrangler/
-
-# Screen recordings & large media
-*
-
-**Actionable Steps:**
-1. Modified 1 files
-
-### Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
--     <section class="prayer-section reveal">
-+     <PrayerTimes />
--       <div class="container">
-+ 
--         <div class="prayer-widget scroll-reveal">
-+ 
-- 
-+     <!-- ⑧ আমাদের প্যাকেজগুলি -->
--           <!-- Left: landscape illustration -->
-+ 
--           <div class="prayer-landscape" aria-hidden="true">
-+     <section class="section reveal">
--             <svg viewBox="0 0 260 160" xmlns="h
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: PrayerTimes
-3. identifier: Course
-4. identifier: Footer
-5. identifier: BaseLayout
-
-### Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
-- import ServiceCard from '../components/ServiceCard.astro';
-+ import PrayerTimes from '../components/PrayerTimes.astro';
-- import BlogCard from '../components/BlogCard.astro';
-+ import ServiceCard from '../components/ServiceCard.astro';
-- import { getCollection } from 'astro:content';
-+ import BlogCard from '../components/BlogCard.astro';
-- 
-+ import { getCollection } from 'astro:content';
-- cons
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: PrayerTimes
-3. identifier: ServiceCard
-4. identifier: BlogCard
-5. identifier: Date
-
-### Fixed null crash in Actions — prevents null/undefined runtime crashes
--   const pctNum = pct; // number for gauge
-+ function showResult() {
--   const gaugeStroke = res.level === 'high' ? '#dc2626'
-+   document.getElementById('quizSection')?.classList.add('hidden');
--                     : res.level === 'medium' ? '#f59e0b' : '#10b981';
-+   const rs = document.getElementById('resultSection');
--   const levelBg = res.level === 'high'   ? '#fef2f2'
-+   rs?.classList.re
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Actions
-3. identifier: HTML
-4. identifier: Array
-5. identifier: Init
-
-### Fixed null crash in Build — prevents null/undefined runtime crashes
--   const answered = answers
-+   const answered = [];
--     .map((val, i) => ({ val, q: questions[i] }))
-+   answers.forEach((val, i) => {
--     .filter(({ val }) => val === 2 || val === 1);
-+     if (val === 2 || val === 1) {
-- 
-+       answered.push({ val, q: questions[i], idx: i });
--   if (!answered.length) return '';
-+     }
-- 
-+   });
--   let html = '<div class="problems-block">';
-+ 
--   htm
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Build
-3. identifier: Actions
-4. identifier: HTML
-5. identifier: Array
-
-### problem-fix in .gitignore
-File updated (external): .gitignore
-
-Content summary (37 lines):
-# build output
-dist/
-# generated types
-.astro/
-
-# dependencies
-node_modules/
-
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# environment variables
-.env
-.env.production
-
-# macOS-specific files
-.DS_Store
-
-# jetbrains setting folder
-.idea/
-
-# Cloudflare / Wrangler
-.wrangler/
-
-# Screen recordings & large media
-*
-
-**Actionable Steps:**
-1. Modified 1 files
-
-## 📐 Conventions & Best Practices
-
-### Project Conventions
-- 📐 **what-changed in astro.config.mjs — confirmed 3x** — -   adapter: cloudflare(),
-+   adapter: cloudflare({ mode: 'directory' }),
--     client: './dist',
-+
-- 📐 **Fixed null crash in Error — prevents null/undefined runtime crashes — confirmed 3x** — -     if (window._aiAgentInitialized) return;
-+     if ((window as any)._aiAgentInitialized) return;
-- 📐 **convention in astro.config.mjs** — -   adapter: cloudflare({
-+   adapter: cloudflare(),
--     platformProxy: {
-+   site: 'https://ruqya
-- 📐 **convention in astro.config.mjs** — -   output: 'hybrid',
-+   output: 'static',
--   adapter: cloudflare(),
-+   adapter: cloudflare({
--  
-- 📐 **Rate limit API endpoints to prevent abuse** — Rate limit API endpoints to prevent abuse
-- 📐 **Validate request body with a schema validator (Joi, Zod)** — Validate request body with a schema validator (Joi, Zod)
-- 📐 **Use helmet for security headers** — Use helmet for security headers
-- 📐 **Use Suspense and Error Boundaries for async operations** — Use Suspense and Error Boundaries for async operations
-- 📐 **Don't prop-drill more than 2 levels — use Context or state management** — Don't prop-drill more than 2 levels — use Context or state management
-- 📐 **Use useMemo for expensive computations, useCallback for stable references** — Use useMemo for expensive computations, useCallback for stable references
-- 📐 **Follow PEP 8 style guide** — Follow PEP 8 style guide
-- 📐 **Use pathlib for file paths, not os.path string manipulation** — Use pathlib for file paths, not os.path string manipulation
-- 📐 **Use virtual environments (venv, poetry, or conda)** — Use virtual environments (venv, poetry, or conda)
-- 📐 **Use f-strings for string formatting, not .format() or %** — Use f-strings for string formatting, not .format() or %
-- 📐 **Use context managers (with) for file and resource operations** — Use context managers (with) for file and resource operations
-- 📐 **Use type hints for function arguments and return types** — Use type h
+### Fixed null crash in Simple — prevents XSS injection attacks
+-           আসসালামু আলাইকুম! রুকইয়াহ এবং ইসলামিক হিলিং সম্পর্কিত কোনো বিষয়ে আমার সাহায্য প্রয়োজন?
++           আপনার লক্ষণ, রুকইয়াহ টেস্ট, সেলফ রুকইয়াহ বা অ্যাপয়েন্টমেন্ট নিয়ে জানতে লিখুন।
+-     // Simple markdown to HTML parser for basic output (bold, lists, links)
++     const applyInlineFormatting = (text: string) => {
+-     const parseMarkdown = (t
 
 ... [Truncated — see individual observations for full content]

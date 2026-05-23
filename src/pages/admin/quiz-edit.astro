@@ -1,0 +1,541 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { courseQuizzes, courseQuizQuestions, courseModules } from '../../db/schema.js';
+import { eq, asc } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+import { ArrowLeft, Save, Plus, Trash2, GripVertical } from '@lucide/astro';
+
+export const prerender = false;
+
+const env = workerEnv || process.env;
+const db = createDb((env as any).DATABASE_URL);
+
+const id = Astro.url.searchParams.get('id');
+const moduleId = Astro.url.searchParams.get('moduleId');
+const courseId = Astro.url.searchParams.get('courseId');
+
+let quiz: any = null;
+let questions: any[] = [];
+let module: any = null;
+
+if (id) {
+  const result = await db.select().from(courseQuizzes).where(eq(courseQuizzes.id, id));
+  if (result.length > 0) quiz = result[0];
+
+  questions = await db.select().from(courseQuizQuestions)
+    .where(eq(courseQuizQuestions.quizId, id))
+    .orderBy(asc(courseQuizQuestions.sortOrder));
+}
+
+if (moduleId) {
+  const modResult = await db.select().from(courseModules).where(eq(courseModules.id, moduleId));
+  if (modResult.length > 0) module = modResult[0];
+}
+
+const effectiveCourseId = quiz?.courseId || courseId;
+const effectiveModuleId = quiz?.moduleId || moduleId;
+---
+
+<AdminLayout title={quiz ? 'কুইজ এডিট' : 'নতুন কুইজ'}>
+  <div class="page-header">
+    <div>
+      <a href={`/admin/course-edit?id=${effectiveCourseId}`} class="back-link">
+        <ArrowLeft size={16} /> কোর্সে ফিরে যান
+      </a>
+      <h1 class="page-title">{quiz ? 'কুইজ এডিট করুন' : 'নতুন কুইজ তৈরি করুন'}</h1>
+      {module && <p class="page-desc">মডিউল: {module.title}</p>}
+    </div>
+  </div>
+
+  <!-- Quiz Settings -->
+  <div class="admin-card max-w-3xl">
+    <form id="quizForm">
+      <input type="hidden" name="id" value={quiz?.id || 'new'} />
+      <input type="hidden" name="moduleId" value={effectiveModuleId || ''} />
+      <input type="hidden" name="courseId" value={effectiveCourseId} />
+
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>কুইজের নাম *</label>
+          <input type="text" name="title" required value={quiz?.title || ''} placeholder="যেমন: অধ্যায় ১ কুইজ" />
+        </div>
+
+        <div class="form-group full-width">
+          <label>বিবরণ</label>
+          <textarea name="description" rows="2" placeholder="কুইজের সংক্ষিপ্ত বিবরণ">{quiz?.description || ''}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>পাসিং স্কোর (%)</label>
+          <input type="number" name="passingScore" min="0" max="100" value={quiz?.passingScore || 60} />
+        </div>
+
+        <div class="form-group">
+          <label>সময়সীমা (মিনিট, ফাঁকা = সীমাহীন)</label>
+          <input type="number" name="timeLimit" min="0" value={quiz?.timeLimit || ''} placeholder="অসীম" />
+        </div>
+
+        <div class="form-group">
+          <label>সর্বোচ্চ আটেম্পট (ফাঁকা = অসীম)</label>
+          <input type="number" name="maxAttempts" min="0" value={quiz?.maxAttempts || ''} placeholder="অসীম" />
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Questions Section -->
+  <div class="questions-section">
+    <div class="section-header">
+      <h2 class="section-title">প্রশ্নসমূহ</h2>
+      <button class="btn-primary" id="addQuestionBtn">
+        <Plus size={16} />
+        প্রশ্ন যোগ করুন
+      </button>
+    </div>
+
+    <div id="questionsContainer" class="questions-container"></div>
+
+    <div class="form-actions">
+      <a href={`/admin/course-edit?id=${effectiveCourseId}`} class="btn-cancel">বাতিল</a>
+      <button class="btn-save" id="saveQuizBtn">
+        <Save size={18} />
+        সব সেভ করুন
+      </button>
+    </div>
+  </div>
+
+  <!-- Template for question cards -->
+  <template id="questionCardTemplate">
+    <div class="question-card">
+      <div class="question-header">
+        <span class="question-number"></span>
+        <div class="question-actions">
+          <select class="q-type-select">
+            <option value="multiple_choice">Multiple Choice</option>
+            <option value="true_false">True / False</option>
+          </select>
+          <button type="button" class="action-btn delete delete-question">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>প্রশ্ন *</label>
+        <textarea class="q-text" rows="2" placeholder="প্রশ্ন লিখুন..."></textarea>
+      </div>
+      <div class="options-section">
+        <label>বিকল্পসমূহ (সঠিক উত্তরের রেডিও বাটন সিলেক্ট করুন)</label>
+        <div class="options-list"></div>
+        <button type="button" class="add-option-btn">+ বিকল্প যোগ করুন</button>
+      </div>
+      <div class="form-group">
+        <label>ব্যাখ্যা (Optional)</label>
+        <textarea class="q-explanation" rows="2" placeholder="সঠিক উত্তরের ব্যাখ্যা..."></textarea>
+      </div>
+    </div>
+  </template>
+</AdminLayout>
+
+<script define:vars={{ existingQuestions: questions, quizId: quiz?.id, effectiveCourseId, effectiveModuleId }}>
+  let questionsList = existingQuestions.map(q => ({
+    id: q.id,
+    questionText: q.questionText,
+    questionType: q.questionType,
+    options: typeof q.options === 'string' ? JSON.parse(q.options) : (q.options || []),
+    explanation: q.explanation || ''
+  }));
+
+  const container = document.getElementById('questionsContainer');
+  const template = document.getElementById('questionCardTemplate');
+
+  function createOptionRow(qIndex, optIndex, text, isCorrect) {
+    const row = document.createElement('div');
+    row.className = 'option-row';
+
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = `correct-${qIndex}`;
+    radio.value = String(optIndex);
+    radio.checked = isCorrect;
+    radio.addEventListener('change', () => {
+      questionsList[qIndex].options.forEach((opt, i) => { opt.isCorrect = i === optIndex; });
+    });
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'option-input';
+    input.value = text;
+    input.placeholder = `বিকল্প ${optIndex + 1}`;
+    input.addEventListener('input', () => {
+      questionsList[qIndex].options[optIndex].text = input.value;
+    });
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'action-btn delete remove-option';
+    removeBtn.textContent = '✕';
+    removeBtn.addEventListener('click', () => {
+      if (questionsList[qIndex].options.length <= 2) {
+        alert('কমপক্ষে ২টি বিকল্প থাকতে হবে।');
+        return;
+      }
+      questionsList[qIndex].options.splice(optIndex, 1);
+      renderQuestions();
+    });
+
+    row.appendChild(radio);
+    row.appendChild(input);
+    row.appendChild(removeBtn);
+    return row;
+  }
+
+  function createTfRow(qIndex, optIndex, label, isCorrect) {
+    const row = document.createElement('div');
+    row.className = 'option-row';
+
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = `correct-${qIndex}`;
+    radio.value = String(optIndex);
+    radio.checked = isCorrect;
+    radio.addEventListener('change', () => {
+      questionsList[qIndex].options.forEach((opt, i) => { opt.isCorrect = i === optIndex; });
+    });
+
+    const span = document.createElement('span');
+    span.className = 'tf-option';
+    span.textContent = label;
+
+    row.appendChild(radio);
+    row.appendChild(span);
+    return row;
+  }
+
+  function renderQuestions() {
+    container.textContent = '';
+    questionsList.forEach((q, index) => {
+      const card = template.content.cloneNode(true).querySelector('.question-card');
+      card.setAttribute('data-index', index);
+
+      card.querySelector('.question-number').textContent = `প্রশ্ন ${index + 1}`;
+
+      const typeSelect = card.querySelector('.q-type-select');
+      typeSelect.value = q.questionType;
+      typeSelect.addEventListener('change', () => {
+        questionsList[index].questionType = typeSelect.value;
+        if (typeSelect.value === 'true_false') {
+          questionsList[index].options = [
+            { text: 'সত্য', isCorrect: true },
+            { text: 'মিথ্যা', isCorrect: false }
+          ];
+        } else if (questionsList[index].options.length < 2) {
+          questionsList[index].options = [
+            { text: '', isCorrect: true },
+            { text: '', isCorrect: false }
+          ];
+        }
+        renderQuestions();
+      });
+
+      card.querySelector('.delete-question').addEventListener('click', () => {
+        questionsList.splice(index, 1);
+        renderQuestions();
+      });
+
+      const qText = card.querySelector('.q-text');
+      qText.value = q.questionText;
+      qText.addEventListener('input', () => { questionsList[index].questionText = qText.value; });
+
+      const explanation = card.querySelector('.q-explanation');
+      explanation.value = q.explanation;
+      explanation.addEventListener('input', () => { questionsList[index].explanation = explanation.value; });
+
+      const optionsList = card.querySelector('.options-list');
+      const addBtn = card.querySelector('.add-option-btn');
+
+      if (q.questionType === 'true_false') {
+        optionsList.appendChild(createTfRow(index, 0, 'সত্য (True)', q.options[0]?.isCorrect || false));
+        optionsList.appendChild(createTfRow(index, 1, 'মিথ্যা (False)', q.options[1]?.isCorrect || false));
+        addBtn.style.display = 'none';
+      } else {
+        q.options.forEach((opt, optIdx) => {
+          optionsList.appendChild(createOptionRow(index, optIdx, opt.text, opt.isCorrect));
+        });
+        addBtn.addEventListener('click', () => {
+          if (questionsList[index].options.length >= 6) {
+            alert('সর্বোচ্চ ৬টি বিকল্প যোগ করা যাবে।');
+            return;
+          }
+          questionsList[index].options.push({ text: '', isCorrect: false });
+          renderQuestions();
+        });
+      }
+
+      container.appendChild(card);
+    });
+  }
+
+  document.getElementById('addQuestionBtn').addEventListener('click', () => {
+    questionsList.push({
+      questionText: '',
+      questionType: 'multiple_choice',
+      options: [
+        { text: '', isCorrect: true },
+        { text: '', isCorrect: false },
+        { text: '', isCorrect: false },
+        { text: '', isCorrect: false }
+      ],
+      explanation: ''
+    });
+    renderQuestions();
+  });
+
+  document.getElementById('saveQuizBtn').addEventListener('click', async () => {
+    const saveBtn = document.getElementById('saveQuizBtn');
+    saveBtn.disabled = true;
+    const prevText = saveBtn.textContent;
+    saveBtn.textContent = 'সেভ হচ্ছে...';
+
+    const quizForm = document.getElementById('quizForm');
+    const formData = new FormData(quizForm);
+    const quizData = Object.fromEntries(formData.entries());
+
+    // Read questions from questionsList (already synced via event listeners)
+    const questions = questionsList.map(q => ({
+      questionText: q.questionText,
+      questionType: q.questionType,
+      options: q.options,
+      explanation: q.explanation
+    }));
+
+    if (!quizData.title) {
+      alert('কুইজের নাম দিন');
+      saveBtn.disabled = false;
+      saveBtn.textContent = prevText;
+      return;
+    }
+
+    for (let i = 0; i < questions.length; i++) {
+      if (!questions[i].questionText) {
+        alert(`প্রশ্ন ${i + 1} এর টেক্সট দিন`);
+        saveBtn.disabled = false;
+        saveBtn.textContent = prevText;
+        return;
+      }
+      if (questions[i].options.some(o => !o.text)) {
+        alert(`প্রশ্ন ${i + 1} এর সব বিকল্প পূরণ করুন`);
+        saveBtn.disabled = false;
+        saveBtn.textContent = prevText;
+        return;
+      }
+      if (!questions[i].options.some(o => o.isCorrect)) {
+        alert(`প্রশ্ন ${i + 1} এর সঠিক উত্তর সিলেক্ট করুন`);
+        saveBtn.disabled = false;
+        saveBtn.textContent = prevText;
+        return;
+      }
+    }
+
+    const payload = {
+      ...quizData,
+      passingScore: parseInt(quizData.passingScore) || 60,
+      timeLimit: quizData.timeLimit ? parseInt(quizData.timeLimit) : null,
+      maxAttempts: quizData.maxAttempts ? parseInt(quizData.maxAttempts) : null,
+      questions
+    };
+
+    const endpoint = quizData.id === 'new' ? '/api/admin/quizzes/create' : '/api/admin/quizzes/update';
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+      if (res.ok && result.success) {
+        alert('সফলভাবে সেভ হয়েছে!');
+        window.location.href = `/admin/course-edit?id=${effectiveCourseId}`;
+      } else {
+        throw new Error(result.error || 'সেভ সমস্যা।');
+      }
+    } catch (err) {
+      alert(err.message);
+      saveBtn.disabled = false;
+      saveBtn.textContent = prevText;
+    }
+  });
+
+  renderQuestions();
+</script>
+
+<style>
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--admin-text-light);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .back-link:hover { color: var(--admin-primary); }
+  .max-w-3xl { max-width: 800px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .full-width { grid-column: 1 / -1; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  label { font-size: 0.9rem; font-weight: 600; color: var(--admin-text); }
+
+  input, select, textarea {
+    padding: 10px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #f8fafc;
+    outline: none;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus {
+    background: #fff;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px var(--admin-primary-light);
+  }
+  textarea { resize: vertical; }
+
+  .questions-section { margin-top: 40px; max-width: 800px; }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .section-title { font-size: 1.3rem; font-weight: 700; margin: 0; }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--admin-primary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #06b6d4; }
+
+  .questions-container { display: flex; flex-direction: column; gap: 16px; }
+
+  .question-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .question-number {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--admin-primary);
+  }
+  .question-actions { display: flex; gap: 8px; align-items: center; }
+  .q-type-select { padding: 6px 10px; font-size: 0.85rem; }
+
+  .options-section { margin-top: 12px; }
+  .options-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .option-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .option-row input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .option-input {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+  .tf-option { font-size: 0.95rem; font-weight: 500; }
+  .add-option-btn {
+    margin-top: 8px;
+    padding: 6px 14px;
+    background: none;
+    border: 1px dashed var(--admin-border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--admin-primary);
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .add-option-btn:hover { background: var(--admin-primary-light); border-color: var(--admin-primary); }
+
+  .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .action-btn.delete { color: #ef4444; background: #fef2f2; }
+  .action-btn.delete:hover { background: #fee2e2; }
+
+  .form-actions {
+    margin-top: 32px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--admin-border);
+  }
+  .btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--admin-primary);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-save:hover { background: #06b6d4; }
+  .btn-save:disabled { opacity: 0.7; cursor: not-allowed; }
+  .btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 24px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    background: white;
+    text-decoration: none;
+    color: var(--admin-text);
+    font-weight: 500;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,439 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { buildBreadcrumbSchema, buildFaqSchema, buildWebPageSchema } from '../../lib/seo.js';
+import { getWhatsappUrl } from '../../data/clinic.js';
+import { glossaryTerms } from '../../data/glossary-data.js';
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  return glossaryTerms.map((term) => ({
+    params: { slug: term.slug },
+    props: { termData: term },
+  }));
+}
+
+const { termData } = Astro.props;
+const {
+  slug,
+  term,
+  termBn,
+  definition,
+  definitionBn,
+  signs = [],
+  signsBn = [],
+  treatment = '',
+  treatmentBn = '',
+  relatedTerms = [],
+  importance = '',
+  importanceBn = '',
+} = termData;
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/glossary/${slug}`;
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'রুকইয়াহ শব্দকোষ', url: `${siteUrl}/glossary` },
+  { name: termBn, url: pageUrl },
+]);
+
+const faqItems = [];
+if (signs.length > 0) {
+  faqItems.push({
+    question: `${termBn} এর লক্ষণ কি কি?`,
+    answer: signsBn.join('। '),
+  });
+}
+if (treatment) {
+  faqItems.push({
+    question: `${termBn} এর চিকিৎসা কি?`,
+    answer: treatmentBn,
+  });
+}
+
+const pageLd = buildWebPageSchema({
+  pageUrl,
+  name: `${term} - ${termBn}`,
+  description: definitionBn,
+  inLanguage: 'bn-BD',
+});
+
+const relatedLinks = relatedTerms
+  .map((rt) => glossaryTerms.find((t) => t.termBn === rt || t.term === rt))
+  .filter(Boolean)
+  .map((t) => ({ slug: t.slug, termBn: t.termBn }));
+---
+
+<BaseLayout
+  title={`${termBn} (${term}) | রুকইয়াহ হিলিং`}
+  description={definitionBn}
+  keywords={[term, termBn, 'রুকইয়াহ', 'আধ্যাত্মিক চিকিৎসা']}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(pageLd)} slot="head" />
+  {faqItems.length > 0 && (
+    <script type="application/ld+json" set:html={JSON.stringify(buildFaqSchema(faqItems))} slot="head" />
+  )}
+
+  <Header />
+
+  <main class="glossary-page">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href="/">হোম</a>
+        <span class="separator">›</span>
+        <a href="/glossary">রুকইয়াহ শব্দকোষ</a>
+        <span class="separator">›</span>
+        <span class="current">{termBn}</span>
+      </nav>
+
+      <article class="glossary-article">
+        <header class="glossary-header">
+          <h1 class="glossary-title">
+            <span class="term-en">{term}</span>
+            <span class="term-bn">{termBn}</span>
+          </h1>
+          {importance && <p class="glossary-importance">{importanceBn}</p>}
+        </header>
+
+        <section class="glossary-section definition-section">
+          <h2>সংজ্ঞা</h2>
+          <p class="definition-en">{definition}</p>
+          <p class="definition-bn">{definitionBn}</p>
+        </section>
+
+        {signs.length > 0 && (
+          <section class="glossary-section signs-section">
+            <h2>লক্ষণসমূহ</h2>
+            <ul class="signs-list">
+              {signs.map((sign, i) => (
+                <li>
+                  <span class="sign-bn">{signsBn[i]}</span>
+                  <span class="sign-en">{sign}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {treatment && (
+          <section class="glossary-section treatment-section">
+            <h2>রুকইয়াহ চিকিৎসা</h2>
+            <p class="treatment-bn">{treatmentBn}</p>
+            <div class="treatment-actions">
+              <a href={getWhatsappUrl(`আসসালামু আলাইকুম, ${termBn} সম্পর্কে আরও জানতে চাই।`)} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                WhatsApp এ আলোচনা করুন
+              </a>
+              <a href="/appointment" class="btn btn-secondary">অ্যাপয়েন্টমেন্ট নিন</a>
+            </div>
+          </section>
+        )}
+
+        {relatedLinks.length > 0 && (
+          <section class="glossary-section related-section">
+            <h2>সম্পর্কিত বিষয়সমূহ</h2>
+            <div class="related-tags">
+              {relatedLinks.map((rt) => (
+                <a href={`/glossary/${rt.slug}`} class="related-tag">
+                  {rt.termBn}
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section class="glossary-section cta-section">
+          <h2>এখনও প্রশ্ন আছে?</h2>
+          <p>আমাদের অভিজ্ঞ রাকীদের সাথে যোগাযোগ করুন</p>
+          <div class="cta-actions">
+            <a href={getWhatsappUrl(`আসসালামু আলাইকুম, আমি ${termBn} সম্পর্কে আরও জানতে চাই।`)} class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+              WhatsApp এ মেসেজ করুন
+            </a>
+            <a href="/ruqyah-diagnosis" class="btn btn-outline">সেলফ ডায়াগনোসিস করুন</a>
+          </div>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .glossary-page {
+    padding: 40px 0 80px;
+    background: var(--bg-primary);
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .separator {
+    color: var(--text-muted);
+  }
+
+  .current {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .glossary-article {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .glossary-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--border-light);
+  }
+
+  .glossary-title {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .term-en {
+    font-size: 14px;
+    color: var(--primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .term-bn {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  .glossary-importance {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .glossary-section {
+    margin-bottom: 32px;
+  }
+
+  .glossary-section h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .glossary-section h2::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+
+  .definition-en {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 12px;
+    font-style: italic;
+  }
+
+  .definition-bn {
+    font-size: 18px;
+    color: var(--text-primary);
+    line-height: 1.8;
+  }
+
+  .signs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .signs-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 16px;
+    background: var(--bg-light);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .sign-bn {
+    font-size: 16px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .sign-en {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .treatment-bn {
+    font-size: 16px;
+    color: var(--text-primary);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+
+  .treatment-actions,
+  .cta-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: var(--bg-light);
+    color: var(--text-primary);
+    border-color: var(--border-light);
+  }
+
+  .btn-secondary:hover {
+    background: var(--bg-hover);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .btn-outline:hover {
+    background: var(--primary-light);
+  }
+
+  .btn-lg {
+    padding: 16px 32px;
+    font-size: 16px;
+  }
+
+  .related-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .related-tag {
+    display: inline-flex;
+    padding: 8px 16px;
+    background: var(--bg-light);
+    color: var(--primary);
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .related-tag:hover {
+    background: var(--primary-light);
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-light) 100%);
+    padding: 32px;
+    border-radius: 12px;
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  .cta-section h2 {
+    justify-content: center;
+  }
+
+  .cta-section h2::before {
+    display: none;
+  }
+
+  .cta-section p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 768px) {
+    .glossary-article {
+      padding: 24px;
+    }
+
+    .term-bn {
+      font-size: 28px;
+    }
+
+    .glossary-section h2 {
+      font-size: 18px;
+    }
+
+    .treatment-actions,
+    .cta-actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+    }
+  }
+</style>

@@ -1,0 +1,117 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { createDb } from '../../db/client.js';
+import { resources } from '../../db/schema.js';
+import { env as workerEnv } from 'cloudflare:workers';
+import { eq } from 'drizzle-orm';
+import { buildBreadcrumbSchema, buildCreativeWorkSchema } from '../../lib/seo.js';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const env = workerEnv || process.env;
+  const db = createDb(env.DATABASE_URL);
+  const rows = await db.select({ id: resources.id }).from(resources).where(eq(resources.published, true));
+  return rows.map((row) => ({ params: { id: row.id } }));
+}
+
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+const { id } = Astro.params;
+const [resource] = await db.select().from(resources).where(eq(resources.id, id)).limit(1);
+
+if (!resource || !resource.published) {
+  return Astro.redirect('/pdf');
+}
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/pdf/${resource.id}`;
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'পিডিএফ', url: `${siteUrl}/pdf` },
+  { name: resource.title, url: pageUrl },
+]);
+const creativeWorkLd = buildCreativeWorkSchema({
+  pageUrl,
+  name: resource.title,
+  description: resource.description,
+  fileUrl: new URL(resource.fileUrl, siteUrl).href,
+  inLanguage: resource.language,
+  category: resource.category,
+  pageCount: resource.pages,
+});
+---
+
+<BaseLayout
+  title={`${resource.title} | রিসোর্স`}
+  description={resource.description}
+  locale="bn"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(creativeWorkLd)} />
+  <Header />
+
+  <main class="resource-page">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/">হোম</a><span>/</span><a href="/pdf">পিডিএফ</a><span>/</span><span>{resource.title}</span>
+      </nav>
+
+      <section class="hero-card">
+        <div class="hero-copy">
+          <span class="badge">{resource.category}</span>
+          <h1>{resource.title}</h1>
+          <p>{resource.description}</p>
+        </div>
+        <div class="meta-card">
+          <div><strong>{resource.pages}</strong><span>পৃষ্ঠা</span></div>
+          <div><strong>{resource.fileSize || 'PDF'}</strong><span>ফাইল সাইজ</span></div>
+          <div><strong>{resource.language}</strong><span>ভাষা</span></div>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <article class="content-card">
+          <h2>এই রিসোর্সে কী আছে</h2>
+          <p>{resource.description}</p>
+          <ul>
+            <li>রুকইয়াহ ও আধ্যাত্মিক সহায়তা সম্পর্কিত রেফারেন্স</li>
+            <li>স্বশিক্ষা, প্রস্তুতি ও next step বোঝার উপকরণ</li>
+            <li>প্রয়োজনে রাকীর সাথে আলোচনা করার জন্য সহায়ক কনটেক্সট</li>
+          </ul>
+        </article>
+
+        <aside class="action-card">
+          <h2>রিসোর্স অ্যাকশন</h2>
+          <a href={resource.fileUrl} target="_blank" rel="noopener" class="btn btn-outline">অনলাইনে দেখুন</a>
+          <a href={resource.fileUrl} download class="btn btn-primary">ডাউনলোড করুন</a>
+          <a href="/appointment" class="btn btn-outline">অ্যাপয়েন্টমেন্ট নিন</a>
+        </aside>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .resource-page { padding: 32px 0 72px; }
+  .breadcrumb { display: flex; gap: 8px; align-items: center; color: var(--text-muted); font-size: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+  .hero-card { display: grid; grid-template-columns: 1.6fr 1fr; gap: 18px; background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 24px; margin-bottom: 22px; }
+  .badge { display: inline-flex; padding: 4px 12px; border-radius: 999px; background: var(--primary-light); color: var(--primary-dark); font-size: 12px; font-weight: 700; margin-bottom: 10px; }
+  .hero-copy p { color: var(--text-muted); line-height: 1.7; max-width: 760px; }
+  .meta-card { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .meta-card div { border: 1px solid var(--border); border-radius: 16px; padding: 16px; background: #f8fffb; }
+  .meta-card strong { display: block; font-size: 22px; color: var(--text-dark); }
+  .meta-card span { color: var(--text-muted); font-size: 13px; }
+  .content-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; }
+  .content-card, .action-card { border: 1px solid var(--border); border-radius: 18px; padding: 22px; background: #fff; }
+  .content-card p, .content-card li { color: var(--text-medium); line-height: 1.8; }
+  .content-card ul { margin-left: 20px; }
+  .action-card { display: flex; flex-direction: column; gap: 12px; }
+  @media (max-width: 860px) {
+    .hero-card, .content-grid { grid-template-columns: 1fr; }
+  }
+</style>

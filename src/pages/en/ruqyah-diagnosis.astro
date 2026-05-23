@@ -1,0 +1,119 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { testCategories } from '../../data/test-data';
+import { getEnglishCategoryMeta } from '../../data/diagnosis-en';
+import { Activity, Eye, Moon, Ghost, Brain, Baby } from '@lucide/astro';
+import { buildBreadcrumbSchema, buildFaqSchema, buildWebPageSchema } from '../../lib/seo.js';
+
+export const prerender = true;
+
+const icons = {
+  activity: Activity,
+  eye: Eye,
+  moon: Moon,
+  ghost: Ghost,
+  brain: Brain,
+  baby: Baby,
+};
+
+const categories = testCategories.map((category) => {
+  const english = getEnglishCategoryMeta(category);
+  return {
+    ...category,
+    titleEn: english.title,
+    subtitleEn: english.subtitle,
+    descriptionEn: english.description,
+    IconCmp: icons[category.icon as keyof typeof icons] || Activity,
+    count: category.id === 'kids' ? '6 / 19' : category.questions.length.toString(),
+  };
+});
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/en/ruqyah-diagnosis`;
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'Home', url: `${siteUrl}/en/` },
+  { name: 'Ruqyah Diagnosis', url: pageUrl },
+]);
+const pageLd = buildWebPageSchema({
+  pageUrl,
+  name: 'Ruqyah Diagnosis',
+  description: 'Choose a diagnosis category and complete your self-assessment.',
+  inLanguage: 'en-US',
+});
+const faqLd = buildFaqSchema([
+  {
+    question: 'Is this diagnosis a final ruling?',
+    answer: 'No. It is a preliminary self-assessment and should be reviewed with a qualified raqi or a doctor when needed.',
+  },
+  {
+    question: 'Does the result page suggest discussing the outcome with a raqi?',
+    answer: 'Yes. Each result state includes WhatsApp discussion and appointment actions.',
+  },
+  {
+    question: 'Is there a separate flow for children?',
+    answer: 'Yes. The children category uses an age-based question flow.',
+  },
+]);
+---
+
+<BaseLayout
+  title="Ruqyah Diagnosis | Ruqyah Healing Center"
+  description="Choose a diagnosis category and complete your self-assessment."
+  locale="en"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(pageLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqLd)} />
+  <Header />
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <nav class="breadcrumb"><a href="/en/">Home</a><span>/</span><span>Ruqyah Diagnosis</span></nav>
+        <h1>Ruqyah Diagnosis</h1>
+        <p>Select a category, answer honestly, and review your recommended next step.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container grid">
+        {categories.map((category) => (
+          <a
+            href={`/en/ruqyah-diagnosis/${category.id}`}
+            class="card"
+            style={`--card-color:${category.color};--card-light:${category.colorLight}`}
+          >
+            <div class="icon"><category.IconCmp size={26} stroke-width={2.5} /></div>
+            <p class="sub">{category.subtitleEn}</p>
+            <h2>{category.titleEn}</h2>
+            <p class="desc">{category.descriptionEn}</p>
+            <div class="row">
+              <span>{category.count} questions</span>
+              <span>Start</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .hero { padding: 50px 0 30px; text-align: center; background: linear-gradient(180deg, #ecfdf5 0%, #fff 100%); }
+  .breadcrumb { display: inline-flex; gap: 8px; color: var(--text-muted); font-size: 14px; margin-bottom: 12px; }
+  .hero p { color: var(--text-muted); max-width: 680px; margin: 0 auto; }
+  .section { padding: 24px 0 64px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { border: 1px solid var(--border); border-radius: 16px; padding: 18px; background: #fff; display: block; }
+  .card:hover { border-color: var(--card-color); box-shadow: 0 10px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+  .icon { width: 48px; height: 48px; border-radius: 12px; background: var(--card-light); color: var(--card-color); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+  .sub { font-size: 12px; color: var(--card-color); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .card h2 { font-size: 20px; margin-bottom: 8px; color: var(--text-dark); }
+  .desc { color: var(--text-muted); line-height: 1.6; min-height: 68px; }
+  .row { margin-top: 10px; display: flex; justify-content: space-between; color: var(--text-medium); font-size: 13px; font-weight: 600; }
+  @media (max-width: 980px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } }
+</style>

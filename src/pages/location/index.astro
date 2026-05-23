@@ -1,0 +1,323 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { buildBreadcrumbSchema, buildCollectionPageSchema } from '../../lib/seo.js';
+import { locations } from '../../data/location-data.js';
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/location`;
+
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'রুকইয়াহ চিকিৎসা', url: `${siteUrl}/ruqyah-diagnosis` },
+  { name: 'আমাদের এলাকাসমূহ', url: pageUrl },
+]);
+
+const collectionLd = buildCollectionPageSchema({
+  pageUrl,
+  name: 'বাংলাদেশে রুকইয়াহ চিকিৎসা',
+  description: 'বাংলাদেশের বিভিন্ন জেলা ও এলাকায় রুকইয়াহ চিকিৎসা সেবা - ঢাকা, চট্টগ্রাম, সিলেট, রাজশাহী, খুলনা, বরিশাল, রংপুর, ময়মনসিংহ',
+  items: locations.map(l => ({
+    type: 'WebPage',
+    name: `${l.name} - ${l.nameBn}`,
+    url: `${pageUrl}/${l.slug}`,
+    inLanguage: 'bn-BD',
+  })),
+});
+
+const divisions = {
+  'dhaka': { name: 'ঢাকা বিভাগ', cities: ['ঢাকা', 'গাজীপুর', 'নারায়ণগঞ্জ', 'টাঙ্গাইল', 'মানিকগঞ্জ'] },
+  'chittagong': { name: 'চট্টগ্রাম বিভাগ', cities: ['চট্টগ্রাম', 'কক্সবাজার', 'কুমিল্লা', 'নোয়াখালী', 'ফেনী'] },
+  'sylhet': { name: 'সিলেট বিভাগ', cities: ['সিলেট', 'সুনামগঞ্জ', 'হবিগঞ্জ', 'মৌলভীবাজার'] },
+  'rajshahi': { name: 'রাজশাহী বিভাগ', cities: ['রাজশাহী', 'বগুড়া', 'পাবনা', 'সিরাজগঞ্জ', 'নাটোর'] },
+  'khulna': { name: 'খুলনা বিভাগ', cities: ['খুলনা', 'যশোর', 'সাতক্ষীরা', 'বাগেরহাট', 'কুষ্টিয়া'] },
+  'barishal': { name: 'বরিশাল বিভাগ', cities: ['বরিশাল', 'পটুয়াখালী', 'ভোলা', 'পিরোজপুর', 'ঝালকাঠি'] },
+  'rangpur': { name: 'রংপুর বিভাগ', cities: ['রংপুর', 'দিনাজপুর', 'গাইবান্ধা', 'লালমনিরহাট', 'নীলফামারী'] },
+  'mymensingh': { name: 'ময়মনসিংহ বিভাগ', cities: ['ময়মনসিংহ', 'জামালপুর', 'শেরপুর', 'নেত্রকোণা'] },
+};
+---
+
+<BaseLayout
+  title="বাংলাদেশে রুকইয়াহ চিকিৎসা | Ruqyah Treatment in Bangladesh"
+  description="বাংলাদেশের বিভিন্ন জেলা ও এলাকায় রুকইয়াহ চিকিৎসা সেবা। ঢাকা, চট্টগ্রাম, সিলেট, রাজশাহী, খুলনা, বরিশাল, রংপুর, ময়মনসিংহে রুকইয়াহ চিকিৎসা।"
+  keywords={['রুকইয়াহ', 'ঢাকায় রুকইয়াহ', 'চট্টগ্রামে রুকইয়াহ', 'সিলেটে রুকইয়াহ', 'বাংলাদেশে রুকইয়াহ']}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(collectionLd)} slot="head" />
+
+  <Header />
+
+  <main class="locations-page">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href="/">হোম</a>
+        <span class="separator">›</span>
+        <a href="/ruqyah-diagnosis">রুকইয়াহ চিকিৎসা</a>
+        <span class="separator">›</span>
+        <span class="current">আমাদের এলাকাসমূহ</span>
+      </nav>
+
+      <header class="page-header">
+        <h1 class="page-title">বাংলাদেশে রুকইয়াহ চিকিৎসা</h1>
+        <p class="page-subtitle">আপনার এলাকায় পেশাদার রুকইয়াহ সেবা</p>
+        <p class="page-description">
+          বাংলাদেশের বিভিন্ন জেলা ও এলাকায় আমাদের অভিজ্ঞ রাকীগণ আপনার আধ্যাত্মিক চিকিৎসায় সেবা প্রদান করেন। নিচের তালিকা থেকে আপনার এলাকা বেছে নিন।
+        </p>
+      </header>
+
+      <section class="locations-grid-section">
+        <div class="locations-grid">
+          {locations.map(location => (
+            <a href={`/location/${location.slug}`} class="location-card">
+              <div class="location-card-header">
+                <h2 class="location-name">{location.nameBnShort}</h2>
+                <span class="location-name-en">{location.targetQueryEn}</span>
+              </div>
+              <p class="location-intro">{location.introBn}</p>
+              <div class="location-meta">
+                <span class="area-count">{location.areas.length} টি এলাকা</span>
+                <span class="arrow">→</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="cta-section">
+        <h2>আপনার এলাকায় রুকইয়াহ পেতে চান?</h2>
+        <p>আমাদের অভিজ্ঞ রাকীদের সাথে যোগাযোগ করুন</p>
+        <div class="cta-actions">
+          <a href="/ruqyah-diagnosis" class="btn btn-primary">সেলফ ডায়াগনোসিস করুন</a>
+          <a href="/appointment" class="btn btn-outline">অ্যাপয়েন্টমেন্ট নিন</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .locations-page {
+    padding: 40px 0 80px;
+    background: var(--bg-primary);
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .separator {
+    color: var(--text-muted);
+  }
+
+  .current {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .page-title {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  .page-subtitle {
+    font-size: 20px;
+    color: var(--primary);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .page-description {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .locations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .location-card {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-light);
+  }
+
+  .location-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: var(--primary);
+  }
+
+  .location-card-header {
+    margin-bottom: 12px;
+  }
+
+  .location-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  .location-name-en {
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .location-intro {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    flex: 1;
+    margin-bottom: 16px;
+  }
+
+  .location-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .area-count {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .arrow {
+    font-size: 18px;
+    color: var(--primary);
+    transition: transform 0.2s ease;
+  }
+
+  .location-card:hover .arrow {
+    transform: translateX(4px);
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-light) 100%);
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    margin-top: 48px;
+  }
+
+  .cta-section h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .cta-section p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .btn-outline:hover {
+    background: var(--primary-light);
+  }
+
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 32px;
+    }
+
+    .locations-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cta-section {
+      padding: 24px;
+    }
+
+    .cta-actions {
+      flex-direction: column;
+    }
+  }
+</style>

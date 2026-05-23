@@ -1,0 +1,125 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]: Homepage | LMS
+  - main [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Masnoon" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img "Masnoon" [ref=e8]
+        - generic [ref=e9]:
+          - link "হোমপেজ" [ref=e10] [cursor=pointer]:
+            - /url: /
+          - link "আমাদের সম্পর্কে" [ref=e11] [cursor=pointer]:
+            - /url: /about-us
+          - link "যোগাযোগ" [ref=e12] [cursor=pointer]:
+            - /url: /contact-us
+      - generic [ref=e13]:
+        - link "সাইন আপ" [ref=e14] [cursor=pointer]:
+          - /url: /auth/signup
+        - link "লগ ইন" [ref=e15] [cursor=pointer]:
+          - /url: /auth/signin
+    - generic [ref=e16]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - heading "— Masnoon Institute" [level=1] [ref=e20]
+          - paragraph [ref=e21]: 📚 Learn Genuine Prophetic Medicine
+        - iframe [ref=e24]:
+          - generic [active] [ref=f1e1]:
+            - generic "YouTube Video Player" [ref=f1e3]
+            - generic [ref=f1e5]:
+              - generic:
+                - generic:
+                  - button "Play video" [ref=f1e10] [cursor=pointer]:
+                    - generic [ref=f1e13]:
+                      - img
+                  - button "Hide player controls" [ref=f1e14] [cursor=pointer]
+                  - generic [ref=f1e16]:
+                    - generic [ref=f1e21]:
+                      - generic [ref=f1e22]:
+                        - link "রুকইয়াহ শারইয়াহ ও তিব্বে নববী কোর্স- ক্লাস ১ | রাকী এবং পেশেন্ট উভয়ের জন্য খুবই উপকারী একটি দারস |" [ref=f1e23] [cursor=pointer]:
+                          - /url: https://www.youtube.com/watch?v=axL_9IrRjH8
+                        - link "Raqi Abdul Malek" [ref=f1e24] [cursor=pointer]:
+                          - /url: /channel/UC9mTQUSmjAEj4Rn8LQCwc6g
+                          - generic [ref=f1e25]: Raqi Abdul Malek
+                      - generic [ref=f1e26]:
+                        - button "thumbnail-image" [ref=f1e27] [cursor=pointer]:
+                          - img "thumbnail-image" [ref=f1e28]
+                        - generic [ref=f1e30]:
+                          - generic: Raqi Abdul Malek
+                          - generic: 25.6K subscribers
+                    - generic [ref=f1e31]:
+                      - button "Share" [ref=f1e34] [cursor=pointer]:
+                        - generic [ref=f1e38]:
+                          - img
+                      - link "Watch on YouTube" [ref=f1e45] [cursor=pointer]:
+                        - /url: https://www.youtube.com/watch?v=axL_9IrRjH8
+                        - generic [ref=f1e48]:
+                          - text: Watch on
+                          - img [ref=f1e50]:
+                            - generic [ref=f1e52]:
+                              - img
+      - heading "আমাদের কোর্স সমূহ" [level=2] [ref=e26]
+      - generic [ref=e28]:
+        - tablist [ref=e29]:
+          - tab "Ruqyah Shari'ah & Prophetic Medicine" [selected] [ref=e31] [cursor=pointer]
+        - link "Mastering Ruqyah Practice Mastering Ruqyah Practice ৳ 40000 বিস্তারিত arrow_right_alt" [ref=e34] [cursor=pointer]:
+          - /url: /course-intro/mastering-ruqyah-practice-3
+          - img "Mastering Ruqyah Practice" [ref=e36]
+          - generic [ref=e37]:
+            - paragraph [ref=e38]: Mastering Ruqyah Practice
+            - generic [ref=e39]:
+              - generic [ref=e41]: ৳ 40000
+              - generic [ref=e42]:
+                - text: বিস্তারিত
+                - generic [ref=e43]: arrow_right_alt
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - heading "আমাদের বৈশিষ্ট্য" [level=2] [ref=e46]
+          - paragraph [ref=e47]: "\"Masnoon Institute\" হলো \"Masnoon Life\"-এর একটি বিশেষায়িত অনলাইন শিক্ষামূলক উদ্যোগ, যা প্রতিটি মুসলিমের জন্য বিশুদ্ধ ইসলামিক জ্ঞান অর্জনের পথকে সহজ করতে প্রতিশ্রুতিবদ্ধ। আমাদের লক্ষ্য শুধু নির্দিষ্ট কোনো বিষয়ে বিশেষজ্ঞ তৈরি করা নয়, বরং সাধারণ মানুষ থেকে শুরু করে ইলম অন্বেষণকারী—সকলের জন্য কুরআন-সুন্নাহ ও সালাফদের প্রজ্ঞার আলোকে জীবনঘনিষ্ঠ ইসলামিক শিক্ষা প্রদান করা।"
+          - paragraph [ref=e48]: "আমরা এমন একটি নির্ভরযোগ্য ও সর্বজনীন অনলাইন শিক্ষাকেন্দ্র হতে চাই, যেখানে মানুষ শিরক, বিদ\"আত এবং সকল প্রকার কুসংস্কারমুক্ত থেকে ইসলামের খাঁটি ও বিশুদ্ধ জ্ঞান (যেমন: বিশুদ্ধ কুরআন তিলাওয়াত, মাসনূন দুআ, রুকইয়াহ শারইয়াহ, তিব্বে নববী এবং দৈনন্দিন জীবনের ইসলামিক বিধান) অর্জন করতে পারবে।"
+        - img "Illustration" [ref=e50]
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - link "Masnoon" [ref=e55] [cursor=pointer]:
+          - /url: /
+          - img "Masnoon" [ref=e56]
+        - generic [ref=e58]:
+          - link "রিফান্ড পলিসি" [ref=e59] [cursor=pointer]:
+            - /url: /refund-policy
+          - link "প্রাইভেসি পলিসি" [ref=e60] [cursor=pointer]:
+            - /url: /privacy-policy
+          - link "টার্মস এবং কন্ডিশন" [ref=e61] [cursor=pointer]:
+            - /url: /terms-condition
+          - link "আমাদের সম্পর্কে" [ref=e62] [cursor=pointer]:
+            - /url: /about-us
+        - generic [ref=e63]:
+          - paragraph [ref=e64]: "যোগাযোগের সময়: প্রতিদিন, সকাল ৯টা থেকে রাত ৮টা পর্যন্ত"
+          - paragraph [ref=e65]:
+            - text: "হটলাইন:"
+            - link "09666815313" [ref=e66] [cursor=pointer]:
+              - /url: tel:+8801885931748
+          - paragraph [ref=e67]:
+            - text: "ইমেইল:"
+            - link "info@masnooninstitute.com" [ref=e68] [cursor=pointer]:
+              - /url: "mailto: info@masnooninstitute.com"
+          - paragraph [ref=e69]: "সাপোর্ট: আমরা সাধারণত ৭২ ঘণ্টার মধ্যে আপনার ইমেইলের উত্তর দেওয়ার চেষ্টা করি।"
+          - generic [ref=e70]:
+            - text: "ঠিকানা:"
+            - paragraph [ref=e71]:
+              - text: "Noor Tower- Floor: 7, Flat- 8-C & 9-C"
+              - text: House-29/31, Road-01, Block-D, Sector-2,
+              - text: Aftabnagar, Badda, Dhaka 1212
+            - link "🔗 গুগল লোকেশন" [ref=e72] [cursor=pointer]:
+              - /url: https://maps.app.goo.gl/WvV6yc8EQEX9FC459
+      - generic [ref=e73]:
+        - generic [ref=e74]: Copyright © Masnoon Institute
+        - generic [ref=e75]:
+          - link "fbIcon" [ref=e76] [cursor=pointer]:
+            - /url: https://www.facebook.com/profile.php?id=61579677141825
+            - img "fbIcon" [ref=e77]
+          - link "youtube" [ref=e78] [cursor=pointer]:
+            - /url: http://www.youtube.com/@MasnoonInstitute
+            - img "youtube" [ref=e79]
+          - generic "WhatsApp যোগাযোগ" [ref=e80] [cursor=pointer]:
+            - img [ref=e81]
+            - generic [ref=e83]: WhatsApp এ যোগাযোগ করুন

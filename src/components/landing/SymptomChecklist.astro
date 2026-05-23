@@ -1,0 +1,158 @@
+---
+const symptoms = [
+  'নিয়মিত মাথাব্যথা বা মাইগ্রেন',
+  'ঘুমের সমস্যা বা অনিদ্রা',
+  'পরিবারে কলহ বা সম্পর্কে টানাপোড়েন',
+  'ব্যবসায়ে মন্দা বা সৌভাগ্যে বাধা',
+  'বিয়েতে বাধা বা সন্তান না হওয়া',
+  'হতাশা, উদ্বেগ বা মানসিক চাপ',
+  'শারীরিক দুর্বলতা বা ক্লান্তি',
+  'পরিবর্তনশীল মেজাজ বা রাগ',
+  'ভয় বা আতঙ্কের অনুভূতি',
+  'ঐশ্বরিক এখতিয়ারের প্রতি আকর্ষণ বা সন্দেহ',
+  'নিয়মিত তন্ত্রাচার বা কারও কথায় প্রভাবিত হওয়া',
+  'কাজে মনোযোগ নষ্ট বা স্মৃতিশক্তি হ্রাস',
+];
+---
+
+<section class="symptoms-section">
+  <div class="container">
+    <div class="symptoms-header">
+      <span class="symptoms-eyebrow">আপনার কি এই সমস্যাগুলো আছে?</span>
+      <h2 class="symptoms-title">যে সমস্যাগুলো রুকইয়াহ দিয়ে সমাধান করা যায়</h2>
+      <p class="symptoms-sub">নিচের লক্ষণগুলোর সাথে যদি আপনার অবস্থা মিলে, তাহলে রুকইয়াহ চিকিৎসা আপনার জন্য কার্যকর হতে পারে</p>
+    </div>
+
+    <div class="symptoms-grid">
+      {symptoms.map((symptom) => (
+        <div class="symptom-item">
+          <svg class="symptom-check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+          <span>{symptom}</span>
+        </div>
+      ))}
+    </div>
+
+    <div class="symptoms-cta">
+      <a href="#booking-section" class="btn-symptom-cta">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        এখনই অ্যাপয়েন্টমেন্ট বুক করুন
+      </a>
+      <p class="cta-note">প্রথম ডায়াগনোসিস সেশনে আপনার সমস্যা বুঝে উপযুক্ত চিকিৎসা নির্ধারণ করা হবে</p>
+    </div>
+  </div>
+</section>
+
+<style>
+.symptoms-section {
+  padding: 64px 0;
+  background: var(--bg-white);
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.symptoms-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.symptoms-eyebrow {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.symptoms-title {
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 12px;
+  line-height: 1.3;
+}
+
+.symptoms-sub {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.7;
+}
+
+.symptoms-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 32px;
+  margin-bottom: 40px;
+}
+
+.symptom-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--text-dark);
+  line-height: 1.5;
+}
+
+.symptom-check {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--primary);
+}
+
+.symptoms-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-symptom-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn-symptom-cta:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.cta-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .symptoms-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+</style>

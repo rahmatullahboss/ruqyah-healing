@@ -1,0 +1,60 @@
+---
+const stats = [
+  { value: '১৮০০+', label: 'সুচিকিৎসিত রোগী' },
+  { value: '৮+', label: 'বছরের অভিজ্ঞতা' },
+  { value: '১০০%', label: 'হালাল পদ্ধতি' },
+];
+---
+
+<div class="stats-bar">
+  <div class="stats-bar-inner">
+    {stats.map((stat) => (
+      <div class="stats-item">
+        <span class="stats-value">{stat.value}</span>
+        <span class="stats-label">{stat.label}</span>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+.stats-bar {
+  background: var(--primary);
+  padding: 20px 0;
+}
+
+.stats-bar-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.stats-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stats-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.stats-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.82);
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .stats-bar-inner { gap: 24px; }
+  .stats-value { font-size: 22px; }
+}
+</style>

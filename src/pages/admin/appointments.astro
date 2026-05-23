@@ -1,0 +1,958 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { appointments } from '../../db/schema.js';
+import { ilike, and, or, gte, lte, desc, eq } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+
+// Read filter params
+const search = Astro.url.searchParams.get('q') || '';
+const statusFilter = Astro.url.searchParams.get('status') || '';
+const treatmentFilter = Astro.url.searchParams.get('treatment') || '';
+const fromDate = Astro.url.searchParams.get('from') || '';
+const toDate = Astro.url.searchParams.get('to') || '';
+
+// Build conditions
+const conditions: any[] = [];
+
+if (search) {
+  conditions.push(
+    or(
+      ilike(appointments.fullName, `%${search}%`),
+      ilike(appointments.phone, `%${search}%`)
+    )
+  );
+}
+
+if (statusFilter) {
+  conditions.push(eq(appointments.status, statusFilter));
+}
+
+if (treatmentFilter) {
+  conditions.push(ilike(appointments.treatmentTypeLabel, `%${treatmentFilter}%`));
+}
+
+if (fromDate) {
+  conditions.push(gte(appointments.createdAt, new Date(fromDate)));
+}
+
+if (toDate) {
+  const endDate = new Date(toDate);
+  endDate.setHours(23, 59, 59, 999);
+  conditions.push(lte(appointments.createdAt, endDate));
+}
+
+const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+const allAppointments = await db.select().from(appointments)
+  .where(whereClause)
+  .orderBy(desc(appointments.createdAt));
+
+// Get unique treatment types for filter dropdown
+const treatmentTypes = [...new Set(allAppointments.map(a => a.treatmentTypeLabel).filter(Boolean))];
+
+// Build CSV export URL with current filters
+const csvParams = new URLSearchParams();
+if (search) csvParams.set('q', search);
+if (statusFilter) csvParams.set('status', statusFilter);
+if (treatmentFilter) csvParams.set('treatment', treatmentFilter);
+if (fromDate) csvParams.set('from', fromDate);
+if (toDate) csvParams.set('to', toDate);
+const csvUrl = `/api/admin/appointments/export-csv${csvParams.toString() ? '?' + csvParams.toString() : ''}`;
+
+const statusMap: Record<string, string> = {
+  pending: 'অপেক্ষমাণ',
+  confirmed: 'নিশ্চিত',
+  completed: 'সম্পন্ন',
+  cancelled: 'বাতিল',
+};
+
+const todayDate = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Dhaka',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+}).format(new Date());
+const todayAppointments = allAppointments
+  .filter((appt) => appt.preferredDate === todayDate)
+  .sort((a, b) => String(a.preferredTime).localeCompare(String(b.preferredTime), 'bn-BD'));
+const statusCounts = allAppointments.reduce((acc, appt) => {
+  acc[appt.status] = (acc[appt.status] || 0) + 1;
+  return acc;
+}, {} as Record<string, number>);
+---
+
+<AdminLayout title="এ্যাপয়েন্টমেন্ট ম্যানেজমেন্ট | Admin - Ruqyah Healing">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">এ্যাপয়েন্টমেন্ট ম্যানেজমেন্ট</h1>
+      <p class="page-desc">সকল বুকিং এবং সেশন স্ট্যাটাস নিয়ন্ত্রণ করুন — মোট {allAppointments.length} টি</p>
+    </div>
+    <div class="header-actions">
+      <a href={csvUrl} class="btn btn-export">CSV এক্সপোর্ট</a>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <form method="GET" action="/admin/appointments" class="admin-card filter-bar">
+    <div class="filter-grid">
+      <div class="filter-group">
+        <label for="q">নাম / ফোন খুঁজুন</label>
+        <input type="text" id="q" name="q" class="filter-input" placeholder="নাম বা ফোন নম্বর..." value={search} />
+      </div>
+      <div class="filter-group">
+        <label for="status">স্ট্যাটাস</label>
+        <select id="status" name="status" class="filter-input">
+          <option value="">সকল স্ট্যাটাস</option>
+          <option value="pending" selected={statusFilter === 'pending'}>অপেক্ষমাণ</option>
+          <option value="confirmed" selected={statusFilter === 'confirmed'}>নিশ্চিত</option>
+          <option value="completed" selected={statusFilter === 'completed'}>সম্পন্ন</option>
+          <option value="cancelled" selected={statusFilter === 'cancelled'}>বাতিল</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="treatment">চিকিৎসার ধরন</label>
+        <select id="treatment" name="treatment" class="filter-input">
+          <option value="">সকল চিকিৎসা</option>
+          {treatmentTypes.map(t => (
+            <option value={t} selected={treatmentFilter === t}>{t}</option>
+          ))}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="from">তারিখ থেকে</label>
+        <input type="date" id="from" name="from" class="filter-input" value={fromDate} />
+      </div>
+      <div class="filter-group">
+        <label for="to">তারিখ পর্যন্ত</label>
+        <input type="date" id="to" name="to" class="filter-input" value={toDate} />
+      </div>
+      <div class="filter-group filter-actions">
+        <label>&nbsp;</label>
+        <div class="filter-btns">
+          <button type="submit" class="btn btn-search">খুঁজুন</button>
+          <a href="/admin/appointments" class="btn btn-reset">রিসেট</a>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div class="appointment-summary-grid">
+    <div class="summary-card">
+      <span>আজ</span>
+      <strong>{todayAppointments.length}</strong>
+      <small>{todayDate}</small>
+    </div>
+    <div class="summary-card pending">
+      <span>Pending</span>
+      <strong>{statusCounts.pending || 0}</strong>
+      <small>যাচাই দরকার</small>
+    </div>
+    <div class="summary-card confirmed">
+      <span>Confirmed</span>
+      <strong>{statusCounts.confirmed || 0}</strong>
+      <small>সেশন প্রস্তুত</small>
+    </div>
+    <div class="summary-card done">
+      <span>Completed</span>
+      <strong>{statusCounts.completed || 0}</strong>
+      <small>শেষ হয়েছে</small>
+    </div>
+  </div>
+
+  <!-- Bulk Action Bar (hidden by default) -->
+  <div id="bulkBar" class="admin-card bulk-bar" style="display:none;">
+    <span id="bulkCount">0</span> টি নির্বাচিত —
+    <select id="bulkStatus" class="filter-input" style="width:auto; display:inline-block;">
+      <option value="">স্ট্যাটাস বেছে নিন</option>
+      <option value="pending">অপেক্ষমাণ</option>
+      <option value="confirmed">নিশ্চিত</option>
+      <option value="completed">সম্পন্ন</option>
+      <option value="cancelled">বাতিল</option>
+    </select>
+    <button id="bulkApply" class="btn btn-search">প্রয়োগ করুন</button>
+  </div>
+
+  <div class="view-switcher" role="tablist" aria-label="Appointment view">
+    <button type="button" class="view-btn active" data-view-target="calendarView">Calendar</button>
+    <button type="button" class="view-btn" data-view-target="listView">List</button>
+  </div>
+
+  <section class="admin-card view-panel" id="calendarView">
+    <div class="calendar-head">
+      <div>
+        <h2>আজকের সেশন বোর্ড</h2>
+        <p>টাইম স্লট অনুযায়ী আজকের সিরিয়াল</p>
+      </div>
+      <a href={`/admin/appointments?from=${todayDate}&to=${todayDate}`} class="action-link">আজ ফিল্টার করুন</a>
+    </div>
+    {todayAppointments.length === 0 ? (
+      <div class="empty-calendar">আজ কোনো অ্যাপয়েন্টমেন্ট নেই।</div>
+    ) : (
+      <div class="calendar-list">
+        {todayAppointments.map((appt) => (
+          <a href={`/admin/appointments/${appt.id}`} class="calendar-item">
+            <span class="calendar-time">{appt.preferredTime || 'সময় নেই'}</span>
+            <div>
+              <strong>{appt.fullName}</strong>
+              <small>{appt.treatmentTypeLabel || 'চিকিৎসা'} · {appt.phone}</small>
+            </div>
+            <span class={`status-badge status-${appt.status === 'pending' ? 'pending' : appt.status === 'confirmed' ? 'confirmed' : appt.status === 'completed' ? 'done' : appt.status === 'cancelled' ? 'cancelled' : 'default'}`}>
+              {statusMap[appt.status] || appt.status}
+            </span>
+          </a>
+        ))}
+      </div>
+    )}
+  </section>
+
+  <!-- Table -->
+  <div class="admin-card view-panel" id="listView" hidden>
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width:40px;">
+              <input type="checkbox" id="selectAll" title="সব নির্বাচন" />
+            </th>
+            <th>রেফারেন্স (ID)</th>
+            <th>নাম ও ফ্যামিলি</th>
+            <th>যোগাযোগ</th>
+            <th>চিকিৎসার বিবরণ</th>
+            <th>স্ট্যাটাস</th>
+            <th>অ্যাকশন</th>
+          </tr>
+        </thead>
+        <tbody>
+          {allAppointments.length === 0 ? (
+            <tr><td colspan="7" style="text-align:center; padding:32px 0;">কোনো এ্যাপয়েন্টমেন্ট নেই</td></tr>
+          ) : (
+            allAppointments.map((appt) => (
+              <tr>
+                <td>
+                  <input type="checkbox" class="row-check" data-id={appt.id} />
+                </td>
+                <td>
+                   <span style="font-size:0.8rem; font-family:monospace; color:var(--admin-text-light);">
+                     {appt.id.substring(0,8)}...
+                   </span>
+                   <div style="font-size:0.75rem; margin-top:4px;">
+                     {new Date(appt.createdAt).toLocaleDateString('bn-BD', { month: 'short', day: 'numeric', hour:'numeric', minute:'numeric' })}
+                   </div>
+                </td>
+                <td>
+                  <div style="font-weight:500; color:var(--admin-text);">{appt.fullName}</div>
+                  <div style="font-size:0.8rem; color:var(--admin-text-light);">
+                    {appt.age} বছর &bull; {appt.gender}
+                  </div>
+                </td>
+                <td>
+                  <div style="font-size:0.85rem;">{appt.phone}</div>
+                  <div style="font-size:0.8rem; color:var(--admin-text-light);">WA: {appt.whatsapp || 'N/A'}</div>
+                </td>
+                <td>
+                  <div style="font-weight:500; font-size:0.9rem;">{appt.treatmentTypeLabel || 'চিকিৎসা'}</div>
+                  <div style="font-size:0.8rem; color:var(--admin-text-light);">
+                    {appt.preferredDate} &bull; {appt.preferredTime}
+                  </div>
+                </td>
+                <td>
+                  <span class={`status-badge status-${appt.status === 'pending' ? 'pending' : appt.status === 'confirmed' ? 'confirmed' : appt.status === 'completed' ? 'done' : appt.status === 'cancelled' ? 'cancelled' : 'default'}`}>
+                    {statusMap[appt.status] || appt.status}
+                  </span>
+                </td>
+                <td>
+                  <div class="action-cell">
+                    <a href={`/admin/appointments/${appt.id}`} class="action-link">বিস্তারিত</a>
+                    <button
+                      type="button"
+                      class="action-link profile-btn"
+                      data-name={appt.fullName}
+                      data-phone={appt.phone}
+                      data-whatsapp={appt.whatsapp || ''}
+                      data-treatment={appt.treatmentTypeLabel || ''}
+                      data-date={appt.preferredDate || ''}
+                      data-time={appt.preferredTime || ''}
+                      data-problem={appt.problem || ''}
+                      data-status={statusMap[appt.status] || appt.status}
+                    >
+                      প্রোফাইল
+                    </button>
+                    <select
+                      class="status-select"
+                      data-appt-id={appt.id}
+                      data-current-status={appt.status}
+                    >
+                      <option value="pending" selected={appt.status === 'pending'}>Pending</option>
+                      <option value="confirmed" selected={appt.status === 'confirmed'}>Confirmed</option>
+                      <option value="completed" selected={appt.status === 'completed' || appt.status === 'সম্পন্ন'}>Completed</option>
+                      <option value="cancelled" selected={appt.status === 'cancelled'}>Cancelled</option>
+                    </select>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="profile-drawer" id="profileDrawer" hidden>
+    <div class="profile-backdrop" data-close-profile></div>
+    <aside class="profile-panel" aria-label="রুগীর প্রোফাইল কার্ড">
+      <button type="button" class="profile-close" data-close-profile>×</button>
+      <span class="profile-kicker">Client Profile</span>
+      <h2 id="profileName">রুগীর নাম</h2>
+      <div class="profile-grid">
+        <div>
+          <span>ফোন</span>
+          <strong id="profilePhone"></strong>
+        </div>
+        <div>
+          <span>WhatsApp</span>
+          <strong id="profileWhatsapp"></strong>
+        </div>
+        <div>
+          <span>সেবা</span>
+          <strong id="profileTreatment"></strong>
+        </div>
+        <div>
+          <span>সময়</span>
+          <strong id="profileSchedule"></strong>
+        </div>
+        <div>
+          <span>স্ট্যাটাস</span>
+          <strong id="profileStatus"></strong>
+        </div>
+      </div>
+      <div class="profile-note">
+        <span>বর্তমান সমস্যা</span>
+        <p id="profileProblem"></p>
+      </div>
+    </aside>
+  </div>
+</AdminLayout>
+
+<script>
+  const statusText: Record<string, string> = {
+    pending: 'অপেক্ষমাণ',
+    confirmed: 'নিশ্চিত',
+    completed: 'সম্পন্ন',
+    cancelled: 'বাতিল',
+  };
+  const statusClass: Record<string, string> = {
+    pending: 'status-pending',
+    confirmed: 'status-confirmed',
+    completed: 'status-done',
+    cancelled: 'status-cancelled',
+  };
+
+  document.querySelectorAll('.view-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      const targetId = button.getAttribute('data-view-target');
+      document.querySelectorAll('.view-btn').forEach((item) => item.classList.remove('active'));
+      document.querySelectorAll('.view-panel').forEach((panel) => {
+        (panel as HTMLElement).hidden = panel.id !== targetId;
+      });
+      button.classList.add('active');
+    });
+  });
+
+  const profileDrawer = document.getElementById('profileDrawer');
+  const profileFields = {
+    name: document.getElementById('profileName'),
+    phone: document.getElementById('profilePhone'),
+    whatsapp: document.getElementById('profileWhatsapp'),
+    treatment: document.getElementById('profileTreatment'),
+    schedule: document.getElementById('profileSchedule'),
+    status: document.getElementById('profileStatus'),
+    problem: document.getElementById('profileProblem'),
+  };
+
+  document.querySelectorAll('.profile-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      const data = (button as HTMLElement).dataset;
+      if (profileFields.name) profileFields.name.textContent = data.name || 'নাম নেই';
+      if (profileFields.phone) profileFields.phone.textContent = data.phone || 'N/A';
+      if (profileFields.whatsapp) profileFields.whatsapp.textContent = data.whatsapp || data.phone || 'N/A';
+      if (profileFields.treatment) profileFields.treatment.textContent = data.treatment || 'N/A';
+      if (profileFields.schedule) profileFields.schedule.textContent = `${data.date || 'তারিখ নেই'} · ${data.time || 'সময় নেই'}`;
+      if (profileFields.status) profileFields.status.textContent = data.status || 'N/A';
+      if (profileFields.problem) profileFields.problem.textContent = data.problem || 'কোনো সমস্যা লেখা নেই।';
+      profileDrawer?.removeAttribute('hidden');
+    });
+  });
+
+  document.querySelectorAll('[data-close-profile]').forEach((button) => {
+    button.addEventListener('click', () => profileDrawer?.setAttribute('hidden', ''));
+  });
+
+  // Status select change handler (single row)
+  const selects = document.querySelectorAll('.status-select');
+  selects.forEach(select => {
+    select.addEventListener('change', async (e) => {
+      const target = e.target as HTMLSelectElement;
+      const apptId = target.getAttribute('data-appt-id');
+      const currentStatus = target.getAttribute('data-current-status');
+      const newStatus = target.value;
+      const row = target.closest('tr');
+      const badge = row?.querySelector('.status-badge');
+
+      if (newStatus === currentStatus) return;
+
+      const confirmMsg = `আপনি কি নিশ্চিত যে এই এ্যাপয়েন্টমেন্ট এর স্ট্যাটাস '${newStatus}' করতে চান?`;
+      if (!confirm(confirmMsg)) {
+        target.value = currentStatus || 'pending';
+        return;
+      }
+
+      target.disabled = true;
+      if (badge) {
+        badge.className = `status-badge ${statusClass[newStatus] || 'status-default'}`;
+        badge.textContent = statusText[newStatus] || newStatus;
+      }
+
+      try {
+        const res = await fetch('/api/admin/appointments/update-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apptId, status: newStatus })
+        });
+
+        const data = (await res.json()) as any;
+        if (res.ok && data.success) {
+          target.setAttribute('data-current-status', newStatus);
+          target.disabled = false;
+        } else {
+          throw new Error(data.error || 'আপডেট ব্যর্থ হয়েছে।');
+        }
+      } catch (err: any) {
+        alert(err.message);
+        target.value = currentStatus || 'pending';
+        if (badge) {
+          badge.className = `status-badge ${statusClass[currentStatus || 'pending'] || 'status-default'}`;
+          badge.textContent = statusText[currentStatus || 'pending'] || currentStatus || 'pending';
+        }
+        target.disabled = false;
+      }
+    });
+  });
+
+  // Select All checkbox
+  const selectAll = document.getElementById('selectAll') as HTMLInputElement;
+  const rowChecks = document.querySelectorAll('.row-check') as NodeListOf<HTMLInputElement>;
+  const bulkBar = document.getElementById('bulkBar') as HTMLElement;
+  const bulkCount = document.getElementById('bulkCount') as HTMLElement;
+
+  function updateBulkBar() {
+    const checked = document.querySelectorAll('.row-check:checked');
+    if (checked.length > 0) {
+      bulkBar.style.display = 'flex';
+      bulkCount.textContent = String(checked.length);
+    } else {
+      bulkBar.style.display = 'none';
+    }
+  }
+
+  selectAll?.addEventListener('change', () => {
+    rowChecks.forEach(cb => { cb.checked = selectAll.checked; });
+    updateBulkBar();
+  });
+
+  rowChecks.forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (!cb.checked) selectAll.checked = false;
+      else if (document.querySelectorAll('.row-check:checked').length === rowChecks.length) {
+        selectAll.checked = true;
+      }
+      updateBulkBar();
+    });
+  });
+
+  // Bulk apply
+  document.getElementById('bulkApply')?.addEventListener('click', async () => {
+    const statusSelect = document.getElementById('bulkStatus') as unknown as HTMLSelectElement;
+    const newStatus = statusSelect.value;
+    if (!newStatus) {
+      alert('অনুগ্রহ করে একটি স্ট্যাটাস বেছে নিন।');
+      return;
+    }
+
+    const checked = document.querySelectorAll('.row-check:checked') as NodeListOf<HTMLInputElement>;
+    const ids = Array.from(checked).map(cb => cb.getAttribute('data-id')).filter(Boolean);
+
+    if (ids.length === 0) return;
+
+    const confirmMsg = `আপনি কি ${ids.length} টি এ্যাপয়েন্টমেন্ট এর স্ট্যাটাস '${newStatus}' করতে চান?`;
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      const res = await fetch('/api/admin/appointments/bulk-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, status: newStatus })
+      });
+
+      const data = (await res.json()) as any;
+      if (res.ok && data.success) {
+        alert(`${data.count} টি এ্যাপয়েন্টমেন্ট আপডেট হয়েছে!`);
+        window.location.reload();
+      } else {
+        throw new Error(data.error || 'বাল্ক আপডেট ব্যর্থ হয়েছে।');
+      }
+    } catch (err: any) {
+      alert(err.message);
+    }
+  });
+</script>
+
+<style>
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+
+  .btn-export {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+  }
+  .btn-export:hover { background: #dcfce7; }
+
+  .btn-search {
+    background: var(--admin-primary);
+    color: #fff;
+  }
+  .btn-search:hover { opacity: 0.9; }
+
+  .btn-reset {
+    background: #f1f5f9;
+    color: var(--admin-text-light);
+    border: 1px solid var(--admin-border);
+  }
+  .btn-reset:hover { background: #e2e8f0; }
+
+  .appointment-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .summary-card {
+    background: #fff;
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .summary-card span,
+  .summary-card small {
+    display: block;
+    color: var(--admin-text-light);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .summary-card strong {
+    display: block;
+    margin: 6px 0;
+    color: var(--admin-text);
+    font-size: 1.7rem;
+    line-height: 1;
+  }
+
+  .summary-card.pending { border-color: #fde68a; background: #fffbeb; }
+  .summary-card.confirmed { border-color: #bfdbfe; background: #eff6ff; }
+  .summary-card.done { border-color: #bbf7d0; background: #f0fdf4; }
+
+  .view-switcher {
+    display: inline-flex;
+    gap: 6px;
+    padding: 4px;
+    margin-bottom: 12px;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .view-btn {
+    min-height: 36px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    color: var(--admin-text-light);
+    font-weight: 700;
+  }
+
+  .view-btn.active {
+    background: var(--admin-primary-light);
+    color: var(--admin-primary);
+  }
+
+  .calendar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .calendar-head h2 {
+    margin: 0 0 4px;
+    font-size: 1.1rem;
+  }
+
+  .calendar-head p {
+    margin: 0;
+    color: var(--admin-text-light);
+    font-size: 0.88rem;
+  }
+
+  .calendar-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .calendar-item {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 12px;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    color: inherit;
+    text-decoration: none;
+    background: #fff;
+  }
+
+  .calendar-item:hover {
+    border-color: #a5f3fc;
+    background: #f8fdff;
+  }
+
+  .calendar-time {
+    color: #0e7490;
+    font-weight: 800;
+  }
+
+  .calendar-item strong,
+  .calendar-item small {
+    display: block;
+  }
+
+  .calendar-item small {
+    margin-top: 2px;
+    color: var(--admin-text-light);
+    font-size: 0.8rem;
+  }
+
+  .empty-calendar {
+    padding: 28px;
+    border: 1px dashed var(--admin-border);
+    border-radius: 10px;
+    color: var(--admin-text-light);
+    text-align: center;
+  }
+
+  /* Filter bar */
+  .filter-bar { margin-bottom: 16px; }
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .filter-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--admin-text-light);
+  }
+
+  .filter-input {
+    padding: 8px 12px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.2s;
+  }
+  .filter-input:focus { outline: none; border-color: var(--admin-primary); }
+
+  .filter-btns {
+    display: flex;
+    gap: 8px;
+  }
+
+  /* Bulk bar */
+  .bulk-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #1e40af;
+  }
+
+  /* Action cell */
+  .action-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .action-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    background: var(--admin-primary-light);
+    color: var(--admin-primary);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    width: fit-content;
+  }
+  .action-link:hover { background: #cffafe; }
+  button.action-link {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .profile-drawer[hidden] {
+    display: none;
+  }
+
+  .profile-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+  }
+
+  .profile-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.38);
+  }
+
+  .profile-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: min(420px, 92vw);
+    height: 100%;
+    overflow-y: auto;
+    background: #fff;
+    border-left: 1px solid var(--admin-border);
+    padding: 28px;
+    box-shadow: -14px 0 40px rgba(15, 23, 42, 0.16);
+  }
+
+  .profile-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  .profile-kicker {
+    display: block;
+    color: var(--admin-primary);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .profile-panel h2 {
+    margin: 0 44px 18px 0;
+    font-size: 1.35rem;
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .profile-grid div,
+  .profile-note {
+    padding: 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    background: #f8fafc;
+  }
+
+  .profile-grid span,
+  .profile-note span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--admin-text-light);
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  .profile-grid strong {
+    display: block;
+    color: var(--admin-text);
+    font-size: 0.92rem;
+    line-height: 1.4;
+  }
+
+  .profile-note {
+    margin-top: 12px;
+  }
+
+  .profile-note p {
+    margin: 0;
+    color: var(--admin-text);
+    line-height: 1.65;
+  }
+
+  .status-select {
+    padding: 6px 12px;
+    border: 1px solid var(--admin-border);
+    border-radius: 6px;
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .status-select:focus {
+    border-color: var(--admin-primary);
+  }
+
+  .status-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .status-pending { background: #fef3c7; color: #d97706; }
+  .status-confirmed { background: #dbeafe; color: #2563eb; }
+  .status-done { background: #dcfce7; color: #16a34a; }
+  .status-cancelled { background: #fee2e2; color: #dc2626; }
+  .status-default { background: #e2e8f0; color: #64748b; }
+
+  .table-container { overflow-x: auto; }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  .admin-table th {
+    padding: 12px 16px;
+    background: #f8fafc;
+    color: var(--admin-text-light);
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--admin-border);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .admin-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--admin-border);
+    color: var(--admin-text-light);
+    font-size: 0.95rem;
+    vertical-align: middle;
+  }
+
+  .admin-table tr:last-child td { border-bottom: none; }
+
+  .admin-table th:first-child,
+  .admin-table td:first-child {
+    text-align: center;
+  }
+
+  @media (max-width: 1024px) {
+    .filter-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .appointment-summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .filter-grid {
+      grid-template-columns: 1fr;
+    }
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .appointment-summary-grid {
+      grid-template-columns: 1fr;
+    }
+    .calendar-head {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .calendar-item {
+      grid-template-columns: 1fr;
+      align-items: flex-start;
+    }
+    .profile-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

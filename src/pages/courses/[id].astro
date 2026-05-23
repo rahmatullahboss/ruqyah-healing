@@ -1,0 +1,857 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { createDb } from '../../db/client.js';
+import { courseModules, courseLessons, courseQuizzes, courseReviews } from '../../db/schema.js';
+import { eq, and, asc, desc } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+import { PlayCircle, FileText, ListChecks, ChevronDown, Clock, Users, Star, Award, BookOpen, Lock } from '@lucide/astro';
+import { getCourseAccess, getEffectiveCoursePrice, safeJsonArray } from '../../lib/lms-access.js';
+import { buildCourseReadiness } from '../../lib/lms-admin.js';
+
+const { id } = Astro.params;
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+const user = (Astro.locals as any).user;
+
+const courseAccess = await getCourseAccess(db, { user, courseId: id });
+const course = courseAccess.course;
+if (!course || !courseAccess.canView) return Astro.redirect('/courses');
+
+// Get content tree
+const modules = await db.select().from(courseModules)
+  .where(eq(courseModules.courseId, id))
+  .orderBy(asc(courseModules.sortOrder));
+
+const lessons = await db.select().from(courseLessons)
+  .where(eq(courseLessons.courseId, id))
+  .orderBy(asc(courseLessons.sortOrder));
+
+const quizzes = await db.select().from(courseQuizzes)
+  .where(eq(courseQuizzes.courseId, id))
+  .orderBy(asc(courseQuizzes.sortOrder));
+
+const readiness = buildCourseReadiness({ course, modules, lessons });
+if (!courseAccess.isAdmin && !courseAccess.isEnrolled && !readiness.publishable) {
+  return Astro.redirect('/courses');
+}
+
+// Check enrollment status
+let enrollment: any = courseAccess.enrollment;
+let isEnrolled = courseAccess.isEnrolled;
+
+// Get reviews
+const reviews = await db.select().from(courseReviews)
+  .where(and(eq(courseReviews.courseId, id), eq(courseReviews.published, true)))
+  .orderBy(desc(courseReviews.createdAt))
+  .limit(10);
+
+const effectivePrice = getEffectiveCoursePrice(course);
+const hasSalePrice = course.price !== null && course.salePrice !== null && Number(course.salePrice) > 0 && Number(course.salePrice) < Number(course.price);
+const priceDisplay = effectivePrice === 0 ? 'ফ্রি' : `৳ ${effectivePrice.toLocaleString()}`;
+const outcomes = safeJsonArray(course.outcomes);
+const requirements = safeJsonArray(course.requirements);
+const faqs = safeJsonArray(course.faq);
+
+// Build content tree for display
+const contentTree = modules.map(mod => ({
+  ...mod,
+  lessons: lessons.filter(l => l.moduleId === mod.id),
+  quizzes: quizzes.filter(q => q.moduleId === mod.id),
+}));
+
+// Free preview lessons
+const freePreviewLessons = lessons.filter(l => l.isFreePreview);
+const heroPreviewLesson = freePreviewLessons.find(l => ['video', 'mixed'].includes(l.contentType) && l.videoUrl);
+
+function toBengaliNum(n: any) {
+  if (n === null || n === undefined) return '';
+  const arr = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+  return String(n).replace(/[0-9]/g, w => arr[+w]);
+}
+---
+
+<BaseLayout title={`${course.title} | Ruqyah Healing Center`} description={course.desc}>
+  <Header />
+
+  <main class="course-details-container">
+    <div class="container">
+      <!-- Course Header -->
+      <div class="course-header">
+        <div class="header-top">
+          <div class="rating-badge">
+            <div class="stars">
+              {[1,2,3,4,5].map(i => (
+                <span class:list={['star', i <= Math.round(course.rating) && 'filled']}>★</span>
+              ))}
+            </div>
+            <span class="rating-text">{toBengaliNum(course.rating.toFixed(1))} ({toBengaliNum(reviews.length)} Reviews)</span>
+          </div>
+          <h1 class="course-title">{course.title}</h1>
+        </div>
+        <div class="header-meta">
+          <div class="categories">
+            Categories: <span class="cat-link">{course.category}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Content -->
+      <div class="course-layout">
+        <div class="course-main">
+          {/* Video/Image Preview */}
+          <div class="course-media">
+            {heroPreviewLesson ? (
+              <div class="video-wrapper">
+                <iframe
+                  src={`/api/courses/${id}/lessons/${heroPreviewLesson.id}/video`}
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                ></iframe>
+              </div>
+            ) : (
+              <img src={course.image} alt={course.title} class="course-image" />
+            )}
+          </div>
+
+          {/* Tabs */}
+          <div class="course-tabs">
+            <div class="tab-nav">
+              <button class="tab-btn active" data-tab="info">কোর্স ইনফো</button>
+              <button class="tab-btn" data-tab="content">কোর্স কন্টেন্ট</button>
+              <button class="tab-btn" data-tab="reviews">রিভিউ ({toBengaliNum(reviews.length)})</button>
+            </div>
+
+            {/* Course Info Tab */}
+            <div class="tab-content active" id="tab-info">
+              <div class="course-description">
+                <h2>কোর্স সম্পর্কে</h2>
+                <p>{course.fullDescription || course.desc}</p>
+              </div>
+
+              {outcomes.length > 0 && (
+                <div class="info-list-section">
+                  <h2>এই কোর্সে যা শিখবেন</h2>
+                  <ul>
+                    {outcomes.map((item) => <li>{item}</li>)}
+                  </ul>
+                </div>
+              )}
+
+              {requirements.length > 0 && (
+                <div class="info-list-section">
+                  <h2>যা দরকার</h2>
+                  <ul>
+                    {requirements.map((item) => <li>{item}</li>)}
+                  </ul>
+                </div>
+              )}
+
+              <div class="instructor-section">
+                <h2>ইন্সট্রাক্টর</h2>
+                <div class="instructor-card">
+                  <div class="instructor-avatar">{course.instructor.charAt(0)}</div>
+                  <div>
+                    <h3>{course.instructor}</h3>
+                    <p>ইন্সট্রাক্টর</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Course Content Tab */}
+            <div class="tab-content" id="tab-content">
+              <div class="content-overview">
+                <div class="content-stats">
+                  <span><BookOpen size={16} /> {toBengaliNum(course.totalLessons || lessons.length)} টি লেসন</span>
+                  <span><Clock size={16} /> {toBengaliNum(course.totalDuration || course.hours)}</span>
+                  <span><ListChecks size={16} /> {toBengaliNum(quizzes.length)} টি কুইজ</span>
+                </div>
+              </div>
+
+              {contentTree.length > 0 ? (
+                <div class="content-modules">
+                  {contentTree.map(mod => (
+                    <div class="content-module">
+                      <div class="module-header-toggle" data-module-toggle>
+                        <div class="module-left">
+                          <ChevronDown size={16} class="module-chevron" />
+                          <span class="module-name">{mod.title}</span>
+                        </div>
+                        <span class="module-meta">
+                          {toBengaliNum(mod.lessons.length)} লেসন
+                          {mod.quizzes.length > 0 && `, ${toBengaliNum(mod.quizzes.length)} কুইজ`}
+                        </span>
+                      </div>
+                      <div class="module-lessons" style="display:none;">
+                        {mod.lessons.map(lesson => (
+                          <div class:list={['lesson-row', lesson.isFreePreview && 'free']}>
+                            <div class="lesson-left">
+                              {lesson.contentType === 'video' ? (
+                                <PlayCircle size={16} class="lesson-icon video" />
+                              ) : (
+                                <FileText size={16} class="lesson-icon text" />
+                              )}
+                              <span class="lesson-name">{lesson.title}</span>
+                              {lesson.isFreePreview && <span class="free-tag">ফ্রি প্রিভিউ</span>}
+                            </div>
+                            <span class="lesson-duration">
+                              {toBengaliNum(lesson.duration) || ''}
+                              {!lesson.isFreePreview && !isEnrolled && <Lock size={14} />}
+                            </span>
+                          </div>
+                        ))}
+                        {mod.quizzes.map(quiz => (
+                          <div class="lesson-row quiz">
+                            <div class="lesson-left">
+                              <ListChecks size={16} class="lesson-icon quiz" />
+                              <span class="lesson-name">{quiz.title}</span>
+                            </div>
+                            <span class="lesson-duration">কুইজ</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div class="no-content-msg">
+                  <p>কোর্স কন্টেন্ট শীঘ্রই যোগ করা হবে।</p>
+                </div>
+              )}
+            </div>
+
+            {/* Reviews Tab */}
+            <div class="tab-content" id="tab-reviews">
+              {reviews.length > 0 ? (
+                <div class="reviews-list">
+                  {reviews.map(review => (
+                    <div class="review-card">
+                      <div class="review-header">
+                        <div class="review-stars">
+                          {[1,2,3,4,5].map(i => (
+                            <span class:list={['star', i <= review.rating && 'filled']}>★</span>
+                          ))}
+                        </div>
+                        <span class="review-date">
+                          {new Date(review.createdAt).toLocaleDateString('bn-BD')}
+                        </span>
+                      </div>
+                      {review.comment && <p class="review-comment">{review.comment}</p>}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p class="no-reviews">এখনো কোনো রিভিউ নেই।</p>
+              )}
+
+              {/* Review Form for enrolled users */}
+              {isEnrolled && (
+                <div class="review-form-section">
+                  <h3>আপনার রিভিউ দিন</h3>
+                  <form id="reviewForm">
+                    <div class="star-rating-input">
+                      {[1,2,3,4,5].map(i => (
+                        <button type="button" class="star-btn" data-rating={i}>★</button>
+                      ))}
+                    </div>
+                    <textarea name="comment" rows="3" placeholder="আপনার অভিজ্ঞতা শেয়ার করুন..."></textarea>
+                    <button type="submit" class="submit-review-btn">রিভিউ জমা দিন</button>
+                  </form>
+                </div>
+              )}
+            </div>
+
+            {faqs.length > 0 && (
+              <div class="faq-section">
+                <h2>সাধারণ প্রশ্ন</h2>
+                {faqs.map((item: any) => (
+                  <details>
+                    <summary>{item.question}</summary>
+                    <p>{item.answer}</p>
+                  </details>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <aside class="course-sidebar">
+          <div class="sidebar-card">
+            <div class="price-display">{priceDisplay}</div>
+            {hasSalePrice && <div class="old-price">৳ {course.price.toLocaleString()}</div>}
+
+            {user ? (
+              isEnrolled ? (
+                <div class="enrolled-actions">
+                  <a href={`/courses/${id}/learn`} class="btn-start">
+                    <PlayCircle size={18} />
+                    শেখা শুরু করুন
+                  </a>
+                  <a href="/my-courses" class="btn-my-courses">আমার কোর্স</a>
+                </div>
+              ) : enrollment?.status === 'pending' ? (
+                <div class="pending-msg">
+                  <Clock size={20} />
+                  <span>পেমেন্ট যাচাই করা হচ্ছে</span>
+                </div>
+              ) : (
+                <button class="btn-enroll" id="enrollBtn" data-course-id={id} data-price={course.price}>
+                  এনরোল করুন
+                </button>
+              )
+            ) : (
+              <a href="/login" class="btn-enroll">এনরোল করতে লগইন করুন</a>
+            )}
+
+            <div class="sidebar-features">
+              <div class="feature-item">
+                <BookOpen size={16} />
+                <span>{toBengaliNum(course.totalLessons || lessons.length)} টি লেসন</span>
+              </div>
+              <div class="feature-item">
+                <Clock size={16} />
+                <span>{toBengaliNum(course.totalDuration || course.hours)}</span>
+              </div>
+              <div class="feature-item">
+                <Users size={16} />
+                <span>{toBengaliNum(course.students)} জন শিক্ষার্থী</span>
+              </div>
+              <div class="feature-item">
+                <Star size={16} />
+                <span>{toBengaliNum(course.rating.toFixed(1))} রেটিং</span>
+              </div>
+              {course.certificateEnabled !== false && (
+                <div class="feature-item">
+                  <Award size={16} />
+                  <span>সার্টিফিকেট</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <!-- Payment Modal -->
+  <div id="paymentModal" class="modal-overlay" style="display:none;">
+    <div class="modal">
+      <h3>পেমেন্ট তথ্য</h3>
+      <p class="modal-desc">bKash বা Nagad এ টাকা পাঠিয়ে নিচের তথ্য দিন।</p>
+      <form id="paymentForm">
+        <input type="hidden" name="courseId" id="payCourseId" />
+        <div class="form-group">
+          <label>পেমেন্ট মেথড</label>
+          <select name="paymentMethod" required>
+            <option value="bkash">bKash</option>
+            <option value="nagad">Nagad</option>
+            <option value="rocket">Rocket</option>
+            <option value="bank">Bank Transfer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>পেমেন্ট নম্বর</label>
+          <input type="text" name="paymentNumber" required placeholder="যে নম্বর থেকে পাঠিয়েছেন" />
+        </div>
+        <div class="form-group">
+          <label>ট্রানজেকশন আইডি</label>
+          <input type="text" name="transactionId" required placeholder="TrxID" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="document.getElementById('paymentModal').style.display='none'">বাতিল</button>
+          <button type="submit" class="btn-submit">এনরোল করুন</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${tab}`)?.classList.add('active');
+    });
+  });
+
+  // Module toggle in content tab
+  document.querySelectorAll('[data-module-toggle]').forEach(header => {
+    header.addEventListener('click', () => {
+      const body = header.nextElementSibling;
+      const chevron = header.querySelector('.module-chevron');
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        chevron.style.transform = 'rotate(0deg)';
+      } else {
+        body.style.display = 'none';
+        chevron.style.transform = 'rotate(-90deg)';
+      }
+    });
+  });
+
+  // Enroll button (paid courses)
+  const enrollBtn = document.getElementById('enrollBtn');
+  enrollBtn?.addEventListener('click', () => {
+    const price = enrollBtn.getAttribute('data-price');
+    const courseId = enrollBtn.getAttribute('data-course-id');
+    if (!price || price === '0' || price === 'null') {
+      // Free course - direct enroll
+      fetch('/api/courses/enroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseId })
+      }).then(r => r.json()).then(data => {
+        if (data.success) window.location.reload();
+        else alert(data.error || 'সমস্যা হয়েছে।');
+      });
+    } else {
+      // Paid course - show payment modal
+      document.getElementById('payCourseId').value = courseId;
+      document.getElementById('paymentModal').style.display = 'flex';
+    }
+  });
+
+  // Payment form
+  document.getElementById('paymentForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const res = await fetch('/api/courses/enroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (res.ok && result.success) {
+        alert('এনরোলমেন্ট রিকোয়েস্ট পাঠানো হয়েছে! পেমেন্ট যাচাই করার পর আপনি কোর্স অ্যাক্সেস পাবেন।');
+        document.getElementById('paymentModal').style.display = 'none';
+        window.location.reload();
+      } else {
+        throw new Error(result.error || 'সমস্যা হয়েছে।');
+      }
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+
+  // Star rating input
+  let selectedRating = 0;
+  document.querySelectorAll('.star-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedRating = parseInt(btn.getAttribute('data-rating'));
+      document.querySelectorAll('.star-btn').forEach((b, i) => {
+        b.classList.toggle('active', i < selectedRating);
+      });
+    });
+  });
+
+  // Review form
+  document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (selectedRating === 0) { alert('রেটিং দিন'); return; }
+    const form = e.target as HTMLFormElement;
+    const comment = (form.querySelector('textarea') as HTMLTextAreaElement)?.value || '';
+
+    try {
+      const res = await fetch(`/api/courses/${window.location.pathname.split('/')[2]}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating: selectedRating, comment })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert('রিভিউ জমা হয়েছে!');
+        window.location.reload();
+      } else {
+        throw new Error(data.error || 'সমস্যা হয়েছে।');
+      }
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+</script>
+
+<style>
+  .course-details-container { padding: 0 0 60px; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+  /* Header */
+  .course-header { padding: 40px 0 24px; }
+  .header-top { margin-bottom: 12px; }
+  .rating-badge { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .stars { display: flex; gap: 2px; }
+  .star { color: #d1d5db; font-size: 1rem; }
+  .star.filled { color: #f59e0b; }
+  .rating-text { font-size: 0.85rem; color: #64748b; }
+  .course-title { font-size: 2rem; font-weight: 800; margin: 0; color: #0f172a; }
+  .categories { font-size: 0.9rem; color: #64748b; }
+  .cat-link { color: #0891b2; font-weight: 600; }
+
+  /* Layout */
+  .course-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* Media */
+  .course-media { margin-bottom: 32px; }
+  .video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+  }
+  .video-wrapper iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+  .course-image {
+    width: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    max-height: 400px;
+  }
+
+  /* Tabs */
+  .course-tabs { margin-bottom: 32px; }
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 24px;
+  }
+  .tab-btn {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    color: #0891b2;
+    border-bottom-color: #0891b2;
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Course Info */
+  .course-description h2, .instructor-section h2, .info-list-section h2, .faq-section h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 16px;
+  }
+  .course-description p { color: #475569; line-height: 1.8; }
+  .info-list-section {
+    margin-top: 24px;
+    padding: 18px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+  }
+  .info-list-section ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #475569;
+    line-height: 1.8;
+  }
+  .instructor-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+  }
+  .instructor-avatar {
+    width: 48px; height: 48px;
+    background: #0891b2;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+  .instructor-card h3 { margin: 0; font-size: 1rem; }
+  .instructor-card p { margin: 2px 0 0; font-size: 0.85rem; color: #64748b; }
+
+  /* Content Tab */
+  .content-overview { margin-bottom: 20px; }
+  .content-stats {
+    display: flex;
+    gap: 24px;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  .content-stats span { display: flex; align-items: center; gap: 6px; }
+
+  .content-modules { display: flex; flex-direction: column; gap: 8px; }
+  .content-module {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .module-header-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: #f8fafc;
+    cursor: pointer;
+  }
+  .module-header-toggle:hover { background: #f1f5f9; }
+  .module-left { display: flex; align-items: center; gap: 10px; }
+  .module-chevron { color: #94a3b8; transition: transform 0.2s; }
+  .module-name { font-weight: 600; font-size: 0.95rem; }
+  .module-meta { font-size: 0.8rem; color: #94a3b8; }
+
+  .lesson-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px 12px 42px;
+    border-top: 1px solid #f1f5f9;
+  }
+  .lesson-left { display: flex; align-items: center; gap: 10px; }
+  .lesson-icon.video { color: #3b82f6; }
+  .lesson-icon.text { color: #10b981; }
+  .lesson-icon.quiz { color: #f59e0b; }
+  .lesson-name { font-size: 0.9rem; color: #475569; }
+  .lesson-duration { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #94a3b8; }
+  .free-tag {
+    background: #dcfce7;
+    color: #16a34a;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .no-content-msg { text-align: center; padding: 40px; color: #64748b; }
+
+  /* Reviews */
+  .reviews-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+  .review-card {
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+  }
+  .review-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .review-stars { display: flex; gap: 2px; }
+  .review-date { font-size: 0.8rem; color: #94a3b8; }
+  .review-comment { color: #475569; margin: 0; line-height: 1.6; }
+  .no-reviews { text-align: center; padding: 40px; color: #64748b; }
+
+  .review-form-section {
+    padding: 24px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+  }
+  .review-form-section h3 { margin: 0 0 16px; font-size: 1rem; }
+  .star-rating-input {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .star-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #d1d5db;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0;
+  }
+  .star-btn.active { color: #f59e0b; }
+  .review-form-section textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    margin-bottom: 12px;
+  }
+  .submit-review-btn {
+    padding: 10px 24px;
+    background: #0891b2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .faq-section {
+    margin-top: 28px;
+  }
+  .faq-section details {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    background: #fff;
+  }
+  .faq-section summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  .faq-section p {
+    margin: 10px 0 0;
+    color: #475569;
+    line-height: 1.7;
+  }
+
+  /* Sidebar */
+  .sidebar-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    position: sticky;
+    top: 90px;
+  }
+  .price-display {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0891b2;
+    margin-bottom: 6px;
+  }
+  .old-price {
+    color: #94a3b8;
+    text-decoration: line-through;
+    margin-bottom: 18px;
+  }
+  .btn-start, .btn-enroll, .btn-my-courses {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+  }
+  .btn-start { background: #0891b2; color: white; }
+  .btn-start:hover { background: #06b6d4; }
+  .btn-enroll { background: #0891b2; color: white; }
+  .btn-enroll:hover { background: #06b6d4; }
+  .btn-my-courses { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+  .btn-my-courses:hover { background: #e2e8f0; }
+  .pending-msg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    background: #fef3c7;
+    color: #92400e;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .enrolled-actions { display: flex; flex-direction: column; }
+
+  .sidebar-features {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #475569;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    width: 90%;
+    max-width: 480px;
+  }
+  .modal h3 { margin: 0 0 8px; }
+  .modal-desc { color: #64748b; margin: 0 0 20px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-family: inherit;
+  }
+  .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+  .btn-cancel {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .btn-submit {
+    flex: 1;
+    padding: 10px;
+    background: #0891b2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  @media (max-width: 1024px) {
+    .course-layout { grid-template-columns: 1fr; }
+    .sidebar-card { position: static; }
+  }
+  @media (max-width: 640px) {
+    .course-title { font-size: 1.5rem; }
+    .tab-nav { overflow-x: auto; }
+  }
+</style>

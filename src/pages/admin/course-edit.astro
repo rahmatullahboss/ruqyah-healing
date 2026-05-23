@@ -1,0 +1,1011 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { courses, courseModules, courseLessons, courseQuizzes } from '../../db/schema.js';
+import { eq, asc } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+import { ArrowLeft, Save, Plus, Edit, Trash2, GripVertical, ChevronDown, ChevronRight, PlayCircle, FileText, ListChecks } from '@lucide/astro';
+import { safeJsonArray } from '../../lib/lms-access.js';
+import { buildCourseReadiness, readinessMessage } from '../../lib/lms-admin.js';
+
+export const prerender = false;
+
+const env = workerEnv || process.env;
+const db = createDb((env as any).DATABASE_URL);
+
+const id = Astro.url.searchParams.get('id');
+let course: any = null;
+let modules: any[] = [];
+let lessons: any[] = [];
+let quizzes: any[] = [];
+let outcomesText = '';
+let requirementsText = '';
+let faqText = '';
+const courseMetaRows = await db.select({ category: courses.category, level: courses.level }).from(courses);
+const categorySuggestions = [...new Set(courseMetaRows.map((row) => row.category).filter(Boolean))];
+const levelSuggestions = [...new Set(courseMetaRows.map((row) => row.level).filter(Boolean))];
+
+if (id && id !== 'new') {
+  const result = await db.select().from(courses).where(eq(courses.id, id));
+  if (result.length > 0) course = result[0];
+
+  if (course) {
+    outcomesText = safeJsonArray(course.outcomes).join('\n');
+    requirementsText = safeJsonArray(course.requirements).join('\n');
+    faqText = safeJsonArray(course.faq)
+      .map((item: any) => `${item.question || ''}\n${item.answer || ''}`.trim())
+      .filter(Boolean)
+      .join('\n\n');
+
+    modules = await db.select().from(courseModules)
+      .where(eq(courseModules.courseId, course.id))
+      .orderBy(asc(courseModules.sortOrder));
+
+    lessons = await db.select().from(courseLessons)
+      .where(eq(courseLessons.courseId, course.id))
+      .orderBy(asc(courseLessons.sortOrder));
+
+    quizzes = await db.select().from(courseQuizzes)
+      .where(eq(courseQuizzes.courseId, course.id))
+      .orderBy(asc(courseQuizzes.sortOrder));
+  }
+}
+
+const readiness = course ? buildCourseReadiness({ course, modules, lessons }) : null;
+---
+
+<AdminLayout title={course ? 'কোর্স আপডেট' : 'নতুন কোর্স'}>
+  <div class="page-header">
+    <div>
+      <a href="/admin/courses" class="back-link">
+        <ArrowLeft size={16} /> ফিরে যান
+      </a>
+      <h1 class="page-title">{course ? 'কোর্স আপডেট করুন' : 'নতুন কোর্স তৈরি করুন'}</h1>
+    </div>
+  </div>
+
+  <!-- Course Metadata Form -->
+  <div class="admin-card max-w-3xl">
+    <form id="courseForm">
+      <input type="hidden" name="id" value={course?.id || 'new'} />
+
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>কোর্সের নাম *</label>
+          <input type="text" name="title" required value={course?.title || ''} placeholder="যেমন: বেসিক রুকইয়াহ ফ্রি কোর্স" />
+        </div>
+
+        <div class="form-group">
+          <label>ইন্সট্রাক্টর *</label>
+          <input type="text" name="instructor" required value={course?.instructor || ''} placeholder="ইন্সট্রাক্টরের নাম" />
+        </div>
+
+        <div class="form-group">
+          <label>মোট শিক্ষার্থী (Optional)</label>
+          <input type="number" name="students" value={course?.students || 0} />
+        </div>
+
+        <div class="form-group">
+          <label>ক্লাস সংখ্যা ও টেক্সট *</label>
+          <input type="text" name="classCount" required value={course?.classCount || ''} placeholder="যেমন: ৬ টি ক্লাস" />
+        </div>
+
+        <div class="form-group">
+          <label>কোর্সের সময়কাল *</label>
+          <input type="text" name="hours" required value={course?.hours || ''} placeholder="যেমন: ৮ সপ্তাহ" />
+        </div>
+
+        <div class="form-group">
+          <label>স্তর (Level) *</label>
+          <input type="text" name="level" list="levelSuggestions" required value={course?.level || ''} placeholder="যেমন: Beginner / Advanced / Certificate" />
+          <datalist id="levelSuggestions">
+            {levelSuggestions.map((level) => <option value={level} />)}
+          </datalist>
+        </div>
+
+        <div class="form-group">
+          <label>ক্যাটাগরি</label>
+          <input type="text" name="category" list="categorySuggestions" required value={course?.category || ''} placeholder="যেমন: Hijama / Ruqyah / Acupuncture" />
+          <datalist id="categorySuggestions">
+            {categorySuggestions.map((category) => <option value={category} />)}
+          </datalist>
+        </div>
+
+        <div class="form-group">
+          <label>স্ট্যাটাস</label>
+          <select name="status">
+            <option value="draft" selected={(course?.status || 'draft') === 'draft'}>ড্রাফট</option>
+            <option value="published" selected={course?.status === 'published'}>পাবলিশড</option>
+            <option value="unpublished" selected={course?.status === 'unpublished'}>আনপাবলিশড</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>ভাষা</label>
+          <input type="text" name="language" value={course?.language || 'বাংলা'} placeholder="বাংলা" />
+        </div>
+
+        <div class="form-group">
+          <label>অ্যাক্সেস মোড</label>
+          <select name="accessMode">
+            <option value="open" selected={(course?.accessMode || 'open') === 'open'}>সব লেসন একসাথে</option>
+            <option value="sequential" selected={course?.accessMode === 'sequential'}>একটার পর একটা আনলক</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>সার্টিফিকেট</label>
+          <select name="certificateEnabled">
+            <option value="true" selected={course?.certificateEnabled !== false}>চালু</option>
+            <option value="false" selected={course?.certificateEnabled === false}>বন্ধ</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>মূল্য (বিনা মূল্যের জন্য ফাঁকা বা 0 রাখুন)</label>
+          <input type="number" name="price" value={course?.price || ''} placeholder="0" />
+        </div>
+
+        <div class="form-group">
+          <label>ডিসকাউন্ট মূল্য</label>
+          <input type="number" name="salePrice" value={course?.salePrice || ''} placeholder="Optional" />
+        </div>
+
+        <div class="form-group">
+          <label>রেটিং</label>
+          <input type="number" step="0.1" max="5" name="rating" value={course?.rating || '5.0'} />
+        </div>
+
+        <div class="form-group full-width">
+          <label>ভিডিও লিংক (Google Drive / YouTube) (Optional)</label>
+          <input type="url" name="videoLink" value={course?.videoLink || ''} placeholder="যেমন: https://drive.google.com/... বা https://youtube.com/..." />
+          <small class="hint">শুধু পাবলিক ট্রেইলার/প্রোমো ভিডিওর জন্য। লেসন ভিডিও লেসনের ভিতরে দিন।</small>
+        </div>
+
+        <div class="form-group full-width">
+          <label>কোর্সের কভার ছবি *</label>
+          <div class="image-upload-wrapper">
+            <input type="hidden" name="image" id="imageUrl" value={course?.image || ''} />
+
+            <div id="imagePreview" class:list={['image-preview', !course?.image && 'empty']} style={course?.image ? `background-image: url(${course.image})` : ''}>
+              <div class="preview-overlay">
+                <span id="uploadText">{course?.image ? 'ছবি পরিবর্তন করুন' : 'কভার ছবি আপলোড করুন'}</span>
+              </div>
+              <input type="file" id="imageFile" accept="image/*" class="file-input" />
+            </div>
+
+            <div class="upload-status" id="uploadStatus" style="display: none;">
+              <span class="upload-spinner"></span> আপলোড হচ্ছে...
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label>সংক্ষিপ্ত বিবরণ *</label>
+          <textarea name="desc" required rows="3">{course?.desc || ''}</textarea>
+        </div>
+
+        <div class="form-group full-width">
+          <label>পাবলিক পেজের সংক্ষিপ্ত কপি</label>
+          <textarea name="shortDescription" rows="2" placeholder="কার্ড/হিরোতে দেখানোর সংক্ষিপ্ত কপি">{course?.shortDescription || ''}</textarea>
+        </div>
+
+        <div class="form-group full-width">
+          <label>বিস্তারিত বর্ণনা</label>
+          <textarea name="fullDescription" rows="5" placeholder="কোর্স ডিটেইল পেজের বিস্তারিত কপি">{course?.fullDescription || ''}</textarea>
+        </div>
+
+        <div class="form-group full-width">
+          <label>কোর্স আউটকাম (প্রতি লাইনে একটি)</label>
+          <textarea name="outcomes" rows="4" placeholder="এই কোর্স শেষে শিক্ষার্থী কী শিখবে">{outcomesText}</textarea>
+        </div>
+
+        <div class="form-group full-width">
+          <label>রিকোয়ারমেন্ট (প্রতি লাইনে একটি)</label>
+          <textarea name="requirements" rows="3" placeholder="কোর্স শুরু করার আগে যা জানা/থাকা দরকার">{requirementsText}</textarea>
+        </div>
+
+        <div class="form-group full-width">
+          <label>FAQ</label>
+          <textarea name="faq" rows="5" placeholder={`প্রশ্ন লিখুন\nউত্তর লিখুন\n\nআরেকটি প্রশ্ন\nআরেকটি উত্তর`}>{faqText}</textarea>
+          <small class="hint">প্রতিটি FAQ ব্লক ফাঁকা লাইন দিয়ে আলাদা করুন। প্রথম লাইন প্রশ্ন, পরের লাইনগুলো উত্তর।</small>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-save" id="saveBtn">
+          <Save size={18} />
+          সেভ করুন
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {readiness && (
+    <div class:list={['readiness-card', readiness.publishable ? 'ready' : 'blocked']}>
+      <div>
+        <h2>Publish readiness</h2>
+        <p>{readinessMessage(readiness)}</p>
+      </div>
+      <div class="readiness-stats">
+        <span>{readiness.summary.moduleCount} module</span>
+        <span>{readiness.summary.lessonCount} lesson</span>
+        <span>{readiness.summary.previewLessonCount} preview</span>
+      </div>
+      {!readiness.publishable && (
+        <ul>
+          {readiness.errors.map((error) => <li>{error}</li>)}
+        </ul>
+      )}
+      {readiness.warnings.length > 0 && (
+        <ul class="warning-list">
+          {readiness.warnings.map((warning) => <li>{warning}</li>)}
+        </ul>
+      )}
+    </div>
+  )}
+
+  <!-- Course Content Management (only for existing courses) -->
+  {course && (
+    <div class="content-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">কোর্স কন্টেন্ট</h2>
+          <p class="section-note">মডিউল বা লেসন drag করে serial বদলালে UI আগে আপডেট হবে, তারপর backend-এ sort order সেভ হবে।</p>
+        </div>
+        <button class="btn-primary" id="addModuleBtn">
+          <Plus size={16} />
+          নতুন মডিউল
+        </button>
+      </div>
+
+      <div id="modulesContainer" class="modules-container">
+        {modules.map((mod) => (
+          <div class="module-card" data-module-id={mod.id} data-sortable-module draggable="true">
+            <div class="module-header" data-toggle={mod.id}>
+              <div class="module-info">
+                <GripVertical size={16} class="drag-handle" />
+                <ChevronDown size={16} class="module-chevron" id={`chevron-${mod.id}`} />
+                <span class="module-title">{mod.title}</span>
+                <span class="module-count">
+                  {lessons.filter(l => l.moduleId === mod.id).length} টি লেসন
+                  {quizzes.filter(q => q.moduleId === mod.id).length > 0 &&
+                    `, ${quizzes.filter(q => q.moduleId === mod.id).length} টি কুইজ`}
+                </span>
+              </div>
+              <div class="module-actions">
+                <button class="action-btn edit" title="এডিট" data-edit-module={mod.id} data-title={mod.title} data-desc={mod.description || ''}>
+                  <Edit size={14} />
+                </button>
+                <button class="action-btn delete" title="ডিলিট" data-delete-module={mod.id}>
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+
+            <div class="module-body" id={`module-body-${mod.id}`} data-lesson-container style="display:none;">
+              {lessons.filter(l => l.moduleId === mod.id).map((lesson) => (
+                <div class="lesson-item" data-lesson-id={lesson.id} data-sortable-lesson draggable="true">
+                  <div class="lesson-info">
+                    {lesson.contentType === 'video' ? (
+                      <PlayCircle size={16} class="lesson-icon video" />
+                    ) : (
+                      <FileText size={16} class="lesson-icon text" />
+                    )}
+                    <span class="lesson-title">{lesson.title}</span>
+                    {lesson.duration && <span class="lesson-duration">{lesson.duration}</span>}
+                    {lesson.isFreePreview && <span class="free-badge">ফ্রি</span>}
+                  </div>
+                  <div class="lesson-actions">
+                    <a href={`/admin/lesson-edit?id=${lesson.id}&courseId=${course.id}`} class="action-btn edit" title="এডিট">
+                      <Edit size={14} />
+                    </a>
+                    <button class="action-btn delete" title="ডিলিট" data-delete-lesson={lesson.id}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {quizzes.filter(q => q.moduleId === mod.id).map((quiz) => (
+                <div class="lesson-item quiz-item" data-quiz-id={quiz.id}>
+                  <div class="lesson-info">
+                    <ListChecks size={16} class="lesson-icon quiz" />
+                    <span class="lesson-title">{quiz.title}</span>
+                    <span class="quiz-meta">পাস: {quiz.passingScore}%</span>
+                  </div>
+                  <div class="lesson-actions">
+                    <a href={`/admin/quiz-edit?id=${quiz.id}&courseId=${course.id}`} class="action-btn edit" title="এডিট">
+                      <Edit size={14} />
+                    </a>
+                    <button class="action-btn delete" title="ডিলিট" data-delete-quiz={quiz.id}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              <div class="add-buttons">
+                <a href={`/admin/lesson-edit?moduleId=${mod.id}&courseId=${course.id}`} class="add-lesson-btn">
+                  <Plus size={14} /> লেসন যোগ করুন
+                </a>
+                <a href={`/admin/quiz-edit?moduleId=${mod.id}&courseId=${course.id}`} class="add-quiz-btn">
+                  <Plus size={14} /> কুইজ যোগ করুন
+                </a>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {modules.length === 0 && (
+          <div class="empty-state">
+            <p>এখনো কোনো মডিউল যোগ করা হয়নি। "নতুন মডিউল" বাটনে ক্লিক করে শুরু করুন।</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )}
+
+  <!-- Module Add/Edit Modal -->
+  <div id="moduleModal" class="modal-overlay" style="display:none;">
+    <div class="modal">
+      <h3 id="moduleModalTitle">নতুন মডিউল</h3>
+      <input type="hidden" id="moduleEditId" />
+      <div class="form-group">
+        <label>মডিউলের নাম *</label>
+        <input type="text" id="moduleTitleInput" placeholder="যেমন: প্রথম পাঠ" />
+      </div>
+      <div class="form-group">
+        <label>বিবরণ (Optional)</label>
+        <textarea id="moduleDescInput" rows="2" placeholder="মডিউলের সংক্ষিপ্ত বিবরণ"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="moduleCancelBtn">বাতিল</button>
+        <button class="btn-primary" id="moduleSaveBtn">সেভ করুন</button>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script define:vars={{ courseId: course?.id }}>
+  const form = document.getElementById('courseForm');
+  const saveBtn = document.getElementById('saveBtn');
+  const imageFile = document.getElementById('imageFile');
+  const imagePreview = document.getElementById('imagePreview');
+  const imageUrlEl = document.getElementById('imageUrl');
+  const uploadText = document.getElementById('uploadText');
+  const uploadStatus = document.getElementById('uploadStatus');
+
+  function compressImage(file, maxWidth = 1000, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return reject(new Error('Canvas ctx null'));
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob((blob) => {
+            if (blob) resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", { type: 'image/webp' }));
+            else reject(new Error('Canvas toBlob failed'));
+          }, 'image/webp', quality);
+        };
+        img.src = e.target?.result;
+      };
+      reader.onerror = error => reject(error);
+    });
+  }
+
+  imageFile?.addEventListener('change', async () => {
+    const file = imageFile.files?.[0];
+    if (!file) return;
+    saveBtn.disabled = true;
+    uploadStatus.style.display = 'flex';
+    uploadText.style.display = 'none';
+    try {
+      const compressed = await compressImage(file, 1200, 0.85);
+      const formData = new FormData();
+      formData.append('file', compressed);
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+      const result = await res.json();
+      if (res.ok && result.success) {
+        imageUrlEl.value = result.url;
+        imagePreview.style.backgroundImage = `url(${result.url})`;
+        imagePreview.classList.remove('empty');
+        uploadText.textContent = 'ছবি পরিবর্তন করুন';
+      } else {
+        alert('ছবি আপলোড ব্যর্থ: ' + (result.error || 'অজানা ত্রুটি'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('ছবি প্রসেসিং সমস্যা।');
+    } finally {
+      saveBtn.disabled = false;
+      uploadStatus.style.display = 'none';
+      uploadText.style.display = 'block';
+    }
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    saveBtn.disabled = true;
+    const prevText = saveBtn.textContent;
+    saveBtn.textContent = 'সেভ হচ্ছে...';
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    const payload = {
+      ...data,
+      students: parseInt(data.students) || 0,
+      price: data.price ? parseInt(data.price) : null,
+      salePrice: data.salePrice ? parseInt(data.salePrice) : null,
+      rating: parseFloat(data.rating) || 0.0,
+      certificateEnabled: data.certificateEnabled === 'true'
+    };
+    const endpoint = data.id === 'new' ? '/api/admin/courses/create' : '/api/admin/courses/update';
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+      if (res.ok && result.success) {
+        if (data.id === 'new' && result.id) {
+          window.location.href = `/admin/course-edit?id=${result.id}`;
+        } else {
+          alert('সফলভাবে সেভ হয়েছে!');
+          window.location.reload();
+        }
+      } else {
+        const details = Array.isArray(result.errors) && result.errors.length > 0
+          ? `\n\n${result.errors.join('\n')}`
+          : '';
+        throw new Error((result.error || 'সেভ সমস্যা।') + details);
+      }
+    } catch (err) {
+      alert(err.message);
+      saveBtn.disabled = false;
+      saveBtn.textContent = prevText;
+    }
+  });
+
+  // Module toggle
+  document.querySelectorAll('[data-toggle]').forEach(el => {
+    el.addEventListener('click', () => {
+      const moduleId = el.getAttribute('data-toggle');
+      const body = document.getElementById(`module-body-${moduleId}`);
+      const chevron = document.getElementById(`chevron-${moduleId}`);
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        chevron.style.transform = 'rotate(0deg)';
+      } else {
+        body.style.display = 'none';
+        chevron.style.transform = 'rotate(-90deg)';
+      }
+    });
+  });
+
+  function getDragAfterElement(container, y, selector) {
+    const draggableElements = [...container.querySelectorAll(`${selector}:not(.is-dragging)`)];
+
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) {
+        return { offset, element: child };
+      }
+      return closest;
+    }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+  }
+
+  async function persistSortOrder(items, idAttribute, endpoint) {
+    await Promise.all(items.map((item, index) => {
+      const id = item.getAttribute(idAttribute);
+      if (!id) return Promise.resolve();
+      return fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, sortOrder: index + 1 })
+      }).then((response) => {
+        if (!response.ok) throw new Error('Sort update failed');
+      });
+    }));
+  }
+
+  function setupSortable(container, selector, idAttribute, endpoint) {
+    let draggedItem = null;
+
+    container.querySelectorAll(selector).forEach((item) => {
+      item.addEventListener('dragstart', () => {
+        draggedItem = item;
+        item.classList.add('is-dragging');
+      });
+
+      item.addEventListener('dragend', async () => {
+        item.classList.remove('is-dragging');
+        draggedItem = null;
+        const items = [...container.querySelectorAll(selector)];
+        container.classList.add('is-saving');
+        try {
+          await persistSortOrder(items, idAttribute, endpoint);
+        } catch (error) {
+          alert('Serial সেভ করা যায়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।');
+        } finally {
+          container.classList.remove('is-saving');
+        }
+      });
+    });
+
+    container.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      if (!draggedItem) return;
+      const afterElement = getDragAfterElement(container, event.clientY, selector);
+      if (!afterElement) container.appendChild(draggedItem);
+      else container.insertBefore(draggedItem, afterElement);
+    });
+  }
+
+  const modulesContainer = document.getElementById('modulesContainer');
+  if (modulesContainer) {
+    setupSortable(modulesContainer, '[data-sortable-module]', 'data-module-id', '/api/admin/modules/update');
+  }
+  document.querySelectorAll('[data-lesson-container]').forEach((container) => {
+    setupSortable(container, '[data-sortable-lesson]', 'data-lesson-id', '/api/admin/lessons/update');
+  });
+
+  // Module modal
+  const moduleModal = document.getElementById('moduleModal');
+  const moduleTitleInput = document.getElementById('moduleTitleInput');
+  const moduleDescInput = document.getElementById('moduleDescInput');
+  const moduleEditId = document.getElementById('moduleEditId');
+  const moduleModalTitle = document.getElementById('moduleModalTitle');
+
+  function openModuleModal(editId, title, desc) {
+    moduleModal.style.display = 'flex';
+    moduleEditId.value = editId || '';
+    moduleTitleInput.value = title || '';
+    moduleDescInput.value = desc || '';
+    moduleModalTitle.textContent = editId ? 'মডিউল এডিট করুন' : 'নতুন মডিউল';
+  }
+
+  document.getElementById('addModuleBtn')?.addEventListener('click', () => openModuleModal());
+  document.getElementById('moduleCancelBtn')?.addEventListener('click', () => { moduleModal.style.display = 'none'; });
+
+  // Edit module buttons
+  document.querySelectorAll('[data-edit-module]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-edit-module');
+      const title = btn.getAttribute('data-title');
+      const desc = btn.getAttribute('data-desc');
+      openModuleModal(id, title, desc);
+    });
+  });
+
+  // Save module
+  document.getElementById('moduleSaveBtn')?.addEventListener('click', async () => {
+    const editId = moduleEditId.value;
+    const title = moduleTitleInput.value.trim();
+    const description = moduleDescInput.value.trim();
+    if (!title) { alert('মডিউলের নাম দিন'); return; }
+
+    const endpoint = editId ? '/api/admin/modules/update' : '/api/admin/modules/create';
+    const body = editId ? { id: editId, title, description } : { courseId, title, description };
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const result = await res.json();
+      if (res.ok && result.success) window.location.reload();
+      else alert(result.error || 'সমস্যা হয়েছে।');
+    } catch (err) { alert('সার্ভার সমস্যা।'); }
+  });
+
+  // Delete module
+  document.querySelectorAll('[data-delete-module]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!confirm('এই মডিউল এবং এর সব লেসন/কুইজ ডিলিট হবে। নিশ্চিত?')) return;
+      try {
+        const res = await fetch('/api/admin/modules/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: btn.getAttribute('data-delete-module') })
+        });
+        const result = await res.json();
+        if (res.ok && result.success) window.location.reload();
+        else alert(result.error || 'ডিলিট সমস্যা।');
+      } catch (err) { alert('সার্ভার সমস্যা।'); }
+    });
+  });
+
+  // Delete lesson
+  document.querySelectorAll('[data-delete-lesson]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('এই লেসন ডিলিট হবে। নিশ্চিত?')) return;
+      try {
+        const res = await fetch('/api/admin/lessons/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: btn.getAttribute('data-delete-lesson') })
+        });
+        const result = await res.json();
+        if (res.ok && result.success) window.location.reload();
+        else alert(result.error || 'ডিলিট সমস্যা।');
+      } catch (err) { alert('সার্ভার সমস্যা।'); }
+    });
+  });
+
+  // Delete quiz
+  document.querySelectorAll('[data-delete-quiz]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('এই কুইজ ডিলিট হবে। নিশ্চিত?')) return;
+      try {
+        const res = await fetch('/api/admin/quizzes/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: btn.getAttribute('data-delete-quiz') })
+        });
+        const result = await res.json();
+        if (res.ok && result.success) window.location.reload();
+        else alert(result.error || 'ডিলিট সমস্যা।');
+      } catch (err) { alert('সার্ভার সমস্যা।'); }
+    });
+  });
+</script>
+
+<style>
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--admin-text-light);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .back-link:hover { color: var(--admin-primary); }
+  .max-w-3xl { max-width: 800px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .full-width { grid-column: 1 / -1; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  label { font-size: 0.9rem; font-weight: 600; color: var(--admin-text); }
+
+  input, select, textarea {
+    padding: 10px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #f8fafc;
+    outline: none;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus {
+    background: #fff;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px var(--admin-primary-light);
+  }
+  .hint { font-size: 0.8rem; color: var(--admin-text-light); }
+
+  .readiness-card {
+    max-width: 800px;
+    margin-top: 20px;
+    padding: 18px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--admin-border);
+    background: #fff;
+  }
+  .readiness-card.ready {
+    border-color: #86efac;
+    background: #f0fdf4;
+  }
+  .readiness-card.blocked {
+    border-color: #fed7aa;
+    background: #fff7ed;
+  }
+  .readiness-card h2 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    color: var(--admin-text);
+  }
+  .readiness-card p {
+    margin: 0;
+    color: var(--admin-text-light);
+    font-size: 0.9rem;
+  }
+  .readiness-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .readiness-stats span {
+    background: #fff;
+    border: 1px solid var(--admin-border);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--admin-text);
+  }
+  .readiness-card ul {
+    margin: 12px 0 0;
+    padding-left: 18px;
+    color: #b45309;
+    line-height: 1.6;
+  }
+  .readiness-card .warning-list {
+    color: #92400e;
+  }
+
+  .form-actions {
+    margin-top: 32px;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 24px;
+    border-top: 1px solid var(--admin-border);
+  }
+  .btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--admin-primary);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-save:hover { background: #06b6d4; }
+  .btn-save:disabled { opacity: 0.7; cursor: not-allowed; }
+
+  .content-section { margin-top: 40px; max-width: 800px; }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .section-title { font-size: 1.3rem; font-weight: 700; margin: 0; }
+  .section-note {
+    margin: 6px 0 0;
+    color: var(--admin-text-light);
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--admin-primary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #06b6d4; }
+
+  .modules-container { display: flex; flex-direction: column; gap: 12px; }
+  .module-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .module-card.is-dragging,
+  .lesson-item.is-dragging {
+    opacity: 0.55;
+    border-style: dashed;
+  }
+  .modules-container.is-saving,
+  .module-body.is-saving {
+    cursor: progress;
+  }
+  .module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: #f8fafc;
+    cursor: pointer;
+    user-select: none;
+  }
+  .module-header:hover { background: #f1f5f9; }
+  .module-info { display: flex; align-items: center; gap: 10px; flex: 1; }
+  .drag-handle { color: var(--admin-text-light); cursor: grab; }
+  .module-chevron { color: var(--admin-text-light); transition: transform 0.2s; }
+  .module-title { font-weight: 600; font-size: 1rem; }
+  .module-count { font-size: 0.8rem; color: var(--admin-text-light); margin-left: 8px; }
+  .module-actions { display: flex; gap: 6px; }
+  .module-body { padding: 12px 20px 16px; }
+
+  .lesson-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .lesson-info { display: flex; align-items: center; gap: 10px; flex: 1; }
+  .lesson-icon.video { color: #3b82f6; }
+  .lesson-icon.text { color: #10b981; }
+  .lesson-icon.quiz { color: #f59e0b; }
+  .lesson-title { font-weight: 500; font-size: 0.9rem; }
+  .lesson-duration { font-size: 0.8rem; color: var(--admin-text-light); margin-left: auto; }
+  .free-badge {
+    background: #dcfce7;
+    color: #16a34a;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .quiz-meta { font-size: 0.8rem; color: var(--admin-text-light); }
+  .lesson-actions { display: flex; gap: 6px; }
+
+  .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .action-btn.edit { color: #3b82f6; background: #eff6ff; }
+  .action-btn.edit:hover { background: #dbeafe; }
+  .action-btn.delete { color: #ef4444; background: #fef2f2; }
+  .action-btn.delete:hover { background: #fee2e2; }
+
+  .add-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--admin-border);
+  }
+  .add-lesson-btn, .add-quiz-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px dashed;
+    background: none;
+    transition: all 0.2s;
+  }
+  .add-lesson-btn { color: #3b82f6; border-color: #93c5fd; }
+  .add-lesson-btn:hover { background: #eff6ff; }
+  .add-quiz-btn { color: #f59e0b; border-color: #fcd34d; }
+  .add-quiz-btn:hover { background: #fffbeb; }
+
+  .empty-state { text-align: center; padding: 40px; color: var(--admin-text-light); }
+
+  .image-preview.empty {
+    background:
+      linear-gradient(135deg, rgba(8, 145, 178, 0.08), rgba(15, 23, 42, 0.04)),
+      repeating-linear-gradient(45deg, #f8fafc, #f8fafc 10px, #eef2f7 10px, #eef2f7 20px);
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    width: 90%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .modal h3 { margin: 0 0 20px; font-size: 1.2rem; font-weight: 700; }
+  .modal .form-group { margin-bottom: 16px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+  .btn-cancel {
+    padding: 8px 20px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .image-upload-wrapper { display: flex; flex-direction: column; gap: 12px; }
+  .image-preview {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    height: 225px;
+    background-color: var(--admin-surface);
+    background-size: cover;
+    background-position: center;
+    border: 2px dashed var(--admin-border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .image-preview:hover { border-color: var(--admin-primary); }
+  .preview-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .image-preview:hover .preview-overlay { opacity: 1; }
+  .preview-overlay span {
+    color: white;
+    font-weight: 600;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  .file-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .upload-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--admin-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  .upload-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--admin-primary-light);
+    border-top-color: var(--admin-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+</style>

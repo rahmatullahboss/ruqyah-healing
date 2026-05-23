@@ -1,48 +1,63 @@
 ---
-import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import { env as workerEnv } from 'cloudflare:workers';
+import { createDb } from '../../db/client.js';
+import { posts as postsTable } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
+import { getPostBySlug, getRelatedPosts } from '../../lib/posts.js';
+import { renderMarkdown, calculateReadingTime, sanitizeHtml, extractTextFromHtml } from '../../lib/markdown.js';
+
+export const prerender = true;
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts');
-  return posts.map((post) => ({
-    params: { slug: post.id.replace(/\.md$/, '') },
-    props: { post },
-  }));
+  const env = (workerEnv || process.env) as any;
+  const db = createDb(env.DATABASE_URL);
+  const rows = await db.select({ slug: postsTable.slug }).from(postsTable).where(eq(postsTable.published, true));
+  return rows.map((row) => ({ params: { slug: row.slug } }));
 }
 
-const { post } = Astro.props;
-const { Content } = await render(post);
+const { slug } = Astro.params;
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
 
-// Related posts (same category, excluding current)
-const allPosts = await getCollection('posts');
-const related = allPosts
-  .filter((p) => p.data.category === post.data.category && p.id !== post.id)
-  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
-  .slice(0, 3);
+const post = await getPostBySlug(db, slug);
+if (!post) {
+  return Astro.redirect('/blog');
+}
 
-// Reading time (approx: 150 words/min for Bengali)
-const contentText = post.body ?? '';
-const wordCount   = contentText.split(/\s+/).length;
-const readingTime = Math.max(1, Math.ceil(wordCount / 150));
+const related = await getRelatedPosts(db, post.category, post.slug, 3);
+
+// HTML-first rendering: use TipTap HTML when available, otherwise render legacy Markdown
+const contentHtml = post.contentHtml
+  ? sanitizeHtml(post.contentHtml)
+  : renderMarkdown(post.content);
+
+// Derive plain text for word count / reading time regardless of storage format
+const plainText = post.contentHtml
+  ? extractTextFromHtml(post.contentHtml)
+  : post.content;
+const wordCount = plainText.trim().split(/\s+/).filter(Boolean).length;
+const readingTime = calculateReadingTime(plainText);
 
 // JSON-LD BlogPosting schema
-const siteUrl   = 'https://ruqyah-healing.pages.dev';
-const postUrl   = `${siteUrl}/posts/${post.id.replace(/\.md$/, '')}`;
+const siteUrl   = Astro.site?.origin || 'https://ruqyahhealing.com';
+const postUrl   = `${siteUrl}/posts/${post.slug}`;
+const tags = Array.isArray(post.tags) ? post.tags : [];
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type':    'BlogPosting',
-  headline:   post.data.title,
-  description: post.data.excerpt,
+  headline:   post.title,
+  description: post.excerpt,
   url:          postUrl,
-  datePublished: post.data.date,
-  dateModified:  post.data.date,
+  datePublished: post.date,
+  dateModified:  post.updatedAt || post.date,
   inLanguage:    'bn-BD',
   author: {
     '@type': 'Person',
     name:    'মুফতী মুহাম্মাদ আল-আমীন',
-    url:     `${siteUrl}/profile`,
+    url:     `${siteUrl}/author`,
   },
   publisher: {
     '@type': 'Organization',
@@ -50,49 +65,48 @@ const jsonLd = {
     url:     siteUrl,
     logo: {
       '@type': 'ImageObject',
-      url:     `${siteUrl}/favicon.svg`,
+      url:     `${siteUrl}/images/ruqyah-logo.png`,
     },
   },
-  keywords: post.data.tags.join(', '),
-  articleSection: post.data.category,
+  keywords: tags.join(', '),
+  articleSection: post.category,
   mainEntityOfPage: {
     '@type': 'WebPage',
     '@id':   postUrl,
   },
+  wordCount: wordCount,
 };
 
-// BreadcrumbList schema
 const breadcrumbLd = {
   '@context': 'https://schema.org',
   '@type':    'BreadcrumbList',
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'হোম',  item: siteUrl },
     { '@type': 'ListItem', position: 2, name: 'ব্লগ', item: `${siteUrl}/blog` },
-    { '@type': 'ListItem', position: 3, name: post.data.category, item: `${siteUrl}/category/${post.data.category}` },
-    { '@type': 'ListItem', position: 4, name: post.data.title, item: postUrl },
+    { '@type': 'ListItem', position: 3, name: post.category, item: `${siteUrl}/category/${post.category}` },
+    { '@type': 'ListItem', position: 4, name: post.title, item: postUrl },
   ],
 };
 
-const formattedDate = new Date(post.data.date).toLocaleDateString('bn-BD', {
+const formattedDate = new Date(post.date).toLocaleDateString('bn-BD', {
   year: 'numeric', month: 'long', day: 'numeric',
 });
 ---
 
 <BaseLayout
-  title={`${post.data.title} | রুকইয়াহ হিলিং`}
-  description={post.data.excerpt}
+  title={`${post.title} | রুকইয়াহ হিলিং`}
+  description={post.excerpt}
   ogType="article"
-  articleDate={post.data.date}
-  articleSection={post.data.category}
-  keywords={post.data.tags}
+  articleDate={post.date}
+  articleSection={post.category}
+  keywords={tags}
+  articleAuthorUrl="/author"
 >
-  <!-- JSON-LD injected into <head> via named slot -->
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
 
   <Header />
 
-  <!-- Post Hero -->
   <section class="post-hero">
     <div class="container">
       <nav class="breadcrumb" aria-label="breadcrumb">
@@ -100,58 +114,59 @@ const formattedDate = new Date(post.data.date).toLocaleDateString('bn-BD', {
         <span aria-hidden="true">›</span>
         <a href="/blog">ব্লগ</a>
         <span aria-hidden="true">›</span>
-        <a href={`/category/${post.data.category}`}>{post.data.category}</a>
+        <a href={`/category/${post.category}`}>{post.category}</a>
       </nav>
-      <span class="cat-badge">{post.data.category}</span>
-      <h1>{post.data.title}</h1>
+      <span class="cat-badge">{post.category}</span>
+      <h1>{post.title}</h1>
       <div class="post-meta-row">
-        <time datetime={post.data.date} class="post-date">
+        <time datetime={post.date} class="post-date">
           🗓 {formattedDate}
         </time>
+        {post.updatedAt && post.updatedAt !== post.date && (
+          <time datetime={String(post.updatedAt)} class="post-updated">
+            ✏️ সর্বশেষ আপডেট: {new Date(post.updatedAt).toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' })}
+          </time>
+        )}
         <span class="reading-time">🕐 {readingTime} মিনিট পড়া</span>
         <span class="word-count">📝 ~{wordCount} শব্দ</span>
       </div>
-      <p class="post-excerpt">{post.data.excerpt}</p>
+      <p class="post-excerpt">{post.excerpt}</p>
     </div>
   </section>
 
-  <!-- Article Content -->
   <section class="section-sm">
     <div class="container post-layout">
       <article class="prose" id="post-content" itemscope itemtype="https://schema.org/BlogPosting">
-        <meta itemprop="headline" content={post.data.title} />
-        <meta itemprop="datePublished" content={post.data.date} />
-        <Content />
+        <meta itemprop="headline" content={post.title} />
+        <meta itemprop="datePublished" content={post.date} />
+        <Fragment set:html={contentHtml} />
       </article>
 
-      <!-- Tags -->
-      {post.data.tags.length > 0 && (
+      {tags.length > 0 && (
         <div class="post-tags">
           <strong>ট্যাগ:</strong>
-          {post.data.tags.map((tag) => (
+          {tags.map((tag) => (
             <span class="tag">#{tag}</span>
           ))}
         </div>
       )}
 
-      <!-- Share nudge -->
       <div class="share-bar">
         <span>এই পোস্টটি উপকারী মনে হলে শেয়ার করুন 🤲</span>
       </div>
     </div>
   </section>
 
-  <!-- Related Posts -->
   {related.length > 0 && (
     <section class="section-sm related-section">
       <div class="container">
         <h2 class="related-title">আরও পড়ুন</h2>
         <div class="grid-3">
           {related.map((rel) => (
-            <a href={`/posts/${rel.id.replace(/\.md$/, '')}`} class="rel-card">
-              <span class="cat-badge small">{rel.data.category}</span>
-              <h3>{rel.data.title}</h3>
-              <p>{rel.data.excerpt.substring(0, 100)}…</p>
+            <a href={`/posts/${rel.slug}`} class="rel-card">
+              <span class="cat-badge small">{rel.category}</span>
+              <h3>{rel.title}</h3>
+              <p>{rel.excerpt.substring(0, 100)}…</p>
             </a>
           ))}
         </div>
@@ -163,7 +178,6 @@ const formattedDate = new Date(post.data.date).toLocaleDateString('bn-BD', {
 </BaseLayout>
 
 <style>
-  /* Hero */
   .post-hero {
     background: linear-gradient(135deg, var(--dark-section) 0%, #065f46 100%);
     color: #fff;
@@ -204,6 +218,12 @@ const formattedDate = new Date(post.data.date).toLocaleDateString('bn-BD', {
     align-items: center;
     font-size: 13px;
     color: rgba(255,255,255,0.55);
+  }
+  .post-updated {
+    color: rgba(255,255,255,0.7);
+    font-weight: 500;
+  }
+  .post-meta-row {
     margin-bottom: 20px;
   }
   .post-excerpt {
@@ -213,10 +233,8 @@ const formattedDate = new Date(post.data.date).toLocaleDateString('bn-BD', {
     line-height: 1.7;
   }
 
-  /* Layout */
   .post-layout { max-width: 780px; }
 
-  /* Tags */
   .post-tags {
     margin-top: 40px;
     padding-top: 24px;
@@ -238,7 +256,6 @@ const formattedDate = new Date(post.data.date).toLocaleDateString('bn-BD', {
     font-weight: 500;
   }
 
-  /* Share bar */
   .share-bar {
     margin-top: 32px;
     padding: 16px 20px;
@@ -251,7 +268,6 @@ const formattedDate = new Date(post.data.date).toLocaleDateString('bn-BD', {
     text-align: center;
   }
 
-  /* Related */
   .related-section { background: var(--bg-light); }
   .related-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 28px; }
   .rel-card {

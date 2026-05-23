@@ -1,0 +1,151 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { auditLogs } from '../../db/schema.js';
+import { desc, eq, ilike, and } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+
+const actionFilter = Astro.url.searchParams.get('action') || '';
+const entityFilter = Astro.url.searchParams.get('entity') || '';
+
+const conditions: any[] = [];
+if (actionFilter) conditions.push(eq(auditLogs.action, actionFilter));
+if (entityFilter) conditions.push(eq(auditLogs.entityType, entityFilter));
+
+const logs = await db.select().from(auditLogs)
+  .where(conditions.length ? and(...conditions) : undefined)
+  .orderBy(desc(auditLogs.createdAt))
+  .limit(200);
+
+const actionLabels: Record<string, string> = {
+  create: 'তৈরি',
+  update: 'আপডেট',
+  delete: 'মুছে ফেলা',
+  status_change: 'স্ট্যাটাস পরিবর্তন',
+  role_change: 'ভূমিকা পরিবর্তন',
+  bulk_status_change: 'বাল্ক স্ট্যাটাস',
+};
+
+const entityLabels: Record<string, string> = {
+  post: 'পোস্ট',
+  appointment: 'অ্যাপয়েন্টমেন্ট',
+  user: 'ইউজার',
+  course: 'কোর্স',
+  notice: 'নোটিশ',
+  product: 'পণ্য',
+  resource: 'রিসোর্স',
+  settings: 'সেটিংস',
+};
+---
+
+<AdminLayout title="অডিট লগ | Admin - Ruqyah Healing">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">অডিট লগ</h1>
+      <p class="page-desc">সমস্ত অ্যাডমিন কার্যক্রমের ইতিহাস ({logs.length} এন্ট্রি)</p>
+    </div>
+  </div>
+
+  <div class="admin-card" style="margin-bottom:20px;">
+    <form class="filter-bar" method="GET">
+      <select name="action" class="form-input filter-select">
+        <option value="">সব অ্যাকশন</option>
+        <option value="create" selected={actionFilter === 'create'}>তৈরি</option>
+        <option value="update" selected={actionFilter === 'update'}>আপডেট</option>
+        <option value="delete" selected={actionFilter === 'delete'}>মুছে ফেলা</option>
+        <option value="status_change" selected={actionFilter === 'status_change'}>স্ট্যাটাস পরিবর্তন</option>
+        <option value="role_change" selected={actionFilter === 'role_change'}>ভূমিকা পরিবর্তন</option>
+      </select>
+      <select name="entity" class="form-input filter-select">
+        <option value="">সব ধরণ</option>
+        <option value="post" selected={entityFilter === 'post'}>পোস্ট</option>
+        <option value="appointment" selected={entityFilter === 'appointment'}>অ্যাপয়েন্টমেন্ট</option>
+        <option value="user" selected={entityFilter === 'user'}>ইউজার</option>
+        <option value="course" selected={entityFilter === 'course'}>কোর্স</option>
+        <option value="notice" selected={entityFilter === 'notice'}>নোটিশ</option>
+        <option value="product" selected={entityFilter === 'product'}>পণ্য</option>
+        <option value="resource" selected={entityFilter === 'resource'}>রিসোর্স</option>
+        <option value="settings" selected={entityFilter === 'settings'}>সেটিংস</option>
+      </select>
+      <button type="submit" class="btn-search">ফিল্টার</button>
+      {(actionFilter || entityFilter) && <a href="/admin/audit-logs" class="btn-reset">রিসেট</a>}
+    </form>
+  </div>
+
+  <div class="admin-card">
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>সময়</th>
+            <th>অ্যাডমিন</th>
+            <th>অ্যাকশন</th>
+            <th>ধরণ</th>
+            <th>আইডি</th>
+            <th>বিস্তারিত</th>
+          </tr>
+        </thead>
+        <tbody>
+          {logs.length === 0 ? (
+            <tr><td colspan="6" style="text-align:center; padding:32px 0;">কোনো লগ নেই।</td></tr>
+          ) : (
+            logs.map(log => (
+              <tr>
+                <td class="td-time">
+                  {new Date(log.createdAt).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' })}
+                  <span class="sub-text">{new Date(log.createdAt).toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' })}</span>
+                </td>
+                <td style="font-weight:500;">{log.adminName}</td>
+                <td>
+                  <span class:list={['action-badge', `action-${log.action}`]}>
+                    {actionLabels[log.action] || log.action}
+                  </span>
+                </td>
+                <td>
+                  <span class="entity-badge">{entityLabels[log.entityType] || log.entityType}</span>
+                </td>
+                <td class="td-id">{log.entityId.slice(0, 8)}...</td>
+                <td class="td-details">
+                  {typeof log.details === 'object' && log.details
+                    ? Object.entries(log.details).map(([k, v]) => k + ': ' + v).join(', ')
+                    : '-'
+                  }
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  .filter-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .filter-select { max-width: 200px; }
+  .form-input { padding: 10px 14px; border: 1px solid var(--admin-border); border-radius: 8px; font-size: 0.95rem; font-family: inherit; background: #fff; }
+  .btn-search { padding: 10px 20px; background: var(--admin-primary); color: #fff; border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; font-family: inherit; }
+  .btn-reset { padding: 10px 16px; background: #f1f5f9; color: var(--admin-text-light); border-radius: 8px; font-size: 0.9rem; text-decoration: none; font-weight: 500; }
+  .table-container { overflow-x: auto; }
+  .admin-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .admin-table th { padding: 12px 16px; background: #f8fafc; color: var(--admin-text-light); font-weight: 600; font-size: 0.8rem; border-bottom: 1px solid var(--admin-border); text-transform: uppercase; letter-spacing: 0.5px; }
+  .admin-table td { padding: 12px 16px; border-bottom: 1px solid var(--admin-border); color: var(--admin-text-light); font-size: 0.9rem; vertical-align: middle; }
+  .admin-table tr:last-child td { border-bottom: none; }
+  .td-time { white-space: nowrap; }
+  .sub-text { display: block; font-size: 0.8rem; color: #94a3b8; }
+  .td-id { font-family: monospace; font-size: 0.85rem; color: #64748b; }
+  .td-details { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.85rem; color: #64748b; }
+  .action-badge { padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+  .action-create { background: #dcfce7; color: #15803d; }
+  .action-update { background: #dbeafe; color: #1d4ed8; }
+  .action-delete { background: #fee2e2; color: #dc2626; }
+  .action-status_change { background: #fef3c7; color: #92400e; }
+  .action-role_change { background: #f3e8ff; color: #7c3aed; }
+  .action-bulk_status_change { background: #fef3c7; color: #92400e; }
+  .entity-badge { padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: #f1f5f9; color: #475569; }
+</style>

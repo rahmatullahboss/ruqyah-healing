@@ -1,0 +1,464 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { UserPlus, User, Phone, Mail, Lock, AlertCircle, ArrowRight } from '@lucide/astro';
+import { env as workerEnv } from 'cloudflare:workers';
+
+if ((Astro.locals as App.Locals).user) {
+  return Astro.redirect('/profile');
+}
+
+const env = (workerEnv || process.env) as any;
+const googleClientId = env.GOOGLE_CLIENT_ID || '';
+---
+
+<BaseLayout title="নতুন অ্যাকাউন্ট | Ruqyah Healing Center" description="রুকইয়াহ হিলিং সেন্টারে নতুন অ্যাকাউন্ট তৈরি করুন।">
+  <main class="auth-page">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="auth-icon-wrapper">
+             <UserPlus size={40} class="auth-icon" stroke-width={1.5} />
+          </div>
+          <h1>অ্যাকাউন্ট তৈরি করুন</h1>
+          <p>বিনামূল্যে অ্যাকাউন্ট তৈরি করে আমাদের সকল সেবা গ্রহণ করুন</p>
+        </div>
+
+        <form id="registerForm" class="auth-form">
+          <div class="form-group">
+            <label for="fullName">পূর্ণ নাম</label>
+            <div class="input-wrapper">
+              <User size={20} class="input-icon" />
+              <input type="text" id="fullName" name="fullName" required placeholder="আপনার পূর্ণ নাম" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">মোবাইল নাম্বার</label>
+            <div class="input-wrapper">
+              <Phone size={20} class="input-icon" />
+              <input type="tel" id="phone" name="phone" required placeholder="01XXXXXXXXX" />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">ইমেইল (ঐচ্ছিক)</label>
+            <div class="input-wrapper">
+              <Mail size={20} class="input-icon" />
+              <input type="email" id="email" name="email" placeholder="example@email.com" />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">পাসওয়ার্ড</label>
+            <div class="input-wrapper">
+              <Lock size={20} class="input-icon" />
+              <input type="password" id="password" name="password" required placeholder="কমপক্ষে ৮ ক্যারেক্টার" minlength="8" />
+              <button
+                type="button"
+                class="password-toggle"
+                data-password-toggle
+                data-target="password"
+                aria-controls="password"
+                aria-label="পাসওয়ার্ড দেখান"
+                aria-pressed="false"
+              >
+                দেখুন
+              </button>
+            </div>
+          </div>
+
+          <div id="errorMessage" class="error-message" style="display: none;">
+            <AlertCircle size={16} />
+            <span id="errorText"></span>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            <span>অ্যাকাউন্ট তৈরি করুন</span>
+            <ArrowRight size={20} />
+          </button>
+        </form>
+
+        <div class="divider">
+          <span>অথবা</span>
+        </div>
+
+        <div id="googleBtnWrap" class="google-btn-wrap" data-client-id={googleClientId}>
+          <button type="button" id="googleLoginBtn" class="google-btn">
+            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            <span>Google দিয়ে অ্যাকাউন্ট তৈরি করুন</span>
+          </button>
+        </div>
+
+        <div class="auth-footer">
+          <p>ইতিমধ্যেই অ্যাকাউন্ট আছে? <a href="/login">লগইন করুন</a></p>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('registerForm') as HTMLFormElement;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+  const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
+  const errorText = document.getElementById('errorText') as HTMLSpanElement;
+  const passwordToggle = document.querySelector('[data-password-toggle]') as HTMLButtonElement | null;
+
+  passwordToggle?.addEventListener('click', () => {
+    const targetId = passwordToggle.dataset.target;
+    const passwordInput = targetId ? document.getElementById(targetId) as HTMLInputElement | null : null;
+    if (!passwordInput) return;
+
+    const isVisible = passwordInput.type === 'text';
+    passwordInput.type = isVisible ? 'password' : 'text';
+    passwordToggle.textContent = isVisible ? 'দেখুন' : 'লুকান';
+    passwordToggle.setAttribute('aria-label', isVisible ? 'পাসওয়ার্ড দেখান' : 'পাসওয়ার্ড লুকান');
+    passwordToggle.setAttribute('aria-pressed', String(!isVisible));
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.classList.add('loading');
+    errorMessage.style.display = 'none';
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json() as any;
+
+      if (response.ok && result.success) {
+        window.location.href = result.redirect;
+      } else {
+        throw new Error(result.error || 'অ্যাকাউন্ট তৈরি করতে সমস্যা হয়েছে।');
+      }
+    } catch (err: any) {
+      errorText.textContent = err.message;
+      errorMessage.style.display = 'flex';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('loading');
+    }
+  });
+
+  // Google Sign-In
+  const googleBtn = document.getElementById('googleLoginBtn');
+  googleBtn?.addEventListener('click', () => {
+    googleBtn.classList.add('loading');
+    // @ts-ignore
+    google.accounts.id.prompt();
+  });
+
+  function handleGoogleCredential(response: any) {
+    const idToken = response.credential;
+    fetch('/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    })
+      .then(res => res.json() as Promise<any>)
+      .then(result => {
+        if (result.success) {
+          window.location.href = result.redirect;
+        } else {
+          errorText.textContent = result.error || 'Google সাইন-আপ ব্যর্থ হয়েছে।';
+          errorMessage.style.display = 'flex';
+        }
+      })
+      .catch(() => {
+        errorText.textContent = 'Google সাইন-আপ ব্যর্থ হয়েছে।';
+        errorMessage.style.display = 'flex';
+      })
+      .finally(() => {
+        googleBtn?.classList.remove('loading');
+      });
+  }
+
+  (window as any).handleGoogleCredential = handleGoogleCredential;
+
+  const script = document.createElement('script');
+  script.src = 'https://accounts.google.com/gsi/client';
+  script.async = true;
+  script.onload = () => {
+    // @ts-ignore
+    google.accounts.id.initialize({
+      client_id: document.getElementById('googleBtnWrap')?.dataset.clientId,
+      callback: handleGoogleCredential,
+      auto_select: false,
+    });
+  };
+  document.head.appendChild(script);
+</script>
+
+<style>
+  .auth-page {
+    min-height: calc(100vh - var(--nav-height));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, var(--bg-white) 0%, var(--bg-light) 100%);
+  }
+
+  .auth-container {
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .auth-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-light);
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .auth-icon-wrapper {
+    width: 72px;
+    height: 72px;
+    background: var(--primary-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+  }
+
+  .auth-icon {
+    color: var(--primary);
+  }
+
+  .auth-header h1 {
+    font-size: 1.75rem;
+    color: var(--text-dark);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .auth-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-medium);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-muted);
+  }
+
+  .input-wrapper input {
+    width: 100%;
+    padding: 0.875rem 4.75rem 0.875rem 2.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    color: var(--text-dark);
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background-color: var(--bg-white);
+  }
+
+  .input-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 0.75rem;
+    border: none;
+    background: transparent;
+    color: var(--primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .password-toggle:hover {
+    background: rgba(16, 185, 129, 0.08);
+  }
+
+  .password-toggle:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  .error-message {
+    background: var(--pink-light);
+    color: #ef4444;
+    padding: 0.875rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .submit-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .submit-btn.loading span {
+    opacity: 0;
+  }
+  
+  .submit-btn.loading {
+    position: relative;
+  }
+  
+  .submit-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid white;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    100% { transform: rotate(360deg); }
+  }
+
+  .auth-footer {
+    margin-top: 1.5rem;
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .auth-footer p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .auth-footer a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .auth-footer a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-light);
+  }
+
+  .divider span {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .google-btn-wrap {
+    margin-bottom: 0.5rem;
+  }
+
+  .google-btn {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: #fff;
+    color: var(--text-dark);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+
+  .google-btn:hover {
+    background: var(--bg-light);
+    border-color: #dadce0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  .google-btn.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+</style>

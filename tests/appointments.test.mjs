@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import {
   appointmentSubmissionSchema,
+  buildAppointmentSlotStates,
   mapAppointmentToInsert,
   serializeAppointmentPayload,
 } from '../src/lib/appointments.js';
@@ -32,6 +33,7 @@ test('serializeAppointmentPayload builds a normalized booking payload from raw f
     paymentMethod: 'বিকাশ',
     transactionId: 'TEST123',
     paymentTimestamp: '2026-04-10T10:30',
+    eventId: 'lead-test-event',
   });
 
   assert.equal(payload.fullName, 'টেস্ট রোগী');
@@ -41,6 +43,7 @@ test('serializeAppointmentPayload builds a normalized booking payload from raw f
     'Long Session - লং সেশন',
   ]);
   assert.equal(payload.paymentTimestamp, '2026-04-10T10:30');
+  assert.equal(payload.eventId, 'lead-test-event');
 });
 
 test('appointmentSubmissionSchema rejects malformed booking data', () => {
@@ -116,4 +119,35 @@ test('mapAppointmentToInsert prepares DB row with JSON-friendly fields', () => {
   assert.deepEqual(row.subServices, ['Diagnosis Session - ডায়াগনোসিস সেশন']);
   assert.equal(row.source, 'web');
   assert.equal(row.status, 'pending');
+});
+
+test('buildAppointmentSlotStates disables slots already held by active bookings', () => {
+  const slots = buildAppointmentSlotStates(
+    ['সকাল ৯:০০', 'সকাল ১০:০০', 'সকাল ১১:০০'],
+    [
+      { preferredDate: '2026-05-24', preferredTime: 'সকাল ৯:০০', status: 'pending' },
+      { preferredDate: '2026-05-24', preferredTime: 'সকাল ১০:০০', status: 'confirmed' },
+      { preferredDate: '2026-05-24', preferredTime: 'সকাল ১১:০০', status: 'cancelled' },
+      { preferredDate: '2026-05-25', preferredTime: 'সকাল ১১:০০', status: 'confirmed' },
+    ],
+    '2026-05-24',
+  );
+
+  assert.deepEqual(slots, [
+    { value: 'সকাল ৯:০০', label: 'সকাল ৯:০০', available: false, reason: 'pending' },
+    { value: 'সকাল ১০:০০', label: 'সকাল ১০:০০', available: false, reason: 'confirmed' },
+    { value: 'সকাল ১১:০০', label: 'সকাল ১১:০০', available: true, reason: '' },
+  ]);
+});
+
+test('buildAppointmentSlotStates keeps all slots available until a date is selected', () => {
+  const slots = buildAppointmentSlotStates(
+    ['সকাল ৯:০০'],
+    [{ preferredDate: '2026-05-24', preferredTime: 'সকাল ৯:০০', status: 'confirmed' }],
+    '',
+  );
+
+  assert.deepEqual(slots, [
+    { value: 'সকাল ৯:০০', label: 'সকাল ৯:০০', available: true, reason: '' },
+  ]);
 });

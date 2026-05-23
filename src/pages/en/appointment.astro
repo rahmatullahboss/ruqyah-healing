@@ -1,0 +1,108 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { clinicNumbers, clinicSchedule, getWhatsappUrl } from '../../data/clinic.js';
+import { buildBreadcrumbSchema, buildFaqSchema, buildServiceSchema } from '../../lib/seo.js';
+
+export const prerender = true;
+
+const whatsappLink = getWhatsappUrl('Assalamu Alaikum, I want to book an appointment.');
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/en/appointment`;
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'Home', url: `${siteUrl}/en/` },
+  { name: 'Appointment', url: pageUrl },
+]);
+const serviceLd = buildServiceSchema({
+  siteUrl,
+  pageUrl,
+  name: 'Ruqyah Appointment',
+  description: 'Booking page for ruqyah consultation and supportive healing sessions.',
+});
+const faqLd = buildFaqSchema([
+  {
+    question: 'What should I do before booking?',
+    answer: 'Prepare a brief summary of your problem, your availability, and any relevant history before contacting the team.',
+  },
+  {
+    question: 'Is ruqyah a replacement for medical treatment?',
+    answer: 'No. For urgent physical or mental symptoms, speak to a licensed medical professional first.',
+  },
+  {
+    question: 'Can I discuss my diagnosis result with a raqi?',
+    answer: 'Yes. You can use WhatsApp or book an appointment to review your result and next step with a raqi.',
+  },
+]);
+---
+
+<BaseLayout
+  title="Appointment | Ruqyah Healing Center"
+  description="Book ruqyah consultation and supportive healing sessions."
+  locale="en"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqLd)} />
+  <Header />
+
+  <main class="section">
+    <div class="container shell">
+      <nav class="breadcrumb">
+        <a href="/en/">Home</a><span>/</span><span>Appointment</span>
+      </nav>
+
+      <h1>Book an Appointment</h1>
+      <p class="lead">
+        We provide Quran and Sunnah based ruqyah support. Final cure is from Allah alone.
+      </p>
+
+      <div class="cards">
+        <article class="card">
+          <h2>How to Book</h2>
+          <ol>
+            <li>Message us on WhatsApp with your name and problem summary.</li>
+            <li>Our team will suggest the right service mode and slot.</li>
+            <li>Confirm your appointment details and preparation steps.</li>
+          </ol>
+          <a id="enAppointmentWhatsappLink" href={whatsappLink} class="btn btn-primary">Discuss on WhatsApp</a>
+        </article>
+
+        <article class="card">
+          <h2>Important Notes</h2>
+          <ul>
+            <li>No guaranteed cure claims are made.</li>
+            <li>For urgent medical issues, consult a licensed doctor first.</li>
+            <li>Women should follow mahram/privacy guidance as advised.</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="contact">
+        <p><strong>Phone:</strong> <span id="enAppointmentPhoneText">{clinicNumbers.map((item) => item.display).join(' / ')}</span></p>
+        <p><strong>Schedule:</strong> <span id="enAppointmentScheduleText">{clinicSchedule.days} · {clinicSchedule.hours}</span></p>
+        <div class="actions">
+          <a id="enAppointmentTakeLink" href={whatsappLink} class="btn btn-primary">Take Appointment</a>
+          <a href="/en/ruqyah-diagnosis" class="btn btn-outline">Run Diagnosis First</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .section { padding: 48px 0 64px; }
+  .shell { max-width: 900px; }
+  .breadcrumb { display: flex; gap: 8px; color: var(--text-muted); font-size: 14px; margin-bottom: 18px; }
+  h1 { margin-bottom: 8px; }
+  .lead { color: var(--text-muted); margin-bottom: 24px; max-width: 720px; }
+  .cards { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
+  .card { border: 1px solid var(--border); border-radius: 14px; padding: 20px; background: #fff; }
+  .card h2 { margin-bottom: 10px; font-size: 20px; }
+  .card ol, .card ul { margin-left: 20px; color: var(--text-medium); line-height: 1.7; margin-bottom: 16px; }
+  .contact { margin-top: 20px; border: 1px solid var(--border); border-radius: 14px; padding: 18px; background: #f8fffb; }
+  .actions { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+  @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } }
+</style>

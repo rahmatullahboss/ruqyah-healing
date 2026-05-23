@@ -11,6 +11,7 @@ import {
   paymentDetails,
   paymentMethods,
   postSubmitGuidelines,
+  preferredTimeSlots,
   pricingHighlights,
   primaryContact,
   religionOptions,
@@ -21,25 +22,46 @@ import {
   durationOptions,
   genderOptions,
 } from '../data/clinic.js';
+import { buildBreadcrumbSchema, buildFaqSchema, buildServiceSchema } from '../lib/seo.js';
+import { contactSupportsCall, contactSupportsWhatsapp } from '../lib/clinic-contacts.js';
 
-const preferredTimeSlots = [
-  'সকাল ৯:০০',
-  'সকাল ১০:০০',
-  'সকাল ১১:০০',
-  'দুপুর ১২:০০',
-  'দুপুর ১:০০',
-  'দুপুর ২:০০',
-  'বিকেল ৩:০০',
-  'বিকেল ৪:০০',
-  'বিকেল ৫:০০',
-  'সন্ধ্যা ৬:০০',
-];
+export const prerender = true;
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/appointment`;
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'অ্যাপয়েন্টমেন্ট', url: pageUrl },
+]);
+const serviceLd = buildServiceSchema({
+  siteUrl,
+  pageUrl,
+  name: 'রুকইয়াহ অ্যাপয়েন্টমেন্ট',
+  description: 'রুকইয়াহ, হিজামা, আকুপাংচার এবং supportive care সেশনের জন্য বুকিং পেজ।',
+});
+const faqLd = buildFaqSchema([
+  {
+    question: 'অ্যাপয়েন্টমেন্ট নেওয়ার আগে কী করতে হবে?',
+    answer: 'সমস্যার সংক্ষিপ্ত বিবরণ, প্রয়োজনীয় তথ্য এবং পছন্দের সময় প্রস্তুত রেখে বুকিং করুন।',
+  },
+  {
+    question: 'রুকইয়াহ কি মেডিকেল চিকিৎসার বিকল্প?',
+    answer: 'না। জরুরি শারীরিক বা মানসিক উপসর্গ থাকলে ডাক্তার দেখানো জরুরি।',
+  },
+  {
+    question: 'ফলাফল নিয়ে কি রাকীর সাথে আলোচনা করা যাবে?',
+    answer: 'হ্যাঁ। ডায়াগনোসিস বা উপসর্গ অনুযায়ী রাকীর সাথে আলোচনা করে পরবর্তী পদক্ষেপ নেওয়া যায়।',
+  },
+]);
 ---
 
 <BaseLayout
   title="অ্যাপয়েন্টমেন্ট নিন | Ruqyah Healing Center"
   description="রুকইয়াহ, হিজামা, আকুপাংচার, আকুপ্রেসার, ম্যাসাজ ও ন্যাচারোপ্যাথি সেবার জন্য অ্যাপয়েন্টমেন্ট বুক করুন।"
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqLd)} />
   <Header />
 
   <main class="appt-page">
@@ -129,8 +151,27 @@ const preferredTimeSlots = [
             </div>
 
             <form class="appt-form" id="appt-form">
-              <div class="form-section">
-                <h3>১. রুগীর ব্যক্তিগত তথ্য</h3>
+              <div class="booking-stepper" aria-label="অ্যাপয়েন্টমেন্ট বুকিং ধাপ">
+                <button type="button" class="step-pill active" data-step-target="1">
+                  <span>১</span>
+                  <strong>সেবা ও সময়</strong>
+                </button>
+                <button type="button" class="step-pill" data-step-target="2">
+                  <span>২</span>
+                  <strong>রুগীর তথ্য</strong>
+                </button>
+                <button type="button" class="step-pill" data-step-target="3">
+                  <span>৩</span>
+                  <strong>যোগাযোগ</strong>
+                </button>
+                <button type="button" class="step-pill" data-step-target="4">
+                  <span>৪</span>
+                  <strong>কনফার্মেশন</strong>
+                </button>
+              </div>
+
+              <div class="form-section" data-booking-step="2">
+                <h3>রুগীর ব্যক্তিগত তথ্য</h3>
                 <div class="form-grid form-grid--two">
                   <div class="form-group">
                     <label for="fullName">রুগীর পূর্ণ নাম <span class="required">*</span></label>
@@ -205,8 +246,8 @@ const preferredTimeSlots = [
                 </div>
               </div>
 
-              <div class="form-section">
-                <h3>২. শিডিউল ও সেবার ধরণ</h3>
+              <div class="form-section" data-booking-step="1">
+                <h3>সেবা, সেশন ও সময় নির্বাচন</h3>
 
                 <div class="form-group">
                   <span class="field-title">আপনি কোন সেবা নিতে চান? <span class="required">*</span></span>
@@ -258,12 +299,21 @@ const preferredTimeSlots = [
                       <option value="">সময় নির্বাচন করুন</option>
                       {preferredTimeSlots.map((slot) => <option value={slot}>{slot}</option>)}
                     </select>
+                    <p class="slot-status" id="slotAvailabilityStatus">তারিখ নির্বাচন করলে বুকড স্লটগুলো greyed out হবে। টাইমজোন: Asia/Dhaka.</p>
                   </div>
+                </div>
+
+                <div class="slot-grid" id="slotGrid" aria-label="উপলব্ধ সময়ের স্লট">
+                  {preferredTimeSlots.map((slot) => (
+                    <button type="button" class="slot-btn" data-slot-value={slot}>
+                      {slot}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              <div class="form-section">
-                <h3>৩. যোগাযোগের তথ্য</h3>
+              <div class="form-section" data-booking-step="3">
+                <h3>যোগাযোগের তথ্য</h3>
                 <div class="form-grid form-grid--two">
                   <div class="form-group form-group--full">
                     <label for="address">বর্তমান ঠিকানা <span class="required">*</span></label>
@@ -280,8 +330,8 @@ const preferredTimeSlots = [
                 </div>
               </div>
 
-              <div class="form-section">
-                <h3>৪. বর্তমান শারীরিক ও মানসিক অবস্থা</h3>
+              <div class="form-section" data-booking-step="3">
+                <h3>বর্তমান শারীরিক ও মানসিক অবস্থা</h3>
                 <div class="form-group">
                   <label for="problem">প্রধান সমস্যা / উপসর্গসমূহ বিস্তারিত লিখুন <span class="required">*</span></label>
                   <textarea
@@ -294,14 +344,14 @@ const preferredTimeSlots = [
                 </div>
               </div>
 
-              <div class="form-section">
-                <h3>৫. পেমেন্ট ও বুকিং কনফার্মেশন</h3>
+              <div class="form-section" data-booking-step="4">
+                <h3>পেমেন্ট ও বুকিং কনফার্মেশন</h3>
                 <div class="payment-box">
-                  <p><strong>বুকিং ফি:</strong> {paymentDetails.bookingFee}</p>
-                  <p><strong>ব্যাংক:</strong> {paymentDetails.bankName}, {paymentDetails.branch}</p>
-                  <p><strong>একাউন্ট নাম:</strong> {paymentDetails.accountName}</p>
-                  <p><strong>একাউন্ট নাম্বার:</strong> {paymentDetails.accountNumber}</p>
-                  <p><strong>বিকাশ / নগদ:</strong> {paymentDetails.accountPhone}</p>
+                  <p><strong>বুকিং ফি:</strong> <span id="appointmentBookingFee">{paymentDetails.bookingFee}</span></p>
+                  <p><strong>ব্যাংক:</strong> <span id="appointmentBankName">{paymentDetails.bankName}</span>, <span id="appointmentBankBranch">{paymentDetails.branch}</span></p>
+                  <p><strong>একাউন্ট নাম:</strong> <span id="appointmentAccountName">{paymentDetails.accountName}</span></p>
+                  <p><strong>একাউন্ট নাম্বার:</strong> <span id="appointmentAccountNumber">{paymentDetails.accountNumber}</span></p>
+                  <p><strong>বিকাশ / নগদ:</strong> <span id="appointmentAccountPhone">{paymentDetails.accountPhone}</span></p>
                 </div>
 
                 <div class="form-grid form-grid--two">
@@ -323,7 +373,7 @@ const preferredTimeSlots = [
                 </div>
               </div>
 
-              <div class="form-section">
+              <div class="form-section" data-booking-step="4">
                 <div class="agreement-box">
                   <label class="agreement-check">
                     <input type="checkbox" name="agreement" required />
@@ -336,6 +386,11 @@ const preferredTimeSlots = [
                 <button type="submit" class="btn btn-primary submit-btn">অ্যাপয়েন্টমেন্ট সাবমিট করুন</button>
                 <p class="submit-help">সাবমিট করলে WhatsApp-এ আপনার তথ্য পাঠানোর অপশন খুলবে এবং নিচে বিশেষ নির্দেশনাবলী দেখানো হবে।</p>
                 <p class="submit-status" id="submitStatus" aria-live="polite"></p>
+              </div>
+
+              <div class="wizard-nav">
+                <button type="button" class="wizard-btn wizard-btn--secondary" id="prevStepBtn">আগের ধাপ</button>
+                <button type="button" class="wizard-btn wizard-btn--primary" id="nextStepBtn">পরবর্তী ধাপ</button>
               </div>
             </form>
           </section>
@@ -363,23 +418,34 @@ const preferredTimeSlots = [
         <aside class="appt-sidebar">
           <section class="sidebar-card sidebar-card--accent">
             <h2>যোগাযোগ তথ্য</h2>
-            <p>এই নাম্বারগুলোতে কল করুন অথবা WhatsApp-এ message পাঠান।</p>
+            <p>প্রতিটি নাম্বারের পাশে কীভাবে যোগাযোগ করা যাবে তা আলাদা করে দেখানো আছে।</p>
 
-            <div class="contact-list">
+            <div class="contact-list" id="appointmentPhoneList">
               {clinicNumbers.map((contact) => (
                 <div class="contact-row">
                   <div>
                     <p class="contact-label">{contact.label}</p>
-                    <a href={`tel:${contact.display}`} class="contact-value">{contact.display}</a>
+                    {contactSupportsCall(contact) ? (
+                      <a href={`tel:${contact.display}`} class="contact-value">{contact.display}</a>
+                    ) : (
+                      <span class="contact-value">{contact.display}</span>
+                    )}
                   </div>
-                  <a
-                    class="contact-wa"
-                    href={getWhatsappUrl('আসসালামু আলাইকুম, অ্যাপয়েন্টমেন্ট সম্পর্কে জানতে চাই।', contact.international)}
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    WhatsApp
-                  </a>
+                  <div class="contact-actions">
+                    {contactSupportsCall(contact) && (
+                      <a class="contact-call" href={`tel:${contact.display}`}>কল</a>
+                    )}
+                    {contactSupportsWhatsapp(contact) && (
+                      <a
+                        class="contact-wa"
+                        href={getWhatsappUrl('আসসালামু আলাইকুম, অ্যাপয়েন্টমেন্ট সম্পর্কে জানতে চাই।', contact.international)}
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        WhatsApp
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -387,9 +453,10 @@ const preferredTimeSlots = [
 
           <section class="sidebar-card">
             <h2>সময়সূচী</h2>
-            <p class="sidebar-strong">{clinicSchedule.days}</p>
-            <p>{clinicSchedule.hours}</p>
+            <p class="sidebar-strong" id="appointmentScheduleDays">{clinicSchedule.days}</p>
+            <p id="appointmentScheduleHours">{clinicSchedule.hours}</p>
             <a
+              id="appointmentTimeLink"
               class="btn btn-outline sidebar-btn"
               href={getWhatsappUrl('আসসালামু আলাইকুম, আমি অ্যাপয়েন্টমেন্টের সময় সম্পর্কে জানতে চাই।')}
               target="_blank"
@@ -417,6 +484,7 @@ const preferredTimeSlots = [
             <h2>দ্রুত বুকিং</h2>
             <p>ফর্ম পূরণ করার আগে জরুরি কথা বলতে চাইলে সরাসরি WhatsApp করুন।</p>
             <a
+              id="appointmentQuickBookingLink"
               class="btn btn-primary sidebar-btn"
               href={getWhatsappUrl('আসসালামু আলাইকুম, আমি দ্রুত অ্যাপয়েন্টমেন্ট বুক করতে চাই।', primaryContact.international)}
               target="_blank"
@@ -447,8 +515,14 @@ const preferredTimeSlots = [
 
   type AppointmentApiResponse = {
     appointmentId?: string;
+    eventId?: string;
     message?: string;
   };
+
+  function createEventId() {
+    if (window.crypto?.randomUUID) return `lead-${window.crypto.randomUUID()}`;
+    return `lead-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
 
   const treatmentCatalogData = document.getElementById('treatmentCatalogData');
   const treatmentCatalog: TreatmentCatalogItem[] = treatmentCatalogData
@@ -464,6 +538,16 @@ const preferredTimeSlots = [
   const submitStatus = document.getElementById('submitStatus');
   const confirmationGuidelines = document.getElementById('confirmationGuidelines');
   const submitButton = form?.querySelector('button[type="submit"]');
+  const stepPanels = Array.from(document.querySelectorAll('[data-booking-step]')) as HTMLElement[];
+  const stepPills = Array.from(document.querySelectorAll('[data-step-target]')) as HTMLButtonElement[];
+  const prevStepBtn = document.getElementById('prevStepBtn') as HTMLButtonElement | null;
+  const nextStepBtn = document.getElementById('nextStepBtn') as HTMLButtonElement | null;
+  const preferredDateInput = document.getElementById('preferredDate') as HTMLInputElement | null;
+  const preferredTimeSelect = document.getElementById('preferredTime') as HTMLSelectElement | null;
+  const slotStatus = document.getElementById('slotAvailabilityStatus');
+  const slotButtons = Array.from(document.querySelectorAll('[data-slot-value]')) as HTMLButtonElement[];
+  const stepOrder = ['1', '2', '3', '4'];
+  let currentStepIndex = 0;
 
   const escapeHtml = (value: string) =>
     value
@@ -472,6 +556,137 @@ const preferredTimeSlots = [
       .replaceAll('>', '&gt;')
       .replaceAll('"', '&quot;')
       .replaceAll("'", '&#39;');
+
+  const getCurrentStep = () => stepOrder[currentStepIndex] || stepOrder[0];
+
+  const updateSlotSelection = () => {
+    const selected = preferredTimeSelect?.value || '';
+    slotButtons.forEach((button) => {
+      button.classList.toggle('active', button.dataset.slotValue === selected);
+      button.setAttribute('aria-pressed', button.dataset.slotValue === selected ? 'true' : 'false');
+    });
+  };
+
+  const setSlotStates = (slots: Array<{ value: string; label: string; available: boolean; reason: string }>) => {
+    if (!preferredTimeSelect) return;
+
+    const unavailable = new Set(slots.filter((slot) => !slot.available).map((slot) => slot.value));
+    Array.from(preferredTimeSelect.options).forEach((option) => {
+      if (!option.value) return;
+      option.disabled = unavailable.has(option.value);
+      const slot = slots.find((item) => item.value === option.value);
+      option.textContent = slot && !slot.available ? `${slot.label} (Booked)` : option.value;
+    });
+
+    slotButtons.forEach((button) => {
+      const value = button.dataset.slotValue || '';
+      const slot = slots.find((item) => item.value === value);
+      const isAvailable = slot?.available !== false;
+      button.disabled = !isAvailable;
+      button.classList.toggle('booked', !isAvailable);
+      button.title = isAvailable ? 'এই স্লটটি ফাঁকা' : 'এই স্লটটি বুকড';
+    });
+
+    if (preferredTimeSelect.value && unavailable.has(preferredTimeSelect.value)) {
+      preferredTimeSelect.value = '';
+    }
+    updateSlotSelection();
+  };
+
+  const refreshSlotAvailability = async () => {
+    if (!preferredDateInput || !slotStatus) return;
+
+    const date = preferredDateInput.value;
+    if (!date) {
+      setSlotStates(slotButtons.map((button) => ({
+        value: button.dataset.slotValue || '',
+        label: button.dataset.slotValue || '',
+        available: true,
+        reason: '',
+      })));
+      slotStatus.textContent = 'তারিখ নির্বাচন করলে বুকড স্লটগুলো greyed out হবে। টাইমজোন: Asia/Dhaka.';
+      return;
+    }
+
+    slotStatus.textContent = 'স্লট availability লোড হচ্ছে...';
+    try {
+      const response = await fetch(`/api/appointments/slots?date=${encodeURIComponent(date)}`);
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.message || 'স্লট লোড করা যায়নি।');
+      }
+      setSlotStates(payload.slots || []);
+      const openCount = (payload.slots || []).filter((slot: any) => slot.available).length;
+      slotStatus.textContent = `${openCount}টি স্লট ফাঁকা আছে। বুকড স্লটগুলো নির্বাচন করা যাবে না। টাইমজোন: ${payload.timezone || 'Asia/Dhaka'}.`;
+    } catch (error) {
+      slotStatus.textContent = error instanceof Error
+        ? error.message
+        : 'স্লট লোড করা যায়নি। WhatsApp-এ সময় নিশ্চিত করুন।';
+    }
+  };
+
+  const validateStep = (step: string) => {
+    const panels = stepPanels.filter((panel) => panel.dataset.bookingStep === step);
+    for (const panel of panels) {
+      const controls = Array.from(panel.querySelectorAll('input, select, textarea')) as Array<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+      for (const control of controls) {
+        if (control.disabled || control.type === 'hidden') continue;
+        if (!control.checkValidity()) {
+          control.reportValidity();
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
+  const showStep = (index: number) => {
+    currentStepIndex = Math.max(0, Math.min(index, stepOrder.length - 1));
+    const currentStep = getCurrentStep();
+
+    stepPanels.forEach((panel) => {
+      panel.hidden = panel.dataset.bookingStep !== currentStep;
+    });
+
+    stepPills.forEach((pill) => {
+      const pillIndex = stepOrder.indexOf(pill.dataset.stepTarget || '');
+      pill.classList.toggle('active', pill.dataset.stepTarget === currentStep);
+      pill.classList.toggle('completed', pillIndex > -1 && pillIndex < currentStepIndex);
+      pill.disabled = pillIndex > currentStepIndex;
+    });
+
+    if (prevStepBtn) prevStepBtn.disabled = currentStepIndex === 0;
+    if (nextStepBtn) nextStepBtn.hidden = currentStepIndex === stepOrder.length - 1;
+  };
+
+  prevStepBtn?.addEventListener('click', () => {
+    showStep(currentStepIndex - 1);
+    form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  nextStepBtn?.addEventListener('click', () => {
+    if (!validateStep(getCurrentStep())) return;
+    showStep(currentStepIndex + 1);
+    form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  stepPills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      const targetIndex = stepOrder.indexOf(pill.dataset.stepTarget || '');
+      if (targetIndex < 0 || targetIndex > currentStepIndex) return;
+      showStep(targetIndex);
+    });
+  });
+
+  preferredDateInput?.addEventListener('change', refreshSlotAvailability);
+  preferredTimeSelect?.addEventListener('change', updateSlotSelection);
+  slotButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!preferredTimeSelect || button.disabled) return;
+      preferredTimeSelect.value = button.dataset.slotValue || '';
+      preferredTimeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  });
 
   const renderSubServices = () => {
     if (!(treatmentSelect instanceof HTMLSelectElement) || !subServicesWrap || !subServicesList) {
@@ -517,6 +732,8 @@ const preferredTimeSlots = [
 
   renderSubServices();
   togglePreviousTreatmentDetails();
+  showStep(0);
+  refreshSlotAvailability();
 
   treatmentSelect?.addEventListener('change', renderSubServices);
   document.querySelectorAll('input[name="previousTreatment"]').forEach((input) => {
@@ -564,6 +781,7 @@ const preferredTimeSlots = [
         paymentMethod: String(formData.get('paymentMethod') || ''),
         transactionId: String(formData.get('transactionId') || ''),
         paymentTimestamp: String(formData.get('paymentTimestamp') || ''),
+        eventId: createEventId(),
       });
 
       const response = await fetch('/api/appointments', {
@@ -583,6 +801,7 @@ const preferredTimeSlots = [
       }
 
       const appointmentId = result.appointmentId || 'N/A';
+      const eventId = result.eventId || values.eventId;
 
       const message = buildAppointmentWhatsappMessage({
         ...values,
@@ -598,6 +817,17 @@ const preferredTimeSlots = [
       const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
       if (!opened) {
         submitStatus.textContent = 'ডাটাবেজে সেভ হয়েছে, কিন্তু WhatsApp ট্যাব খুলতে বাধা পেয়েছে। অনুগ্রহ করে pop-up allow করে আবার চেষ্টা করুন।';
+      }
+
+      if (window.gtag) {
+        window.gtag('event', 'generate_lead', {
+          event_category: 'appointment_booking',
+          currency: 'BDT',
+          value: 500,
+        });
+      }
+      if (window.fbq) {
+        window.fbq('track', 'Lead', { content_category: 'ruqyah_booking' }, { eventID: eventId });
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'বুকিং তথ্য সংরক্ষণ করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।';
@@ -804,6 +1034,65 @@ const preferredTimeSlots = [
   gap: 24px;
 }
 
+.booking-stepper {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.step-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  background: #fff;
+  color: var(--text-medium);
+  text-align: left;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.step-pill span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #eef8ff;
+  color: #0369a1;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.step-pill strong {
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.step-pill.active {
+  border-color: rgba(8, 145, 178, 0.32);
+  background: #ecfeff;
+  color: #0f172a;
+}
+
+.step-pill.active span,
+.step-pill.completed span {
+  background: #0891b2;
+  color: #fff;
+}
+
+.step-pill.completed {
+  border-color: rgba(16, 185, 129, 0.32);
+}
+
+.step-pill:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
 .form-section {
   padding: 24px;
   border-radius: 22px;
@@ -898,6 +1187,45 @@ textarea {
   line-height: 1.55;
 }
 
+.slot-status {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.slot-btn {
+  min-height: 46px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(8, 145, 178, 0.18);
+  background: #f8fdff;
+  color: #0f766e;
+  font-weight: 700;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.slot-btn:hover:not(:disabled),
+.slot-btn.active {
+  background: #ecfeff;
+  border-color: #0891b2;
+  color: #0e7490;
+}
+
+.slot-btn.booked,
+.slot-btn:disabled {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
 .choice-pill input,
 .checkbox-card input,
 .agreement-check input {
@@ -932,6 +1260,36 @@ textarea {
   color: var(--primary-dark);
 }
 
+.wizard-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wizard-btn {
+  min-height: 46px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.wizard-btn--secondary {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text-medium);
+}
+
+.wizard-btn--primary {
+  background: #0891b2;
+  color: #fff;
+}
+
+.wizard-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .confirmation-card {
   border-color: rgba(16, 185, 129, 0.25);
 }
@@ -953,57 +1311,19 @@ textarea {
   top: calc(var(--nav-height) + 16px);
 }
 
-.sidebar-card--accent {
-  background: linear-gradient(180deg, #f3fff8 0%, #ffffff 100%);
-}
-
-.sidebar-card--muted {
-  background: linear-gradient(180deg, #ffffff 0%, #f4fff8 100%);
-}
-
-.contact-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 16px;
-}
-
-.contact-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.92);
-}
-
-.contact-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.contact-value,
 .sidebar-strong {
   font-size: 18px;
   font-weight: 700;
   color: var(--text-dark);
 }
 
-.contact-wa {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: #22c55e;
-  color: #fff;
-  font-weight: 700;
-  font-size: 13px;
+/* Sidebar specific */
+.sidebar-card--accent {
+  background: linear-gradient(180deg, #f3fff8 0%, #ffffff 100%);
+}
+
+.sidebar-card--muted {
+  background: linear-gradient(180deg, #ffffff 0%, #f4fff8 100%);
 }
 
 .sidebar-btn {
@@ -1033,7 +1353,9 @@ textarea {
   .choice-grid,
   .subservice-grid,
   .choice-grid--compact,
-  .form-grid--two {
+  .form-grid--two,
+  .booking-stepper,
+  .slot-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1048,6 +1370,26 @@ textarea {
   .section-head h2,
   .sidebar-card h2 {
     font-size: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .contact-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .contact-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .contact-call,
+  .contact-wa {
+    flex: 1;
+    text-align: center;
+    max-width: 140px;
   }
 }
 </style>

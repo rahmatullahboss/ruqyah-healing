@@ -1,0 +1,105 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import HeroLanding from '../../components/landing/HeroLanding.astro';
+import Footer from '../../components/Footer.astro';
+import StatsBar from '../../components/landing/StatsBar.astro';
+import SymptomChecklist from '../../components/landing/SymptomChecklist.astro';
+import TestimonialSection from '../../components/landing/TestimonialSection.astro';
+import HowItWorks from '../../components/landing/HowItWorks.astro';
+import TrustSignals from '../../components/landing/TrustSignals.astro';
+import LandingFaq from '../../components/landing/LandingFaq.astro';
+import BookingForm from '../../components/landing/BookingForm.astro';
+import StickyCta from '../../components/landing/StickyCta.astro';
+import { env as workerEnv } from 'cloudflare:workers';
+import { createDb } from '../../db/client.js';
+import { testimonials } from '../../db/schema.js';
+import { eq, desc } from 'drizzle-orm';
+
+export const prerender = false;
+
+const env = workerEnv || process.env;
+
+let testimonialList = [];
+try {
+  const db = createDb(env.DATABASE_URL);
+  testimonialList = await db
+    .select()
+    .from(testimonials)
+    .where(eq(testimonials.published, true))
+    .orderBy(desc(testimonials.orderIndex))
+    .limit(3);
+} catch (err) {
+  console.error('[landing/ruqyah] Failed to load testimonials:', err.message || err);
+}
+
+const pageTitle = 'রুকইয়াহ চিকিৎসা বুক করুন | Ruqyah Healing Center';
+const pageDescription = 'কুরআন ও সুন্নাহ ভিত্তিক রুকইয়াহ চিকিৎসা। জিন, জাদু ও বদনজরের কার্যকর সমাধান। ১৮০০+ সুচিকিৎসিত রোগী, ৮+ বছরের অভিজ্ঞতা।';
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <Header />
+
+  <main>
+    <!-- ① Hero -->
+    <HeroLanding />
+
+    <!-- ② Stats Bar -->
+    <StatsBar />
+
+    <!-- ③ Symptom Checklist — message match for paid traffic -->
+    <SymptomChecklist />
+
+    <!-- ④ Testimonials -->
+    <TestimonialSection testimonials={testimonialList} />
+
+    <!-- ⑤ How It Works -->
+    <HowItWorks />
+
+    <!-- ⑥ Trust Signals -->
+    <TrustSignals />
+
+    <!-- ⑦ Other Services -->
+    <section class="section services-note-section">
+      <div class="container">
+        <p class="services-note">এছাড়াও আমরা <strong>হিজামা</strong>, <strong>আকুপাংচার</strong>, <strong>কনসাল্টেশন</strong> এবং <strong>রুকইয়া সাপ্লিমেন্ট</strong> সেবা প্রদান করি। বিস্তারিত জানতে <a href="/appointment">অ্যাপয়েন্টমেন্ট</a> পেজে যান।</p>
+      </div>
+    </section>
+
+    <!-- ⑧ Booking Form -->
+    <BookingForm />
+
+    <!-- ⑨ FAQ -->
+    <LandingFaq />
+  </main>
+
+  <Footer />
+
+  <StickyCta />
+</BaseLayout>
+
+<style>
+.services-note-section {
+  padding: 32px 0;
+  background: var(--bg-light);
+}
+
+.services-note {
+  text-align: center;
+  font-size: 15px;
+  color: var(--text-medium);
+  line-height: 1.7;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.services-note a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.services-note a:hover {
+  color: var(--primary-dark);
+}
+</style>

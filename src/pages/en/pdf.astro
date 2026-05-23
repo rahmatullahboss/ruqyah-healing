@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { createDb } from '../../db/client.js';
+import { resources } from '../../db/schema.js';
+import { eq, desc } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+import { buildBreadcrumbSchema, buildCollectionPageSchema } from '../../lib/seo.js';
+
+export const prerender = true;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+const pdfs = await db.select().from(resources).where(eq(resources.published, true)).orderBy(desc(resources.createdAt));
+
+const dbCategories = [...new Set(pdfs.map((pdf) => pdf.category))];
+const categories = ['All', ...dbCategories];
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/en/pdf`;
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'Home', url: `${siteUrl}/en/` },
+  { name: 'PDF Resources', url: pageUrl },
+]);
+const collectionLd = buildCollectionPageSchema({
+  pageUrl,
+  name: 'PDF Resources',
+  description: 'Download ruqyah and Islamic healing guides, books, and study resources.',
+  items: pdfs.map((pdf) => ({
+    name: pdf.title,
+    url: `${siteUrl}/en/pdf/${pdf.id}`,
+    inLanguage: pdf.language,
+  })),
+});
+---
+
+<BaseLayout
+  title="PDF Resources | Ruqyah Healing Center"
+  description="Download ruqyah and Islamic healing guides, books, and study resources."
+  locale="en"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(collectionLd)} />
+  <Header />
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <nav class="breadcrumb"><a href="/en/">Home</a><span>/</span><span>PDF Resources</span></nav>
+        <h1>PDF Resources</h1>
+        <p>Downloadable guides and references for ruqyah practice.</p>
+
+        <div class="search-box">
+          <input type="text" id="pdfSearch" placeholder="Search resources..." />
+        </div>
+
+        <div class="tabs" id="catTabs">
+          {categories.map((cat, index) => (
+            <button class:list={['tab', index === 0 && 'active']} data-cat={cat}>{cat}</button>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container grid" id="pdfGrid">
+        {pdfs.map((pdf) => (
+          <article class="card" data-title={pdf.title.toLowerCase()} data-cat={pdf.category}>
+            <h2>{pdf.title}</h2>
+            <p class="desc">{pdf.description}</p>
+            <div class="meta">
+              <span>Pages: {pdf.pages}</span>
+              <span>Size: {pdf.fileSize}</span>
+              <span>Category: {pdf.category}</span>
+              <span>Language: {pdf.language}</span>
+            </div>
+            <div class="actions">
+              <a href={`/en/pdf/${pdf.id}`} class="btn btn-outline">Details</a>
+              <a href={pdf.fileUrl} target="_blank" rel="noopener" class="btn btn-outline">View</a>
+              <a href={pdf.fileUrl} download class="btn btn-primary">Download</a>
+            </div>
+          </article>
+        ))}
+      </div>
+      {pdfs.length === 0 && (
+        <div class="container empty"><p>No resources are available right now.</p></div>
+      )}
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('pdfSearch');
+    const catButtons = document.querySelectorAll('.tab');
+    const cards = document.querySelectorAll('#pdfGrid .card');
+    let activeCategory = 'All';
+
+    const filterCards = () => {
+      const term = (searchInput.value || '').toLowerCase().trim();
+      cards.forEach((card) => {
+        const title = card.dataset.title || '';
+        const category = card.dataset.cat || '';
+        const matchesTerm = title.includes(term);
+        const matchesCategory = activeCategory === 'All' || activeCategory === category;
+        card.style.display = matchesTerm && matchesCategory ? '' : 'none';
+      });
+    };
+
+    searchInput?.addEventListener('input', filterCards);
+    catButtons.forEach((button) => {
+      button.addEventListener('click', (event) => {
+        catButtons.forEach((item) => item.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        activeCategory = event.currentTarget.dataset.cat || 'All';
+        filterCards();
+      });
+    });
+  });
+</script>
+
+<style>
+  .hero { padding: 46px 0 24px; text-align: center; }
+  .breadcrumb { display: inline-flex; gap: 8px; color: var(--text-muted); font-size: 14px; margin-bottom: 12px; }
+  .hero p { color: var(--text-muted); margin-bottom: 14px; }
+  .search-box { max-width: 540px; margin: 0 auto 12px; }
+  .search-box input { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; font: inherit; }
+  .tabs { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .tab { padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px; background: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+  .tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .section { padding: 24px 0 64px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { border: 1px solid var(--border); border-radius: 14px; padding: 16px; background: #fff; }
+  .card h2 { font-size: 18px; margin-bottom: 8px; }
+  .desc { color: var(--text-muted); font-size: 14px; margin-bottom: 10px; min-height: 44px; }
+  .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 13px; color: var(--text-medium); margin-bottom: 12px; }
+  .actions { display: flex; gap: 10px; }
+  .actions a { flex: 1; text-align: center; }
+  .empty { text-align: center; }
+  @media (max-width: 980px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } }
+</style>

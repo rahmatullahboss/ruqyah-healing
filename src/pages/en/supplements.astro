@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+export const prerender = true;
+
+const products = [
+  { name: 'Zamzam Water', desc: 'Original zamzam water source', price: 500, img: '/supplements/zamzam_water.webp' },
+  { name: 'Black Seed Oil', desc: 'Pure black seed oil', price: 350, img: '/supplements/black_seed_oil.webp' },
+  { name: 'Pure Honey', desc: 'Natural honey', price: 600, img: '/supplements/pure_honey.webp' },
+  { name: 'Saffron', desc: 'Premium saffron', price: 1200, img: '/supplements/saffron_spice.webp' },
+  { name: 'Ajwa Dates', desc: 'Madinah ajwa dates', price: 800, img: '/supplements/ajwa_dates.webp' },
+  { name: 'Olive Oil', desc: 'Extra virgin olive oil', price: 450, img: '/supplements/olive_oil.webp' },
+];
+---
+
+<BaseLayout
+  title="Supplements | Ruqyah Healing Center"
+  description="Halal supportive supplements used in ruqyah wellness routines."
+  locale="en"
+>
+  <Header />
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <nav class="breadcrumb">
+          <a href="/en/">Home</a><span>/</span><span>Supplements</span>
+        </nav>
+        <h1>Ruqyah Supplements</h1>
+        <p>Supportive halal products commonly used for spiritual wellness routines.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container grid">
+        {products.map((product) => (
+          <article class="card">
+            <div class="img-wrap">
+              <img src={product.img} alt={product.name} loading="lazy" />
+            </div>
+            <div class="body">
+              <h2>{product.name}</h2>
+              <p>{product.desc}</p>
+              <div class="row">
+                <strong>BDT {product.price.toLocaleString()}</strong>
+                <a href="/en/appointment" class="btn btn-primary">Order / Ask</a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .hero { padding: 46px 0 28px; }
+  .breadcrumb { display: flex; gap: 8px; color: var(--text-muted); font-size: 14px; margin-bottom: 16px; }
+  .hero p { color: var(--text-muted); }
+  .section { padding: 24px 0 64px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: #fff; }
+  .img-wrap { height: 200px; background: #f5f5f5; }
+  .img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .body { padding: 14px; }
+  .body h2 { font-size: 18px; margin-bottom: 4px; }
+  .body p { color: var(--text-muted); font-size: 14px; margin-bottom: 10px; min-height: 40px; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  @media (max-width: 960px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } }
+</style>

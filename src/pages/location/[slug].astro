@@ -1,0 +1,437 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { buildBreadcrumbSchema, buildFaqSchema, buildWebPageSchema } from '../../lib/seo.js';
+import { getWhatsappUrl } from '../../data/clinic.js';
+import { locations, getLocation } from '../../data/location-data.js';
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  return locations.map((location) => ({
+    params: { slug: location.slug },
+    props: { location },
+  }));
+}
+
+const { location } = Astro.props;
+const {
+  slug,
+  name,
+  nameBn,
+  nameBnShort,
+  targetQuery,
+  targetQueryEn,
+  intro,
+  introBn,
+  areas,
+  services,
+  callToAction,
+  callToActionEn,
+} = location;
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/location/${slug}`;
+
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'রুকইয়াহ চিকিৎসা', url: `${siteUrl}/ruqyah-diagnosis` },
+  { name: 'আমাদের এলাকাসমূহ', url: `${siteUrl}/location` },
+  { name: nameBnShort, url: pageUrl },
+]);
+
+const pageLd = buildWebPageSchema({
+  pageUrl,
+  name: `${name} - ${nameBn}`,
+  description: introBn,
+  inLanguage: 'bn-BD',
+});
+
+const faqItems = [
+  { question: `${nameBnShort} কি কি এলাকায় রুকইয়াহ সেবা পাওয়া যায়?`, answer: areas.join('। ') },
+  { question: `${nameBnShort} রুকইয়াহ চিকিৎসা কিভাবে নিতে হবে?`, answer: services.map(s => s.title + ': ' + s.description).join('। ') },
+];
+---
+
+<BaseLayout
+  title={`${nameBn} | রুকইয়াহ চিকিৎসা`}
+  description={introBn}
+  keywords={[targetQuery, targetQueryEn, nameBn, 'রুকইয়াহ', 'আধ্যাত্মিক চিকিৎসা']}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(pageLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(buildFaqSchema(faqItems))} slot="head" />
+
+  <Header />
+
+  <main class="location-page">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href="/">হোম</a>
+        <span class="separator">›</span>
+        <a href="/ruqyah-diagnosis">রুকইয়াহ চিকিৎসা</a>
+        <span class="separator">›</span>
+        <a href="/location">আমাদের এলাকাসমূহ</a>
+        <span class="separator">›</span>
+        <span class="current">{nameBnShort}</span>
+      </nav>
+
+      <article class="location-article">
+        <header class="location-header">
+          <span class="location-category-label">রুকইয়াহ সেবা</span>
+          <h1 class="location-title">{nameBn}</h1>
+          <p class="location-title-en">{targetQueryEn}</p>
+          <p class="location-intro">{introBn}</p>
+        </header>
+
+        <section class="content-section areas-section">
+          <h2>রুকইয়াহ সেবাযুক্ত এলাকাসমূহ</h2>
+          <p class="section-intro">{nameBnShort} এবং আশেপাশের এলাকায় আমাদের রাকীগণ সেবা প্রদান করেন:</p>
+          <div class="areas-list">
+            {areas.map(area => (
+              <span class="area-tag">{area}</span>
+            ))}
+          </div>
+        </section>
+
+        <section class="content-section services-section">
+          <h2>আমাদের সেবাসমূহ</h2>
+          <p class="section-intro">{nameBnShort} এ আমরা যে সেবাগুলি প্রদান করি:</p>
+          <div class="services-grid">
+            {services.map(service => (
+              <div class="service-card">
+                <h3 class="service-title">
+                  <span class="service-title-bn">{service.title}</span>
+                  <span class="service-title-en">{service.titleEn}</span>
+                </h3>
+                <p class="service-description">{service.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section class="content-section treatment-section">
+          <h2>চিকিৎসা প্রক্রিয়া</h2>
+          <p class="treatment-text">
+            {nameBnShort} এ আমাদের অভিজ্ঞ রাকীগণ আপনার সমস্যা শুনে প্রথমে একটি বিশদ নির্ণয় (diagnosis) করবেন। তারপর আপনার উপযুক্ত চিকিৎসা পরিকল্পনা তৈরি করা হবে। প্রতিটি চিকিৎসা কুরআনের আয়াত ও আযকারের মাধ্যমে সম্পন্ন হয় এবং এটি সম্পূর্ণ ইসলামিক পদ্ধতিতে করা হয়।
+          </p>
+          <div class="treatment-actions">
+            <a href={getWhatsappUrl(`আসসালামু আলাইকুম, আমি ${nameBnShort} থেকে রুকইয়াহ চিকিৎসা নিতে চাই।`)} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+              WhatsApp এ আলোচনা করুন
+            </a>
+            <a href="/appointment" class="btn btn-secondary">অ্যাপয়েন্টমেন্ট নিন</a>
+          </div>
+        </section>
+
+        <section class="content-section cta-section">
+          <h2>এখনই যোগাযোগ করুন</h2>
+          <p>আপনার এলাকায় রুকইয়াহ সেবা পেতে আমাদের অভিজ্ঞ রাকীদের সাথে যোগাযোগ করুন</p>
+          <div class="cta-actions">
+            <a href={getWhatsappUrl(`আসসালামু আলাইকুম, আমি ${nameBnShort} রুকইয়াহ চিকিৎসা সম্পর্কে জানতে চাই।`)} class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+              WhatsApp এ মেসেজ করুন
+            </a>
+            <a href="/ruqyah-diagnosis" class="btn btn-outline btn-lg">সেলফ ডায়াগনোসিস করুন</a>
+          </div>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .location-page {
+    padding: 40px 0 80px;
+    background: var(--bg-primary);
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    font-size: 14px;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .separator {
+    color: var(--text-muted);
+  }
+
+  .current {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .location-article {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .location-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--border-light);
+  }
+
+  .location-category-label {
+    display: inline-block;
+    padding: 6px 16px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .location-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  .location-title-en {
+    font-size: 14px;
+    color: var(--primary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+
+  .location-intro {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    max-width: 650px;
+    margin: 0 auto;
+  }
+
+  .content-section {
+    margin-bottom: 36px;
+  }
+
+  .content-section h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .content-section h2::before {
+    content: '';
+    width: 4px;
+    height: 22px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+
+  .section-intro {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+
+  .areas-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .area-tag {
+    display: inline-flex;
+    padding: 8px 16px;
+    background: var(--bg-light);
+    color: var(--text-primary);
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid var(--border-light);
+    transition: all 0.2s ease;
+  }
+
+  .area-tag:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .service-card {
+    padding: 20px;
+    background: var(--bg-light);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    transition: all 0.2s ease;
+  }
+
+  .service-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+
+  .service-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 8px;
+  }
+
+  .service-title-bn {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .service-title-en {
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 500;
+  }
+
+  .service-description {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .treatment-text {
+    font-size: 16px;
+    color: var(--text-primary);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+
+  .treatment-actions,
+  .cta-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FEF9C3 100%);
+    padding: 32px;
+    border-radius: 16px;
+    text-align: center;
+    border: 1px solid #F59E0B;
+  }
+
+  .cta-section h2 {
+    justify-content: center;
+    color: var(--text-primary);
+  }
+
+  .cta-section h2::before {
+    display: none;
+  }
+
+  .cta-section p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: var(--bg-light);
+    color: var(--text-primary);
+    border-color: var(--border-light);
+  }
+
+  .btn-secondary:hover {
+    background: var(--bg-hover);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .btn-outline:hover {
+    background: var(--primary-light);
+  }
+
+  .btn-lg {
+    padding: 16px 32px;
+    font-size: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .location-article {
+      padding: 24px;
+    }
+
+    .location-title {
+      font-size: 28px;
+    }
+
+    .services-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .treatment-actions,
+    .cta-actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+    }
+  }
+</style>

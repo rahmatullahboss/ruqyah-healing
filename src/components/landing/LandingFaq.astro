@@ -1,0 +1,143 @@
+---
+const faqs = [
+  {
+    question: 'রুকইয়াহ কি হালাল?',
+    answer: 'হ্যাঁ, রুকইয়াহ সম্পূর্ণ হালাল যতক্ষণ তা কুরআন, সুন্নাহ ও জায়েজ দুআ দ্বারা করা হয় এবং তাতে কোনো শিরক বা বিদআত থাকে না। আমাদের সেন্টার সম্পূর্ণ শিরকমুক্ত পদ্ধতি অনুসরণ করে।',
+  },
+  {
+    question: 'মহিলাদের জন্য কি নিরাপদ?',
+    answer: 'হ্যাঁ, মহিলা রোগীদের জন্য সম্পূর্ণ নিরাপদ। মহিলা রোগীদের জন্য মাহরাম উপস্থিতি বাধ্যতামূলক এবং পৃথক সেশন ও সম্পূর্ণ পর্দা বজায় রাখা হয়।',
+  },
+  {
+    question: 'কতদিনে ফলাফল পাব?',
+    answer: 'প্রতিটি ব্যক্তির অবস্থা আলাদা। অনেকে প্রথম সেশনেই উন্নতি অনুভব করেন, তবে গুরুতর ক্ষেত্রে একাধিক সেশনের প্রয়োজন হতে পারে। চূড়ান্ত শিফা আল্লাহর পক্ষ থেকে আসে।',
+  },
+  {
+    question: 'সেশনে কতক্ষণ সময় লাগে?',
+    answer: 'প্রতি সেশন সাধারণত ৩০ মিনিট থেকে ২ ঘণ্টা পর্যন্ত হয়, আপনার সমস্যার ধরন অনুযায়ী।',
+  },
+  {
+    question: 'অনলাইনে সেবা পাওয়া যায়?',
+    answer: 'হ্যাঁ, অনলাইন সেশনের মাধ্যমে দূর থেকেও রুকইয়াহ ডায়াগনোসিস ও কনসাল্টেশন নেওয়া সম্ভব। তবে হোম সার্ভিস বা চেম্বার সেশনে সরাসরি এলে বেশি কার্যকর হয়।',
+  },
+  {
+    question: 'বুকিং ফি কত?',
+    answer: 'বুকিং ফি ৫০০ টাকা (অগ্রিম)। এটি অ্যাপয়েন্টমেন্ট নিশ্চিত করতে পরিশোধ করতে হয় এবং এটি ফেরতযোগ্য নয়। সেশন ফি আলাদা — ডায়াগনোসিস ৩,৫০০ টাকা থেকে শুরু।',
+  },
+  {
+    question: 'কিভাবে বুক করব?',
+    answer: 'এই পেজের নিচে ফর্ম পূরণ করে সাবমিট করুন অথবা সরাসরি WhatsApp-এ মেসেজ করুন। বুকিং ফি পরিশোধ করে Trx ID দিলে আপনার সিরিয়াল নিশ্চিত হবে।',
+  },
+  {
+    question: 'কি কি প্রস্তুতি নিয়ে আসতে হবে?',
+    answer: 'অজু অবস্থায়, নামাজ পড়ে, পরিষ্কার পোশাকে আসুন। তাওহীদের উপর পূর্ণ নির্ভরতা রাখুন এবং মহিলা রোগীদের মাহরাম সাথে আনতে হবে।',
+  },
+];
+---
+
+<section class="faq-section" id="faq-section">
+  <div class="container">
+    <div class="faq-header">
+      <h2 class="faq-title">সচরাচর জিজ্ঞাসা</h2>
+      <p class="faq-sub">রুকইয়াহ ও আমাদের সেবা সম্পর্কে সাধারণ প্রশ্নাবলী</p>
+    </div>
+    <div class="faq-list">
+      {faqs.map((faq, i) => (
+        <details class="faq-item" style={`--stagger-delay: ${i * 50}ms`}>
+          <summary class="faq-question">{faq.question}</summary>
+          <div class="faq-answer">{faq.answer}</div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+.faq-section {
+  padding: 64px 0;
+  background: var(--bg-light);
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.faq-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.faq-title {
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 8px;
+}
+
+.faq-sub {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.faq-item {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.faq-item:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.faq-question {
+  padding: 18px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  transition: background 0.2s ease;
+}
+
+.faq-question::-webkit-details-marker { display: none; }
+.faq-question::after {
+  content: '+';
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--primary);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.faq-item[open] .faq-question::after {
+  content: '−';
+}
+
+.faq-item[open] .faq-question {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.faq-answer {
+  padding: 16px 24px 20px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text-medium);
+  border-top: 1px solid var(--border);
+}
+</style>

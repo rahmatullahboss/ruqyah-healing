@@ -1,0 +1,259 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { appointments } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+
+const editId = Astro.url.searchParams.get('id');
+if (!editId) return Astro.redirect('/admin/appointments');
+
+const rows = await db.select().from(appointments).where(eq(appointments.id, editId));
+const appt = rows[0];
+if (!appt) return Astro.redirect('/admin/appointments');
+---
+
+<AdminLayout title={`সম্পাদনা: ${appt.fullName} | Admin`}>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">এ্যাপয়েন্টমেন্ট সম্পাদনা</h1>
+      <p class="page-desc">
+        <a href={`/admin/appointments/${appt.id}`} class="back-link">← বিস্তারিত পেজে ফিরুন</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Read-only patient info -->
+  <div class="admin-card patient-summary">
+    <h2 class="section-title">রোগীর তথ্য (শুধুমাত্র পড়ার জন্য)</h2>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <span class="summary-label">নাম</span>
+        <span class="summary-value">{appt.fullName}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">ফোন</span>
+        <span class="summary-value">{appt.phone}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">চিকিৎসা</span>
+        <span class="summary-value">{appt.treatmentTypeLabel}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">বয়স</span>
+        <span class="summary-value">{appt.age} বছর</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="formMsg" class="save-msg" style="display:none;"></div>
+
+  <form id="editForm" class="admin-card">
+    <input type="hidden" id="apptId" value={appt.id} />
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="status">স্ট্যাটাস *</label>
+        <select id="status" class="form-input">
+          <option value="pending" selected={appt.status === 'pending'}>Pending (অপেক্ষমাণ)</option>
+          <option value="confirmed" selected={appt.status === 'confirmed'}>Confirmed (নিশ্চিত)</option>
+          <option value="completed" selected={appt.status === 'completed'}>Completed (সম্পন্ন)</option>
+          <option value="cancelled" selected={appt.status === 'cancelled'}>Cancelled (বাতিল)</option>
+        </select>
+      </div>
+      <div class="form-group" id="cancelReasonGroup" style={appt.status !== 'cancelled' ? 'display:none;' : ''}>
+        <label for="cancelReason">বাতিলের কারণ</label>
+        <textarea id="cancelReason" class="form-input" rows="2" placeholder="বাতিলের কারণ লিখুন...">{appt.cancelReason || ''}</textarea>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:16px;">
+      <label for="adminNotes">অ্যাডমিন নোটস</label>
+      <textarea id="adminNotes" class="form-input" rows="3" placeholder="অভ্যন্তরীণ নোট...">{appt.adminNotes || ''}</textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="preferredDate">পছন্দের তারিখ</label>
+        <input type="text" id="preferredDate" class="form-input" value={appt.preferredDate} />
+      </div>
+      <div class="form-group">
+        <label for="preferredTime">পছন্দের সময়</label>
+        <input type="text" id="preferredTime" class="form-input" value={appt.preferredTime} />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="phone">ফোন</label>
+        <input type="text" id="phone" class="form-input" value={appt.phone} />
+      </div>
+      <div class="form-group">
+        <label for="whatsapp">হোয়াটসঅ্যাপ</label>
+        <input type="text" id="whatsapp" class="form-input" value={appt.whatsapp || ''} />
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:16px;">
+      <label for="address">ঠিকানা</label>
+      <textarea id="address" class="form-input" rows="2">{appt.address}</textarea>
+    </div>
+
+    <div class="form-actions">
+      <a href={`/admin/appointments/${appt.id}`} class="btn-cancel">বাতিল করুন</a>
+      <button type="submit" class="btn-save">আপডেট করুন</button>
+    </div>
+  </form>
+</AdminLayout>
+
+<script>
+  // Toggle cancel reason visibility
+  const statusSelect = document.getElementById('status') as HTMLSelectElement;
+  const cancelGroup = document.getElementById('cancelReasonGroup') as HTMLElement;
+
+  statusSelect?.addEventListener('change', () => {
+    if (statusSelect.value === 'cancelled') {
+      cancelGroup.style.display = '';
+    } else {
+      cancelGroup.style.display = 'none';
+    }
+  });
+
+  // Form submit
+  document.getElementById('editForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('formMsg')!;
+    const id = (document.getElementById('apptId') as HTMLInputElement).value;
+
+    const payload = {
+      id,
+      status: (document.getElementById('status') as HTMLSelectElement).value,
+      cancelReason: (document.getElementById('cancelReason') as HTMLTextAreaElement).value,
+      adminNotes: (document.getElementById('adminNotes') as HTMLTextAreaElement).value,
+      preferredDate: (document.getElementById('preferredDate') as HTMLInputElement).value,
+      preferredTime: (document.getElementById('preferredTime') as HTMLInputElement).value,
+      phone: (document.getElementById('phone') as HTMLInputElement).value,
+      whatsapp: (document.getElementById('whatsapp') as HTMLInputElement).value,
+      address: (document.getElementById('address') as HTMLTextAreaElement).value,
+    };
+
+    try {
+      const res = await fetch('/api/admin/appointments/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        msg.textContent = 'এ্যাপয়েন্টমেন্ট সফলভাবে আপডেট হয়েছে!';
+        msg.className = 'save-msg success';
+        msg.style.display = 'block';
+        setTimeout(() => {
+          window.location.href = `/admin/appointments/${id}`;
+        }, 1000);
+      } else {
+        throw new Error(data.error || 'আপডেট ব্যর্থ হয়েছে।');
+      }
+    } catch (err: any) {
+      msg.textContent = err.message || 'সমস্যা হয়েছে';
+      msg.className = 'save-msg error';
+      msg.style.display = 'block';
+    }
+  });
+</script>
+
+<style>
+  .back-link { color: var(--admin-primary); text-decoration: none; font-weight: 500; }
+  .back-link:hover { text-decoration: underline; }
+
+  .patient-summary { margin-bottom: 20px; }
+
+  .section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--admin-primary);
+    margin: 0 0 14px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--admin-border);
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .summary-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--admin-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .summary-value {
+    font-size: 0.9rem;
+    color: var(--admin-text);
+    font-weight: 500;
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--admin-text-light); }
+  .form-input {
+    padding: 10px 14px; border: 1px solid var(--admin-border); border-radius: 8px;
+    font-size: 0.95rem; font-family: inherit; background: #fff; transition: border-color 0.2s;
+  }
+  .form-input:focus { outline: none; border-color: var(--admin-primary); }
+
+  .form-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .btn-save {
+    padding: 12px 32px; background: var(--admin-primary); color: #fff;
+    border: none; border-radius: 10px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: all 0.2s;
+  }
+  .btn-save:hover { opacity: 0.9; }
+
+  .btn-cancel {
+    padding: 12px 24px;
+    background: transparent;
+    color: var(--admin-text-light);
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover { background: #f8fafc; }
+
+  .save-msg { padding: 12px 20px; border-radius: 10px; font-weight: 600; margin-bottom: 16px; }
+  .save-msg.success { background: #dcfce7; color: #15803d; }
+  .save-msg.error { background: #fee2e2; color: #dc2626; }
+
+  @media (max-width: 768px) {
+    .form-row { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>

@@ -1,0 +1,41 @@
+# Ruqyah Healing — AI Context
+
+## What We Are
+Ruqyah Healing Center provides Islamic spiritual healing services (ruqyah) based on Quran and Sunnah. We serve patients across Bangladesh, offering diagnosis, treatment, and self-ruqyah guidance.
+
+**Website:** https://ruqyahhealing.com
+**Email:** info@ruqyahhealing.com
+**Phone:** +8801992575874
+**Location:** Dhaka, Bangladesh
+
+## Our Services
+- Ruqyah Diagnosis — Spiritual assessment to identify afflictions
+- Ruqyah Treatment — Quranic recitation and adhkar for spiritual healing
+- Hijama (Cupping) Therapy — Sunnah-compliant blood cupping
+- Self-Ruqyah Guidance — Training for independent daily protection
+- Ruqyah Supplements — Spiritual wellness products
+
+## Our Focus Areas
+- Jinn possession and spiritual affliction
+- Evil eye (hasad/nazar)
+- Black magic (sihr)
+- Waswasa (intrusive whispers)
+- Mental health with spiritual dimensions
+- Marital problems with spiritual causes
+- Children's spiritual issues
+- General spiritual protection
+
+## Key Content Sections
+- `/conditions/` — 7 condition pages with symptoms, causes, treatment
+- `/glossary/` — 24 glossary terms (jinn, sihr, raqi, hadath, etc.)
+- `/for/` — 6 audience pages (women, parents, mental health, business, newly married, protection)
+- `/location/` — 8 city pages (Dhaka, Chittagong, Sylhet, Rajshahi, Khulna, Barishal, Rangpur, Mymensingh)
+- `/ruqyah-diagnosis/` — Self-diagnosis tool
+- `/blog/` — Educational posts on spiritual topics
+
+## Languages
+- Bengali (primary) — https://ruqyahhealing.com
+- English — https://ruqyahhealing.com/en
+
+## Last Updated
+May 2026

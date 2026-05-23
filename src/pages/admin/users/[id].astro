@@ -1,0 +1,469 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createDb } from '../../../db/client.js';
+import { users, appointments } from '../../../db/schema.js';
+import { eq } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+import { Shield, User, Mail, Phone, Calendar, ArrowLeft } from '@lucide/astro';
+
+export const prerender = false;
+
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/admin/users');
+}
+
+const rows = await db.select().from(users).where(eq(users.id, id));
+const u = rows[0];
+
+if (!u) {
+  return Astro.redirect('/admin/users');
+}
+
+// Fetch appointments matching user's phone
+let userAppointments: any[] = [];
+if (u.phone) {
+  userAppointments = await db.select().from(appointments).where(eq(appointments.phone, u.phone));
+}
+---
+
+<AdminLayout title={`${u.fullName} — ইউজার বিস্তারিত | Admin`}>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">ইউজার বিস্তারিত</h1>
+      <p class="page-desc"><a href="/admin/users" class="back-link"><ArrowLeft size={14} style="vertical-align: middle;" /> ইউজার তালিকায় ফিরুন</a></p>
+    </div>
+  </div>
+
+  <div id="actionMsg" class="save-msg" style="display:none;"></div>
+
+  <!-- Profile Info -->
+  <div class="admin-card section-card">
+    <h2 class="section-title">প্রোফাইল তথ্য</h2>
+    <div class="profile-grid">
+      <div class="profile-item">
+        <span class="profile-label">পূর্ণ নাম</span>
+        <span class="profile-value">
+          {u.role === 'admin' ? <Shield size={14} color="#0891B2" style="vertical-align: middle;" /> : <User size={14} color="#64748b" style="vertical-align: middle;" />}
+          {u.fullName}
+        </span>
+      </div>
+      <div class="profile-item">
+        <span class="profile-label">ইমেইল</span>
+        <span class="profile-value">
+          <Mail size={14} color="#64748b" style="vertical-align: middle;" />
+          {u.email || 'N/A'}
+        </span>
+      </div>
+      <div class="profile-item">
+        <span class="profile-label">ফোন</span>
+        <span class="profile-value">
+          <Phone size={14} color="#64748b" style="vertical-align: middle;" />
+          {u.phone || 'N/A'}
+        </span>
+      </div>
+      <div class="profile-item">
+        <span class="profile-label">লগইন পদ্ধতি</span>
+        <span class="profile-value">
+          <span class={`auth-badge auth-${u.authProvider}`}>{u.authProvider}</span>
+        </span>
+      </div>
+      <div class="profile-item">
+        <span class="profile-label">ভূমিকা</span>
+        <span class="profile-value">
+          <span class={`status-badge role-${u.role === 'admin' ? 'admin' : 'user'}`}>{u.role}</span>
+        </span>
+      </div>
+      <div class="profile-item">
+        <span class="profile-label">যোগদানের তারিখ</span>
+        <span class="profile-value">
+          <Calendar size={14} color="#64748b" style="vertical-align: middle;" />
+          {new Date(u.createdAt).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="admin-card section-card" style="margin-top:16px;">
+    <h2 class="section-title">অ্যাকশন</h2>
+    <div class="actions-row">
+      <!-- Role Change -->
+      <div class="action-block">
+        <label class="action-label">ভূমিকা পরিবর্তন</label>
+        <div class="action-inline">
+          <select id="roleSelect" class="form-input">
+            <option value="patient" selected={u.role === 'patient'}>Patient</option>
+            <option value="admin" selected={u.role === 'admin'}>Admin</option>
+          </select>
+          <button id="updateRoleBtn" class="btn-action">আপডেট</button>
+        </div>
+      </div>
+
+      <!-- Edit Profile Link -->
+      <div class="action-block">
+        <label class="action-label">প্রোফাইল সম্পাদনা</label>
+        <button id="editProfileBtn" class="btn-action-outline">প্রোফাইল সম্পাদনা</button>
+      </div>
+    </div>
+
+    <!-- Edit Profile Form (hidden by default) -->
+    <div id="editForm" class="edit-form" style="display:none; margin-top:20px;">
+      <h3 style="margin: 0 0 16px 0; font-size: 1rem; color: var(--admin-text);">প্রোফাইল সম্পাদনা করুন</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editName">পূর্ণ নাম *</label>
+          <input type="text" id="editName" class="form-input" value={u.fullName} />
+        </div>
+        <div class="form-group">
+          <label for="editEmail">ইমেইল</label>
+          <input type="email" id="editEmail" class="form-input" value={u.email || ''} />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editPhone">ফোন</label>
+          <input type="text" id="editPhone" class="form-input" value={u.phone || ''} />
+        </div>
+        <div class="form-group"></div>
+      </div>
+      <div class="form-actions">
+        <button id="cancelEditBtn" class="btn-action-outline" type="button">বাতিল</button>
+        <button id="saveProfileBtn" class="btn-action" type="button">সংরক্ষণ করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appointment History -->
+  <div class="admin-card section-card" style="margin-top:16px;">
+    <h2 class="section-title">অ্যাপয়েন্টমেন্ট ইতিহাস</h2>
+    {userAppointments.length === 0 ? (
+      <p style="color: var(--admin-text-light); font-size: 0.95rem;">কোনো অ্যাপয়েন্টমেন্ট পাওয়া যায়নি।</p>
+    ) : (
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>তারিখ</th>
+              <th>চিকিৎসা</th>
+              <th>স্ট্যাটাস</th>
+            </tr>
+          </thead>
+          <tbody>
+            {userAppointments.map((apt: any) => (
+              <tr>
+                <td>{apt.preferredDate}</td>
+                <td>{apt.treatmentTypeLabel}</td>
+                <td>
+                  <span class={`status-badge appt-${apt.status}`}>{apt.status}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+</AdminLayout>
+
+<script define:vars={{ userId: u.id }}>
+  // Role update
+  document.getElementById('updateRoleBtn')?.addEventListener('click', async () => {
+    const select = document.getElementById('roleSelect');
+    const newRole = select.value;
+    const msg = document.getElementById('actionMsg');
+
+    if (!confirm(`আপনি কি নিশ্চিত যে ভূমিকা '${newRole}' করতে চান?`)) return;
+
+    try {
+      const res = await fetch('/api/admin/users/update-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, role: newRole })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        msg.textContent = 'ভূমিকা সফলভাবে আপডেট হয়েছে!';
+        msg.className = 'save-msg success';
+        msg.style.display = 'block';
+        setTimeout(() => window.location.reload(), 800);
+      } else {
+        throw new Error(data.error || 'আপডেট ব্যর্থ');
+      }
+    } catch (err) {
+      msg.textContent = err.message;
+      msg.className = 'save-msg error';
+      msg.style.display = 'block';
+    }
+  });
+
+  // Toggle edit form
+  document.getElementById('editProfileBtn')?.addEventListener('click', () => {
+    const form = document.getElementById('editForm');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  });
+
+  document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
+    document.getElementById('editForm').style.display = 'none';
+  });
+
+  // Save profile
+  document.getElementById('saveProfileBtn')?.addEventListener('click', async () => {
+    const msg = document.getElementById('actionMsg');
+    const fullName = document.getElementById('editName').value.trim();
+    const email = document.getElementById('editEmail').value.trim();
+    const phone = document.getElementById('editPhone').value.trim();
+
+    if (!fullName || fullName.length < 2) {
+      msg.textContent = 'নাম কমপক্ষে ২ অক্ষর হতে হবে।';
+      msg.className = 'save-msg error';
+      msg.style.display = 'block';
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/admin/users/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, fullName, email, phone })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        msg.textContent = 'প্রোফাইল সফলভাবে আপডেট হয়েছে!';
+        msg.className = 'save-msg success';
+        msg.style.display = 'block';
+        setTimeout(() => window.location.reload(), 800);
+      } else {
+        throw new Error(data.error || 'আপডেট ব্যর্থ');
+      }
+    } catch (err) {
+      msg.textContent = err.message;
+      msg.className = 'save-msg error';
+      msg.style.display = 'block';
+    }
+  });
+</script>
+
+<style>
+  .back-link { color: var(--admin-primary); text-decoration: none; font-weight: 500; }
+  .back-link:hover { text-decoration: underline; }
+
+  .section-card { }
+
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--admin-text);
+    margin: 0 0 16px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--admin-border);
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .profile-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .profile-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--admin-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .profile-value {
+    font-size: 0.95rem;
+    color: var(--admin-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .auth-badge {
+    display: inline-flex;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  .auth-local { background: #f1f5f9; color: #475569; }
+  .auth-google { background: #fef3c7; color: #b45309; }
+
+  .status-badge {
+    display: inline-flex;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  .role-admin { background: #cffafe; color: #0891b2; }
+  .role-user { background: #f1f5f9; color: #475569; }
+
+  .appt-pending { background: #fef3c7; color: #b45309; }
+  .appt-confirmed { background: #dcfce7; color: #15803d; }
+  .appt-completed { background: #dbeafe; color: #2563eb; }
+  .appt-cancelled { background: #fee2e2; color: #dc2626; }
+
+  .actions-row {
+    display: flex;
+    gap: 24px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .action-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .action-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--admin-text-light);
+  }
+
+  .action-inline {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .form-input {
+    padding: 10px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+  }
+
+  .btn-action {
+    padding: 10px 20px;
+    background: var(--admin-primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.2s;
+  }
+
+  .btn-action:hover { opacity: 0.9; }
+
+  .btn-action-outline {
+    padding: 10px 20px;
+    background: transparent;
+    color: var(--admin-primary);
+    border: 1px solid var(--admin-primary);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+
+  .btn-action-outline:hover {
+    background: var(--admin-primary-light);
+  }
+
+  .edit-form {
+    padding-top: 16px;
+    border-top: 1px solid var(--admin-border);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--admin-text-light);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .save-msg {
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .save-msg.success { background: #dcfce7; color: #15803d; }
+  .save-msg.error { background: #fee2e2; color: #dc2626; }
+
+  .table-container { overflow-x: auto; }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  .admin-table th {
+    padding: 12px 16px;
+    background: #f8fafc;
+    color: var(--admin-text-light);
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--admin-border);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .admin-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--admin-border);
+    color: var(--admin-text-light);
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+
+  .admin-table tr:last-child td { border-bottom: none; }
+
+  @media (max-width: 768px) {
+    .profile-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .actions-row { flex-direction: column; align-items: stretch; }
+  }
+</style>

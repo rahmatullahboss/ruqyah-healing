@@ -3,114 +3,590 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
-const courses = [
-  { title: 'রুকইয়া প্র্যাকটিশনার কোর্স', instructor: 'মাওলানা আব্দুল্লাহ', students: 156, lessons: 24, hours: '৮ সপ্তাহ', level: 'শুরুর স্তর', price: null, rating: 4.8, desc: 'সম্পূর্ণ রুকইয়াহ শেখার জন্য বিস্তারিত কোর্স', image: '/images/courses/course_ruqyah_practitioner.webp' },
-  { title: 'ইসলামিক হিলিং থেরাপি', instructor: 'ডা. ফাতিমা রহমান', students: 203, lessons: 18, hours: '৬ সপ্তাহ', level: 'মধ্যম স্তর', price: 2000, rating: 4.9, desc: 'কুরআন এবং সুন্নাহ ভিত্তিক হিলিং পদ্ধতি', image: '/images/courses/course_islamic_healing.webp' },
-  { title: 'জিন ও শয়তান থেকে সুরক্ষা', instructor: 'শায়েখ মুহাম্মাদ', students: 89, lessons: 12, hours: '৮ সপ্তাহ', level: 'শুরুর স্তর', price: null, rating: 4.7, desc: 'সুরক্ষার পদ্ধতি এবং প্রতিরোধ ব্যবস্থা', image: '/images/courses/course_jinn_protection.webp' },
-  { title: 'কুরআনিক হিলিং ম্যাস্টারক্লাস', instructor: 'মাওলানা আব্দুল্লাহ', students: 312, lessons: 30, hours: '১২ সপ্তাহ', level: 'উন্নত স্তর', price: 4500, rating: 5.0, desc: 'কুরআনের আয়াত দিয়ে সম্পূর্ণ চিকিৎসা পদ্ধতি', image: '/images/courses/course_quranic_masterclass.webp' },
-  { title: 'পারিবারিক রুকইয়াহ', instructor: 'ডা. ফাতিমা রহমান', students: 178, lessons: 15, hours: '৫ সপ্তাহ', level: 'শুরুর স্তর', price: 3000, rating: 4.6, desc: 'পরিবারের সুরক্ষার জন্য সম্পূর্ণ গাইড', image: '/images/courses/course_family_ruqyah.webp' },
-  { title: 'সেলফ রুকইয়াহ সার্টিফিকেট', instructor: 'শায়েখ মুহাম্মাদ', students: 245, lessons: 20, hours: '৭ সপ্তাহ', level: 'মধ্যম স্তর', price: 2500, rating: 4.8, desc: 'নিজেই রুকইয়াহ করার দক্ষতা অর্জন করুন', image: '/images/courses/course_self_ruqyah_certificate.webp' },
-];
+import { createDb } from '../db/client.js';
+import { courseLessons, courseModules, courses, courseEnrollments } from '../db/schema.js';
+import { env as workerEnv } from 'cloudflare:workers';
+import { desc, eq, inArray } from 'drizzle-orm';
+import { getEffectiveCoursePrice } from '../lib/lms-access.js';
+import { filterPublicReadyCourses, groupCourseContentRows } from '../lib/lms-admin.js';
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+
+const publishedCourses = await db.select()
+  .from(courses)
+  .where(eq(courses.status, 'published'))
+  .orderBy(desc(courses.createdAt));
+const publishedCourseIds = publishedCourses.map((course) => course.id);
+const [publishedModules, publishedLessons] = publishedCourseIds.length > 0
+  ? await Promise.all([
+      db.select().from(courseModules).where(inArray(courseModules.courseId, publishedCourseIds)),
+      db.select().from(courseLessons).where(inArray(courseLessons.courseId, publishedCourseIds)),
+    ])
+  : [[], []];
+const coursesList = filterPublicReadyCourses(groupCourseContentRows({
+  courses: publishedCourses,
+  modules: publishedModules,
+  lessons: publishedLessons,
+})).map((row) => row.course);
+
+const user = (Astro.locals as App.Locals).user;
+let enrolledCourses: Record<string, string> = {};
+
+if (user) {
+  const enrollments = await db.select()
+    .from(courseEnrollments)
+    .where(eq(courseEnrollments.userId, user.id));
+  enrollments.forEach(e => {
+    enrolledCourses[e.courseId] = e.status;
+  });
+}
+
+const categories = ['সকল কোর্স', ...new Set(coursesList.map((course) => course.category).filter(Boolean))];
 ---
 
 <BaseLayout title="কোর্সসমূহ | Ruqyah Healing Center" description="ইসলামিক হিলিং এবং রুকইয়াহ সম্পর্কে বিস্তারিত জ্ঞান অর্জন করুন আমাদের কোর্সগুলো থেকে।">
   <Header />
 
   <main>
-    <div class="page-header">
+    <!-- S&A Style Video Section -->
+    <section class="video-feature-section">
       <div class="container">
-        <nav class="breadcrumb">
-          <a href="/">হোম</a><span>/</span><span>কোর্স</span>
-        </nav>
-      </div>
-    </div>
+        <div class="video-feature-grid">
+          <div class="video-feature-content">
+            <div class="video-feature-badge">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Featured Video</span>
+            </div>
+            <h2>Learn Genuine Prophetic Medicine</h2>
+            <p>Watch our featured video to get a closer look at the people, moments, and mission behind Ruqyah Healing.</p>
+             <a href="https://www.youtube.com/watch?v=YZlfu-pgPD8&t=22s" target="_blank" rel="noopener noreferrer" class="watch-btn">
+               Watch on YouTube
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                 <polyline points="15 3 21 3 21 9"></polyline>
+                 <line x1="10" y1="14" x2="21" y2="3"></line>
+               </svg>
+             </a>
 
-    <section class="courses-hero">
-      <div class="container">
-        <h1>আমাদের কোর্সসমূহ</h1>
-        <p>ইসলামিক হিলিং এবং রুকইয়াহ সম্পর্কে বিস্তারিত জ্ঞান অর্জন করুন</p>
+          </div>
+          <div class="video-feature-embed">
+            <div class="video-frame">
+               <iframe 
+                 src="https://www.youtube.com/embed/YZlfu-pgPD8?rel=0" 
+                 title="Ruqyah Course"
+                 loading="lazy"
+                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                 referrerPolicy="strict-origin-when-cross-origin"
+                 allowfullscreen
+               ></iframe>
+
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- Tabs & Course Cards -->
     <section class="courses-section">
       <div class="container">
+        <h2 class="section-title">আমাদের কোর্স সমূহ</h2>
+        
+        <div class="course-toolbar">
+          <label class="course-search" for="courseSearch">
+            <span>কোর্স সার্চ</span>
+            <input id="courseSearch" type="search" placeholder="নাম, ইনস্ট্রাক্টর বা ক্যাটাগরি লিখুন" />
+          </label>
+
+          <div class="tabs" aria-label="কোর্স ক্যাটাগরি">
+            {categories.map((cat, i) => (
+              <button class:list={['tab-btn', i === 0 && 'active']} data-category={cat}>{cat}</button>
+            ))}
+          </div>
+        </div>
+
         <div class="courses-grid">
-          {courses.map((course) => (
-            <div class="course-card">
+          {coursesList.map((course) => {
+            const enrollmentStatus = enrolledCourses[course.id];
+            const effectivePrice = getEffectiveCoursePrice(course);
+            const priceDisplay = effectivePrice === 0 ? 'ফ্রি' : `৳ ${effectivePrice.toLocaleString()}`;
+            
+            return (
+            <div
+              class="course-card"
+              data-category={course.category}
+              data-search={`${course.title} ${course.instructor} ${course.category} ${course.level} ${course.desc}`.toLowerCase()}
+            >
               <div class="course-img">
-                <img src={course.image} alt={course.title} class="course-bg" loading="lazy" decoding="async" />
+                <img src={course.image} alt={course.title} loading="lazy" decoding="async" />
                 <div class:list={['price-badge', course.price === null && 'free']}>
-                  {course.price === null ? 'ফ্রি' : `৳${course.price.toLocaleString()} টাকা`}
+                  {priceDisplay}
                 </div>
               </div>
               <div class="course-body">
                 <div class="course-meta">
-                  <span class="level-badge">{course.level}</span>
-                  <span class="rating">⭐ {course.rating}</span>
+                  <span>{course.level}</span>
+                  <span>{course.instructor}</span>
                 </div>
                 <h3>{course.title}</h3>
                 <p>{course.desc}</p>
                 <div class="course-stats">
-                  <span>⏱ {course.hours}</span>
-                  <span>📚 {course.lessons} লেসন</span>
+                  <span>{course.classCount}</span>
+                  <span>{course.hours}</span>
                 </div>
                 <div class="course-footer">
-                  <div class="instructor">
-                    <div class="instructor-avatar"></div>
-                    <div>
-                      <div class="instructor-name">{course.instructor}</div>
-                      <div class="instructor-students">{course.students} জন শিক্ষার্থী</div>
-                    </div>
-                  </div>
-                  <button class="enroll-btn">ভর্তি হন</button>
+                  {enrollmentStatus === 'approved' ? (
+                    <a href={`/courses/${course.id}/learn`} class="details-btn watch-btn">
+                      শিখুন
+                    </a>
+                  ) : (
+                    <a href={`/courses/${course.id}`} class="details-btn">
+                      বিস্তারিত
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </a>
+                  )}
+                  {course.price !== null && (
+                    <span class="course-price">{priceDisplay}</span>
+                  )}
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
+        </div>
+
+        <div class="empty-courses" id="emptyCourses" hidden>
+          <p>এই ফিল্টারে কোনো কোর্স পাওয়া যায়নি।</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+      <div class="container">
+        <div class="features-content">
+          <h2>আমাদের বৈশিষ্ট্য</h2>
+          <p>"Ruqyah Healing Center" হলো একটি বিশেষায়িত অনলাইন শিক্ষামূলক উদ্যোগ, যা প্রতিটি মুসলিমের জন্য বিশুদ্ধ ইসলামিক জ্ঞান অর্জনের পথকে সহজ করতে প্রতিশ্রুতিবদ্ধ। আমাদের লক্ষ্য শুধু নির্দিষ্ট কোনো বিষয়ে বিশেষজ্ঞ তৈরি করা নয়, বরং সাধারণ মানুষ থেকে শুরু করে ইলম অন্বেষণকারী—সকলের জন্য কুরআন-সুন্নাহ ও সালাফদের প্রজ্ঞার আলোকে জীবনঘনিষ্ঠ ইসলামিক শিক্ষা প্রদান করা।</p>
+          <p>আমরা এমন একটি নির্ভরযোগ্য ও সর্বজনীন অনলাইন শিক্ষাকেন্দ্র হতে চাই, যেখানে মানুষ শিরক, বিদ'আত এবং সকল প্রকার কুসংস্কারমুক্ত থেকে ইসলামের খাঁটি ও বিশুদ্ধ জ্ঞান (যেমন: বিশুদ্ধ কুরআন তিলাওয়াত, মাসনূন দুআ, রুকইয়াহ শারইয়াহ, তিব্বে নববী এবং দৈনন্দিন জীবনের ইসলামিক বিধান) অর্জন করতে পারবে।</p>
+        </div>
+        <div class="features-img">
+          <img src="/images/hero-bg.webp" alt="Features" loading="lazy" />
         </div>
       </div>
     </section>
   </main>
 
   <Footer />
+
+
 </BaseLayout>
 
+<script>
+  // Tab switching
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const courseCards = document.querySelectorAll('.course-card');
+  const courseSearch = document.getElementById('courseSearch') as HTMLInputElement | null;
+  const emptyCourses = document.getElementById('emptyCourses');
+  let activeCategory = 'সকল কোর্স';
+
+  function applyCourseFilters() {
+    const query = courseSearch?.value.trim().toLowerCase() || '';
+    let visibleCount = 0;
+
+    courseCards.forEach(card => {
+      const cardCategory = card.getAttribute('data-category');
+      const searchText = card.getAttribute('data-search') || '';
+      const matchesCategory = activeCategory === 'সকল কোর্স' || cardCategory === activeCategory;
+      const matchesSearch = !query || searchText.includes(query);
+      const isVisible = matchesCategory && matchesSearch;
+      (card as HTMLElement).style.display = isVisible ? 'block' : 'none';
+      if (isVisible) visibleCount += 1;
+    });
+    if (emptyCourses) emptyCourses.hidden = visibleCount > 0;
+  }
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeCategory = btn.getAttribute('data-category') || 'সকল কোর্স';
+      applyCourseFilters();
+    });
+  });
+
+  courseSearch?.addEventListener('input', applyCourseFilters);
+</script>
+
 <style>
-.page-header { padding: 16px 0; border-bottom: 1px solid var(--border); }
-.breadcrumb { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text-muted); }
-.breadcrumb a { color: var(--primary); text-decoration: none; }
+/* Video Feature Section - S&A Style */
+.video-feature-section {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #f8f7f4 0%, #f0efe9 100%);
+}
 
-.courses-hero { padding: 48px 0 32px; text-align: center; }
-.courses-hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
-.courses-hero p { color: var(--text-muted); }
+.video-feature-grid {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 48px;
+  align-items: center;
+}
 
-.courses-section { padding: 32px 0 64px; }
-.courses-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.video-feature-content {
+  order: 1;
+}
 
-.course-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.2s; }
-.course-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
-.course-img { height: 180px; position: relative; overflow: hidden; background: #e5e7eb; }
-.course-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
-.course-card:hover .course-bg { transform: scale(1.05); }
-.price-badge { position: absolute; top: 12px; right: 12px; background: #fff; border-radius: 20px; padding: 5px 14px; font-size: 13px; font-weight: 700; color: var(--primary); }
-.price-badge.free { background: #dcfce7; color: #16a34a; }
+.video-feature-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(5, 150, 105, 0.1);
+  border: 1px solid rgba(5, 150, 105, 0.2);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 24px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
 
-.course-body { padding: 16px 20px 20px; }
-.course-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.level-badge { font-size: 12px; background: var(--primary-light); color: var(--primary); padding: 3px 10px; border-radius: 20px; font-weight: 600; }
-.rating { font-size: 13px; color: var(--text-muted); }
-.course-body h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; line-height: 1.4; }
-.course-body p { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5; }
-.course-stats { display: flex; gap: 16px; font-size: 13px; color: var(--text-muted); margin-bottom: 16px; padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.video-feature-content h2 {
+  font-family: 'Lora', serif;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
 
-.course-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; }
-.instructor { display: flex; align-items: center; gap: 10px; }
-.instructor-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-light); }
-.instructor-name { font-size: 13px; font-weight: 600; }
-.instructor-students { font-size: 12px; color: var(--text-muted); }
-.enroll-btn { padding: 8px 18px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
-.enroll-btn:hover { background: var(--primary-dark); }
+.video-feature-content p {
+  font-size: 16px;
+  color: #64748b;
+  line-height: 1.7;
+  margin-bottom: 24px;
+  max-width: 480px;
+}
 
-@media (max-width: 900px) { .courses-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .courses-grid { grid-template-columns: 1fr; } }
+.watch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ef4444;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.watch-btn:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+}
+
+.video-feature-embed {
+  order: 2;
+}
+
+.video-frame {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.15);
+  background: #0f172a;
+  padding: 6px;
+}
+
+.video-frame iframe {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 20px;
+  display: block;
+}
+
+/* Tabs */
+.course-toolbar {
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) 1fr;
+  gap: 18px;
+  align-items: end;
+  margin-bottom: 32px;
+}
+
+.course-search {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.course-search span {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.course-search input {
+  min-height: 46px;
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 15px;
+  color: #0f172a;
+  background: #fff;
+}
+
+.course-search input:focus {
+  outline: none;
+  border-color: #0891b2;
+  box-shadow: 0 0 0 4px rgba(8, 145, 178, 0.12);
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text);
+}
+
+.tab-btn:hover {
+  background: #e2e8f0;
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Courses Grid */
+.courses-section {
+  padding: 48px 0;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+}
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.course-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.course-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.course-img {
+  height: 160px;
+  position: relative;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+.course-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.price-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.price-badge.free {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.course-body {
+  padding: 16px 20px 20px;
+}
+
+.course-meta,
+.course-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.course-meta span,
+.course-stats span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.course-meta span:first-child {
+  background: #ecfeff;
+  color: #0e7490;
+}
+
+.course-body h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.course-body p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.course-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.details-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: inherit;
+}
+
+.details-btn:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.watch-btn {
+  background: #10b981;
+}
+
+.course-price {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.empty-courses {
+  margin-top: 28px;
+  padding: 28px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  color: #64748b;
+  text-align: center;
+  background: #fff;
+}
+
+/* Features Section */
+.features-section {
+  background: #f8fafc;
+  padding: 64px 0;
+}
+
+.features-section .container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.features-content h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.features-content p {
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+
+.features-img {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.features-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+
+/* Responsive */
+@media (max-width: 900px) {
+  .courses-grid { grid-template-columns: repeat(2, 1fr); }
+  .course-toolbar { grid-template-columns: 1fr; }
+  .tabs { justify-content: flex-start; }
+  .features-section .container { grid-template-columns: 1fr; }
+  .video-feature-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .video-feature-content { order: 1; text-align: center; }
+  .video-feature-content p { margin: 0 auto 24px; }
+  .video-feature-embed { order: 2; }
+}
+
+@media (max-width: 560px) {
+  .courses-grid { grid-template-columns: 1fr; }
+  .tabs { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
+  .tab-btn { white-space: nowrap; }
+}
 </style>

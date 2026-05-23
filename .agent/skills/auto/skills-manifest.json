@@ -1,31 +1,19 @@
 {
-  "typescript": {
-    "enabled": true,
-    "lastGenerated": "2026-03-31T21:17:30.113Z",
-    "observationCount": 29,
-    "skillCount": 0,
-    "domain": "typescript",
-    "triggerGlobs": [
-      "**/*.ts",
-      "**/*.tsx"
-    ],
-    "description": "Typescript for ruqyah-healing. 1 gotchas, 5 conventions, 8 fixes."
-  },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-31T21:17:30.113Z",
-    "observationCount": 176,
+    "lastGenerated": "2026-04-14T01:14:30.516Z",
+    "observationCount": 805,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Project for ruqyah-healing. 37 gotchas, 59 conventions, 8 fixes."
+    "description": "Project for ruqyah-healing. 74 gotchas, 298 conventions, 22 fixes."
   },
   "config": {
     "enabled": true,
-    "lastGenerated": "2026-03-31T21:17:30.113Z",
-    "observationCount": 14,
+    "lastGenerated": "2026-04-14T01:14:30.517Z",
+    "observationCount": 194,
     "skillCount": 0,
     "domain": "config",
     "triggerGlobs": [
@@ -34,13 +22,37 @@
       "**/*.json",
       "**/*.toml"
     ],
-    "description": "Config for ruqyah-healing. 4 conventions."
+    "description": "Config for ruqyah-healing. 7 gotchas, 53 conventions, 18 fixes."
+  },
+  "typescript": {
+    "enabled": true,
+    "lastGenerated": "2026-04-14T01:14:30.517Z",
+    "observationCount": 63,
+    "skillCount": 0,
+    "domain": "typescript",
+    "triggerGlobs": [
+      "**/*.ts",
+      "**/*.tsx"
+    ],
+    "description": "Typescript for ruqyah-healing. 3 gotchas, 16 conventions, 9 fixes."
+  },
+  "javascript": {
+    "enabled": true,
+    "lastGenerated": "2026-04-14T01:14:30.518Z",
+    "observationCount": 34,
+    "skillCount": 0,
+    "domain": "javascript",
+    "triggerGlobs": [
+      "**/*.js",
+      "**/*.jsx"
+    ],
+    "description": "Javascript for ruqyah-healing. 3 gotchas, 6 conventions, 12 fixes."
   },
   "convention": {
     "enabled": true,
-    "lastGenerated": "2026-03-31T21:17:30.114Z",
+    "lastGenerated": "2026-04-14T01:14:30.518Z",
     "observationCount": 0,
-    "skillCount": 2,
+    "skillCount": 61,
     "domain": "convention",
     "triggerGlobs": [
       "**/*"
@@ -49,13 +61,46 @@
   },
   "problem-fix": {
     "enabled": true,
-    "lastGenerated": "2026-03-31T21:17:30.114Z",
+    "lastGenerated": "2026-04-14T01:14:30.519Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "problem-fix",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Problem Fix for ruqyah-healing. 3 error→fix pairs."
+    "description": "Problem Fix for ruqyah-healing. 8 error→fix pairs."
+  },
+  "gotcha": {
+    "enabled": true,
+    "lastGenerated": "2026-04-14T01:14:30.520Z",
+    "observationCount": 0,
+    "skillCount": 19,
+    "domain": "gotcha",
+    "triggerGlobs": [
+      "**/*"
+    ],
+    "description": "Gotcha for ruqyah-healing. ."
+  },
+  "decision": {
+    "enabled": true,
+    "lastGenerated": "2026-04-14T01:14:30.519Z",
+    "observationCount": 0,
+    "skillCount": 7,
+    "domain": "decision",
+    "triggerGlobs": [
+      "**/*"
+    ],
+    "description": "Decision for ruqyah-healing. ."
+  },
+  "typescript-react": {
+    "enabled": true,
+    "lastGenerated": "2026-04-14T01:14:30.517Z",
+    "observationCount": 2,
+    "skillCount": 0,
+    "domain": "typescript-react",
+    "triggerGlobs": [
+      "**/*.tsx"
+    ],
+    "description": "Typescript React for ruqyah-healing. 1 conventions."
   }
 }

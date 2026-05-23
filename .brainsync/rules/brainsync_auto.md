@@ -1,7 +1,7 @@
 
 
 # Project Memory — ruqyah-healing
-> 219 notes | Score threshold: >40
+> 936 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,28 +18,49 @@
 
 **Stack:** JavaScript/Python/TypeScript · Express + React · DB: SQLite
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
 
-- what-changed in posts.schema.json — confirmed 3x
-- Fixed null crash in Uses — hardens HTTP security headers — confirmed 3x
-- what-changed in package.json — confirmed 3x
-- decision in chat.ts — confirmed 5x
-- Fixed null crash in Ruqyah — hardens HTTP security headers — confirmed 5x
-- what-changed in config.json — confirmed 3x
-- what-changed in astro.config.mjs — confirmed 3x
-- Fixed null crash in Error — prevents null/undefined runtime crashes — confirmed 3x
+- **⚠️ GOTCHA: Optimized GOTCHA** — - - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for spe
+- **⚠️ GOTCHA: Optimized GOTCHA — offloads heavy computation off the main thread** — - - ⚠️ GOTCHA: Optimized GOTCHA — offloads heavy computation off the m
+- **⚠️ GOTCHA: Optimized Score — parallelizes async operations for speed** — - > 905 notes | Score threshold: >40
++ > 907 notes | Score threshold: 
+- **⚠️ GOTCHA: Optimized Score — parallelizes async operations for speed** — - > 901 notes | Score threshold: >40
++ > 905 notes | Score threshold: 
+- **⚠️ GOTCHA: Optimized Score — parallelizes async operations for speed** — - > 895 notes | Score threshold: >40
++ > 901 notes | Score threshold: 
+- **⚠️ GOTCHA: Optimized GOTCHA — offloads heavy computation off the main thread** — - - ⚠️ GOTCHA: Optimized Score — parallelizes async operations for spe
+
+## Project Standards
+
+- Added JWT tokens authentication — confirmed 3x
+- what-changed in brainsync_auto.md — confirmed 3x
+- what-changed in brainsync_auto.md — confirmed 3x
+- what-changed in brainsync_auto.md — confirmed 3x
+- what-changed in shared-context.json — confirmed 5x
+- what-changed in shared-context.json — confirmed 3x
+- Added JWT tokens authentication — confirmed 3x
+- Optimized Score — confirmed 3x
 
 ## Known Fixes
 
-- ❌ +       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
+- ❌ -       return new Response(JSON.stringify({ error: "Invalid messages array format" }), { status: 40 → ✅ Fixed null crash in APIRoute — protects against XSS and CSRF token theft
+- ❌ - - Fixed null crash in HTMLFormElement → ✅ problem-fix in agent-rules.md
 - ❌ yarn-error.log* → ✅ problem-fix in .gitignore
+- ❌ +       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in PrayerTimes — prevents null/undefined runtime crashes
 - ❌ -       if (!r.ok) throw new Error('api fail'); → ✅ Fixed null crash in Left — prevents null/undefined runtime crashes
+
+## Recent Decisions
+
+- Optimized Score — parallelizes async operations for speed
+- Optimized Score — parallelizes async operations for speed
+- Optimized Score — externalizes configuration for environment flexibility
+- Optimized Score — parallelizes async operations for speed
 
 ## Learned Patterns
 
-- When encountering this, fix by: problem-fix in .gitignore (seen 2x)
-- Always: what-changed in posts.schema.json — confirmed 3x (seen 2x)
-- Always: what-changed in scratchpad_tzo37eq3.md — confirmed 3x (seen 2x)
+- Always: what-changed in ef182c7f705ced0bf2ddfa87cddd8261d39ebd33835ca4c7c070161f8864aac6.sqlite-shm — confirmed 6x (seen 2x)
+- Always: what-changed in ef182c7f705ced0bf2ddfa87cddd8261d39ebd33835ca4c7c070161f8864aac6.sqlite-shm — confirmed 7x (seen 3x)
+- Always: what-changed in ef182c7f705ced0bf2ddfa87cddd8261d39ebd33835ca4c7c070161f8864aac6.sqlite-wal — confirmed 4x (seen 2x)
 - Agent generates new migration for every change (squash related changes)
 - Agent installs packages without checking if already installed
 
@@ -302,6 +323,6 @@ Reference these guidelines when:
 
 
 ## Available Tools (ON-DEMAND only)
-- `query(q)` — Deep search when stuck
-- `find(query)` — Full-text lookup
-> Context above IS your context. Do NOT call load() at startup.
+- `sys_core_01(q)` — Deep search when stuck
+- `sys_core_05(query)` — Full-text lookup
+> Context above IS your context. Do NOT call sys_core_14() at startup.

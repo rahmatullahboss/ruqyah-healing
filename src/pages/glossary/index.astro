@@ -1,0 +1,358 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { buildBreadcrumbSchema, buildCollectionPageSchema } from '../../lib/seo.js';
+
+const siteUrl = Astro.site?.origin || 'https://ruqyahhealing.com';
+const pageUrl = `${siteUrl}/glossary`;
+
+const glossaryTerms = [
+  // Core Ruqyah Terms
+  { slug: 'ruqyah', term: 'Ruqyah', termBn: 'রুকইয়াহ', category: 'core', desc: 'কুরআন ও সুন্নাহ ভিত্তিক আধ্যাত্মিক চিকিৎসা পদ্ধতি' },
+  { slug: 'ruqyah-sharaiyah', term: 'Ruqyah Sharaiyah', termBn: 'রুকইয়াহ শারইয়াহ', category: 'core', desc: 'শরিয়া সম্মত রুকইয়াহ পদ্ধতি' },
+  { slug: 'raqi', term: 'Raqi', termBn: 'রাকী', category: 'core', desc: 'রুকইয়াহ চিকিৎসক' },
+
+  // Spiritual Afflictions
+  { slug: 'jinn', term: 'Jinn', termBn: 'জিন', category: 'affliction', desc: 'অদৃশ্য সৃষ্টি যারা মানুষের উপর প্রভাব ফেলতে পারে' },
+  { slug: 'sihr', term: 'Sihr (Black Magic)', termBn: 'সিহর (কালো জাদু)', category: 'affliction', desc: 'নিষিদ্ধ যাদুর কাজ যা ক্ষতি সাধন করে' },
+  { slug: 'hadath', term: "Hadath (Impurity)", termBn: 'হাদাস', category: 'affliction', desc: 'রুকইয়াহের পূর্বে পবিত্রতা অর্জন' },
+  { slug: 'mahzuz', term: 'Mahzuz Jinn', termBn: 'মাহজুয জিন', category: 'affliction', desc: 'প্রভাবিত জিনের একটি প্রকার' },
+  { slug: 'marbut', term: 'Marbut Jinn', termBn: 'মারবুত জিন', category: 'affliction', desc: 'বন্দী জিন যা যাদুর সেবা করে' },
+  { slug: 'khadim', term: 'Khadim Jinn', termBn: 'খাদিম জিন', category: 'affliction', desc: 'সিহরের কাজে নিয়োজিত জিন' },
+  { slug: 'qarin', term: 'Qarin', termBn: 'কারিন', category: 'affliction', desc: 'প্রতিটি মানুষের সাথে সম্পর্কিত জিন' },
+  { slug: 'waswasa', term: 'Waswasa', termBn: 'ওয়াসওয়াসা', category: 'affliction', desc: 'শয়তানের কুমন্ত্রণা ও প্ররোচনা' },
+
+  // Conditions & Symptoms
+  { slug: 'evil-eye', term: 'Evil Eye (Hasad)', termBn: 'বদনজর (হাসাদ)', category: 'condition', desc: 'ঈর্ষান্বিত দৃষ্টির কুফল' },
+  { slug: 'jinn-possession', term: 'Jinn Possession', termBn: 'জিন দ্বারা আক্রান্ত হওয়া', category: 'condition', desc: 'জিন কর্তৃক প্রভাবিত হওয়ার অবস্থা' },
+  { slug: 'nazar', term: 'Nazar', termBn: 'নজর', category: 'condition', desc: 'দৃষ্টি সম্পর্কিত প্রভাব' },
+
+  // Treatment Methods
+  { slug: 'hijama', term: 'Hijama (Cupping)', termBn: 'হিজামা (কাপিং)', category: 'treatment', desc: 'সুন্নাহ সম্মত কাপিং থেরাপি' },
+  { slug: 'tashbih', term: 'Tashbih (Ghusl)', termBn: 'তশবিহ (গোসল)', category: 'treatment', desc: 'রুকইয়াহ গোসলের পদ্ধতি' },
+  { slug: 'dua', term: 'Dua (Supplication)', termBn: 'দোয়া', category: 'treatment', desc: 'আল্লাহর কাছে প্রার্থনা' },
+  { slug: 'tilawat', term: 'Tilawat', termBn: 'তিলাওয়াত', category: 'treatment', desc: 'কুরআন তেলাওয়াত' },
+  { slug: 'adhkar', term: 'Adhkar', termBn: 'আযকার', category: 'treatment', desc: 'কুরআন ও হাদিসের জিকির' },
+  { slug: 'tafiz', term: 'Tafiz', termBn: 'তাফিজ', category: 'treatment', desc: 'কুরআনের আয়াত লিখে বহন করা' },
+
+  // Concepts
+  { slug: 'shifa', term: 'Shifa', termBn: 'শিফা', category: 'concept', desc: 'আল্লাহর পক্ষ থেকে শারীরিক ও আধ্যাত্মিক নিরাময়' },
+  { slug: 'ruqyah-diagnosis', term: 'Ruqyah Diagnosis', termBn: 'রুকইয়াহ ডায়াগনোসিস', category: 'concept', desc: 'সমস্যার ধরন নির্ণয়ের প্রক্রিয়া' },
+  { slug: 'self-ruqyah', term: 'Self Ruqyah', termBn: 'সেলফ রুকইয়াহ', category: 'concept', desc: 'নিজে নিজে রুকইয়াহ করার পদ্ধতি' },
+];
+
+const categories = {
+  core: { name: 'মূল পরিভাষা', icon: '📖' },
+  affliction: { name: 'আধ্যাত্মিক সমস্যা', icon: '👁️' },
+  condition: { name: 'অবস্থা ও লক্ষণ', icon: '🔍' },
+  treatment: { name: 'চিকিৎসা পদ্ধতি', icon: '💚' },
+  concept: { name: 'ধারণা', icon: '💡' },
+};
+
+const breadcrumbLd = buildBreadcrumbSchema([
+  { name: 'হোম', url: siteUrl },
+  { name: 'রুকইয়াহ শব্দকোষ', url: pageUrl },
+]);
+
+const collectionLd = buildCollectionPageSchema({
+  pageUrl,
+  name: 'রুকইয়াহ শব্দকোষ',
+  description: 'রুকইয়াহ চিকিৎসা সম্পর্কিত গুরুত্বপূর্ণ শব্দ ও ধারণাসমূহের ব্যাখ্যা',
+  items: glossaryTerms.map(t => ({
+    type: 'WebPage',
+    name: `${t.term} - ${t.termBn}`,
+    url: `${pageUrl}/${t.slug}`,
+    inLanguage: 'bn-BD',
+  })),
+});
+---
+
+<BaseLayout
+  title="রুকইয়াহ শব্দকোষ | Ruqyah Glossary"
+  description="রুকইয়াহ চিকিৎসা, জিন, যাদু, বদনজর ও আধ্যাত্মিক সমস্যা সম্পর্কিত শব্দ ও ধারণাসমূহের ব্যাখ্যা।"
+  keywords={['রুকইয়াহ', 'শব্দকোষ', 'জিন', 'বদনজর', 'হিজামা', 'ruqyah glossary']}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(collectionLd)} slot="head" />
+
+  <Header />
+
+  <main class="glossary-index">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href="/">হোম</a>
+        <span class="separator">›</span>
+        <span class="current">রুকইয়াহ শব্দকোষ</span>
+      </nav>
+
+      <header class="index-header">
+        <h1 class="index-title">রুকইয়াহ শব্দকোষ</h1>
+        <p class="index-subtitle">রুকইয়াহ চিকিৎসা সম্পর্কিত গুরুত্বপূর্ণ শব্দ, ধারণা ও পরিভাষা</p>
+        <p class="index-count">{glossaryTerms.length}টি শব্দ</p>
+      </header>
+
+      {Object.entries(categories).map(([catKey, cat]) => {
+        const terms = glossaryTerms.filter(t => t.category === catKey);
+        if (terms.length === 0) return null;
+        return (
+          <section class="category-section">
+            <h2 class="category-title">
+              <span class="category-icon">{cat.icon}</span>
+              {cat.name}
+            </h2>
+            <div class="terms-grid">
+              {terms.map(t => (
+                <a href={`/glossary/${t.slug}`} class="term-card">
+                  <span class="term-en">{t.term}</span>
+                  <span class="term-bn">{t.termBn}</span>
+                  <span class="term-desc">{t.desc}</span>
+                  <span class="term-arrow">→</span>
+                </a>
+              ))}
+            </div>
+          </section>
+        );
+      })}
+
+      <section class="cta-box">
+        <h2>এখনও প্রশ্ন আছে?</h2>
+        <p>রুকইয়াহ সম্পর্কে আরও জানতে বা consultation-এর জন্য যোগাযোগ করুন</p>
+        <div class="cta-actions">
+          <a href="/ruqyah-diagnosis" class="btn btn-primary">সেলফ ডায়াগনোসিস করুন</a>
+          <a href="/appointment" class="btn btn-outline">অ্যাপয়েন্টমেন্ট নিন</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .glossary-index {
+    padding: 40px 0 80px;
+    background: var(--bg-primary);
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .separator {
+    color: var(--text-muted);
+  }
+
+  .current {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .index-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .index-title {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  .index-subtitle {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .index-count {
+    font-size: 14px;
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .category-section {
+    margin-bottom: 40px;
+  }
+
+  .category-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-light);
+  }
+
+  .category-icon {
+    font-size: 24px;
+  }
+
+  .terms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .term-card {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .term-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .term-en {
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .term-bn {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  .term-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .term-arrow {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 18px;
+    color: var(--primary);
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: all 0.2s ease;
+  }
+
+  .term-card:hover .term-arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .cta-box {
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-light) 100%);
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    margin-top: 48px;
+  }
+
+  .cta-box h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .cta-box p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .btn-outline:hover {
+    background: var(--primary-light);
+  }
+
+  @media (max-width: 768px) {
+    .index-title {
+      font-size: 32px;
+    }
+
+    .terms-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cta-box {
+      padding: 24px;
+    }
+
+    .cta-actions {
+      flex-direction: column;
+    }
+  }
+</style>

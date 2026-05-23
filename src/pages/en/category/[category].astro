@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import BlogCard from '../../../components/BlogCard.astro';
+import { env as workerEnv } from 'cloudflare:workers';
+import { createDb } from '../../../db/client.js';
+import { posts as postsTable } from '../../../db/schema.js';
+import { eq } from 'drizzle-orm';
+import { getPostsByCategory } from '../../../lib/posts.js';
+import { getEnglishCategoryLabel, getEnglishPostMeta } from '../../../data/en-content';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const env = (workerEnv || process.env) as any;
+  const db = createDb(env.DATABASE_URL);
+  const rows = await db.selectDistinct({ category: postsTable.category }).from(postsTable).where(eq(postsTable.published, true));
+  return rows.map((row) => ({ params: { category: row.category } }));
+}
+
+const { category } = Astro.params;
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+const posts = await getPostsByCategory(db, category);
+const categoryLabel = getEnglishCategoryLabel(category);
+---
+
+<BaseLayout
+  title={`${categoryLabel} | Ruqyah Blog`}
+  description={`All posts in ${categoryLabel}.`}
+  locale="en"
+>
+  <Header />
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <nav class="breadcrumb">
+          <a href="/en/">Home</a><span>›</span><a href="/en/blog">Blog</a><span>›</span><span>{categoryLabel}</span>
+        </nav>
+        <h1>{categoryLabel}</h1>
+        <p>{posts.length} post(s) found</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="bar">
+          <a href="/en/blog">← Back to all posts</a>
+          <span>{posts.length} total</span>
+        </div>
+
+        {posts.length === 0 ? (
+          <div class="empty">
+            <h2>No posts found</h2>
+            <p>This category does not have published posts yet.</p>
+          </div>
+        ) : (
+          <div class="grid">
+            {posts.map((post: (typeof posts)[number]) => (
+              <BlogCard
+                title={getEnglishPostMeta(post.slug, { title: post.title }).title}
+                excerpt={getEnglishPostMeta(post.slug, { excerpt: post.excerpt }).excerpt}
+                category={getEnglishCategoryLabel(post.category)}
+                date={new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                href={`/en/posts/${post.slug}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .hero { padding: 56px 0 36px; text-align: center; background: linear-gradient(160deg, #022c22 0%, #065f46 100%); color: #fff; }
+  .breadcrumb { display: flex; justify-content: center; gap: 8px; font-size: 13px; color: rgba(255,255,255,0.72); margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.8); }
+  .section { padding: 24px 0 64px; }
+  .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; color: var(--text-muted); font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .empty { border: 1px dashed var(--border); border-radius: 14px; padding: 30px; text-align: center; }
+  @media (max-width: 980px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } }
+</style>

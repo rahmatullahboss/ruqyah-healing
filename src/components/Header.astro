@@ -1,23 +1,84 @@
 ---
-const navItems = [
-  { label: 'অ্যাপয়েন্টমেন্ট', href: '/appointment', highlight: true },
-  { label: 'হোম', href: '/' },
-  { label: 'সিমটম ডায়াগনোসিস', href: '/symptom-diagnosis' },
-  { label: 'রুকইয়াহ ডায়াগনোসিস', href: '/ruqyah-diagnosis' },
-  { label: 'সেলফ রুকইয়াহ', href: '/self-ruqyah' },
-  { label: 'রুকইয়াহ সাপ্লিমেন্ট', href: '/supplements' },
-  { label: 'রুকইয়াহ ব্লগ', href: '/blog' },
-  { label: 'পিডিএফ', href: '/pdf' },
-  { label: 'কোর্স', href: '/courses' },
-  { label: 'রাকী পরিচয়', href: '/team' },
-  { label: 'নোটিশ', href: '/notices' },
-  { label: 'প্রোফাইল', href: '/profile' },
-];
+import { getPageLocale, localeAlternates } from '../lib/i18n.js';
+
+const pageLocale = getPageLocale(Astro.url.pathname);
+const alternates = localeAlternates(Astro.url.pathname);
+
+// Grouped navigation structure
+const navGroups = pageLocale === 'en'
+  ? [
+      { label: 'Appointment', href: '/en/appointment', highlight: true },
+      { label: 'Home', href: '/en/' },
+      { label: 'Conditions', href: '/conditions' },
+      {
+        label: 'Ruqyah',
+        children: [
+          { label: 'Ruqyah Diagnosis', href: '/en/ruqyah-diagnosis' },
+          { label: 'Symptom Diagnosis', href: '/en/symptom-diagnosis' },
+          { label: 'Self Ruqyah', href: '/en/self-ruqyah' },
+          { label: 'For Whom', href: '/en/for' },
+          { label: 'Our Locations', href: '/en/location' },
+        ],
+      },
+      { label: 'Glossary', href: '/en/glossary' },
+      { label: 'Supplements', href: '/en/supplements' },
+      {
+        label: 'Resources',
+        children: [
+          { label: 'Blog', href: '/en/blog' },
+          { label: 'PDF', href: '/en/pdf' },
+        ],
+      },
+      { label: 'Courses', href: '/en/courses' },
+      { label: 'My Courses', href: '/my-courses' },
+      {
+        label: 'About',
+        children: [
+          { label: 'Our Team', href: '/en/team' },
+          { label: 'Notices', href: '/en/notices' },
+        ],
+      },
+      { label: 'Profile', href: '/en/profile' },
+    ]
+  : [
+      { label: 'অ্যাপয়েন্টমেন্ট', href: '/appointment', highlight: true },
+      { label: 'হোম', href: '/' },
+      { label: 'সমস্যা ও লক্ষণ', href: '/conditions' },
+      {
+        label: 'রুকইয়াহ',
+        children: [
+          { label: 'রুকইয়াহ ডায়াগনোসিস', href: '/ruqyah-diagnosis' },
+          { label: 'সিমটম ডায়াগনোসিস', href: '/symptom-diagnosis' },
+          { label: 'সেলফ রুকইয়াহ', href: '/self-ruqyah' },
+          { label: 'কার জন্য', href: '/for' },
+          { label: 'আমাদের এলাকাসমূহ', href: '/location' },
+        ],
+      },
+      { label: 'শব্দকোষ', href: '/glossary' },
+      { label: 'রুকইয়াহ সাপ্লিমেন্ট', href: '/supplements' },
+      {
+        label: 'রিসোর্স',
+        children: [
+          { label: 'রুকইয়াহ ব্লগ', href: '/blog' },
+          { label: 'পিডিএফ', href: '/pdf' },
+        ],
+      },
+      { label: 'কোর্স', href: '/courses' },
+      { label: 'আমার কোর্স', href: '/my-courses' },
+      {
+        label: 'অ্যাবাউট',
+        children: [
+          { label: 'রাকী পরিচয়', href: '/team' },
+          { label: 'নোটিশ', href: '/notices' },
+        ],
+      },
+      { label: 'প্রোফাইল', href: '/profile' },
+    ];
 ---
 
 <header class="site-header" transition:persist>
   <div class="container header-inner">
-    <a href="/" class="logo">
+    <a href={pageLocale === 'en' ? '/en/' : '/'} class="logo">
       <div class="logo-icon" style="background: transparent;">
         <img src="/images/ruqyah-logo.png" alt="Ruqyah Healing Logo" style="width: 100%; height: 100%; object-fit: contain;" />
       </div>
@@ -28,20 +89,55 @@ const navItems = [
     </a>
 
     <nav class="main-nav" id="main-nav" aria-label="প্রধান নেভিগেশন">
-      {navItems.map(item => (
-        <a
-          href={item.href}
-          class:list={[
-            'nav-link',
-            item.highlight && 'nav-highlight',
-          ]}
-          data-nav-href={item.href}
-          data-nav-highlight={item.highlight ? 'true' : undefined}
-        >
-          {item.label}
-        </a>
+      {navGroups.map(item => (
+        item.children ? (
+          <div class="nav-dropdown" data-dropdown>
+            <button
+              type="button"
+              class="nav-link nav-dropdown-toggle"
+              data-nav-label={item.label}
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              {item.label}
+              <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="dropdown-menu" role="menu">
+              <div class="dropdown-inner">
+                {item.children.map(child => (
+                  <a
+                    href={child.href}
+                    class="dropdown-link"
+                    data-nav-href={child.href}
+                    role="menuitem"
+                  >
+                    {child.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <a
+            href={item.href}
+            class:list={[
+              'nav-link',
+              item.highlight && 'nav-highlight',
+            ]}
+            data-nav-href={item.href}
+            data-nav-highlight={item.highlight ? 'true' : undefined}
+          >
+            {item.label}
+          </a>
+        )
       ))}
     </nav>
+
+    <!-- Language switcher — hidden but kept for SEO hreflang in head -->
+    <div class="locale-switcher" aria-label="Language switcher" style="display:none;">
+      <a href={alternates.bn} class:list={['locale-link', pageLocale === 'bn' && 'active']}>বাংলা</a>
+      <a href={alternates.en} class:list={['locale-link', pageLocale === 'en' && 'active']}>EN</a>
+    </div>
 
     <button
       class="menu-toggle"
@@ -117,11 +213,8 @@ const navItems = [
   align-items: center;
   gap: 4px;
   flex: 1;
-  overflow-x: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
-.main-nav::-webkit-scrollbar { display: none; }
+/* Note: removed overflow-x: auto so dropdown menus aren't clipped */
 
 .nav-link {
   white-space: nowrap;
@@ -134,6 +227,11 @@ const navItems = [
   min-height: 44px;
   display: flex;
   align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
 }
 .nav-link:hover { color: var(--primary); background: var(--primary-light); }
 .nav-active { color: var(--primary); background: var(--primary-light); }
@@ -143,6 +241,100 @@ const navItems = [
   font-weight: 600;
 }
 .nav-highlight:hover { background: var(--primary-dark); }
+
+/* Dropdown */
+.nav-dropdown {
+  position: relative;
+}
+.nav-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.dropdown-chevron {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.nav-dropdown:hover .dropdown-chevron,
+.nav-dropdown.is-open .dropdown-chevron {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  min-width: 220px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 10px 0 0 0;
+  box-shadow: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  z-index: 101;
+}
+.nav-dropdown:hover .dropdown-menu,
+.nav-dropdown.is-open .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Inner card for the actual dropdown content */
+.dropdown-inner {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+  position: relative;
+}
+
+/* Little arrow on dropdown */
+.dropdown-inner::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.dropdown-link {
+  display: block;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.dropdown-link:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+.dropdown-link.nav-active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Locale switcher (hidden) */
+.locale-switcher {
+  display: none;
+}
 
 /* Hamburger button */
 .menu-toggle {
@@ -193,6 +385,7 @@ const navItems = [
 }
 .nav-overlay.active { display: block; }
 
+/* ── Mobile ── */
 @media (max-width: 768px) {
   .menu-toggle { display: flex; }
 
@@ -212,10 +405,10 @@ const navItems = [
     overflow-y: auto;
     max-height: calc(100dvh - var(--nav-height) - 64px);
     z-index: 100;
-    /* Slide-down animation */
     transform: translateY(-8px);
     opacity: 0;
     transition: transform 0.25s ease, opacity 0.25s ease;
+    gap: 0;
   }
 
   .main-nav.open {
@@ -229,12 +422,50 @@ const navItems = [
     padding: 12px 16px;
     font-size: 15px;
     border-radius: var(--radius-md);
+    justify-content: space-between;
   }
 
   .nav-highlight {
     margin-top: 8px;
     justify-content: center;
     border-radius: var(--radius-xl);
+  }
+
+  /* Mobile dropdown */
+  .nav-dropdown {
+    width: 100%;
+  }
+  .dropdown-menu {
+    position: static;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    padding: 0 0 0 12px;
+    min-width: auto;
+    display: none;
+    background: transparent;
+    margin-top: 4px;
+  }
+  .dropdown-inner {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+  .dropdown-inner::before { display: none; }
+  .nav-dropdown.is-open .dropdown-menu {
+    display: block;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+  }
+  .dropdown-link {
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--text-medium);
+    display: block;
   }
 }
 </style>
@@ -248,10 +479,6 @@ function updateHeaderActive() {
   const path = window.location.pathname;
   document.querySelectorAll<HTMLAnchorElement>('[data-nav-href]').forEach(link => {
     const href = link.dataset.navHref ?? '';
-    const isHighlight = link.dataset.navHighlight === 'true';
-    if (isHighlight) return; // highlight (appointment) never gets nav-active
-
-    // Exact match for '/', startsWith for others
     const active = href === '/' ? path === '/' : path.startsWith(href);
     link.classList.toggle('nav-active', active);
     link.setAttribute('aria-current', active ? 'page' : '');
@@ -275,6 +502,8 @@ function closeMenu() {
   toggle?.setAttribute('aria-expanded', 'false');
   toggle?.setAttribute('aria-label', 'মেনু খুলুন');
   document.body.style.overflow = '';
+  // Close all dropdowns
+  document.querySelectorAll('[data-dropdown]').forEach(d => d.classList.remove('is-open'));
 }
 
 toggle?.addEventListener('click', () => {
@@ -286,13 +515,47 @@ toggle?.addEventListener('click', () => {
 overlay?.addEventListener('click', closeMenu);
 
 // Close on nav link click (mobile)
-nav?.querySelectorAll('.nav-link').forEach(link => {
+nav?.querySelectorAll('.nav-link:not(.nav-dropdown-toggle), .dropdown-link').forEach(link => {
   link.addEventListener('click', closeMenu);
 });
 
 // Close on Escape key
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && nav?.classList.contains('open')) closeMenu();
+});
+
+// Mobile dropdown toggle
+document.querySelectorAll('[data-dropdown]').forEach(dropdown => {
+  const toggleBtn = dropdown.querySelector('.nav-dropdown-toggle');
+  toggleBtn?.addEventListener('click', (e) => {
+    // Stop propagation so hamburger menu doesn't close
+    e.stopPropagation();
+
+    // Only on mobile (when dropdown-menu is hidden by CSS)
+    const menu = dropdown.querySelector('.dropdown-menu') as HTMLElement;
+    if (menu && getComputedStyle(menu).display === 'none') {
+      e.preventDefault();
+      const isOpen = dropdown.classList.contains('is-open');
+      // Close others
+      document.querySelectorAll('[data-dropdown]').forEach(d => {
+        if (d !== dropdown) d.classList.remove('is-open');
+      });
+      dropdown.classList.toggle('is-open', !isOpen);
+      toggleBtn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+    } else {
+      // Dropdown already open - just close it (don't navigate)
+      e.preventDefault();
+      dropdown.classList.remove('is-open');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+});
+
+// Also stop propagation on dropdown inner links (mobile)
+document.querySelectorAll('.dropdown-link').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
 });
 
 // Update active link on load and after every View Transition

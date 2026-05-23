@@ -1,0 +1,246 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { courseLessons, courseModules, courses } from '../../db/schema.js';
+import { desc } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+import { Plus, Edit, Trash2 } from '@lucide/astro';
+import { buildCourseReadiness, readinessMessage } from '../../lib/lms-admin.js';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+
+const allCourses = await db.select().from(courses).orderBy(desc(courses.createdAt));
+const [allModules, allLessons] = await Promise.all([
+  db.select().from(courseModules),
+  db.select().from(courseLessons),
+]);
+const readinessByCourse = new Map(allCourses.map((course) => {
+  const modules = allModules.filter((module) => module.courseId === course.id);
+  const lessons = allLessons.filter((lesson) => lesson.courseId === course.id);
+  return [course.id, buildCourseReadiness({ course, modules, lessons })];
+}));
+---
+
+<AdminLayout title="কোর্স ম্যানেজমেন্ট | Admin - Ruqyah Healing">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">কোর্স ম্যানেজমেন্ট</h1>
+      <p class="page-desc">সকল কোর্সের তালিকা দেখুন, নতুন কোর্স যোগ করুন এবং এডিট করুন</p>
+    </div>
+    <a href="/admin/course-edit?id=new" class="btn-primary">
+      <Plus size={18} />
+      নতুন কোর্স
+    </a>
+  </div>
+
+  <div class="admin-card">
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>কোর্সের নাম</th>
+            <th>ইন্সট্রাক্টর</th>
+            <th>ক্লাস সংখ্যা & সময়</th>
+            <th>মূল্য</th>
+            <th>স্ট্যাটাস/লেভেল</th>
+            <th>Content readiness</th>
+            <th>অ্যাকশন</th>
+          </tr>
+        </thead>
+        <tbody>
+          {allCourses.length === 0 ? (
+            <tr><td colspan="6" style="text-align:center; padding:32px 0;">কোনো কোর্স নেই</td></tr>
+          ) : (
+            allCourses.map((c) => {
+              const readiness = readinessByCourse.get(c.id);
+              return (
+              <tr>
+                <td>
+                  <div style="font-weight:600; color:var(--admin-text);">{c.title}</div>
+                  <div style="font-size:0.8rem; color:var(--admin-text-light);">{c.students} জন শিক্ষার্থী</div>
+                </td>
+                <td>{c.instructor}</td>
+                <td>
+                  <div style="font-size:0.85rem;">{c.classCount}</div>
+                  <div style="font-size:0.8rem; color:var(--admin-text-light);">{c.hours}</div>
+                </td>
+                <td>
+                  {c.price === null ? <span style="color:#10b981; font-weight:600;">ফ্রি</span> : `৳${c.price}`}
+                </td>
+                <td>
+                  <span class:list={['status-badge', c.status || 'published']}>{c.status || 'published'}</span>
+                  <span class="level-badge">{c.level}</span>
+                </td>
+                <td>
+                  <span class:list={['readiness-badge', readiness?.publishable ? 'ready' : 'blocked']}>
+                    {readiness?.publishable ? 'Ready' : 'Needs content'}
+                  </span>
+                  <div class="readiness-note">{readiness ? readinessMessage(readiness) : ''}</div>
+                </td>
+                <td>
+                   <div style="display:flex; gap:8px;">
+                     <a href={`/admin/course-edit?id=${c.id}`} class="action-btn edit" title="Edit">
+                       <Edit size={16} />
+                     </a>
+                     <button class="action-btn delete delete-course-btn" data-id={c.id} title="Delete">
+                       <Trash2 size={16} />
+                     </button>
+                   </div>
+                </td>
+              </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  const deleteBtns = document.querySelectorAll('.delete-course-btn');
+  deleteBtns.forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const target = e.currentTarget as HTMLButtonElement;
+      const courseId = target.getAttribute('data-id');
+      
+      if (!confirm('আপনি কি নিশ্চিত যে এই কোর্সটি ডিলিট করতে চান? এই কাজ পরিবর্তন করা যাবে না।')) {
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/admin/courses/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: courseId })
+        });
+        
+        const data = (await res.json()) as any;
+        if (res.ok && data.success) {
+          target.closest('tr')?.remove();
+        } else {
+          throw new Error(data.error || 'ডিলিট করতে সমস্যা হয়েছে।');
+        }
+      } catch (err: any) {
+        alert(err.message);
+      }
+    });
+  });
+</script>
+
+<style>
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--admin-primary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover {
+    background: #06b6d4;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  
+  .admin-table th {
+    padding: 12px 16px;
+    background: #f8fafc;
+    color: var(--admin-text-light);
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--admin-border);
+    text-transform: uppercase;
+  }
+  
+  .admin-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--admin-border);
+    color: var(--admin-text-light);
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+  
+  .admin-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .level-badge {
+    display: inline-block;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+  .status-badge.published { background: #dcfce7; color: #16a34a; }
+  .status-badge.draft { background: #fef3c7; color: #b45309; }
+  .status-badge.unpublished { background: #f1f5f9; color: #64748b; }
+
+  .readiness-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .readiness-badge.ready { background: #dcfce7; color: #16a34a; }
+  .readiness-badge.blocked { background: #ffedd5; color: #c2410c; }
+  .readiness-note {
+    max-width: 260px;
+    margin-top: 4px;
+    color: var(--admin-text-light);
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .action-btn.edit {
+    color: #3b82f6;
+    background: #eff6ff;
+  }
+  .action-btn.edit:hover { background: #dbeafe; }
+  
+  .action-btn.delete {
+    color: #ef4444;
+    background: #fef2f2;
+  }
+  .action-btn.delete:hover { background: #fee2e2; }
+</style>

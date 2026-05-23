@@ -1,0 +1,184 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { aiChatLogs, siteSettings } from '../../db/schema.js';
+import { desc, count, eq } from 'drizzle-orm';
+import { env as workerEnv } from 'cloudflare:workers';
+import { DEFAULT_SYSTEM_PROMPT } from '../../lib/ai/chat.js';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+
+// Get custom system prompt
+let customPrompt = '';
+try {
+  const [promptRow] = await db.select().from(siteSettings).where(eq(siteSettings.key, 'ai_system_prompt'));
+  if (promptRow?.value && typeof promptRow.value === 'string') customPrompt = promptRow.value;
+} catch {}
+
+const activePrompt = customPrompt || DEFAULT_SYSTEM_PROMPT;
+const usingDefaultPrompt = !customPrompt;
+
+// Get recent chat logs
+let recentChats: any[] = [];
+let totalChats = 0;
+try {
+  const [chatCount] = await db.select({ value: count(aiChatLogs.id) }).from(aiChatLogs);
+  totalChats = chatCount?.value || 0;
+  recentChats = await db.select().from(aiChatLogs).orderBy(desc(aiChatLogs.createdAt)).limit(30);
+} catch {}
+---
+
+<AdminLayout title="AI চ্যাট কন্ট্রোল | Admin - Ruqyah Healing">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">AI চ্যাট কন্ট্রোল</h1>
+      <p class="page-desc">AI চ্যাটবটের সিস্টেম প্রম্পট দেখুন, এডিট করুন এবং সেভ করুন</p>
+    </div>
+  </div>
+
+  <!-- System Prompt Editor -->
+  <div class="admin-card">
+    <h3 class="card-title">সিস্টেম প্রম্পট সম্পাদনা</h3>
+    <p class="card-desc">এটি পরিবর্তন করলে AI চ্যাটবটের আচরণ পরিবর্তন হবে। কাস্টম প্রম্পট না থাকলে ডিফল্ট প্রম্পট নিচে দেখানো হচ্ছে।</p>
+    <div class={`prompt-status ${usingDefaultPrompt ? 'prompt-status-default' : 'prompt-status-custom'}`}>
+      {usingDefaultPrompt ? 'বর্তমানে ডিফল্ট সিস্টেম প্রম্পট চালু আছে' : 'বর্তমানে কাস্টম সিস্টেম প্রম্পট চালু আছে'}
+    </div>
+    <textarea id="systemPrompt" class="form-input prompt-editor" rows="15" maxlength="10000">{activePrompt}</textarea>
+    <div class="prompt-actions">
+      <button id="savePrompt" class="btn-primary">প্রম্পট সেভ করুন</button>
+      <button id="resetPrompt" class="btn-secondary">ডিফল্ট রিসেট</button>
+      <span id="charCount" class="char-count">{activePrompt.length}/10000</span>
+    </div>
+    <div id="promptMsg" class="msg" style="display:none;"></div>
+  </div>
+
+  <!-- Recent Conversations -->
+  <div class="admin-card" style="margin-top:20px;">
+    <h3 class="card-title">সাম্প্রতিক কথোপকথন</h3>
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>সময়</th>
+            <th>ব্যবহারকারীর বার্তা</th>
+            <th>AI উত্তর</th>
+            <th>মডেল</th>
+            <th>নিউরন</th>
+          </tr>
+        </thead>
+        <tbody>
+          {recentChats.length === 0 ? (
+            <tr><td colspan="5" style="text-align:center; padding:32px 0;">কোনো চ্যাট লগ নেই।</td></tr>
+          ) : (
+            recentChats.map(chat => (
+              <tr>
+                <td class="td-time">
+                  {new Date(chat.createdAt).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' })}
+                  <span class="sub-text">{new Date(chat.createdAt).toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' })}</span>
+                </td>
+                <td class="td-msg">{(chat.userMessage || '').slice(0, 80)}{chat.userMessage?.length > 80 ? '...' : ''}</td>
+                <td class="td-msg">{(chat.aiResponse || '').slice(0, 80)}{chat.aiResponse?.length > 80 ? '...' : ''}</td>
+                <td style="font-size:0.8rem; white-space:nowrap;">{chat.model.split('/').pop()}</td>
+                <td style="font-weight:600;">{chat.neuronsUsed}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AdminLayout>
+
+<script define:vars={{ defaultSystemPrompt: DEFAULT_SYSTEM_PROMPT }}>
+  const systemPromptInput = document.getElementById('systemPrompt') as HTMLTextAreaElement | null;
+  const promptMsg = document.getElementById('promptMsg');
+  const charCount = document.getElementById('charCount');
+  const promptStatus = document.querySelector('.prompt-status');
+
+  function updatePromptMeta(prompt: string, isDefault = false) {
+    if (charCount) {
+      charCount.textContent = `${prompt.length}/10000`;
+    }
+
+    if (promptStatus) {
+      promptStatus.textContent = isDefault
+        ? 'বর্তমানে ডিফল্ট সিস্টেম প্রম্পট চালু আছে'
+        : 'বর্তমানে কাস্টম সিস্টেম প্রম্পট চালু আছে';
+      promptStatus.classList.toggle('prompt-status-default', isDefault);
+      promptStatus.classList.toggle('prompt-status-custom', !isDefault);
+    }
+  }
+
+  document.getElementById('savePrompt')?.addEventListener('click', async () => {
+    const prompt = systemPromptInput?.value || '';
+    const payloadPrompt = prompt.trim() === defaultSystemPrompt.trim() ? '' : prompt;
+    const res = await fetch('/api/admin/ai/update-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ systemPrompt: payloadPrompt }),
+    });
+    const data = await res.json();
+    if (!promptMsg) return;
+    promptMsg.style.display = 'block';
+    promptMsg.textContent = data.success ? 'প্রম্পট সেভ হয়েছে!' : (data.error || 'সমস্যা হয়েছে');
+    promptMsg.className = data.success ? 'msg msg-ok' : 'msg msg-err';
+    if (data.success) {
+      updatePromptMeta(prompt, payloadPrompt === '');
+    }
+    setTimeout(() => { if (promptMsg) promptMsg.style.display = 'none'; }, 3000);
+  });
+
+  // Reset prompt
+  document.getElementById('resetPrompt')?.addEventListener('click', async () => {
+    if (!confirm('ডিফল্ট প্রম্পটে ফেরত যেতে চান? কাস্টম প্রম্পট মুছে যাবে।')) return;
+    const res = await fetch('/api/admin/ai/update-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ systemPrompt: '' }),
+    });
+    if (res.ok) {
+      if (systemPromptInput) {
+        systemPromptInput.value = defaultSystemPrompt;
+      }
+      updatePromptMeta(defaultSystemPrompt, true);
+    }
+  });
+
+  // Char count
+  systemPromptInput?.addEventListener('input', () => {
+    updatePromptMeta(systemPromptInput.value, systemPromptInput.value.trim() === defaultSystemPrompt.trim());
+  });
+</script>
+
+<style>
+  .card-title { font-size: 1rem; font-weight: 600; color: var(--admin-text); margin-bottom: 12px; }
+  .card-desc { font-size: 0.9rem; color: var(--admin-text-light); margin-bottom: 12px; }
+  .form-input { width: 100%; padding: 10px 14px; border: 1px solid var(--admin-border); border-radius: 8px; font-size: 0.95rem; font-family: inherit; background: #fff; box-sizing: border-box; }
+  .prompt-editor { font-family: monospace; font-size: 0.85rem; line-height: 1.6; resize: vertical; }
+  .prompt-status { margin-bottom: 12px; padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; }
+  .prompt-status-default { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .prompt-status-custom { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+  .prompt-actions { display: flex; gap: 12px; align-items: center; margin-top: 12px; }
+  .btn-primary { padding: 10px 20px; background: var(--admin-primary); color: #fff; border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; font-family: inherit; }
+  .btn-secondary { padding: 10px 20px; background: #f1f5f9; color: var(--admin-text-light); border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; font-family: inherit; }
+  .char-count { font-size: 0.85rem; color: #94a3b8; margin-left: auto; }
+  .info-row { padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; display: flex; gap: 8px; }
+  .info-label { font-weight: 600; color: var(--admin-text); min-width: 140px; }
+  .msg { margin-top: 10px; padding: 10px 16px; border-radius: 8px; font-size: 0.9rem; }
+  .msg-ok { background: #dcfce7; color: #15803d; }
+  .msg-err { background: #fee2e2; color: #dc2626; }
+  .table-container { overflow-x: auto; }
+  .admin-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .admin-table th { padding: 10px 14px; background: #f8fafc; color: var(--admin-text-light); font-weight: 600; font-size: 0.8rem; border-bottom: 1px solid var(--admin-border); text-transform: uppercase; }
+  .admin-table td { padding: 10px 14px; border-bottom: 1px solid var(--admin-border); font-size: 0.9rem; vertical-align: middle; }
+  .td-time { white-space: nowrap; }
+  .sub-text { display: block; font-size: 0.8rem; color: #94a3b8; }
+  .td-msg { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--admin-text-light); }
+  @media (max-width: 768px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>

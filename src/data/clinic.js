@@ -1,27 +1,36 @@
-export const clinicNumbers = [
-  {
-    label: 'প্রধান যোগাযোগ',
-    display: '01992575874',
-    international: '8801992575874',
-  },
-  {
-    label: 'সাপোর্ট',
-    display: '01336202150',
-    international: '8801336202150',
-  },
-  {
-    label: 'সাপোর্ট',
-    display: '01336202151',
-    international: '8801336202151',
-  },
-];
+import {
+  DEFAULT_CLINIC_CONTACTS,
+  getPrimaryCallContact,
+  getPrimaryWhatsappContact,
+  normalizeClinicContacts,
+} from '../lib/clinic-contacts.js';
 
-export const primaryContact = clinicNumbers[0];
+export const clinicNumbers = normalizeClinicContacts(DEFAULT_CLINIC_CONTACTS);
+
+export const primaryContact = getPrimaryWhatsappContact(clinicNumbers);
+export const primaryPhoneContact = getPrimaryCallContact(clinicNumbers);
+
+export const socialLinks = {
+  facebook: 'https://www.facebook.com/Ruqyahhealingg',
+};
 
 export const clinicSchedule = {
-  days: 'শুক্রবার থেকে শুক্রবার',
+  days: 'শনিবার থেকে বৃহস্পতিবার',
   hours: 'সকাল ৯টা থেকে সন্ধ্যা ৬টা',
 };
+
+export const preferredTimeSlots = [
+  'সকাল ৯:০০',
+  'সকাল ১০:০০',
+  'সকাল ১১:০০',
+  'দুপুর ১২:০০',
+  'দুপুর ১:০০',
+  'দুপুর ২:০০',
+  'বিকেল ৩:০০',
+  'বিকেল ৪:০০',
+  'বিকেল ৫:০০',
+  'সন্ধ্যা ৬:০০',
+];
 
 export const pricingHighlights = [
   {

@@ -1,0 +1,536 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { courses, courseEnrollments, users } from '../../db/schema.js';
+import { env as workerEnv } from 'cloudflare:workers';
+import { desc, eq } from 'drizzle-orm';
+import { ShieldCheck, CheckCircle } from '@lucide/astro';
+
+const env = workerEnv || process.env;
+const db = createDb(env.DATABASE_URL);
+
+// Fetch all enrollments with course details and user details
+const enrollments = await db.select({
+  id: courseEnrollments.id,
+  userId: courseEnrollments.userId,
+  courseId: courseEnrollments.courseId,
+  status: courseEnrollments.status,
+  source: courseEnrollments.source,
+  paymentMethod: courseEnrollments.paymentMethod,
+  paymentNumber: courseEnrollments.paymentNumber,
+  transactionId: courseEnrollments.transactionId,
+  approvedAt: courseEnrollments.approvedAt,
+  revokedAt: courseEnrollments.revokedAt,
+  createdAt: courseEnrollments.createdAt,
+  courseTitle: courses.title,
+  coursePrice: courses.price,
+  userName: users.fullName,
+  userEmail: users.email
+})
+.from(courseEnrollments)
+.innerJoin(courses, eq(courseEnrollments.courseId, courses.id))
+.innerJoin(users, eq(courseEnrollments.userId, users.id))
+.orderBy(desc(courseEnrollments.createdAt));
+
+const pendingEnrollments = enrollments.filter(e => e.status === 'pending');
+const approvedEnrollments = enrollments.filter(e => e.status === 'approved');
+const revokedEnrollments = enrollments.filter(e => e.status === 'revoked');
+const allCourses = await db.select({ id: courses.id, title: courses.title }).from(courses).orderBy(courses.title);
+const allStudents = await db.select({ id: users.id, fullName: users.fullName, email: users.email, phone: users.phone }).from(users).orderBy(users.fullName);
+
+---
+
+<AdminLayout title="কোর্স এনরোলমেন্টস ম্যানেজমেন্ট | Admin">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">কোর্স এনরোলমেন্টস</h1>
+      <p class="page-desc">শিক্ষার্থীদের এনরোলমেন্ট রিকোয়েস্ট চেক এবং অ্যাপ্রুভ করুন</p>
+    </div>
+  </div>
+
+  <div class="admin-card manual-enroll-card">
+    <h2 class="card-title">ম্যানুয়াল এনরোলমেন্ট</h2>
+    <form id="manualEnrollForm" class="manual-enroll-form">
+      <div class="form-group">
+        <label>শিক্ষার্থী</label>
+        <select name="userId" required>
+          <option value="">শিক্ষার্থী নির্বাচন করুন</option>
+          {allStudents.map((student) => (
+            <option value={student.id}>{student.fullName} {student.email ? `(${student.email})` : student.phone ? `(${student.phone})` : ''}</option>
+          ))}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>কোর্স</label>
+        <select name="courseId" required>
+          <option value="">কোর্স নির্বাচন করুন</option>
+          {allCourses.map((course) => (
+            <option value={course.id}>{course.title}</option>
+          ))}
+        </select>
+      </div>
+      <button type="submit" class="action-btn manual-btn">অ্যাক্সেস দিন</button>
+    </form>
+  </div>
+
+  <div class="admin-card">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="pending">পেন্ডিং ({pendingEnrollments.length})</button>
+      <button class="tab-btn" data-tab="approved">অ্যাপ্রুভড ({approvedEnrollments.length})</button>
+      <button class="tab-btn" data-tab="revoked">রিমুভড ({revokedEnrollments.length})</button>
+    </div>
+
+    <div class="tab-content active" id="pending-tab">
+      {pendingEnrollments.length > 0 ? (
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>তারিখ</th>
+                <th>শিক্ষার্থী</th>
+                <th>কোর্স</th>
+                <th>পেমেন্ট ইনফো</th>
+                <th>স্ট্যাটাস</th>
+                <th>অ্যাকশন</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pendingEnrollments.map((enr) => (
+                <tr>
+                  <td>{new Date(enr.createdAt).toLocaleDateString('bn-BD')}</td>
+                  <td>
+                    <div><strong>{enr.userName}</strong></div>
+                    <div style="font-size: 12px; color: #64748b;">{enr.userEmail}</div>
+                  </td>
+                  <td>
+                    <div><strong>{enr.courseTitle}</strong></div>
+                    <div style="font-size: 12px; color: #64748b;">মূল্য: ৳{enr.coursePrice?.toLocaleString() || 0}</div>
+                  </td>
+                  <td>
+                    <div class="payment-info">
+                      <div><strong>সিস্টেম:</strong> <span class="method-badge">{enr.paymentMethod}</span></div>
+                      <div><strong>নম্বর:</strong> {enr.paymentNumber}</div>
+                      <div><strong>TrxID:</strong> <code class="trx">{enr.transactionId}</code></div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="status-badge warning">পেন্ডিং</span>
+                  </td>
+                  <td>
+                    <button class="action-btn approve-btn" data-id={enr.id}>
+                      <ShieldCheck size={16} /> অ্যাপ্রুভ
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div class="empty-state">কোনো পেন্ডিং এনরোলমেন্ট নেই</div>
+      )}
+    </div>
+
+    <div class="tab-content" id="approved-tab">
+      {approvedEnrollments.length > 0 ? (
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>তারিখ</th>
+                <th>শিক্ষার্থী</th>
+                <th>কোর্স</th>
+                <th>পেমেন্ট ইনফো</th>
+                <th>স্ট্যাটাস</th>
+                <th>সোর্স</th>
+                <th>অ্যাকশন</th>
+              </tr>
+            </thead>
+            <tbody>
+              {approvedEnrollments.map((enr) => (
+                <tr>
+                  <td>{new Date(enr.createdAt).toLocaleDateString('bn-BD')}</td>
+                  <td>
+                    <div><strong>{enr.userName}</strong></div>
+                    <div style="font-size: 12px; color: #64748b;">{enr.userEmail}</div>
+                  </td>
+                  <td>
+                    <div><strong>{enr.courseTitle}</strong></div>
+                  </td>
+                  <td>
+                    {enr.paymentMethod ? (
+                      <div class="payment-info" style="opacity: 0.8">
+                        <div><strong>সিস্টেম:</strong> <span class="method-badge">{enr.paymentMethod}</span></div>
+                        <div><strong>TrxID:</strong> <code class="trx">{enr.transactionId}</code></div>
+                      </div>
+                    ) : (
+                      <span style="color: #64748b; font-size: 13px;">ফ্রি / অটো</span>
+                    )}
+                  </td>
+                  <td>
+                    <span class="status-badge success">
+                      <CheckCircle size={14} style="margin-right: 4px;" /> অ্যাপ্রুভড
+                    </span>
+                  </td>
+                  <td>{enr.source || 'manual_payment'}</td>
+                  <td>
+                    <button class="action-btn revoke-btn" data-id={enr.id}>অ্যাক্সেস রিমুভ</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div class="empty-state">কোনো অ্যাপ্রুভড এনরোলমেন্ট নেই</div>
+      )}
+    </div>
+
+    <div class="tab-content" id="revoked-tab">
+      {revokedEnrollments.length > 0 ? (
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>তারিখ</th>
+                <th>শিক্ষার্থী</th>
+                <th>কোর্স</th>
+                <th>স্ট্যাটাস</th>
+                <th>অ্যাকশন</th>
+              </tr>
+            </thead>
+            <tbody>
+              {revokedEnrollments.map((enr) => (
+                <tr>
+                  <td>{new Date(enr.revokedAt || enr.createdAt).toLocaleDateString('bn-BD')}</td>
+                  <td>
+                    <div><strong>{enr.userName}</strong></div>
+                    <div style="font-size: 12px; color: #64748b;">{enr.userEmail}</div>
+                  </td>
+                  <td><strong>{enr.courseTitle}</strong></td>
+                  <td><span class="status-badge danger">রিমুভড</span></td>
+                  <td>
+                    <button class="action-btn approve-btn" data-id={enr.id}>
+                      <ShieldCheck size={16} /> আবার অ্যাপ্রুভ
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div class="empty-state">কোনো রিমুভড এনরোলমেন্ট নেই</div>
+      )}
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  .tabs {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--admin-border);
+    padding-bottom: 8px;
+  }
+  
+  .tab-btn {
+    background: none;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--admin-text-light);
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  
+  .tab-btn:hover {
+    background: #f1f5f9;
+  }
+  
+  .tab-btn.active {
+    background: var(--admin-primary-light);
+    color: var(--admin-primary);
+  }
+
+  .tab-content {
+    display: none;
+  }
+  
+  .tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  
+  .admin-table th {
+    padding: 12px 16px;
+    font-weight: 600;
+    color: var(--admin-text-light);
+    border-bottom: 2px solid var(--admin-border);
+    font-size: 0.9rem;
+  }
+  
+  .admin-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--admin-border);
+    vertical-align: top;
+  }
+  
+  .payment-info {
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .method-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #f1f5f9;
+    text-transform: capitalize;
+    font-weight: 500;
+  }
+  
+  .trx {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  .status-badge.warning {
+    background: #fffbeb;
+    color: #d97706;
+  }
+  
+  .status-badge.success {
+    background: #f0fdf4;
+    color: #16a34a;
+  }
+
+  .status-badge.danger {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  .manual-enroll-card {
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    margin: 0 0 16px;
+    font-size: 1rem;
+    color: var(--admin-text);
+  }
+
+  .manual-enroll-form {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) auto;
+    align-items: end;
+    gap: 14px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--admin-text);
+  }
+
+  .form-group select {
+    min-height: 38px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: #fff;
+    font-family: inherit;
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  
+  .approve-btn {
+    background: #10b981;
+    color: white;
+  }
+  
+  .approve-btn:hover {
+    background: #059669;
+  }
+
+  .manual-btn {
+    min-height: 38px;
+    background: var(--admin-primary);
+    color: white;
+  }
+
+  .revoke-btn {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  @media (max-width: 760px) {
+    .manual-enroll-form {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--admin-text-light);
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px dashed var(--admin-border);
+  }
+</style>
+
+<script>
+  // Tab switching logic
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+  
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLButtonElement;
+      const tabId = target.getAttribute('data-tab');
+      
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabContents.forEach(c => c.classList.remove('active'));
+      
+      target.classList.add('active');
+      document.getElementById(`${tabId}-tab`)?.classList.add('active');
+    });
+  });
+
+  // Approval logic
+  const approveBtns = document.querySelectorAll('.approve-btn');
+  
+  approveBtns.forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      if (!confirm('আপনি কি নিশ্চিত যে এই এনরোলমেন্ট অ্যাপ্রুভ করতে চান?')) return;
+      
+      const target = e.currentTarget as HTMLButtonElement;
+      const id = target.getAttribute('data-id');
+      
+      target.disabled = true;
+      target.textContent = 'হচ্ছে...';
+      
+      try {
+        const res = await fetch('/api/admin/enrollments/approve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+          alert('সফলভাবে অ্যাপ্রুভ করা হয়েছে।');
+          window.location.reload();
+        } else {
+          throw new Error(data.error || 'সমস্যা হয়েছে');
+        }
+      } catch (err: any) {
+        alert(err.message);
+        target.disabled = false;
+        target.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg> অ্যাপ্রুভ';
+      }
+    });
+  });
+
+  document.getElementById('manualEnrollForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const submit = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const previousText = submit.textContent;
+    submit.disabled = true;
+    submit.textContent = 'সেভ হচ্ছে...';
+
+    try {
+      const data = Object.fromEntries(new FormData(form).entries());
+      const res = await fetch('/api/admin/enrollments/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (!res.ok || !result.success) throw new Error(result.error || 'ম্যানুয়াল এনরোলমেন্ট সমস্যা।');
+      alert('শিক্ষার্থীকে কোর্স অ্যাক্সেস দেওয়া হয়েছে।');
+      window.location.reload();
+    } catch (err: any) {
+      alert(err.message);
+      submit.disabled = false;
+      submit.textContent = previousText;
+    }
+  });
+
+  document.querySelectorAll('.revoke-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      if (!confirm('এই শিক্ষার্থীর কোর্স অ্যাক্সেস রিমুভ করতে চান?')) return;
+      const target = e.currentTarget as HTMLButtonElement;
+      const id = target.getAttribute('data-id');
+      target.disabled = true;
+      target.textContent = 'রিমুভ হচ্ছে...';
+
+      try {
+        const res = await fetch('/api/admin/enrollments/revoke', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id }),
+        });
+        const result = await res.json();
+        if (!res.ok || !result.success) throw new Error(result.error || 'অ্যাক্সেস রিমুভ সমস্যা।');
+        window.location.reload();
+      } catch (err: any) {
+        alert(err.message);
+        target.disabled = false;
+        target.textContent = 'অ্যাক্সেস রিমুভ';
+      }
+    });
+  });
+</script>

@@ -1,0 +1,326 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createDb } from '../../db/client.js';
+import { siteSettings } from '../../db/schema.js';
+import { env as workerEnv } from 'cloudflare:workers';
+import { DEFAULT_CLINIC_CONTACTS, normalizeClinicContacts } from '../../lib/clinic-contacts.js';
+import { DEFAULT_FLOATING_WHATSAPP, normalizeFloatingWhatsappSettings } from '../../lib/floating-whatsapp.js';
+
+export const prerender = false;
+
+const env = (workerEnv || process.env) as any;
+const db = createDb(env.DATABASE_URL);
+
+const rows = await db.select().from(siteSettings);
+const settings: Record<string, any> = {};
+for (const row of rows) {
+  settings[row.key] = row.value;
+}
+
+// Defaults
+const clinicPhones = normalizeClinicContacts(settings.clinic_phones, DEFAULT_CLINIC_CONTACTS);
+
+const schedule = settings.clinic_schedule || { days: 'শুক্রবার থেকে শুক্রবার', hours: 'সকাল ৯টা থেকে সন্ধ্যা ৬টা' };
+
+const payment = settings.payment_details || {
+  bookingFee: '৫০০ টাকা (অগ্রিম)',
+  accountPhone: '01992-575874',
+  bankName: 'Islami Bank',
+  branch: 'Jatrabari, Dhaka',
+  accountName: 'Md Omor Hasan Sheikh',
+  accountNumber: '20502047800010917',
+};
+
+const social = settings.social_links || { facebook: 'https://www.facebook.com/Ruqyahhealingg' };
+const floatingWhatsapp = normalizeFloatingWhatsappSettings(settings.floating_whatsapp || DEFAULT_FLOATING_WHATSAPP);
+---
+
+<AdminLayout title="সাইট সেটিংস | Admin - Ruqyah Healing">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">সাইট সেটিংস</h1>
+      <p class="page-desc">ক্লিনিকের ফোন নাম্বার, সময়সূচী, পেমেন্ট তথ্য ও সোশ্যাল লিংক পরিবর্তন করুন</p>
+    </div>
+  </div>
+
+  <div id="settingsMsg" class="save-msg" style="display:none;"></div>
+
+  <!-- Clinic Phone Numbers -->
+  <div class="admin-card settings-section">
+    <h2 class="section-title">📞 যোগাযোগ নাম্বার</h2>
+    <p class="section-help">প্রতি নাম্বারের জন্য ঠিক করুন এটি কলে ব্যবহার হবে, WhatsApp-এ ব্যবহার হবে, নাকি দুইভাবেই দেখানো হবে।</p>
+    <div id="phoneList">
+      {clinicPhones.map((p: any, i: number) => (
+        <div class="phone-row" data-index={i}>
+          <input type="text" class="settings-input phone-label" value={p.label} placeholder="যেমন: কল সাপোর্ট / WhatsApp বুকিং" />
+          <input type="text" class="settings-input phone-display" value={p.display} placeholder="সাইটে দেখানোর নাম্বার" />
+          <input type="text" class="settings-input phone-intl" value={p.international} placeholder="WhatsApp-এর জন্য 8801..." />
+          <select class="settings-input phone-type" aria-label="যোগাযোগের ধরন">
+            <option value="both" selected={p.type === 'both'}>কল + WhatsApp</option>
+            <option value="call" selected={p.type === 'call'}>শুধু কল</option>
+            <option value="whatsapp" selected={p.type === 'whatsapp'}>শুধু WhatsApp</option>
+          </select>
+          <button type="button" class="btn-remove-phone" title="মুছুন">✕</button>
+        </div>
+      ))}
+    </div>
+    <button type="button" id="addPhoneBtn" class="btn-add">+ নাম্বার যোগ করুন</button>
+  </div>
+
+  <!-- Schedule -->
+  <div class="admin-card settings-section">
+    <h2 class="section-title">🕐 সময়সূচী</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>দিনসমূহ</label>
+        <input type="text" id="scheduleDays" class="settings-input" value={schedule.days} />
+      </div>
+      <div class="form-group">
+        <label>সময়</label>
+        <input type="text" id="scheduleHours" class="settings-input" value={schedule.hours} />
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Details -->
+  <div class="admin-card settings-section">
+    <h2 class="section-title">💳 পেমেন্ট তথ্য</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>বুকিং ফি</label>
+        <input type="text" id="payBookingFee" class="settings-input" value={payment.bookingFee} />
+      </div>
+      <div class="form-group">
+        <label>একাউন্ট নাম্বার (বিকাশ/নগদ)</label>
+        <input type="text" id="payAccountPhone" class="settings-input" value={payment.accountPhone} />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>ব্যাংকের নাম</label>
+        <input type="text" id="payBankName" class="settings-input" value={payment.bankName} />
+      </div>
+      <div class="form-group">
+        <label>ব্রাঞ্চ</label>
+        <input type="text" id="payBranch" class="settings-input" value={payment.branch} />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>একাউন্ট হোল্ডার</label>
+        <input type="text" id="payAccountName" class="settings-input" value={payment.accountName} />
+      </div>
+      <div class="form-group">
+        <label>একাউন্ট নাম্বার</label>
+        <input type="text" id="payAccountNumber" class="settings-input" value={payment.accountNumber} />
+      </div>
+    </div>
+  </div>
+
+  <!-- Social Links -->
+  <div class="admin-card settings-section">
+    <h2 class="section-title">🔗 সোশ্যাল মিডিয়া লিংক</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Facebook</label>
+        <input type="url" id="socialFacebook" class="settings-input" value={social.facebook || ''} placeholder="https://facebook.com/..." />
+      </div>
+      <div class="form-group">
+        <label>YouTube</label>
+        <input type="url" id="socialYoutube" class="settings-input" value={social.youtube || ''} placeholder="https://youtube.com/..." />
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-card settings-section">
+    <h2 class="section-title">🟢 Floating WhatsApp Button</h2>
+    <p class="section-help">সাইটের ডান পাশে যে WhatsApp floating button দেখা যায়, সেটার text, number, message আর visibility এখানে control করুন।</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>বাটন টেক্সট</label>
+        <input type="text" id="floatingWhatsappLabel" class="settings-input" value={floatingWhatsapp.label} placeholder="WhatsApp করুন" />
+      </div>
+      <div class="form-group">
+        <label>WhatsApp নাম্বার (8801...)</label>
+        <input type="text" id="floatingWhatsappNumber" class="settings-input" value={floatingWhatsapp.number} placeholder="8801..." />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label>ক্লিক করলে পাঠানো মেসেজ</label>
+        <textarea id="floatingWhatsappMessage" class="settings-input" rows="3" placeholder="আসসালামু আলাইকুম, কী বিষয়ে জানতে চান লিখুন">{floatingWhatsapp.message}</textarea>
+      </div>
+    </div>
+    <label class="checkbox-inline">
+      <input type="checkbox" id="floatingWhatsappEnabled" checked={floatingWhatsapp.enabled} />
+      <span>সাইটে floating WhatsApp button দেখান</span>
+    </label>
+  </div>
+
+  <div class="save-bar">
+    <button type="button" id="saveSettingsBtn" class="btn-save">💾 সব সেভ করুন</button>
+  </div>
+</AdminLayout>
+
+<script>
+  // Add phone row
+  document.getElementById('addPhoneBtn')?.addEventListener('click', () => {
+    const list = document.getElementById('phoneList');
+    if (!list) return;
+    const idx = list.children.length;
+    const div = document.createElement('div');
+    div.className = 'phone-row';
+    div.dataset.index = String(idx);
+    div.innerHTML = `
+      <input type="text" class="settings-input phone-label" value="" placeholder="যেমন: কল সাপোর্ট / WhatsApp বুকিং" />
+      <input type="text" class="settings-input phone-display" value="" placeholder="সাইটে দেখানোর নাম্বার" />
+      <input type="text" class="settings-input phone-intl" value="" placeholder="আন্তর্জাতিক (88...)" />
+      <select class="settings-input phone-type" aria-label="যোগাযোগের ধরন">
+        <option value="both">কল + WhatsApp</option>
+        <option value="call">শুধু কল</option>
+        <option value="whatsapp">শুধু WhatsApp</option>
+      </select>
+      <button type="button" class="btn-remove-phone" title="মুছুন">✕</button>
+    `;
+    list.appendChild(div);
+  });
+
+  document.getElementById('phoneList')?.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('btn-remove-phone')) {
+      target.closest('.phone-row')?.remove();
+    }
+  });
+
+  // Save all settings
+  document.getElementById('saveSettingsBtn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('saveSettingsBtn') as HTMLButtonElement;
+    const msg = document.getElementById('settingsMsg')!;
+    btn.disabled = true;
+    btn.textContent = 'সেভ হচ্ছে...';
+
+    // Collect phones
+    const phoneRows = document.querySelectorAll('.phone-row');
+    const phones: any[] = [];
+    phoneRows.forEach(row => {
+      const label = (row.querySelector('.phone-label') as HTMLInputElement).value.trim();
+      const display = (row.querySelector('.phone-display') as HTMLInputElement).value.trim();
+      const intl = (row.querySelector('.phone-intl') as HTMLInputElement).value.trim();
+      const type = (row.querySelector('.phone-type') as HTMLSelectElement | null)?.value || 'both';
+      if (display) phones.push({ label, display, international: intl, type });
+    });
+
+    const payload: Record<string, any> = {
+      clinic_phones: phones,
+      clinic_schedule: {
+        days: (document.getElementById('scheduleDays') as HTMLInputElement).value,
+        hours: (document.getElementById('scheduleHours') as HTMLInputElement).value,
+      },
+      payment_details: {
+        bookingFee: (document.getElementById('payBookingFee') as HTMLInputElement).value,
+        accountPhone: (document.getElementById('payAccountPhone') as HTMLInputElement).value,
+        bankName: (document.getElementById('payBankName') as HTMLInputElement).value,
+        branch: (document.getElementById('payBranch') as HTMLInputElement).value,
+        accountName: (document.getElementById('payAccountName') as HTMLInputElement).value,
+        accountNumber: (document.getElementById('payAccountNumber') as HTMLInputElement).value,
+      },
+      social_links: {
+        facebook: (document.getElementById('socialFacebook') as HTMLInputElement).value,
+        youtube: (document.getElementById('socialYoutube') as HTMLInputElement).value,
+      },
+      floating_whatsapp: {
+        enabled: (document.getElementById('floatingWhatsappEnabled') as HTMLInputElement).checked,
+        label: (document.getElementById('floatingWhatsappLabel') as HTMLInputElement).value,
+        number: (document.getElementById('floatingWhatsappNumber') as HTMLInputElement).value,
+        message: (document.getElementById('floatingWhatsappMessage') as HTMLTextAreaElement).value,
+      },
+    };
+
+    try {
+      const res = await fetch('/api/admin/settings/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        msg.textContent = '✅ সেটিংস সফলভাবে সেভ হয়েছে!';
+        msg.className = 'save-msg success';
+        msg.style.display = 'block';
+      } else {
+        throw new Error('Failed');
+      }
+    } catch {
+      msg.textContent = '❌ সেভ করতে সমস্যা হয়েছে';
+      msg.className = 'save-msg error';
+      msg.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 সব সেভ করুন';
+      setTimeout(() => { msg.style.display = 'none'; }, 4000);
+    }
+  });
+</script>
+
+<style>
+  .settings-section { margin-bottom: 24px; }
+  .section-title { font-size: 1.15rem; font-weight: 700; margin: 0 0 20px 0; color: var(--admin-text); }
+  .section-help { margin: -8px 0 18px; color: var(--admin-text-light); font-size: 0.9rem; line-height: 1.5; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--admin-text-light); }
+  .checkbox-inline { display: inline-flex; align-items: center; gap: 10px; font-size: 0.95rem; color: var(--admin-text); }
+  .settings-input {
+    padding: 10px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.2s;
+  }
+  .settings-input:focus { outline: none; border-color: var(--admin-primary); }
+
+  .phone-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1.1fr 1.1fr 0.9fr auto;
+    gap: 12px;
+    margin-bottom: 12px;
+    align-items: center;
+  }
+  .btn-remove-phone {
+    width: 36px; height: 36px;
+    border: 1px solid #fecaca; background: #fff;
+    color: #ef4444; border-radius: 8px;
+    cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .btn-remove-phone:hover { background: #fef2f2; }
+  .btn-add {
+    background: none; border: 1px dashed var(--admin-border);
+    padding: 10px 20px; border-radius: 8px; color: var(--admin-primary);
+    cursor: pointer; font-family: inherit; font-weight: 600; font-size: 0.9rem;
+    transition: all 0.2s; width: 100%; margin-top: 4px;
+  }
+  .btn-add:hover { background: var(--admin-primary-light); border-color: var(--admin-primary); }
+
+  .save-bar { position: sticky; bottom: 0; background: var(--admin-bg); padding: 16px 0; text-align: right; }
+  .btn-save {
+    padding: 12px 32px; background: var(--admin-primary); color: #fff;
+    border: none; border-radius: 10px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: all 0.2s;
+  }
+  .btn-save:hover { opacity: 0.9; }
+  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .save-msg {
+    padding: 12px 20px; border-radius: 10px; font-weight: 600; margin-bottom: 16px; font-size: 0.95rem;
+  }
+  .save-msg.success { background: #dcfce7; color: #15803d; }
+  .save-msg.error { background: #fee2e2; color: #dc2626; }
+
+  @media (max-width: 768px) {
+    .form-row { grid-template-columns: 1fr; }
+    .phone-row { grid-template-columns: 1fr; }
+  }
+</style>
