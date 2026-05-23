@@ -4,6 +4,8 @@ import { createDb } from '../../../../db/client.js';
 import { courseQuizzes, courseQuizQuestions } from '../../../../db/schema.js';
 import { eq } from 'drizzle-orm';
 import crypto from 'node:crypto';
+import { validateQuizQuestions } from '../../../../lib/api-helpers.js';
+import { logAuditEvent } from '../../../../lib/audit.js';
 
 export const prerender = false;
 
@@ -40,13 +42,24 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Replace all questions if provided
     if (questions && Array.isArray(questions)) {
+      const validationError = validateQuizQuestions(questions);
+      if (validationError) {
+        return new Response(JSON.stringify({ error: validationError }), { status: 400 });
+      }
+
+      // Fetch existing question IDs to preserve references in past attempts
+      const existingQuestions = await db.select({ id: courseQuizQuestions.id })
+        .from(courseQuizQuestions)
+        .where(eq(courseQuizQuestions.quizId, id));
+      const existingIds = new Set(existingQuestions.map((q) => q.id));
+
       // Delete existing questions
       await db.delete(courseQuizQuestions).where(eq(courseQuizQuestions.quizId, id));
 
-      // Insert new questions
+      // Insert new questions, preserving existing IDs where possible
       if (questions.length > 0) {
         const questionValues = questions.map((q: any, index: number) => ({
-          id: q.id || crypto.randomUUID(),
+          id: existingIds.has(q.id) ? q.id : crypto.randomUUID(),
           quizId: id,
           questionText: q.questionText,
           questionType: q.questionType || 'multiple_choice',
@@ -58,6 +71,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
         await db.insert(courseQuizQuestions).values(questionValues);
       }
     }
+
+    await logAuditEvent(db, {
+      adminId: user.id,
+      adminName: user.fullName,
+      action: 'update',
+      entityType: 'quiz',
+      entityId: id,
+      details: { title, questionsUpdated: !!questions },
+    });
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error) {

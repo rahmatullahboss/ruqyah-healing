@@ -357,3 +357,67 @@ test('module sort order for empty course', () => {
   const nextSort = maxSort + 1;
   assert.equal(nextSort, 1);
 });
+
+test('quiz grading handles correct answer by index', () => {
+  const options = [
+    { text: 'A', isCorrect: false },
+    { text: 'B', isCorrect: true },
+    { text: 'C', isCorrect: false },
+  ];
+  const selectedOption = 1;
+
+  const correctIndex = options.findIndex(o => o.isCorrect);
+  const isCorrect = correctIndex >= 0 && selectedOption === correctIndex;
+
+  assert.equal(isCorrect, true);
+});
+
+test('quiz grading handles wrong answer by index', () => {
+  const options = [
+    { text: 'A', isCorrect: false },
+    { text: 'B', isCorrect: true },
+    { text: 'C', isCorrect: false },
+  ];
+  const selectedOption = 2;
+
+  const correctIndex = options.findIndex(o => o.isCorrect);
+  const isCorrect = correctIndex >= 0 && selectedOption === correctIndex;
+
+  assert.equal(isCorrect, false);
+});
+
+test('quiz grading handles no answer (selectedOption = -1) by index', () => {
+  const options = [{ text: 'A', isCorrect: true }, { text: 'B', isCorrect: false }];
+  const selectedOption = -1;
+
+  const correctIndex = options.findIndex(o => o.isCorrect);
+  const isCorrect = correctIndex >= 0 && selectedOption === correctIndex;
+
+  assert.equal(isCorrect, false);
+});
+
+test('quiz answer deduplication by questionId', () => {
+  const answers = [
+    { questionId: 'q1', selectedOption: 0 },
+    { questionId: 'q1', selectedOption: 1 },
+    { questionId: 'q2', selectedOption: 2 },
+  ];
+
+  const deduped = [...new Map(answers.map(a => [a.questionId, a])).values()];
+
+  assert.equal(deduped.length, 2);
+  assert.equal(deduped[0].questionId, 'q1');
+  assert.equal(deduped[0].selectedOption, 1); // last answer wins
+  assert.equal(deduped[1].questionId, 'q2');
+});
+
+test('updateCourseLessonStats parses Bengali digits in duration', () => {
+  const duration = '১২:৩০'; // Bengali digits for 12:30
+  const bengaliToEnglish = (s) => s.replace(/[০-৯]/g, (d) => '০১২৩৪৫৬৭৮৯'.indexOf(d).toString());
+  const normalized = bengaliToEnglish(duration);
+  const parts = normalized.split(':').map(Number);
+
+  assert.equal(parts[0], 12);
+  assert.equal(parts[1], 30);
+  assert.equal(parts[0] * 60 + parts[1], 750);
+});

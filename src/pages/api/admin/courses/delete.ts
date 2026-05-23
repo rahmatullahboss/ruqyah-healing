@@ -64,28 +64,30 @@ export const POST: APIRoute = async ({ request, locals }) => {
       }
     }
 
-    const quizzes = await db.select({ id: courseQuizzes.id })
-      .from(courseQuizzes)
-      .where(eq(courseQuizzes.courseId, id));
-    const quizIds = quizzes.map((quiz) => quiz.id);
+    await db.transaction(async (tx: any) => {
+      const quizzes = await tx.select({ id: courseQuizzes.id })
+        .from(courseQuizzes)
+        .where(eq(courseQuizzes.courseId, id));
+      const quizIds = quizzes.map((quiz) => quiz.id);
 
-    if (quizIds.length > 0) {
-      await db.delete(courseQuizQuestions).where(inArray(courseQuizQuestions.quizId, quizIds));
-      await db.delete(courseQuizAttempts).where(inArray(courseQuizAttempts.quizId, quizIds));
-    }
-    await db.delete(courseQuizzes).where(eq(courseQuizzes.courseId, id));
+      if (quizIds.length > 0) {
+        await tx.delete(courseQuizQuestions).where(inArray(courseQuizQuestions.quizId, quizIds));
+        await tx.delete(courseQuizAttempts).where(inArray(courseQuizAttempts.quizId, quizIds));
+      }
+      await tx.delete(courseQuizzes).where(eq(courseQuizzes.courseId, id));
 
-    const lessons = await db.select({ id: courseLessons.id })
-      .from(courseLessons)
-      .where(eq(courseLessons.courseId, id));
-    const lessonIds = lessons.map((lesson) => lesson.id);
-    if (lessonIds.length > 0) {
-      await db.delete(courseProgress).where(inArray(courseProgress.lessonId, lessonIds));
-    }
-    await db.delete(courseLessons).where(eq(courseLessons.courseId, id));
-    await db.delete(courseModules).where(eq(courseModules.courseId, id));
-    await db.delete(courseReviews).where(eq(courseReviews.courseId, id));
-    await db.delete(courses).where(eq(courses.id, id));
+      const lessons = await tx.select({ id: courseLessons.id })
+        .from(courseLessons)
+        .where(eq(courseLessons.courseId, id));
+      const lessonIds = lessons.map((lesson) => lesson.id);
+      if (lessonIds.length > 0) {
+        await tx.delete(courseProgress).where(inArray(courseProgress.lessonId, lessonIds));
+      }
+      await tx.delete(courseLessons).where(eq(courseLessons.courseId, id));
+      await tx.delete(courseModules).where(eq(courseModules.courseId, id));
+      await tx.delete(courseReviews).where(eq(courseReviews.courseId, id));
+      await tx.delete(courses).where(eq(courses.id, id));
+    });
 
     await logAuditEvent(db, {
       adminId: adminUser.id,

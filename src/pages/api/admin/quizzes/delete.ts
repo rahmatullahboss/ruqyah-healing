@@ -3,6 +3,7 @@ import { env as workerEnv } from 'cloudflare:workers';
 import { createDb } from '../../../../db/client.js';
 import { courseQuizzes, courseQuizQuestions, courseQuizAttempts } from '../../../../db/schema.js';
 import { eq, inArray } from 'drizzle-orm';
+import { logAuditEvent } from '../../../../lib/audit.js';
 
 export const prerender = false;
 
@@ -32,6 +33,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Delete quiz
     await db.delete(courseQuizzes).where(eq(courseQuizzes.id, id));
+
+    await logAuditEvent(db, {
+      adminId: user.id,
+      adminName: user.fullName,
+      action: 'delete',
+      entityType: 'quiz',
+      entityId: id,
+      details: {},
+    });
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error) {

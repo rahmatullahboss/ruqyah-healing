@@ -5,17 +5,11 @@ import { z } from 'zod';
 import { createDb } from '../../../../db/client.js';
 import { courseEnrollments, courseOrders, coursePayments } from '../../../../db/schema.js';
 import { ENROLLMENT_STATUS } from '../../../../lib/lms-access.js';
+import { json } from '../../../../lib/api-helpers.js';
 
 export const prerender = false;
 
 const revokeSchema = z.object({ id: z.string().min(1) });
-
-function json(payload: Record<string, any>, status = 200) {
-  return new Response(JSON.stringify(payload), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = workerEnv || process.env;

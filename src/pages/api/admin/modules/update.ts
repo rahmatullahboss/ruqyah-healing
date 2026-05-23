@@ -3,6 +3,7 @@ import { env as workerEnv } from 'cloudflare:workers';
 import { createDb } from '../../../../db/client.js';
 import { courseModules } from '../../../../db/schema.js';
 import { eq } from 'drizzle-orm';
+import { logAuditEvent } from '../../../../lib/audit.js';
 
 export const prerender = false;
 
@@ -34,6 +35,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     await db.update(courseModules).set(updates).where(eq(courseModules.id, id));
+
+    await logAuditEvent(db, {
+      adminId: user.id,
+      adminName: user.fullName,
+      action: 'update',
+      entityType: 'module',
+      entityId: id,
+      details: { title },
+    });
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error) {

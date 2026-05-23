@@ -38,6 +38,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const isVideo = file.type.startsWith('video/');
   const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+  // Note: Cloudflare Workers have a ~100MB request body limit. Videos at or near
+  // 100MB may fail at the infrastructure level. For larger videos, use chunked uploads.
   if (file.size > maxSize) {
     return new Response(JSON.stringify({ error: isVideo ? 'ভিডিও খুব বড় (সর্বোচ্চ ১০০MB)' : 'ফাইল খুব বড় (সর্বোচ্চ ১০MB)' }), { status: 400 });
   }

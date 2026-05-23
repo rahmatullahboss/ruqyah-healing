@@ -6,6 +6,7 @@ import { eq, and, sql } from 'drizzle-orm';
 import crypto from 'node:crypto';
 import { updateCourseLessonStats } from '../../../../lib/lms.js';
 import { normalizeAdminLessonPayload } from '../../../../lib/lms-admin.js';
+import { logAuditEvent } from '../../../../lib/audit.js';
 
 export const prerender = false;
 
@@ -73,6 +74,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Update course stats
     await updateCourseLessonStats(db, courseId);
+
+    await logAuditEvent(db, {
+      adminId: user.id,
+      adminName: user.fullName,
+      action: 'create',
+      entityType: 'lesson',
+      entityId: id,
+      details: { title, courseId, moduleId },
+    });
 
     return new Response(JSON.stringify({ success: true, id }), { status: 200 });
   } catch (error) {

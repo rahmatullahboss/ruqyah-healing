@@ -4,6 +4,7 @@ import { createDb } from '../../../../db/client.js';
 import { courseModules, courses } from '../../../../db/schema.js';
 import { eq, sql } from 'drizzle-orm';
 import crypto from 'node:crypto';
+import { logAuditEvent } from '../../../../lib/audit.js';
 
 export const prerender = false;
 
@@ -43,6 +44,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
       title,
       description: description || '',
       sortOrder: Number(maxSort[0]?.max || 0) + 1,
+    });
+
+    await logAuditEvent(db, {
+      adminId: user.id,
+      adminName: user.fullName,
+      action: 'create',
+      entityType: 'module',
+      entityId: id,
+      details: { title, courseId },
     });
 
     return new Response(JSON.stringify({ success: true, id }), { status: 200 });

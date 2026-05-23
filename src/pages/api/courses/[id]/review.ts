@@ -69,14 +69,14 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
         .set({ rating, comment: comment || '' })
         .where(eq(courseReviews.id, existing[0].id));
     } else {
-      // Create new review
+      // Create new review (pending moderation)
       await db.insert(courseReviews).values({
         id: crypto.randomUUID(),
         userId: user.id,
         courseId,
         rating,
         comment: comment || '',
-        published: true,
+        published: false,
       });
     }
 

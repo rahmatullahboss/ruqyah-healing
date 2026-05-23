@@ -4,6 +4,7 @@ import { createDb } from '../../../../db/client.js';
 import { courseLessons, courseProgress } from '../../../../db/schema.js';
 import { eq } from 'drizzle-orm';
 import { updateCourseLessonStats } from '../../../../lib/lms.js';
+import { logAuditEvent } from '../../../../lib/audit.js';
 
 export const prerender = false;
 
@@ -40,6 +41,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (courseId) {
       await updateCourseLessonStats(db, courseId);
     }
+
+    await logAuditEvent(db, {
+      adminId: user.id,
+      adminName: user.fullName,
+      action: 'delete',
+      entityType: 'lesson',
+      entityId: id,
+      details: { courseId },
+    });
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error) {

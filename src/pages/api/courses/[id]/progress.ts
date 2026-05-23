@@ -106,7 +106,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     if (existing.length > 0) {
       const updates: Record<string, any> = {};
       if (watchedSeconds !== undefined) updates.watchedSeconds = watchedSeconds;
-      if (!existing[0].completed) {
+      if (!existing[0].completed && (watchedSeconds === undefined || watchedSeconds > 0)) {
         updates.completed = true;
         updates.completedAt = new Date();
       }
@@ -119,9 +119,9 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
         userId: user.id,
         courseId,
         lessonId,
-        completed: true,
+        completed: (watchedSeconds || 0) > 0,
         watchedSeconds: watchedSeconds || 0,
-        completedAt: new Date(),
+        completedAt: (watchedSeconds || 0) > 0 ? new Date() : null,
       });
     }
 

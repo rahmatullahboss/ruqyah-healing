@@ -5,6 +5,7 @@ import { courseLessons, courseModules } from '../../../../db/schema.js';
 import { and, eq } from 'drizzle-orm';
 import { updateCourseLessonStats } from '../../../../lib/lms.js';
 import { normalizeAdminLessonPayload } from '../../../../lib/lms-admin.js';
+import { logAuditEvent } from '../../../../lib/audit.js';
 
 export const prerender = false;
 
@@ -51,6 +52,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     await db.update(courseLessons).set(updates).where(eq(courseLessons.id, id));
 
     await updateCourseLessonStats(db, parsed.data.courseId);
+
+    await logAuditEvent(db, {
+      adminId: user.id,
+      adminName: user.fullName,
+      action: 'update',
+      entityType: 'lesson',
+      entityId: id,
+      details: { title: parsed.data.title, courseId: parsed.data.courseId },
+    });
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error) {

@@ -6,6 +6,7 @@ import crypto from 'node:crypto';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getEffectiveCoursePrice, ENROLLMENT_STATUS } from '../../../lib/lms-access.js';
+import { json } from '../../../lib/api-helpers.js';
 
 export const prerender = false;
 
@@ -15,13 +16,6 @@ const enrollmentSchema = z.object({
   paymentNumber: z.string().trim().min(3).max(32).optional(),
   transactionId: z.string().trim().min(3).max(80).optional(),
 });
-
-function json(payload: Record<string, any>, status = 200) {
-  return new Response(JSON.stringify(payload), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = workerEnv || process.env;
