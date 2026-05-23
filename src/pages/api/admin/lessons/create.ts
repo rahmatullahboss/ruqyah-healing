@@ -5,7 +5,7 @@ import { courseLessons, courseModules } from '../../../../db/schema.js';
 import { eq, and, sql } from 'drizzle-orm';
 import crypto from 'node:crypto';
 import { updateCourseLessonStats } from '../../../../lib/lms.js';
-import { resourcesFromTextarea } from '../../../../lib/lms-access.js';
+import { normalizeAdminLessonPayload } from '../../../../lib/lms-admin.js';
 
 export const prerender = false;
 
@@ -19,6 +19,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   try {
     const body = await request.json() as Record<string, any>;
+    const parsed = normalizeAdminLessonPayload(body);
+
+    if (!parsed.ok) {
+      return new Response(JSON.stringify({ error: parsed.errors[0], errors: parsed.errors }), { status: 400 });
+    }
+
+    const db = createDb((env as any).DATABASE_URL);
     const {
       moduleId,
       courseId,
@@ -32,13 +39,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       allowResourceDownload,
       duration,
       isFreePreview,
-    } = body;
-
-    if (!moduleId || !courseId || !title) {
-      return new Response(JSON.stringify({ error: 'Module ID, Course ID and title are required' }), { status: 400 });
-    }
-
-    const db = createDb((env as any).DATABASE_URL);
+    } = parsed.data;
 
     // Verify module exists and belongs to course
     const module = await db.select().from(courseModules)
@@ -63,11 +64,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       videoUrl: videoUrl || '',
       videoProvider: videoProvider || 'youtube',
       textContent: textContent || '',
-      resources: resourcesFromTextarea(resources),
-      allowResourceDownload: allowResourceDownload === true || allowResourceDownload === 'true',
+      resources,
+      allowResourceDownload,
       duration: duration || '',
       sortOrder: Number(maxSort[0]?.max || 0) + 1,
-      isFreePreview: isFreePreview === true || isFreePreview === 'true',
+      isFreePreview,
     });
 
     // Update course stats

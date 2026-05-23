@@ -8,6 +8,7 @@ import { eq, and, asc, desc } from 'drizzle-orm';
 import { env as workerEnv } from 'cloudflare:workers';
 import { PlayCircle, FileText, ListChecks, ChevronDown, Clock, Users, Star, Award, BookOpen, Lock } from '@lucide/astro';
 import { getCourseAccess, getEffectiveCoursePrice, safeJsonArray } from '../../lib/lms-access.js';
+import { buildCourseReadiness } from '../../lib/lms-admin.js';
 
 const { id } = Astro.params;
 const env = workerEnv || process.env;
@@ -30,6 +31,11 @@ const lessons = await db.select().from(courseLessons)
 const quizzes = await db.select().from(courseQuizzes)
   .where(eq(courseQuizzes.courseId, id))
   .orderBy(asc(courseQuizzes.sortOrder));
+
+const readiness = buildCourseReadiness({ course, modules, lessons });
+if (!courseAccess.isAdmin && !courseAccess.isEnrolled && !readiness.publishable) {
+  return Astro.redirect('/courses');
+}
 
 // Check enrollment status
 let enrollment: any = courseAccess.enrollment;

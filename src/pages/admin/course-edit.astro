@@ -6,6 +6,7 @@ import { eq, asc } from 'drizzle-orm';
 import { env as workerEnv } from 'cloudflare:workers';
 import { ArrowLeft, Save, Plus, Edit, Trash2, GripVertical, ChevronDown, ChevronRight, PlayCircle, FileText, ListChecks } from '@lucide/astro';
 import { safeJsonArray } from '../../lib/lms-access.js';
+import { buildCourseReadiness, readinessMessage } from '../../lib/lms-admin.js';
 
 export const prerender = false;
 
@@ -20,6 +21,9 @@ let quizzes: any[] = [];
 let outcomesText = '';
 let requirementsText = '';
 let faqText = '';
+const courseMetaRows = await db.select({ category: courses.category, level: courses.level }).from(courses);
+const categorySuggestions = [...new Set(courseMetaRows.map((row) => row.category).filter(Boolean))];
+const levelSuggestions = [...new Set(courseMetaRows.map((row) => row.level).filter(Boolean))];
 
 if (id && id !== 'new') {
   const result = await db.select().from(courses).where(eq(courses.id, id));
@@ -46,6 +50,8 @@ if (id && id !== 'new') {
       .orderBy(asc(courseQuizzes.sortOrder));
   }
 }
+
+const readiness = course ? buildCourseReadiness({ course, modules, lessons }) : null;
 ---
 
 <AdminLayout title={course ? 'কোর্স আপডেট' : 'নতুন কোর্স'}>
@@ -91,21 +97,18 @@ if (id && id !== 'new') {
 
         <div class="form-group">
           <label>স্তর (Level) *</label>
-          <select name="level" required>
-            <option value="শুরুর স্তর" selected={course?.level === 'শুরুর স্তর'}>শুরুর স্তর</option>
-            <option value="মধ্যম স্তর" selected={course?.level === 'মধ্যম স্তর'}>মধ্যম স্তর</option>
-            <option value="উন্নত স্তর" selected={course?.level === 'উন্নত স্তর'}>উন্নত স্তর</option>
-          </select>
+          <input type="text" name="level" list="levelSuggestions" required value={course?.level || ''} placeholder="যেমন: Beginner / Advanced / Certificate" />
+          <datalist id="levelSuggestions">
+            {levelSuggestions.map((level) => <option value={level} />)}
+          </datalist>
         </div>
 
         <div class="form-group">
           <label>ক্যাটাগরি</label>
-          <select name="category">
-            <option value="রুকইয়াহ শারইয়াহ" selected={course?.category === 'রুকইয়াহ শারইয়াহ'}>রুকইয়াহ শারইয়াহ</option>
-            <option value="তিব্বে নববী" selected={course?.category === 'তিব্বে নববী'}>তিব্বে নববী</option>
-            <option value="মাসনূন দুআ" selected={course?.category === 'মাসনূন দুআ'}>মাসনূন দুআ</option>
-            <option value="ইসলামিক স্টাডিজ" selected={course?.category === 'ইসলামিক স্টাডিজ'}>ইসলামিক স্টাডিজ</option>
-          </select>
+          <input type="text" name="category" list="categorySuggestions" required value={course?.category || ''} placeholder="যেমন: Hijama / Ruqyah / Acupuncture" />
+          <datalist id="categorySuggestions">
+            {categorySuggestions.map((category) => <option value={category} />)}
+          </datalist>
         </div>
 
         <div class="form-group">
@@ -162,11 +165,11 @@ if (id && id !== 'new') {
         <div class="form-group full-width">
           <label>কোর্সের কভার ছবি *</label>
           <div class="image-upload-wrapper">
-            <input type="hidden" name="image" id="imageUrl" value={course?.image || '/images/courses/default.webp'} />
+            <input type="hidden" name="image" id="imageUrl" value={course?.image || ''} />
 
-            <div id="imagePreview" class="image-preview" style={`background-image: url(${course?.image || '/images/courses/default.webp'})`}>
+            <div id="imagePreview" class:list={['image-preview', !course?.image && 'empty']} style={course?.image ? `background-image: url(${course.image})` : ''}>
               <div class="preview-overlay">
-                <span id="uploadText">ছবি পরিবর্তন করুন</span>
+                <span id="uploadText">{course?.image ? 'ছবি পরিবর্তন করুন' : 'কভার ছবি আপলোড করুন'}</span>
               </div>
               <input type="file" id="imageFile" accept="image/*" class="file-input" />
             </div>
@@ -218,11 +221,38 @@ if (id && id !== 'new') {
     </form>
   </div>
 
+  {readiness && (
+    <div class:list={['readiness-card', readiness.publishable ? 'ready' : 'blocked']}>
+      <div>
+        <h2>Publish readiness</h2>
+        <p>{readinessMessage(readiness)}</p>
+      </div>
+      <div class="readiness-stats">
+        <span>{readiness.summary.moduleCount} module</span>
+        <span>{readiness.summary.lessonCount} lesson</span>
+        <span>{readiness.summary.previewLessonCount} preview</span>
+      </div>
+      {!readiness.publishable && (
+        <ul>
+          {readiness.errors.map((error) => <li>{error}</li>)}
+        </ul>
+      )}
+      {readiness.warnings.length > 0 && (
+        <ul class="warning-list">
+          {readiness.warnings.map((warning) => <li>{warning}</li>)}
+        </ul>
+      )}
+    </div>
+  )}
+
   <!-- Course Content Management (only for existing courses) -->
   {course && (
     <div class="content-section">
       <div class="section-header">
-        <h2 class="section-title">কোর্স কন্টেন্ট</h2>
+        <div>
+          <h2 class="section-title">কোর্স কন্টেন্ট</h2>
+          <p class="section-note">মডিউল বা লেসন drag করে serial বদলালে UI আগে আপডেট হবে, তারপর backend-এ sort order সেভ হবে।</p>
+        </div>
         <button class="btn-primary" id="addModuleBtn">
           <Plus size={16} />
           নতুন মডিউল
@@ -231,7 +261,7 @@ if (id && id !== 'new') {
 
       <div id="modulesContainer" class="modules-container">
         {modules.map((mod) => (
-          <div class="module-card" data-module-id={mod.id}>
+          <div class="module-card" data-module-id={mod.id} data-sortable-module draggable="true">
             <div class="module-header" data-toggle={mod.id}>
               <div class="module-info">
                 <GripVertical size={16} class="drag-handle" />
@@ -253,9 +283,9 @@ if (id && id !== 'new') {
               </div>
             </div>
 
-            <div class="module-body" id={`module-body-${mod.id}`} style="display:none;">
+            <div class="module-body" id={`module-body-${mod.id}`} data-lesson-container style="display:none;">
               {lessons.filter(l => l.moduleId === mod.id).map((lesson) => (
-                <div class="lesson-item" data-lesson-id={lesson.id}>
+                <div class="lesson-item" data-lesson-id={lesson.id} data-sortable-lesson draggable="true">
                   <div class="lesson-info">
                     {lesson.contentType === 'video' ? (
                       <PlayCircle size={16} class="lesson-icon video" />
@@ -388,6 +418,8 @@ if (id && id !== 'new') {
       if (res.ok && result.success) {
         imageUrlEl.value = result.url;
         imagePreview.style.backgroundImage = `url(${result.url})`;
+        imagePreview.classList.remove('empty');
+        uploadText.textContent = 'ছবি পরিবর্তন করুন';
       } else {
         alert('ছবি আপলোড ব্যর্থ: ' + (result.error || 'অজানা ত্রুটি'));
       }
@@ -432,7 +464,10 @@ if (id && id !== 'new') {
           window.location.reload();
         }
       } else {
-        throw new Error(result.error || 'সেভ সমস্যা।');
+        const details = Array.isArray(result.errors) && result.errors.length > 0
+          ? `\n\n${result.errors.join('\n')}`
+          : '';
+        throw new Error((result.error || 'সেভ সমস্যা।') + details);
       }
     } catch (err) {
       alert(err.message);
@@ -455,6 +490,74 @@ if (id && id !== 'new') {
         chevron.style.transform = 'rotate(-90deg)';
       }
     });
+  });
+
+  function getDragAfterElement(container, y, selector) {
+    const draggableElements = [...container.querySelectorAll(`${selector}:not(.is-dragging)`)];
+
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) {
+        return { offset, element: child };
+      }
+      return closest;
+    }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+  }
+
+  async function persistSortOrder(items, idAttribute, endpoint) {
+    await Promise.all(items.map((item, index) => {
+      const id = item.getAttribute(idAttribute);
+      if (!id) return Promise.resolve();
+      return fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, sortOrder: index + 1 })
+      }).then((response) => {
+        if (!response.ok) throw new Error('Sort update failed');
+      });
+    }));
+  }
+
+  function setupSortable(container, selector, idAttribute, endpoint) {
+    let draggedItem = null;
+
+    container.querySelectorAll(selector).forEach((item) => {
+      item.addEventListener('dragstart', () => {
+        draggedItem = item;
+        item.classList.add('is-dragging');
+      });
+
+      item.addEventListener('dragend', async () => {
+        item.classList.remove('is-dragging');
+        draggedItem = null;
+        const items = [...container.querySelectorAll(selector)];
+        container.classList.add('is-saving');
+        try {
+          await persistSortOrder(items, idAttribute, endpoint);
+        } catch (error) {
+          alert('Serial সেভ করা যায়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।');
+        } finally {
+          container.classList.remove('is-saving');
+        }
+      });
+    });
+
+    container.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      if (!draggedItem) return;
+      const afterElement = getDragAfterElement(container, event.clientY, selector);
+      if (!afterElement) container.appendChild(draggedItem);
+      else container.insertBefore(draggedItem, afterElement);
+    });
+  }
+
+  const modulesContainer = document.getElementById('modulesContainer');
+  if (modulesContainer) {
+    setupSortable(modulesContainer, '[data-sortable-module]', 'data-module-id', '/api/admin/modules/update');
+  }
+  document.querySelectorAll('[data-lesson-container]').forEach((container) => {
+    setupSortable(container, '[data-sortable-lesson]', 'data-lesson-id', '/api/admin/lessons/update');
   });
 
   // Module modal
@@ -597,6 +700,57 @@ if (id && id !== 'new') {
   }
   .hint { font-size: 0.8rem; color: var(--admin-text-light); }
 
+  .readiness-card {
+    max-width: 800px;
+    margin-top: 20px;
+    padding: 18px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--admin-border);
+    background: #fff;
+  }
+  .readiness-card.ready {
+    border-color: #86efac;
+    background: #f0fdf4;
+  }
+  .readiness-card.blocked {
+    border-color: #fed7aa;
+    background: #fff7ed;
+  }
+  .readiness-card h2 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    color: var(--admin-text);
+  }
+  .readiness-card p {
+    margin: 0;
+    color: var(--admin-text-light);
+    font-size: 0.9rem;
+  }
+  .readiness-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .readiness-stats span {
+    background: #fff;
+    border: 1px solid var(--admin-border);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--admin-text);
+  }
+  .readiness-card ul {
+    margin: 12px 0 0;
+    padding-left: 18px;
+    color: #b45309;
+    line-height: 1.6;
+  }
+  .readiness-card .warning-list {
+    color: #92400e;
+  }
+
   .form-actions {
     margin-top: 32px;
     display: flex;
@@ -629,6 +783,12 @@ if (id && id !== 'new') {
     margin-bottom: 20px;
   }
   .section-title { font-size: 1.3rem; font-weight: 700; margin: 0; }
+  .section-note {
+    margin: 6px 0 0;
+    color: var(--admin-text-light);
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
   .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -652,6 +812,15 @@ if (id && id !== 'new') {
     border: 1px solid var(--admin-border);
     border-radius: 12px;
     overflow: hidden;
+  }
+  .module-card.is-dragging,
+  .lesson-item.is-dragging {
+    opacity: 0.55;
+    border-style: dashed;
+  }
+  .modules-container.is-saving,
+  .module-body.is-saving {
+    cursor: progress;
   }
   .module-header {
     display: flex;
@@ -741,6 +910,12 @@ if (id && id !== 'new') {
   .add-quiz-btn:hover { background: #fffbeb; }
 
   .empty-state { text-align: center; padding: 40px; color: var(--admin-text-light); }
+
+  .image-preview.empty {
+    background:
+      linear-gradient(135deg, rgba(8, 145, 178, 0.08), rgba(15, 23, 42, 0.04)),
+      repeating-linear-gradient(45deg, #f8fafc, #f8fafc 10px, #eef2f7 10px, #eef2f7 20px);
+  }
 
   .modal-overlay {
     position: fixed;

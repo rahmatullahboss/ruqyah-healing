@@ -5,7 +5,7 @@ import { createDb } from '../../../db/client.js';
 import { courses, courseModules, courseLessons, courseQuizzes, courseEnrollments, courseProgress } from '../../../db/schema.js';
 import { eq, and, asc } from 'drizzle-orm';
 import { env as workerEnv } from 'cloudflare:workers';
-import { PlayCircle, FileText, ListChecks, CheckCircle, Lock, ChevronLeft, ChevronRight, Menu, X } from '@lucide/astro';
+import { PlayCircle, FileText, ListChecks, CheckCircle, Lock, ChevronLeft, ChevronRight, Menu, X, Maximize2 } from '@lucide/astro';
 import { buildLessonLockState, getOrderedLessons, safeJsonArray } from '../../../lib/lms-access.js';
 
 export const prerender = false;
@@ -112,6 +112,15 @@ const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLes
       </div>
 
       <div class="sidebar-progress">
+        <div class="progress-summary">
+          <div class="progress-ring" style={`--progress:${progressPercent * 3.6}deg;`}>
+            <span>{progressPercent}%</span>
+          </div>
+          <div>
+            <strong>{completedCount}/{totalLessons} লেসন</strong>
+            <span>শেখার অগ্রগতি</span>
+          </div>
+        </div>
         <div class="progress-bar">
           <div class="progress-fill" style={`width: ${progressPercent}%`}></div>
         </div>
@@ -173,6 +182,10 @@ const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLes
       <div class="content-topbar">
         <button class="open-sidebar" id="openSidebar"><Menu size={20} /></button>
         <h1 class="lesson-title-main">{currentLesson?.title || 'কন্টেন্ট নেই'}</h1>
+        <button class="focus-mode-btn" id="focusModeBtn" type="button" aria-pressed="false">
+          <Maximize2 size={18} />
+          <span>ফোকাস</span>
+        </button>
       </div>
 
       {currentLesson ? (
@@ -266,6 +279,8 @@ const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLes
 <script define:vars={{ courseId, lessonId: currentLesson?.id }}>
   // Mark complete
   const completeBtn = document.getElementById('completeBtn');
+  const learnPage = document.querySelector('.learn-page');
+  const focusModeBtn = document.getElementById('focusModeBtn');
   completeBtn?.addEventListener('click', async () => {
     completeBtn.disabled = true;
     completeBtn.textContent = 'সেভ হচ্ছে...';
@@ -299,6 +314,12 @@ const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLes
   });
   document.querySelectorAll('.sidebar-item.locked, .resource-link.disabled').forEach((link) => {
     link.addEventListener('click', (event) => event.preventDefault());
+  });
+
+  focusModeBtn?.addEventListener('click', () => {
+    if (!learnPage) return;
+    const isActive = learnPage.classList.toggle('focus-mode');
+    focusModeBtn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
   });
 </script>
 
@@ -351,6 +372,39 @@ const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLes
   .sidebar-progress {
     padding: 16px 20px;
     border-bottom: 1px solid #e2e8f0;
+  }
+  .progress-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .progress-summary strong {
+    display: block;
+    color: #0f172a;
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+  .progress-summary span {
+    display: block;
+    color: #64748b;
+    font-size: 0.78rem;
+  }
+  .progress-ring {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(circle at center, #fff 58%, transparent 59%),
+      conic-gradient(#0891b2 var(--progress), #e2e8f0 0deg);
+    flex-shrink: 0;
+  }
+  .progress-ring span {
+    color: #0f172a;
+    font-size: 0.78rem;
+    font-weight: 800;
   }
   .progress-bar {
     height: 8px;
@@ -458,6 +512,35 @@ const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLes
     font-weight: 700;
     margin: 0;
     color: #0f172a;
+    flex: 1;
+    min-width: 0;
+  }
+  .focus-mode-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #475569;
+    font-weight: 700;
+  }
+  .focus-mode-btn[aria-pressed="true"] {
+    border-color: #0891b2;
+    background: #ecfeff;
+    color: #0e7490;
+  }
+
+  .learn-page.focus-mode .learn-sidebar {
+    transform: translateX(-100%);
+  }
+  .learn-page.focus-mode .learn-content {
+    margin-left: 0;
+  }
+  .learn-page.focus-mode .lesson-content-area {
+    max-width: 1040px;
   }
 
   .lesson-content-area {
@@ -627,6 +710,15 @@ const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLes
   }
 
   @media (max-width: 640px) {
+    .content-topbar {
+      padding: 12px 16px;
+    }
+    .lesson-title-main {
+      font-size: 1rem;
+    }
+    .focus-mode-btn span {
+      display: none;
+    }
     .nav-buttons { flex-direction: column; }
     .nav-btn, .complete-btn, .completed-badge { width: 100%; justify-content: center; }
   }

@@ -8,10 +8,11 @@ import BlogCard from '../components/BlogCard.astro';
 import { env as workerEnv } from 'cloudflare:workers';
 import { createDb } from '../db/client.js';
 import { getAllPosts } from '../lib/posts.js';
-import { courses, testimonials } from '../db/schema.js';
+import { courseLessons, courseModules, courses, testimonials } from '../db/schema.js';
 import { clinicNumbers, clinicSchedule, getWhatsappUrl, primaryPhoneContact } from '../data/clinic.js';
 import { buildFaqSchema } from '../lib/seo.js';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, inArray } from 'drizzle-orm';
+import { filterPublicReadyCourses, groupCourseContentRows } from '../lib/lms-admin.js';
 
 export const prerender = false;
 
@@ -20,11 +21,22 @@ const db = createDb(env.DATABASE_URL);
 
 const allPosts = await getAllPosts(db);
 
-const coursesList = await db.select()
+const publishedCourses = await db.select()
   .from(courses)
   .where(eq(courses.status, 'published'))
-  .orderBy(desc(courses.createdAt))
-  .limit(6);
+  .orderBy(desc(courses.createdAt));
+const publishedCourseIds = publishedCourses.map((course) => course.id);
+const [publishedModules, publishedLessons] = publishedCourseIds.length > 0
+  ? await Promise.all([
+      db.select().from(courseModules).where(inArray(courseModules.courseId, publishedCourseIds)),
+      db.select().from(courseLessons).where(inArray(courseLessons.courseId, publishedCourseIds)),
+    ])
+  : [[], []];
+const coursesList = filterPublicReadyCourses(groupCourseContentRows({
+  courses: publishedCourses,
+  modules: publishedModules,
+  lessons: publishedLessons,
+})).map((row) => row.course).slice(0, 6);
 const testimonialList = await db.select().from(testimonials).where(eq(testimonials.published, true)).orderBy(desc(testimonials.orderIndex)).limit(6);
 const blogs = allPosts
   .slice(0, 6)
@@ -432,42 +444,19 @@ const faqSchema = buildFaqSchema(homepageFaq);
           <p>রুকইয়াহ সংক্রান্ত গাইড এবং কোর্সসমূহ</p>
         </div>
         <div class="grid-3 course-grid">
-          <!-- Course 1: অনলাইন রুকইয়াহ কোর্স -->
-          <div class="course-card scroll-reveal-child" style="--stagger-delay: 0ms">
-            <div class="course-thumb">
-              <img src="/images/course-ruqyah-online.webp" alt="অনলাইন রুকইয়াহ কোর্স" loading="lazy" width="600" height="600" />
-              <span class="course-badge">অনলাইন</span>
+          {coursesList.slice(0, 3).map((course, index) => (
+            <div class="course-card scroll-reveal-child" style={`--stagger-delay: ${index * 80}ms`}>
+              <div class="course-thumb">
+                <img src={course.image} alt={course.title} loading="lazy" width="600" height="600" />
+                <span class="course-badge">{course.category}</span>
+              </div>
+              <div class="course-body">
+                <h3>{course.title}</h3>
+                <p>{course.shortDescription || course.desc}</p>
+                <a href={`/courses/${course.id}`} class="btn btn-primary btn-sm">বিস্তারিত দেখুন</a>
+              </div>
             </div>
-            <div class="course-body">
-              <h3>রুকইয়াহ অনলাইন কোর্স</h3>
-              <p>ঘরে বসে কুরআন ও সুন্নাহ ভিত্তিক রুকইয়াহ শিখুন</p>
-              <a href="https://wa.me/8801992575874?text=অনলাইন+রুকইয়াহ+কোর্সে+যোগ+দিতে+চাই" target="_blank" rel="noopener" class="btn btn-primary btn-sm">এনরোল করুন</a>
-            </div>
-          </div>
-          <!-- Course 2: অফলাইন রুকইয়াহ কোর্স -->
-          <div class="course-card scroll-reveal-child" style="--stagger-delay: 80ms">
-            <div class="course-thumb">
-              <img src="/images/course-ruqyah-offline.webp" alt="অফলাইন রুকইয়াহ কোর্স" loading="lazy" width="600" height="600" />
-              <span class="course-badge course-badge--green">অফলাইন</span>
-            </div>
-            <div class="course-body">
-              <h3>রুকইয়াহ অফলাইন প্রশিক্ষণ</h3>
-              <p>সরাসরি শায়েখের কাছে থেকে রুকইয়াহ শিখুন</p>
-              <a href="https://wa.me/8801992575874?text=অফলাইন+রুকইয়াহ+কোর্সে+যোগ+দিতে+চাই" target="_blank" rel="noopener" class="btn btn-primary btn-sm">এনরোল করুন</a>
-            </div>
-          </div>
-          <!-- Course 3: হিজামা সার্টিফিকেট কোর্স -->
-          <div class="course-card scroll-reveal-child" style="--stagger-delay: 160ms">
-            <div class="course-thumb">
-              <img src="/images/course-hijama-online.webp" alt="হিজামা সার্টিফিকেট কোর্স" loading="lazy" width="600" height="600" />
-              <span class="course-badge course-badge--gold">সার্টিফিকেট</span>
-            </div>
-            <div class="course-body">
-              <h3>হিজামা সার্টিফিকেট কোর্স</h3>
-              <p>পেশাদার হিজামা থেরাপিস্ট হিসেবে প্রশিক্ষণ নিন</p>
-              <a href="https://wa.me/8801992575874?text=হিজামা+কোর্সে+যোগ+দিতে+চাই" target="_blank" rel="noopener" class="btn btn-primary btn-sm">এনরোল করুন</a>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>

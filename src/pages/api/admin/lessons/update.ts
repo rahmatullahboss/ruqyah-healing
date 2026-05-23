@@ -1,10 +1,10 @@
 import type { APIRoute } from 'astro';
 import { env as workerEnv } from 'cloudflare:workers';
 import { createDb } from '../../../../db/client.js';
-import { courseLessons } from '../../../../db/schema.js';
-import { eq } from 'drizzle-orm';
+import { courseLessons, courseModules } from '../../../../db/schema.js';
+import { and, eq } from 'drizzle-orm';
 import { updateCourseLessonStats } from '../../../../lib/lms.js';
-import { resourcesFromTextarea } from '../../../../lib/lms-access.js';
+import { normalizeAdminLessonPayload } from '../../../../lib/lms-admin.js';
 
 export const prerender = false;
 
@@ -18,54 +18,39 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   try {
     const body = await request.json() as Record<string, any>;
-    const {
-      id,
-      title,
-      description,
-      contentType,
-      videoUrl,
-      videoProvider,
-      textContent,
-      resources,
-      allowResourceDownload,
-      duration,
-      isFreePreview,
-      sortOrder,
-      moduleId,
-    } = body;
+    const { id } = body;
 
     if (!id) {
       return new Response(JSON.stringify({ error: 'Lesson ID is required' }), { status: 400 });
     }
 
     const db = createDb((env as any).DATABASE_URL);
+    const [existingLesson] = await db.select().from(courseLessons).where(eq(courseLessons.id, id)).limit(1);
+    if (!existingLesson) {
+      return new Response(JSON.stringify({ error: 'Lesson not found' }), { status: 404 });
+    }
 
-    const updates: Record<string, any> = {};
-    if (title !== undefined) updates.title = title;
-    if (description !== undefined) updates.description = description;
-    if (contentType !== undefined) updates.contentType = contentType;
-    if (videoUrl !== undefined) updates.videoUrl = videoUrl;
-    if (videoProvider !== undefined) updates.videoProvider = videoProvider;
-    if (textContent !== undefined) updates.textContent = textContent;
-    if (resources !== undefined) updates.resources = resourcesFromTextarea(resources);
-    if (allowResourceDownload !== undefined) updates.allowResourceDownload = allowResourceDownload === true || allowResourceDownload === 'true';
-    if (duration !== undefined) updates.duration = duration;
-    if (isFreePreview !== undefined) updates.isFreePreview = isFreePreview;
-    if (sortOrder !== undefined) updates.sortOrder = sortOrder;
-    if (moduleId !== undefined) updates.moduleId = moduleId;
+    const parsed = normalizeAdminLessonPayload({ ...existingLesson, ...body });
+    if (!parsed.ok) {
+      return new Response(JSON.stringify({ error: parsed.errors[0], errors: parsed.errors }), { status: 400 });
+    }
 
-    if (Object.keys(updates).length === 0) {
-      return new Response(JSON.stringify({ error: 'No fields to update' }), { status: 400 });
+    const [moduleRecord] = await db.select({ id: courseModules.id })
+      .from(courseModules)
+      .where(and(eq(courseModules.id, parsed.data.moduleId), eq(courseModules.courseId, parsed.data.courseId)))
+      .limit(1);
+    if (!moduleRecord) {
+      return new Response(JSON.stringify({ error: 'Module not found for this course' }), { status: 404 });
+    }
+
+    const updates: Record<string, any> = parsed.data;
+    if (body.sortOrder !== undefined && parsed.data.sortOrder !== undefined) {
+      updates.sortOrder = parsed.data.sortOrder;
     }
 
     await db.update(courseLessons).set(updates).where(eq(courseLessons.id, id));
 
-    // Get courseId for stats update
-    const lesson = await db.select({ courseId: courseLessons.courseId })
-      .from(courseLessons).where(eq(courseLessons.id, id));
-    if (lesson[0]) {
-      await updateCourseLessonStats(db, lesson[0].courseId);
-    }
+    await updateCourseLessonStats(db, parsed.data.courseId);
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error) {

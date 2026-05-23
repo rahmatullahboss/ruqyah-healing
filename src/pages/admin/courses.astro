@@ -1,10 +1,11 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { createDb } from '../../db/client.js';
-import { courses } from '../../db/schema.js';
+import { courseLessons, courseModules, courses } from '../../db/schema.js';
 import { desc } from 'drizzle-orm';
 import { env as workerEnv } from 'cloudflare:workers';
 import { Plus, Edit, Trash2 } from '@lucide/astro';
+import { buildCourseReadiness, readinessMessage } from '../../lib/lms-admin.js';
 
 export const prerender = false;
 
@@ -12,6 +13,15 @@ const env = (workerEnv || process.env) as any;
 const db = createDb(env.DATABASE_URL);
 
 const allCourses = await db.select().from(courses).orderBy(desc(courses.createdAt));
+const [allModules, allLessons] = await Promise.all([
+  db.select().from(courseModules),
+  db.select().from(courseLessons),
+]);
+const readinessByCourse = new Map(allCourses.map((course) => {
+  const modules = allModules.filter((module) => module.courseId === course.id);
+  const lessons = allLessons.filter((lesson) => lesson.courseId === course.id);
+  return [course.id, buildCourseReadiness({ course, modules, lessons })];
+}));
 ---
 
 <AdminLayout title="কোর্স ম্যানেজমেন্ট | Admin - Ruqyah Healing">
@@ -36,6 +46,7 @@ const allCourses = await db.select().from(courses).orderBy(desc(courses.createdA
             <th>ক্লাস সংখ্যা & সময়</th>
             <th>মূল্য</th>
             <th>স্ট্যাটাস/লেভেল</th>
+            <th>Content readiness</th>
             <th>অ্যাকশন</th>
           </tr>
         </thead>
@@ -43,7 +54,9 @@ const allCourses = await db.select().from(courses).orderBy(desc(courses.createdA
           {allCourses.length === 0 ? (
             <tr><td colspan="6" style="text-align:center; padding:32px 0;">কোনো কোর্স নেই</td></tr>
           ) : (
-            allCourses.map((c) => (
+            allCourses.map((c) => {
+              const readiness = readinessByCourse.get(c.id);
+              return (
               <tr>
                 <td>
                   <div style="font-weight:600; color:var(--admin-text);">{c.title}</div>
@@ -62,6 +75,12 @@ const allCourses = await db.select().from(courses).orderBy(desc(courses.createdA
                   <span class="level-badge">{c.level}</span>
                 </td>
                 <td>
+                  <span class:list={['readiness-badge', readiness?.publishable ? 'ready' : 'blocked']}>
+                    {readiness?.publishable ? 'Ready' : 'Needs content'}
+                  </span>
+                  <div class="readiness-note">{readiness ? readinessMessage(readiness) : ''}</div>
+                </td>
+                <td>
                    <div style="display:flex; gap:8px;">
                      <a href={`/admin/course-edit?id=${c.id}`} class="action-btn edit" title="Edit">
                        <Edit size={16} />
@@ -72,7 +91,8 @@ const allCourses = await db.select().from(courses).orderBy(desc(courses.createdA
                    </div>
                 </td>
               </tr>
-            ))
+              );
+            })
           )}
         </tbody>
       </table>
@@ -183,6 +203,23 @@ const allCourses = await db.select().from(courses).orderBy(desc(courses.createdA
   .status-badge.published { background: #dcfce7; color: #16a34a; }
   .status-badge.draft { background: #fef3c7; color: #b45309; }
   .status-badge.unpublished { background: #f1f5f9; color: #64748b; }
+
+  .readiness-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .readiness-badge.ready { background: #dcfce7; color: #16a34a; }
+  .readiness-badge.blocked { background: #ffedd5; color: #c2410c; }
+  .readiness-note {
+    max-width: 260px;
+    margin-top: 4px;
+    color: var(--admin-text-light);
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
 
   .action-btn {
     background: none;

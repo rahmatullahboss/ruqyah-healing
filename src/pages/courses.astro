@@ -4,18 +4,31 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
 import { createDb } from '../db/client.js';
-import { courses, courseEnrollments } from '../db/schema.js';
+import { courseLessons, courseModules, courses, courseEnrollments } from '../db/schema.js';
 import { env as workerEnv } from 'cloudflare:workers';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, inArray } from 'drizzle-orm';
 import { getEffectiveCoursePrice } from '../lib/lms-access.js';
+import { filterPublicReadyCourses, groupCourseContentRows } from '../lib/lms-admin.js';
 
 const env = (workerEnv || process.env) as any;
 const db = createDb(env.DATABASE_URL);
 
-const coursesList = await db.select()
+const publishedCourses = await db.select()
   .from(courses)
   .where(eq(courses.status, 'published'))
   .orderBy(desc(courses.createdAt));
+const publishedCourseIds = publishedCourses.map((course) => course.id);
+const [publishedModules, publishedLessons] = publishedCourseIds.length > 0
+  ? await Promise.all([
+      db.select().from(courseModules).where(inArray(courseModules.courseId, publishedCourseIds)),
+      db.select().from(courseLessons).where(inArray(courseLessons.courseId, publishedCourseIds)),
+    ])
+  : [[], []];
+const coursesList = filterPublicReadyCourses(groupCourseContentRows({
+  courses: publishedCourses,
+  modules: publishedModules,
+  lessons: publishedLessons,
+})).map((row) => row.course);
 
 const user = (Astro.locals as App.Locals).user;
 let enrolledCourses: Record<string, string> = {};
@@ -29,7 +42,7 @@ if (user) {
   });
 }
 
-const categories = ['সকল কোর্স', 'রুকইয়াহ শারইয়াহ', 'তিব্বে নববী', 'মাসনূন দুআ'];
+const categories = ['সকল কোর্স', ...new Set(coursesList.map((course) => course.category).filter(Boolean))];
 ---
 
 <BaseLayout title="কোর্সসমূহ | Ruqyah Healing Center" description="ইসলামিক হিলিং এবং রুকইয়াহ সম্পর্কে বিস্তারিত জ্ঞান অর্জন করুন আমাদের কোর্সগুলো থেকে।">
@@ -81,10 +94,17 @@ const categories = ['সকল কোর্স', 'রুকইয়াহ শ�
       <div class="container">
         <h2 class="section-title">আমাদের কোর্স সমূহ</h2>
         
-        <div class="tabs">
-          {categories.map((cat, i) => (
-            <button class:list={['tab-btn', i === 0 && 'active']} data-category={cat}>{cat}</button>
-          ))}
+        <div class="course-toolbar">
+          <label class="course-search" for="courseSearch">
+            <span>কোর্স সার্চ</span>
+            <input id="courseSearch" type="search" placeholder="নাম, ইনস্ট্রাক্টর বা ক্যাটাগরি লিখুন" />
+          </label>
+
+          <div class="tabs" aria-label="কোর্স ক্যাটাগরি">
+            {categories.map((cat, i) => (
+              <button class:list={['tab-btn', i === 0 && 'active']} data-category={cat}>{cat}</button>
+            ))}
+          </div>
         </div>
 
         <div class="courses-grid">
@@ -94,7 +114,11 @@ const categories = ['সকল কোর্স', 'রুকইয়াহ শ�
             const priceDisplay = effectivePrice === 0 ? 'ফ্রি' : `৳ ${effectivePrice.toLocaleString()}`;
             
             return (
-            <div class="course-card" data-category="রুকইয়াহ শারইয়াহ">
+            <div
+              class="course-card"
+              data-category={course.category}
+              data-search={`${course.title} ${course.instructor} ${course.category} ${course.level} ${course.desc}`.toLowerCase()}
+            >
               <div class="course-img">
                 <img src={course.image} alt={course.title} loading="lazy" decoding="async" />
                 <div class:list={['price-badge', course.price === null && 'free']}>
@@ -102,8 +126,16 @@ const categories = ['সকল কোর্স', 'রুকইয়াহ শ�
                 </div>
               </div>
               <div class="course-body">
+                <div class="course-meta">
+                  <span>{course.level}</span>
+                  <span>{course.instructor}</span>
+                </div>
                 <h3>{course.title}</h3>
                 <p>{course.desc}</p>
+                <div class="course-stats">
+                  <span>{course.classCount}</span>
+                  <span>{course.hours}</span>
+                </div>
                 <div class="course-footer">
                   {enrollmentStatus === 'approved' ? (
                     <a href={`/courses/${course.id}/learn`} class="details-btn watch-btn">
@@ -125,6 +157,10 @@ const categories = ['সকল কোর্স', 'রুকইয়াহ শ�
             </div>
             );
           })}
+        </div>
+
+        <div class="empty-courses" id="emptyCourses" hidden>
+          <p>এই ফিল্টারে কোনো কোর্স পাওয়া যায়নি।</p>
         </div>
       </div>
     </section>
@@ -153,24 +189,36 @@ const categories = ['সকল কোর্স', 'রুকইয়াহ শ�
   // Tab switching
   const tabBtns = document.querySelectorAll('.tab-btn');
   const courseCards = document.querySelectorAll('.course-card');
+  const courseSearch = document.getElementById('courseSearch') as HTMLInputElement | null;
+  const emptyCourses = document.getElementById('emptyCourses');
+  let activeCategory = 'সকল কোর্স';
+
+  function applyCourseFilters() {
+    const query = courseSearch?.value.trim().toLowerCase() || '';
+    let visibleCount = 0;
+
+    courseCards.forEach(card => {
+      const cardCategory = card.getAttribute('data-category');
+      const searchText = card.getAttribute('data-search') || '';
+      const matchesCategory = activeCategory === 'সকল কোর্স' || cardCategory === activeCategory;
+      const matchesSearch = !query || searchText.includes(query);
+      const isVisible = matchesCategory && matchesSearch;
+      (card as HTMLElement).style.display = isVisible ? 'block' : 'none';
+      if (isVisible) visibleCount += 1;
+    });
+    if (emptyCourses) emptyCourses.hidden = visibleCount > 0;
+  }
 
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       tabBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      
-      const category = btn.getAttribute('data-category');
-      
-      courseCards.forEach(card => {
-        const cardCategory = card.getAttribute('data-category');
-        if (category === 'সকল কোর্স' || cardCategory === category) {
-          (card as HTMLElement).style.display = 'block';
-        } else {
-          (card as HTMLElement).style.display = 'none';
-        }
-      });
+      activeCategory = btn.getAttribute('data-category') || 'সকল কোর্স';
+      applyCourseFilters();
     });
   });
+
+  courseSearch?.addEventListener('input', applyCourseFilters);
 </script>
 
 <style>
@@ -265,12 +313,49 @@ const categories = ['সকল কোর্স', 'রুকইয়াহ শ�
 }
 
 /* Tabs */
+.course-toolbar {
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) 1fr;
+  gap: 18px;
+  align-items: end;
+  margin-bottom: 32px;
+}
+
+.course-search {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.course-search span {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.course-search input {
+  min-height: 46px;
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 15px;
+  color: #0f172a;
+  background: #fff;
+}
+
+.course-search input:focus {
+  outline: none;
+  border-color: #0891b2;
+  box-shadow: 0 0 0 4px rgba(8, 145, 178, 0.12);
+}
+
 .tabs {
   display: flex;
   gap: 8px;
-  margin-bottom: 32px;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .tab-btn {
@@ -359,6 +444,32 @@ const categories = ['সকল কোর্স', 'রুকইয়াহ শ�
   padding: 16px 20px 20px;
 }
 
+.course-meta,
+.course-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.course-meta span,
+.course-stats span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.course-meta span:first-child {
+  background: #ecfeff;
+  color: #0e7490;
+}
+
 .course-body h3 {
   font-size: 15px;
   font-weight: 700;
@@ -410,6 +521,16 @@ const categories = ['সকল কোর্স', 'রুকইয়াহ শ�
   color: var(--primary);
 }
 
+.empty-courses {
+  margin-top: 28px;
+  padding: 28px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  color: #64748b;
+  text-align: center;
+  background: #fff;
+}
+
 /* Features Section */
 .features-section {
   background: #f8fafc;
@@ -451,6 +572,8 @@ const categories = ['সকল কোর্স', 'রুকইয়াহ শ�
 /* Responsive */
 @media (max-width: 900px) {
   .courses-grid { grid-template-columns: repeat(2, 1fr); }
+  .course-toolbar { grid-template-columns: 1fr; }
+  .tabs { justify-content: flex-start; }
   .features-section .container { grid-template-columns: 1fr; }
   .video-feature-grid {
     grid-template-columns: 1fr;

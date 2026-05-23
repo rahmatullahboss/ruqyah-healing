@@ -22,3 +22,19 @@ test('appointments API route returns configuration error when database URL is mi
   assert.equal(response.status, 500);
   assert.equal(payload.error, 'DATABASE_URL not configured');
 });
+
+test('appointment slots API route returns default open slots before date selection', async () => {
+  const module = await import('../src/pages/api/appointments/slots.ts');
+  const request = new Request('http://localhost:4321/api/appointments/slots', {
+    method: 'GET',
+  });
+
+  const response = await module.GET({ request });
+  const payload = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(payload.date, '');
+  assert.ok(Array.isArray(payload.slots));
+  assert.ok(payload.slots.length > 0);
+  assert.equal(payload.slots.every((slot) => slot.available), true);
+});

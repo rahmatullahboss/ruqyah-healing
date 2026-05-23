@@ -19,6 +19,19 @@ export const clinicSchedule = {
   hours: 'সকাল ৯টা থেকে সন্ধ্যা ৬টা',
 };
 
+export const preferredTimeSlots = [
+  'সকাল ৯:০০',
+  'সকাল ১০:০০',
+  'সকাল ১১:০০',
+  'দুপুর ১২:০০',
+  'দুপুর ১:০০',
+  'দুপুর ২:০০',
+  'বিকেল ৩:০০',
+  'বিকেল ৪:০০',
+  'বিকেল ৫:০০',
+  'সন্ধ্যা ৬:০০',
+];
+
 export const pricingHighlights = [
   {
     title: 'রুকইয়াহ ডায়াগনোসিস',

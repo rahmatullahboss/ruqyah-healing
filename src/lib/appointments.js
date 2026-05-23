@@ -111,3 +111,36 @@ export function mapAppointmentToInsert(payload, source = 'web') {
     status: 'pending',
   };
 }
+
+const BLOCKING_APPOINTMENT_STATUSES = new Set(['pending', 'confirmed', 'completed']);
+
+export function buildAppointmentSlotStates(timeSlots = [], appointmentRows = [], selectedDate = '') {
+  const date = String(selectedDate || '').trim();
+
+  if (!date) {
+    return timeSlots.map((slot) => ({
+      value: slot,
+      label: slot,
+      available: true,
+      reason: '',
+    }));
+  }
+
+  const bookedByTime = new Map();
+  for (const appointment of appointmentRows) {
+    if (appointment?.preferredDate !== date) continue;
+    if (!BLOCKING_APPOINTMENT_STATUSES.has(appointment?.status)) continue;
+    if (!appointment?.preferredTime) continue;
+    bookedByTime.set(appointment.preferredTime, appointment.status);
+  }
+
+  return timeSlots.map((slot) => {
+    const reason = bookedByTime.get(slot) || '';
+    return {
+      value: slot,
+      label: slot,
+      available: !reason,
+      reason,
+    };
+  });
+}
