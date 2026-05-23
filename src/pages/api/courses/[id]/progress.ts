@@ -69,6 +69,10 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       return new Response(JSON.stringify({ error: 'Course ID and Lesson ID required' }), { status: 400 });
     }
 
+    if (watchedSeconds !== undefined && (typeof watchedSeconds !== 'number' || !Number.isInteger(watchedSeconds) || watchedSeconds < 0 || watchedSeconds > 86400)) {
+      return new Response(JSON.stringify({ error: 'watchedSeconds must be an integer between 0 and 86400' }), { status: 400 });
+    }
+
     const db = createDb((env as any).DATABASE_URL);
 
     // Verify enrollment

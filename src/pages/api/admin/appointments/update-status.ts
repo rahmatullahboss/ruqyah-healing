@@ -26,10 +26,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(JSON.stringify({ error: 'Invalid input data' }), { status: 400 });
     }
 
+    const canonicalStatus = status === 'সম্পন্ন' ? 'completed' : status;
     const db = createDb(env.DATABASE_URL);
 
     await db.update(appointments)
-      .set({ status })
+      .set({ status: canonicalStatus })
       .where(eq(appointments.id, apptId));
 
     await logAuditEvent(db, {
@@ -38,7 +39,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       action: 'status_change',
       entityType: 'appointment',
       entityId: apptId,
-      details: { newStatus: status },
+      details: { newStatus: canonicalStatus },
     });
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });

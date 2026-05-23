@@ -45,6 +45,26 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Insert questions if provided
     if (questions && Array.isArray(questions) && questions.length > 0) {
+      for (const q of questions) {
+        if (!q.questionText || typeof q.questionText !== 'string' || !q.questionText.trim()) {
+          return new Response(JSON.stringify({ error: 'Each question must have non-empty questionText' }), { status: 400 });
+        }
+        if (!Array.isArray(q.options) || q.options.length === 0) {
+          return new Response(JSON.stringify({ error: 'Each question must have a non-empty options array' }), { status: 400 });
+        }
+        for (const opt of q.options) {
+          if (!opt.text || typeof opt.text !== 'string') {
+            return new Response(JSON.stringify({ error: 'Each option must have a text field' }), { status: 400 });
+          }
+          if (typeof opt.isCorrect !== 'boolean') {
+            return new Response(JSON.stringify({ error: 'Each option must have an isCorrect boolean' }), { status: 400 });
+          }
+        }
+        if (!q.options.some((o: any) => o.isCorrect)) {
+          return new Response(JSON.stringify({ error: 'Each question must have at least one correct option' }), { status: 400 });
+        }
+      }
+
       const questionValues = questions.map((q: any, index: number) => ({
         id: crypto.randomUUID(),
         quizId,

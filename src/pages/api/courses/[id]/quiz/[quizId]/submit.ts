@@ -62,8 +62,8 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       if (!question) return { ...a, isCorrect: false };
 
       const options = typeof question.options === 'string' ? JSON.parse(question.options) : question.options;
-      const correctOption = options.find((o: any) => o.isCorrect);
-      const isCorrect = correctOption && options[a.selectedOption] === correctOption;
+      const correctIndex = options.findIndex((o: any) => o.isCorrect);
+      const isCorrect = correctIndex >= 0 && a.selectedOption === correctIndex;
 
       if (isCorrect) correctCount++;
       return { ...a, isCorrect };

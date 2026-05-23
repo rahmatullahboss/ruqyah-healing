@@ -38,9 +38,9 @@ export const POST: APIRoute = async ({ request, url }) => {
       return new Response(JSON.stringify({ success: true, message: 'If an account with that email exists, we sent a password reset link.' }), { status: 200 });
     }
 
-    // Google-only user cannot reset password
+    // Google-only user — don't leak provider info, return same generic response
     if (user.authProvider === 'google' && !user.passwordHash) {
-      return new Response(JSON.stringify({ error: 'This account uses Google Login. Please sign in with Google.' }), { status: 400 });
+      return new Response(JSON.stringify({ success: true, message: 'If an account with that email exists, we sent a password reset link.' }), { status: 200 });
     }
 
     // Generate token
@@ -60,8 +60,10 @@ export const POST: APIRoute = async ({ request, url }) => {
     
     const resetUrl = new URL(`/reset-password?token=${token}`, url.origin).toString();
 
+    const fromAddress = env.RESEND_FROM_EMAIL || 'Acme <onboarding@resend.dev>';
+
     await resend.emails.send({
-      from: 'Acme <onboarding@resend.dev>', // Development onboarding email
+      from: fromAddress,
       to: user.email,
       subject: 'Password Reset Request',
       html: `
