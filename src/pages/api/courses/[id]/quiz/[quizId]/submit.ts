@@ -53,11 +53,12 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     const questions = await db.select().from(courseQuizQuestions)
       .where(eq(courseQuizQuestions.quizId, quizId));
 
-    // Grade the quiz
+    // Grade the quiz — deduplicate by questionId (last answer wins)
     const questionMap = new Map(questions.map(q => [q.id, q]));
+    const dedupedAnswers = [...new Map(answers.map((a: any) => [a.questionId, a])).values()];
     let correctCount = 0;
 
-    const gradedAnswers = answers.map((a: any) => {
+    const gradedAnswers = dedupedAnswers.map((a: any) => {
       const question = questionMap.get(a.questionId);
       if (!question) return { ...a, isCorrect: false };
 
