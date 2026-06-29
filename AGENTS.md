@@ -1,58 +1,114 @@
-# ruqyah-healing — Project Memory
+# ruqyah-healing
 
-> Auto-synced | 215 observations
+Astro 6 SSR site for a Bengali-language Ruqyah healing center. Deployed to Cloudflare Pages with Neon Postgres.
 
-**Stack:** JavaScript/Python/TypeScript · Express + React · DB: SQLite
+## Commands
 
-## 🏛️ CORE ARCHITECTURE
+| Command | What it does |
+|---|---|
+| `npm install` | Install deps (requires Node >=22.12.0) |
+| `npm run dev` | Astro dev server — **does NOT serve Cloudflare Functions** |
+| `npm run pages:dev` | Build + Wrangler Pages dev — **use this to test API endpoints locally** |
+| `npm run build` | Production build |
+| `npm run deploy` | Build + `wrangler deploy` |
+| `npm test` | Run all tests (`node --test tests/*.test.mjs`) |
+| `npm run test:production` | Smoke test against live URL (set `TEST_URL` env) |
+| `npm run db:generate` | Generate Drizzle migration from schema changes |
+| `npm run db:push` | Push schema directly to Neon (needs `DATABASE_URL`) |
+| `npm run db:seed-posts` | Seed blog posts from `scripts/migrate-posts.mjs` |
 
-> **CRITICAL:** The following rules represent strict architectural boundaries defined by the user. NEVER violate them in your generated code or explanations.
+**No linter, formatter, typecheck, or CI is configured.** After edits, verify with `npm run build` and `npm test`.
 
-# Intellectual Property & Architecture Rules
-Write your strict architectural boundaries here. 
-BrainSync will automatically enforce these rules across all agents (Cursor, Windsurf, Cline) 
-and inject them into the memory context.
+## Architecture
 
-Example:
-- NEVER use TailwindCSS. Only use vanilla CSS.
-- NEVER write class components. Only use functional React components.
+- **Runtime**: Cloudflare Workers (adapter: `@astrojs/cloudflare`)
+- **Database**: Neon Postgres via Drizzle ORM (`src/db/client.js`, `src/db/schema.js`)
+- **Auth**: JWT via `jose`, PBKDF2 password hashing — all in `src/lib/auth.js`
+- **Validation**: Zod schemas in lib files (e.g. `src/lib/appointments.js`)
+- **Styling**: Vanilla CSS only — `src/styles/global.css`. No Tailwind, no CSS modules.
+- **UI**: `.astro` components. React only where interactivity is needed.
+- **Content**: Blog posts are stored in the DB, not Astro content collections (`src/content.config.ts` is a stub).
+- **Static data**: `src/data/` contains conditions, glossary, audiences, locations (used in sitemap generation).
 
-## 🛡️ GLOBAL SAFETY RULES
+### API routes — two locations
 
-- **NEVER** run `git clean -fd` or `git reset --hard` without checking `git log` and verifying commits exist.
-- **NEVER** delete untracked files or folders blindly. Always backup or stash before bulk edits.
+1. **`src/pages/api/`** — Astro API routes (main). Export named functions: `GET`, `POST`, `OPTIONS`, etc. Set `export const prerender = false` on each.
+2. **`functions/api/`** — Cloudflare Functions (legacy). Only `appointments.ts` lives here. Export `onRequestPost`, `onRequestOptions`.
 
-## 🧭 ACTIVE CONTEXT
+Both patterns import from `src/db/client.js` and `src/lib/`.
 
-> Always read `.cursor/active-context.md` for exact instructions on the specific file you are currently editing. It updates dynamically.
+### Middleware chain (`src/middleware.js`)
 
-## 🔴 STOP — READ THESE FIRST
+Rate limit → Auth (JWT decode + user load) → Route guard (profile/admin protection).
 
-- **Use async error handler middleware — don't let errors crash server** — Use async error handler middleware — don't let errors crash server
-- **Clean up effects — return cleanup function from useEffect** — Clean up effects — return cleanup function from useEffect
-- **Don't create components inside other components — causes remount on every render** — Don't create components inside other components — causes remount on every render
-- **Always use key prop when rendering lists — use unique ID, not array index** — Always use key prop when rendering lists — use unique ID, not array index
-- **Don't call setState directly inside render or useEffect without deps array** — Don't call setState directly inside render or useEffect without deps array
+Access Cloudflare env via `import { env } from 'cloudflare:workers'`. Fallback to `process.env` for Node test compatibility.
 
-## 📐 Conventions
+## Environment variables
 
-- Rate limit API endpoints to prevent abuse
-- Validate request body with a schema validator (Joi, Zod)
-- Use helmet for security headers
-- Use Suspense and Error Boundaries for async operations
-- Don't prop-drill more than 2 levels — use Context or state management
-- Use useMemo for expensive computations, useCallback for stable references
-- Follow PEP 8 style guide
-- Use pathlib for file paths, not os.path string manipulation
+Local: copy `.dev.vars.example` to `.dev.vars`. Production: `wrangler secret put <NAME>`.
 
-## ⚡ Available Tools (ON-DEMAND only)
-- `save(title, content, category)` — Save a note + auto-detect conflicts
-- `batch_save(items[])` — Save multiple notes in 1 call
-- `query(text)` — Search memory for architecture, past fixes, decisions
-- `search(text)` — Full-text search for details
-- `check_errors()` — Check compiler errors after edits
+| Variable | Required | Purpose |
+|---|---|---|
+| `DATABASE_URL` | Yes | Neon Postgres connection string |
+| `JWT_SECRET` | Yes | Min 16 chars — used by `jose` for auth tokens |
+| `ADMIN_EMAILS` | Yes (prod) | Comma-separated admin emails |
+| `GOOGLE_CLIENT_ID` | No | Google OAuth sign-in |
+| `GA_API_SECRET` | No | GA4 Measurement Protocol |
+| `META_ACCESS_TOKEN` | No | Meta Conversions API |
 
-> ℹ️ DO NOT call get_context() or get_gotchas() at startup — context above IS your context.
+## Database workflow
 
----
-*Auto-synced | 2026-03-30*
+1. Edit `src/db/schema.js` (uses `drizzle-orm/pg-core`)
+2. `npm run db:generate` — creates SQL in `drizzle/`
+3. `npm run db:push` — applies to Neon
+4. Schema uses `text` IDs (not auto-increment), `timestamp with timezone`, and `jsonb` for flexible fields
+
+## Key gotchas
+
+- `npm run dev` only runs Astro — API endpoints under `/api/*` require `npm run pages:dev` to function
+- Middleware accesses env via `cloudflare:workers` import with `process.env` fallback — don't break either path
+- The `functions/api/appointments.ts` is a **separate** Cloudflare Functions handler, not an Astro route. It has its own CORS and response helpers.
+- Content collections are empty — blog data comes from the `posts` DB table via `src/lib/posts.js`
+- Site is Bengali-first — UI strings, error messages, and labels are in Bengali (বাংলা)
+- `worker-configuration.d.ts` is auto-generated by `wrangler types` — don't edit manually
+- `src/data/*.js` files are imported at build time by `astro.config.mjs` for sitemap generation — changes require restart
+
+## File conventions
+
+- Mixed JS/TS — no strict enforcement. Schema and most lib files are `.js`, some API routes are `.ts`
+- API responses: `{ ok: true, ... }` for success, `{ error: string, message: string }` for errors
+- IDs are `text` type (UUIDs generated in application code)
+- All timestamps use `withTimezone: true`
+
+## 🚦 Mandatory Superpowers Skills
+
+Use the `Skill` tool to invoke these skills at the right moment. Skipping them is a protocol violation.
+
+- **`superpowers:using-superpowers`** — invoke FIRST, before responding to any user message. Establishes how to find and use skills.
+- **`superpowers:brainstorming`** — invoke BEFORE any planning, design, or non-trivial implementation. Brainstorm first, plan second, code third.
+- **`superpowers:writing-plans`** — invoke when a plan is needed before implementation. Plans contain approach and steps only — NO code blocks in plans.
+- **`superpowers:execute-plan`** — invoke when actually executing a written plan.
+- **`superpowers:test-driven-development`** — invoke when adding tests or test-driven features.
+- **`superpowers:systematic-debugging`** — invoke BEFORE attempting any bug fix. Always debug first, patch second.
+- **`superpowers:verification-before-completion`** — invoke before claiming a task is done. Verify, then state completion.
+- **`superpowers:requesting-code-review`** — invoke at major milestones or before merging significant work.
+- **`superpowers:receiving-code-review`** — invoke when receiving review feedback; do not silently ignore review input.
+
+> 1% rule: even a small chance a skill applies means invoke it. Skills override default behavior but user instructions are highest priority.
+
+## 🔄 Session Memory Files (Maintain Every Turn)
+
+These MD files are the project's persistent memory across ChatGPT sessions via CodexPro. Update them at the appropriate moment — do not let them go stale.
+
+| File | When to update |
+|---|---|
+| `active-context.md` (project root) | **Every turn** while work is in progress: current task, branch, files touched this session, pending decisions, blockers, next concrete step |
+| `.ai-bridge/current-plan.md` | **Before any non-trivial work.** Approach and steps only — never code blocks |
+| `.ai-bridge/project-map.md` | **Whenever you explore or map the codebase.** Persistent codebase map the next session reads to skip rediscovery |
+| `.ai-bridge/codex-status.md` | After each meaningful change: files touched, tests run, results, blockers, next GPT review focus |
+| `.ai-bridge/decisions.md` | When an architectural decision is made and should remain stable |
+| `.ai-bridge/open-questions.md` | When something is unresolved and the next session needs to pick it up |
+
+The four files — `active-context.md`, `.ai-bridge/current-plan.md`, `.ai-bridge/project-map.md`, and this `AGENTS.md` — are the session memory. They must always reflect reality.
+
+> Don't ask the user to confirm every read/edit/bash in this project. Use the safety rules above to decide. Read first, edit second, commit third, deploy only with explicit "deploy" instruction.
