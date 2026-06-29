@@ -84,12 +84,15 @@ const DEFAULT_NEURON_RATES = {
   inputPerMillion: 50_000,
   outputPerMillion: 100_000,
 };
+const GEMMA_MODEL = '@cf/google/gemma-3-12b-it';
+const EFFICIENT_MODEL_NEURON_RATES = {
+  inputPerMillion: 31_371,
+  outputPerMillion: 50_560,
+};
 const MODEL_NEURON_RATES = {
   [DEFAULT_MODEL]: DEFAULT_NEURON_RATES,
-  [SECONDARY_MODEL]: {
-    inputPerMillion: 31_371,
-    outputPerMillion: 50_560,
-  },
+  [SECONDARY_MODEL]: EFFICIENT_MODEL_NEURON_RATES,
+  [GEMMA_MODEL]: EFFICIENT_MODEL_NEURON_RATES,
 };
 const FREE_LIMIT_MESSAGE = 'আজকের AI ফ্রি লিমিট শেষ হয়েছে। আগামীকাল আবার চেষ্টা করুন, অথবা আপাতত [সিমটম ডায়াগনোসিস](/symptom-diagnosis) / [রুকইয়াহ ডায়াগনোসিস](/ruqyah-diagnosis) ব্যবহার করুন।';
 
