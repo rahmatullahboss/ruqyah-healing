@@ -4,6 +4,8 @@ import {
   courseEnrollments,
   courseLessons,
   courseModules,
+  courseProgress,
+  courseQuizzes,
 } from '../db/schema.js';
 
 export const COURSE_STATUS = {
@@ -171,6 +173,56 @@ export function buildLessonLockState({
   return { locked: false, reason: 'enrolled' };
 }
 
+export function getRequiredLessonsBeforeQuiz(quiz, modules = [], lessons = []) {
+  if (!quiz) return [];
+  const orderedLessons = getOrderedLessons(modules, lessons);
+  if (!quiz.moduleId) return orderedLessons;
+
+  const sortedModules = [...modules].sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
+  const moduleOrder = new Map(sortedModules.map((mod, index) => [mod.id, index]));
+  const quizModuleIndex = moduleOrder.get(quiz.moduleId);
+
+  if (quizModuleIndex === undefined) return orderedLessons;
+
+  return orderedLessons.filter((lesson) => {
+    const lessonModuleIndex = moduleOrder.get(lesson.moduleId);
+    if (lessonModuleIndex === undefined) return false;
+    if (lessonModuleIndex < quizModuleIndex) return true;
+    if (lessonModuleIndex > quizModuleIndex) return false;
+    return Number(lesson.sortOrder || 0) < Number(quiz.sortOrder || 0);
+  });
+}
+
+export function buildQuizLockState({
+  quiz,
+  modules = [],
+  lessons = [],
+  completedLessonIds = new Set(),
+  course,
+  enrollment,
+  user,
+}) {
+  const isAdmin = isAdminUser(user);
+  const isPublished = isCoursePubliclyVisible(course);
+  const isEnrolled = isEnrollmentActive(enrollment);
+
+  if (isAdmin) return { locked: false, reason: 'admin', requiredLessonIds: [] };
+  if (!quiz) return { locked: true, reason: 'quiz_not_found', requiredLessonIds: [] };
+  if (!isPublished) return { locked: true, reason: 'course_unpublished', requiredLessonIds: [] };
+  if (!isEnrolled) return { locked: true, reason: 'not_enrolled', requiredLessonIds: [] };
+
+  if (course?.accessMode === ACCESS_MODE.SEQUENTIAL) {
+    const requiredLessons = getRequiredLessonsBeforeQuiz(quiz, modules, lessons);
+    const requiredLessonIds = requiredLessons.map((lesson) => lesson.id);
+    const missingLessonIds = requiredLessonIds.filter((lessonId) => !completedLessonIds.has(lessonId));
+    if (missingLessonIds.length > 0) {
+      return { locked: true, reason: 'quiz_sequence_locked', requiredLessonIds, missingLessonIds };
+    }
+  }
+
+  return { locked: false, reason: 'enrolled', requiredLessonIds: [] };
+}
+
 export function normalizeVideoEmbedUrl(url, provider) {
   if (!url || provider === VIDEO_PROVIDER.R2) return '';
 
@@ -286,6 +338,51 @@ export async function getLessonAccess(db, { user, courseId, lessonId, completedL
     ...courseAccess,
     lesson,
     orderedLessons,
+    lockState,
+    allowed: !lockState.locked,
+    status: lockState.locked ? 403 : 200,
+    reason: lockState.reason,
+  };
+}
+
+export async function getQuizAccess(db, { user, courseId, quizId }) {
+  const courseAccess = await getCourseAccess(db, { user, courseId });
+  if (!courseAccess.course) {
+    return { ...courseAccess, quiz: null, allowed: false, status: 404, reason: 'course_not_found' };
+  }
+
+  const [quiz] = await db
+    .select()
+    .from(courseQuizzes)
+    .where(and(eq(courseQuizzes.id, quizId), eq(courseQuizzes.courseId, courseId)))
+    .limit(1);
+
+  if (!quiz) {
+    return { ...courseAccess, quiz: null, allowed: false, status: 404, reason: 'quiz_not_found' };
+  }
+
+  const [modules, lessons, progressRows] = await Promise.all([
+    db.select().from(courseModules).where(eq(courseModules.courseId, courseId)).orderBy(asc(courseModules.sortOrder)),
+    db.select().from(courseLessons).where(eq(courseLessons.courseId, courseId)).orderBy(asc(courseLessons.sortOrder)),
+    user ? db.select().from(courseProgress).where(and(eq(courseProgress.userId, user.id), eq(courseProgress.courseId, courseId))) : [],
+  ]);
+  const completedLessonIds = new Set(progressRows.filter((row) => row.completed).map((row) => row.lessonId));
+  const lockState = buildQuizLockState({
+    quiz,
+    modules,
+    lessons,
+    completedLessonIds,
+    course: courseAccess.course,
+    enrollment: courseAccess.enrollment,
+    user,
+  });
+
+  return {
+    ...courseAccess,
+    quiz,
+    modules,
+    lessons,
+    completedLessonIds,
     lockState,
     allowed: !lockState.locked,
     status: lockState.locked ? 403 : 200,

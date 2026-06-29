@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
 import { env as workerEnv } from 'cloudflare:workers';
 import { createDb } from '../../../../../../db/client.js';
-import { courseQuizzes, courseQuizQuestions, courseQuizAttempts, courseEnrollments } from '../../../../../../db/schema.js';
-import { eq, and, desc } from 'drizzle-orm';
+import { courseQuizQuestions, courseQuizAttempts } from '../../../../../../db/schema.js';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import crypto from 'node:crypto';
+import { getQuizAccess } from '../../../../../../lib/lms-access.js';
 
 export const prerender = false;
 
@@ -18,7 +19,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
   try {
     const { id: courseId, quizId } = params;
     const body = await request.json() as Record<string, any>;
-    const { answers } = body; // [{questionId, selectedOption}]
+    const { answers, startedAt } = body; // [{questionId, selectedOption}]
 
     if (!courseId || !quizId || !answers || !Array.isArray(answers)) {
       return new Response(JSON.stringify({ error: 'Course ID, Quiz ID and answers required' }), { status: 400 });
@@ -26,28 +27,33 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 
     const db = createDb((env as any).DATABASE_URL);
 
-    // Verify enrollment
-    const enrollment = await db.select().from(courseEnrollments)
-      .where(and(eq(courseEnrollments.userId, user.id), eq(courseEnrollments.courseId, courseId)));
-    if (enrollment.length === 0 || enrollment[0].status !== 'approved') {
-      return new Response(JSON.stringify({ error: 'Not enrolled' }), { status: 403 });
+    const quizAccess = await getQuizAccess(db, { user, courseId, quizId });
+    if (!quizAccess.allowed) {
+      const status = quizAccess.status === 404 ? 404 : 403;
+      const error = quizAccess.reason === 'quiz_not_found'
+        ? 'Quiz not found'
+        : quizAccess.reason === 'course_not_found'
+          ? 'Course not found'
+          : quizAccess.reason === 'quiz_sequence_locked'
+            ? 'আগের লেসনগুলো সম্পন্ন করার পর কুইজ দিতে পারবেন।'
+            : 'Not enrolled';
+      return new Response(JSON.stringify({ error, reason: quizAccess.reason }), { status });
     }
 
-    // Get quiz
-    const quiz = await db.select().from(courseQuizzes)
-      .where(and(eq(courseQuizzes.id, quizId), eq(courseQuizzes.courseId, courseId)));
-    if (quiz.length === 0) {
-      return new Response(JSON.stringify({ error: 'Quiz not found' }), { status: 404 });
-    }
+    const quiz = quizAccess.quiz;
 
-    // Check max attempts
-    if (quiz[0].maxAttempts) {
-      const attempts = await db.select().from(courseQuizAttempts)
-        .where(and(eq(courseQuizAttempts.userId, user.id), eq(courseQuizAttempts.quizId, quizId)));
-      if (attempts.length >= quiz[0].maxAttempts) {
-        return new Response(JSON.stringify({ error: 'Max attempts reached' }), { status: 400 });
+    if (quiz.timeLimit && startedAt) {
+      const startedMs = new Date(startedAt).getTime();
+      const nowMs = Date.now();
+      const allowedMs = Number(quiz.timeLimit) * 60 * 1000;
+      const graceMs = 30 * 1000;
+      if (!Number.isFinite(startedMs) || startedMs > nowMs + graceMs || nowMs - startedMs > allowedMs + graceMs) {
+        return new Response(JSON.stringify({ error: 'কুইজের সময়সীমা শেষ হয়েছে।', reason: 'time_limit_exceeded' }), { status: 400 });
       }
     }
+
+    // Max attempts are checked again inside the save transaction with an advisory lock.
+    // That prevents rapid concurrent submits from bypassing the limit.
 
     // Get questions
     const questions = await db.select().from(courseQuizQuestions)
@@ -72,23 +78,44 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 
     const totalQuestions = questions.length;
     const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
-    const passed = score >= quiz[0].passingScore;
+    const passed = score >= quiz.passingScore;
 
-    // Save attempt
+    // Save attempt atomically. The transaction-scoped advisory lock serializes attempts
+    // for the same user+quiz so maxAttempts cannot be bypassed by concurrent submits.
     const attemptId = crypto.randomUUID();
-    await db.insert(courseQuizAttempts).values({
-      id: attemptId,
-      userId: user.id,
-      quizId,
-      courseId,
-      score,
-      totalQuestions,
-      correctAnswers: correctCount,
-      answers: gradedAnswers,
-      passed,
-      startedAt: new Date(),
-      completedAt: new Date(),
-    });
+    const completedAt = new Date();
+    try {
+      await db.transaction(async (tx: any) => {
+        await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${user.id}), hashtext(${quizId}))`);
+
+        if (quiz.maxAttempts) {
+          const attempts = await tx.select({ id: courseQuizAttempts.id }).from(courseQuizAttempts)
+            .where(and(eq(courseQuizAttempts.userId, user.id), eq(courseQuizAttempts.quizId, quizId)));
+          if (attempts.length >= quiz.maxAttempts) {
+            throw new Error('MAX_ATTEMPTS_REACHED');
+          }
+        }
+
+        await tx.insert(courseQuizAttempts).values({
+          id: attemptId,
+          userId: user.id,
+          quizId,
+          courseId,
+          score,
+          totalQuestions,
+          correctAnswers: correctCount,
+          answers: gradedAnswers,
+          passed,
+          startedAt: startedAt ? new Date(startedAt) : completedAt,
+          completedAt,
+        });
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message === 'MAX_ATTEMPTS_REACHED') {
+        return new Response(JSON.stringify({ error: 'Max attempts reached' }), { status: 400 });
+      }
+      throw error;
+    }
 
     return new Response(JSON.stringify({
       success: true,
@@ -97,7 +124,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       totalQuestions,
       correctAnswers: correctCount,
       passed,
-      passingScore: quiz[0].passingScore,
+      passingScore: quiz.passingScore,
       answers: gradedAnswers,
     }), { status: 200 });
   } catch (error) {
@@ -119,17 +146,19 @@ export const GET: APIRoute = async ({ params, locals }) => {
     const { id: courseId, quizId } = params;
     const db = createDb((env as any).DATABASE_URL);
 
-    const enrollment = await db.select().from(courseEnrollments)
-      .where(and(eq(courseEnrollments.userId, user.id), eq(courseEnrollments.courseId, courseId)));
-    if (enrollment.length === 0 || enrollment[0].status !== 'approved') {
-      return new Response(JSON.stringify({ error: 'Not enrolled' }), { status: 403 });
+    const quizAccess = await getQuizAccess(db, { user, courseId, quizId });
+    if (!quizAccess.allowed) {
+      const status = quizAccess.status === 404 ? 404 : 403;
+      const error = quizAccess.reason === 'quiz_not_found'
+        ? 'Quiz not found'
+        : quizAccess.reason === 'course_not_found'
+          ? 'Course not found'
+          : quizAccess.reason === 'quiz_sequence_locked'
+            ? 'আগের লেসনগুলো সম্পন্ন করার পর কুইজ দেখতে পারবেন।'
+            : 'Not enrolled';
+      return new Response(JSON.stringify({ error, reason: quizAccess.reason }), { status });
     }
-
-    const quiz = await db.select().from(courseQuizzes)
-      .where(and(eq(courseQuizzes.id, quizId), eq(courseQuizzes.courseId, courseId)));
-    if (quiz.length === 0) {
-      return new Response(JSON.stringify({ error: 'Quiz not found' }), { status: 404 });
-    }
+    const quiz = quizAccess.quiz;
 
     const attempts = await db.select()
       .from(courseQuizAttempts)
@@ -142,8 +171,8 @@ export const GET: APIRoute = async ({ params, locals }) => {
     return new Response(JSON.stringify({
       success: true,
       attempts,
-      maxAttempts: quiz[0]?.maxAttempts,
-      passingScore: quiz[0]?.passingScore,
+      maxAttempts: quiz?.maxAttempts,
+      passingScore: quiz?.passingScore,
     }), { status: 200 });
   } catch (error) {
     console.error('Quiz attempts error:', error);

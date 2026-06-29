@@ -2,10 +2,11 @@
 import BaseLayout from '../../../../layouts/BaseLayout.astro';
 import Header from '../../../../components/Header.astro';
 import { createDb } from '../../../../db/client.js';
-import { courseQuizzes, courseQuizQuestions, courseEnrollments, courseQuizAttempts } from '../../../../db/schema.js';
+import { courseQuizQuestions, courseQuizAttempts } from '../../../../db/schema.js';
 import { eq, and, desc } from 'drizzle-orm';
 import { env as workerEnv } from 'cloudflare:workers';
 import { ArrowLeft, Clock, Trophy, AlertCircle } from '@lucide/astro';
+import { getQuizAccess } from '../../../../lib/lms-access.js';
 
 export const prerender = false;
 
@@ -16,17 +17,9 @@ const user = (Astro.locals as any).user;
 
 if (!user) return Astro.redirect('/login');
 
-// Get quiz
-const quiz = await db.select().from(courseQuizzes)
-  .where(and(eq(courseQuizzes.id, quizId), eq(courseQuizzes.courseId, courseId)));
-if (quiz.length === 0) return Astro.redirect(`/courses/${courseId}`);
-
-// Verify enrollment
-const enrollment = await db.select().from(courseEnrollments)
-  .where(and(eq(courseEnrollments.userId, user.id), eq(courseEnrollments.courseId, courseId)));
-if (enrollment.length === 0 || enrollment[0].status !== 'approved') {
-  return Astro.redirect(`/courses/${courseId}`);
-}
+const quizAccess = await getQuizAccess(db, { user, courseId, quizId });
+if (!quizAccess.allowed) return Astro.redirect(`/courses/${courseId}/learn`);
+const quiz = [quizAccess.quiz];
 
 // Get questions
 const questions = await db.select().from(courseQuizQuestions)
@@ -173,6 +166,7 @@ const hasPassed = attempts.some(a => a.passed);
   const timerText = document.getElementById('timerText');
 
   let timerInterval;
+  const quizStartedAt = new Date().toISOString();
 
   // Start timer if time limit exists
   if (timeLimit) {
@@ -222,7 +216,7 @@ const hasPassed = attempts.some(a => a.passed);
       const res = await fetch(`/api/courses/${courseId}/quiz/${quizId}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers })
+        body: JSON.stringify({ answers, startedAt: quizStartedAt })
       });
       const data = await res.json();
 
