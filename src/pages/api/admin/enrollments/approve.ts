@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { ENROLLMENT_STATUS } from '../../../../lib/lms-access.js';
 import { json } from '../../../../lib/api-helpers.js';
+import { logAuditEvent } from '../../../../lib/audit.js';
 
 export const prerender = false;
 
@@ -57,6 +58,18 @@ export const POST: APIRoute = async ({ request, locals }) => {
       await tx.update(coursePayments)
         .set({ status: 'verified', verifiedAt: approvedAt })
         .where(eq(coursePayments.enrollmentId, id));
+    });
+
+    await logAuditEvent(db, {
+      adminId: user.id,
+      adminName: user.fullName,
+      action: 'approve',
+      entityType: 'course_enrollment',
+      entityId: id,
+      details: {
+        courseId: record[0].courseId,
+        previousStatus: record[0].status,
+      },
     });
 
     return json({ success: true, status: ENROLLMENT_STATUS.APPROVED, message: 'Approved successfully' });

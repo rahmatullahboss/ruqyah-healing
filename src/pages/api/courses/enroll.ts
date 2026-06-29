@@ -1,12 +1,13 @@
 import { createDb } from '../../../db/client.js';
-import { courses, courseEnrollments, courseOrders, coursePayments } from '../../../db/schema.js';
+import { courses, courseEnrollments, courseLessons, courseModules, courseOrders, coursePayments } from '../../../db/schema.js';
 import type { APIRoute } from 'astro';
 import { env as workerEnv } from 'cloudflare:workers';
 import crypto from 'node:crypto';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { getEffectiveCoursePrice, ENROLLMENT_STATUS } from '../../../lib/lms-access.js';
+import { getEffectiveCoursePrice, ENROLLMENT_STATUS, isCoursePubliclyVisible } from '../../../lib/lms-access.js';
 import { json } from '../../../lib/api-helpers.js';
+import { buildCourseReadiness } from '../../../lib/lms-admin.js';
 
 export const prerender = false;
 
@@ -64,6 +65,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
         enrollmentId: existingEnrollment[0].id,
         message: status === ENROLLMENT_STATUS.APPROVED ? 'Already enrolled' : 'Enrollment is pending review',
       });
+    }
+
+    if (!isCoursePubliclyVisible(courseDetails)) {
+      return json({ error: 'এই কোর্সে এখন এনরোল করা যাচ্ছে না।' }, 403);
+    }
+
+    const [courseModuleRows, courseLessonRows] = await Promise.all([
+      db.select().from(courseModules).where(eq(courseModules.courseId, courseId)),
+      db.select().from(courseLessons).where(eq(courseLessons.courseId, courseId)),
+    ]);
+    const readiness = buildCourseReadiness({ course: courseDetails, modules: courseModuleRows, lessons: courseLessonRows });
+    if (!readiness.publishable) {
+      return json({ error: 'এই কোর্সে এখন এনরোল করা যাচ্ছে না।', readiness }, 403);
     }
 
     if (isFree) {

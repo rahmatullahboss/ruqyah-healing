@@ -54,15 +54,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(JSON.stringify({ error: 'This course has enrollment/payment history. Unpublish it instead of deleting.' }), { status: 409 });
     }
 
-    // Fetch the course before deletion to get its image URL
+    // Fetch before deletion, but only remove the R2 object after DB deletion succeeds.
     const courseToDelete = await db.select().from(courses).where(eq(courses.id, id));
-    if (courseToDelete.length > 0) {
-      const courseImg = courseToDelete[0].image;
-      if (courseImg && courseImg.startsWith('/api/images/') && r2) {
-        const key = courseImg.replace('/api/images/', '');
-        await r2.delete(key).catch(console.error);
-      }
-    }
+    const courseImg = courseToDelete[0]?.image;
 
     await db.transaction(async (tx: any) => {
       const quizzes = await tx.select({ id: courseQuizzes.id })
@@ -88,6 +82,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       await tx.delete(courseReviews).where(eq(courseReviews.courseId, id));
       await tx.delete(courses).where(eq(courses.id, id));
     });
+
+    if (courseImg && courseImg.startsWith('/api/images/') && r2) {
+      const key = courseImg.replace('/api/images/', '');
+      await r2.delete(key).catch(console.error);
+    }
 
     await logAuditEvent(db, {
       adminId: adminUser.id,

@@ -6,6 +6,7 @@ import { createDb } from '../../../../db/client.js';
 import { courseEnrollments, courseOrders, coursePayments } from '../../../../db/schema.js';
 import { ENROLLMENT_STATUS } from '../../../../lib/lms-access.js';
 import { json } from '../../../../lib/api-helpers.js';
+import { logAuditEvent } from '../../../../lib/audit.js';
 
 export const prerender = false;
 
@@ -50,6 +51,18 @@ export const POST: APIRoute = async ({ request, locals }) => {
       await tx.update(coursePayments)
         .set({ status: 'revoked' })
         .where(eq(coursePayments.enrollmentId, parsed.data.id));
+    });
+
+    await logAuditEvent(db, {
+      adminId: adminUser.id,
+      adminName: adminUser.fullName,
+      action: 'revoke',
+      entityType: 'course_enrollment',
+      entityId: parsed.data.id,
+      details: {
+        courseId: record.courseId,
+        previousStatus: record.status,
+      },
     });
 
     return json({ success: true, status: ENROLLMENT_STATUS.REVOKED });

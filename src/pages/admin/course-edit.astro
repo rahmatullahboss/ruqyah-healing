@@ -21,12 +21,22 @@ let quizzes: any[] = [];
 let outcomesText = '';
 let requirementsText = '';
 let faqText = '';
-const courseMetaRows = await db.select({ category: courses.category, level: courses.level }).from(courses);
-const categorySuggestions = [...new Set(courseMetaRows.map((row) => row.category).filter(Boolean))];
-const levelSuggestions = [...new Set(courseMetaRows.map((row) => row.level).filter(Boolean))];
+let categorySuggestions: string[] = [];
+let levelSuggestions: string[] = [];
+const courseMetaRowsPromise = db.select({ category: courses.category, level: courses.level }).from(courses);
+const applyCourseSuggestions = (metaRows: any[]) => {
+  categorySuggestions = [...new Set(metaRows.map((row) => row.category).filter(Boolean))];
+  levelSuggestions = [...new Set(metaRows.map((row) => row.level).filter(Boolean))];
+};
 
 if (id && id !== 'new') {
-  const result = await db.select().from(courses).where(eq(courses.id, id));
+  const [result, metaRows] = await Promise.all([
+    db.select().from(courses).where(eq(courses.id, id)),
+    courseMetaRowsPromise,
+  ]);
+
+  applyCourseSuggestions(metaRows);
+
   if (result.length > 0) course = result[0];
 
   if (course) {
@@ -37,18 +47,14 @@ if (id && id !== 'new') {
       .filter(Boolean)
       .join('\n\n');
 
-    modules = await db.select().from(courseModules)
-      .where(eq(courseModules.courseId, course.id))
-      .orderBy(asc(courseModules.sortOrder));
-
-    lessons = await db.select().from(courseLessons)
-      .where(eq(courseLessons.courseId, course.id))
-      .orderBy(asc(courseLessons.sortOrder));
-
-    quizzes = await db.select().from(courseQuizzes)
-      .where(eq(courseQuizzes.courseId, course.id))
-      .orderBy(asc(courseQuizzes.sortOrder));
+    [modules, lessons, quizzes] = await Promise.all([
+      db.select().from(courseModules).where(eq(courseModules.courseId, course.id)).orderBy(asc(courseModules.sortOrder)),
+      db.select().from(courseLessons).where(eq(courseLessons.courseId, course.id)).orderBy(asc(courseLessons.sortOrder)),
+      db.select().from(courseQuizzes).where(eq(courseQuizzes.courseId, course.id)).orderBy(asc(courseQuizzes.sortOrder)),
+    ]);
   }
+} else {
+  applyCourseSuggestions(await courseMetaRowsPromise);
 }
 
 const readiness = course ? buildCourseReadiness({ course, modules, lessons }) : null;
