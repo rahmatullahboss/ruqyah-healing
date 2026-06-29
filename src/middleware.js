@@ -42,6 +42,9 @@ async function rateLimit(context, next) {
   } else if (path.startsWith('/api/admin/')) {
     config = RATE_LIMITS.admin;
     category = 'admin';
+  } else if (path === '/api/courses/enroll' || /^\/api\/courses\/[^/]+\/(progress|review|quiz\/[^/]+\/submit)$/.test(path)) {
+    config = RATE_LIMITS.lms;
+    category = 'lms';
   }
 
   if (config) {

@@ -66,4 +66,5 @@ export const RATE_LIMITS = {
   chat: { maxRequests: 20, windowMs: 60 * 1000 },          // 20 per min
   appointment: { maxRequests: 3, windowMs: 10 * 60 * 1000 }, // 3 per 10 min
   admin: { maxRequests: 30, windowMs: 60 * 1000 },          // 30 per min
+  lms: { maxRequests: 20, windowMs: 60 * 1000 },            // 20 LMS write actions per min
 };
