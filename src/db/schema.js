@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import { boolean, index, integer, jsonb, pgTable, real, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
@@ -274,7 +275,9 @@ export const coursePayments = pgTable('course_payments', {
   index('course_payments_order_idx').on(table.orderId),
   index('course_payments_user_idx').on(table.userId),
   index('course_payments_course_idx').on(table.courseId),
-  uniqueIndex('course_payments_method_transaction_unique').on(table.method, table.transactionId),
+  uniqueIndex('course_payments_method_transaction_unique')
+    .on(table.method, table.transactionId)
+    .where(sql`${table.transactionId} IS NOT NULL AND ${table.transactionId} <> ''`),
 ]);
 
 export const siteSettings = pgTable('site_settings', {
