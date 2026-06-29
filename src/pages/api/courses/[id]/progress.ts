@@ -114,14 +114,15 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
         await db.update(courseProgress).set(updates).where(eq(courseProgress.id, existing[0].id));
       }
     } else {
+      const shouldMarkCompleted = watchedSeconds === undefined || watchedSeconds > 0;
       await db.insert(courseProgress).values({
         id: crypto.randomUUID(),
         userId: user.id,
         courseId,
         lessonId,
-        completed: (watchedSeconds || 0) > 0,
+        completed: shouldMarkCompleted,
         watchedSeconds: watchedSeconds || 0,
-        completedAt: (watchedSeconds || 0) > 0 ? new Date() : null,
+        completedAt: shouldMarkCompleted ? new Date() : null,
       });
     }
 

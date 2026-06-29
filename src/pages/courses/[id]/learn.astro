@@ -7,6 +7,7 @@ import { eq, and, asc } from 'drizzle-orm';
 import { env as workerEnv } from 'cloudflare:workers';
 import { PlayCircle, FileText, ListChecks, CheckCircle, Lock, ChevronLeft, ChevronRight, Menu, X, Maximize2 } from '@lucide/astro';
 import { buildLessonLockState, getOrderedLessons, safeJsonArray } from '../../../lib/lms-access.js';
+import { sanitizeHtml } from '../../../lib/markdown.js';
 
 export const prerender = false;
 
@@ -85,6 +86,7 @@ const currentIndex = orderedLessons.findIndex(l => l.id === currentLesson?.id);
 const prevLesson = currentIndex > 0 ? orderedLessons[currentIndex - 1] : null;
 const nextLesson = currentIndex < orderedLessons.length - 1 ? orderedLessons[currentIndex + 1] : null;
 const currentResources = safeJsonArray(currentLesson?.resources);
+const sanitizedLessonHtml = currentLesson?.textContent ? sanitizeHtml(currentLesson.textContent) : '';
 
 // Build flat content list for sidebar (modules with their lessons and quizzes)
 const contentTree = modules.map(mod => ({
@@ -209,7 +211,7 @@ const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLes
 
           {/* Text Content */}
           {(currentLesson.contentType === 'text' || currentLesson.contentType === 'mixed') && currentLesson.textContent && (
-            <div class="text-content" set:html={currentLesson.textContent} />
+            <div class="text-content" set:html={sanitizedLessonHtml} />
           )}
 
           {currentResources.length > 0 && (
