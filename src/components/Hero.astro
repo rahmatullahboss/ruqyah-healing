@@ -1,208 +1,79 @@
 ---
+import { socialLinks } from '../data/clinic.js';
 ---
 <section class="hero">
-  <!-- Three.js WebGL Canvas — floating Islamic star particles -->
-  <canvas id="hero-canvas" aria-hidden="true"></canvas>
-
-  <!-- Floating orb decorations (CSS) -->
-  <div class="hero-orb hero-orb--1" aria-hidden="true"></div>
-  <div class="hero-orb hero-orb--2" aria-hidden="true"></div>
-
   <div class="container hero-content">
-    <div class="hero-badge">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-      </svg>
-      <span>আধ্যাত্মিক ও শারীরিক সমস্যার সমাধান</span>
+    <div class="hero-copy">
+      <div class="hero-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <span>আধ্যাত্মিক ও শারীরিক সমস্যার সমাধান</span>
+      </div>
+
+      <h1 class="hero-title">রুকইয়াহ হিলিং — ইসলামী রুকইয়াহ চিকিৎসা</h1>
+      <p class="hero-subtitle" data-typewriter='["পরিবারে অশান্তি বা কলহ?", "বিয়েতে বাধা বা সন্তান না হওয়া?", "ব্যবসায়ে মন্দা বা সৌভাগ্যে বাধা?", "অসহ্য শারীরিক যন্ত্রণা?"]'></p>
+      <p class="hero-desc">জিন, জাদু ও বদনজরের কারণে সৃষ্ট সমস্যার সমাধান — কুরআন ও সুন্নাহ ভিত্তিক ১০০% হালাল পদ্ধতে</p>
+
+      <div class="hero-actions">
+        <a href="/appointment" class="btn btn-hero-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          এখনই বুক করুন
+        </a>
+        <a href="https://wa.me/8801336202150?text=আসসালামু%20আলাইকুম,%20আমি%20রুকইয়াহ%20সেবা%20বুক%20করতে%20চাই।" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp-hero">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          WhatsApp করুন
+        </a>
+        <a href="tel:01992575874" class="btn btn-call-hero">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 15z"/>
+          </svg>
+          কল করুন
+        </a>
+        <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" class="btn btn-facebook-hero">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+          </svg>
+          Facebook
+        </a>
+        <a href={socialLinks.messenger} target="_blank" rel="noopener noreferrer" class="btn btn-messenger-hero">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2C6.477 2 2 6.145 2 11.26c0 2.915 1.454 5.514 3.727 7.212V22l3.405-1.87c.91.252 1.875.39 2.868.39 5.523 0 10-4.145 10-9.26S17.523 2 12 2Zm.994 12.47-2.547-2.72-4.97 2.72 5.46-5.8 2.61 2.72 4.907-2.72-5.46 5.8Z"/>
+          </svg>
+          Messenger
+        </a>
+      </div>
+
+      <!-- Trust strip -->
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-num" aria-label="হাজারো সুচিকিৎসিত রোগী">হাজারো</span>
+          <span class="hero-stat-label">সুচিকিৎসিত রোগীর আস্থা</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-num" aria-label="দীর্ঘ আট বছরের অভিজ্ঞতা">দীর্ঘ আট বছর</span>
+          <span class="hero-stat-label">অভিজ্ঞতার আলোকে সেবা</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-num" aria-label="সম্পূর্ণ হালাল পদ্ধতি">সম্পূর্ণ হালাল</span>
+          <span class="hero-stat-label">কুরআন-সুন্নাহভিত্তিক পদ্ধতি</span>
+        </div>
+      </div>
     </div>
 
-    <h1 class="hero-title">রুকইয়াহ হিলিং — ইসলামী রুকইয়াহ চিকিৎসা</h1>
-    <p class="hero-subtitle" data-typewriter='["পরিবারে অশান্তি বা কলহ?", "বিয়েতে বাধা বা সন্তান না হওয়া?", "ব্যবসায়ে মন্দা বা সৌভাগ্যে বাধা?", "অসহ্য শারীরিক যন্ত্রণা?"]'></p>
-    <p class="hero-desc">জিন, জাদু ও বদনজরের কারণে সৃষ্ট সমস্যার সমাধান — কুরআন ও সুন্নাহ ভিত্তিক ১০০% হালাল পদ্ধতে</p>
-
-    <div class="hero-actions">
-      <a href="/appointment" class="btn btn-hero-primary">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        </svg>
-        এখনই বুক করুন
-      </a>
-      <a href="https://wa.me/8801336202150?text=আসসালামু%20আলাইকুম,%20আমি%20রুকইয়াহ%20সেবা%20বুক%20করতে%20চাই।" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp-hero">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-        WhatsApp করুন
-      </a>
-      <a href="tel:01992575874" class="btn btn-call-hero">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 15z"/>
-        </svg>
-        কল করুন
-      </a>
-    </div>
-
-    <!-- Stats strip — data-count triggers counter animation -->
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <span
-          class="hero-stat-num"
-          data-count="1800"
-          data-suffix="+"
-          aria-label="১৮০০+ সুচিকিৎসিত রোগী"
-        >১৮০০+</span>
-        <span class="hero-stat-label">সুচিকিৎসিত রোগী</span>
-      </div>
-      <div class="hero-stat-divider"></div>
-      <div class="hero-stat">
-        <span
-          class="hero-stat-num"
-          data-count="8"
-          data-suffix="+"
-          aria-label="৮+ বছরের অভিজ্ঞতা"
-        >৮+</span>
-        <span class="hero-stat-label">বছরের অভিজ্ঞতা</span>
-      </div>
-      <div class="hero-stat-divider"></div>
-      <div class="hero-stat">
-        <span
-          class="hero-stat-num"
-          data-count="100"
-          data-suffix="%"
-          aria-label="১০০% হালাল পদ্ধতি"
-        >১০০%</span>
-        <span class="hero-stat-label">হালাল পদ্ধতি</span>
+    <div class="hero-photo-wrap" aria-hidden="true">
+      <div class="hero-photo-card">
+        <img src="/images/prayer-corner.webp" alt="" loading="eager" decoding="async" />
       </div>
     </div>
   </div>
 </section>
-
-<!-- Three.js CDN — is:inline so Astro doesn't bundle it -->
-<script is:inline>
-(function () {
-  'use strict';
-
-  // Cache Three.js module globally to avoid re-importing on each navigation
-  // window.__THREE__ is set after first successful import
-  function initThree(THREE) {
-    const canvas = document.getElementById('hero-canvas');
-    if (!canvas) return;
-
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
-
-    if (typeof window.__heroThreeCleanup === 'function') {
-      window.__heroThreeCleanup();
-    }
-
-    const { Scene, PerspectiveCamera, WebGLRenderer, BufferGeometry, BufferAttribute, PointsMaterial, Points, AdditiveBlending } = THREE;
-
-    const section = canvas.closest('.hero');
-    if (!section) return;
-    const W = section.offsetWidth;
-    const H = section.offsetHeight;
-    if (!W || !H) return;
-
-    const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.setSize(W, H);
-
-    const scene = new Scene();
-    const camera = new PerspectiveCamera(60, W / H, 0.1, 100);
-    camera.position.z = 30;
-
-    const COUNT = window.innerWidth < 768 ? 60 : 140;
-    const positions = new Float32Array(COUNT * 3);
-    const sizes = new Float32Array(COUNT);
-    for (let i = 0; i < COUNT; i++) {
-      positions[i * 3]     = (Math.random() - 0.5) * 60;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 35;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
-      sizes[i] = Math.random() * 2.5 + 0.8;
-    }
-
-    const geo = new BufferGeometry();
-    geo.setAttribute('position', new BufferAttribute(positions, 3));
-    geo.setAttribute('size', new BufferAttribute(sizes, 1));
-
-    const mat = new PointsMaterial({
-      color: 0x6ee7b7,
-      size: 0.35,
-      transparent: true,
-      opacity: 0.55,
-      blending: AdditiveBlending,
-      depthWrite: false,
-      sizeAttenuation: true,
-    });
-
-    const points = new Points(geo, mat);
-    scene.add(points);
-
-    let frame;
-    let disposed = false;
-    let elapsed = 0;
-    function animate() {
-      if (disposed) return;
-      frame = requestAnimationFrame(animate);
-      elapsed += 0.004;
-      points.rotation.y = elapsed * 0.15;
-      points.rotation.x = Math.sin(elapsed * 0.08) * 0.06;
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    const ro = new ResizeObserver(() => {
-      const nw = section.offsetWidth;
-      const nh = section.offsetHeight;
-      if (!nw || !nh || disposed) return;
-      camera.aspect = nw / nh;
-      camera.updateProjectionMatrix();
-      renderer.setSize(nw, nh);
-    });
-    ro.observe(section);
-
-    window.__heroThreeCleanup = function cleanupHeroThree() {
-      disposed = true;
-      cancelAnimationFrame(frame);
-      ro.disconnect();
-      geo.dispose();
-      mat.dispose();
-      renderer.dispose();
-      if (window.__heroThreeCleanup === cleanupHeroThree) {
-        window.__heroThreeCleanup = null;
-      }
-    };
-
-    // Cleanup before next page swap
-    document.addEventListener('astro:before-swap', () => {
-      if (typeof window.__heroThreeCleanup === 'function') {
-        window.__heroThreeCleanup();
-      }
-    }, { once: true });
-  }
-
-  function tryInit() {
-    if (window.__THREE__) {
-      // Module already loaded — just re-init
-      initThree(window.__THREE__);
-    } else {
-      import('https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.min.js')
-        .then((THREE) => {
-          window.__THREE__ = THREE; // Cache for future navigations
-          initThree(THREE);
-        })
-        .catch(() => {}); // Silent fail
-    }
-  }
-
-  // Run immediately on first load
-  tryInit();
-  // Re-run after every View Transition navigation to homepage
-  if (!window.__heroThreePageLoadBound) {
-    window.__heroThreePageLoadBound = true;
-    document.addEventListener('astro:page-load', tryInit);
-  }
-})();
-</script>
 
 <!-- Typewriter effect for hero subtitle -->
 <script>
@@ -271,112 +142,43 @@
 })();
 </script>
 
-<!-- Stats counter animation -->
-<script>
-function animateCounter(el, target, suffix, duration = 1400) {
-  const start = performance.now();
-  function step(now) {
-    const progress = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    el.textContent = Math.floor(eased * target) + suffix;
-    if (progress < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-function initCounters() {
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReduced) return;
-
-  const counters = document.querySelectorAll('[data-count]');
-  if (!counters.length) return;
-
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      const el = entry.target as HTMLElement;
-      const target = parseInt(el.dataset.count ?? '0', 10);
-      const suffix = el.dataset.suffix ?? '';
-      animateCounter(el, target, suffix);
-      obs.unobserve(el);
-    });
-  }, { threshold: 0.6 });
-
-  counters.forEach(el => obs.observe(el));
-}
-
-initCounters();
-document.addEventListener('astro:page-load', initCounters);
-</script>
-
 <style>
 .hero {
   position: relative;
   min-height: 560px;
   display: flex;
   align-items: center;
-  background:
-    linear-gradient(135deg, rgba(5,150,105,0.88) 0%, rgba(6,95,70,0.92) 50%, rgba(4,120,87,0.88) 100%),
-    url('/images/hero-bg.webp') center center / cover no-repeat;
+  background: linear-gradient(135deg, #047857 0%, #065f46 52%, #064e3b 100%);
   overflow: hidden;
-}
-
-#hero-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
 }
 
 .hero::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-image:
-    repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 48px),
-    repeating-linear-gradient(-45deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 48px);
+  background:
+    radial-gradient(circle at 18% 20%, rgba(255,255,255,0.12), transparent 28%),
+    radial-gradient(circle at 82% 15%, rgba(167,243,208,0.18), transparent 30%),
+    linear-gradient(135deg, rgba(255,255,255,0.06), transparent 42%);
   pointer-events: none;
   z-index: 1;
-}
-
-.hero-orb {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  animation: float 6s ease-in-out infinite;
-  z-index: 1;
-}
-.hero-orb--1 {
-  width: 380px;
-  height: 380px;
-  top: -120px;
-  right: -80px;
-  background: radial-gradient(circle, rgba(16,185,129,0.35) 0%, transparent 70%);
-  animation-delay: 0s;
-}
-.hero-orb--2 {
-  width: 260px;
-  height: 260px;
-  bottom: -80px;
-  left: 10%;
-  background: radial-gradient(circle, rgba(52,211,153,0.25) 0%, transparent 70%);
-  animation-delay: 3s;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
 }
 
 .hero-content {
   position: relative;
   z-index: 2;
-  text-align: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 64px);
+  text-align: left;
   padding-top: 80px;
   padding-bottom: 80px;
   color: #fff;
+}
+
+.hero-copy {
+  max-width: 680px;
 }
 
 .hero-badge {
@@ -397,7 +199,7 @@ document.addEventListener('astro:page-load', initCounters);
 
 .hero-title {
   font-family: 'Lora', 'Hind Siliguri', serif;
-  font-size: clamp(30px, 5.5vw, 52px);
+  font-size: clamp(26px, 4.2vw, 42px);
   font-weight: 700;
   margin-bottom: 14px;
   letter-spacing: -0.5px;
@@ -405,7 +207,7 @@ document.addEventListener('astro:page-load', initCounters);
 }
 
 .hero-subtitle {
-  font-size: clamp(20px, 4vw, 32px);
+  font-size: clamp(24px, 4.8vw, 38px);
   font-weight: 600;
   margin-bottom: 14px;
   color: rgba(255,255,255,0.92);
@@ -416,14 +218,14 @@ document.addEventListener('astro:page-load', initCounters);
   font-size: 16px;
   color: rgba(255,255,255,0.78);
   max-width: 580px;
-  margin: 0 auto 36px;
+  margin: 0 0 36px;
   line-height: 1.75;
 }
 
 .hero-actions {
   display: flex;
-  gap: 14px;
-  justify-content: center;
+  gap: 12px;
+  justify-content: flex-start;
   flex-wrap: wrap;
   margin-bottom: 48px;
 }
@@ -494,6 +296,63 @@ document.addEventListener('astro:page-load', initCounters);
   transform: translateY(-2px);
 }
 
+.btn-facebook-hero,
+.btn-messenger-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 20px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.5);
+  transition: all 0.2s ease;
+  font-family: inherit;
+  min-height: 44px;
+  text-decoration: none;
+}
+.btn-facebook-hero {
+  background: #1877F2;
+  border-color: #1877F2;
+}
+.btn-messenger-hero {
+  background: #0084FF;
+  border-color: #0084FF;
+}
+.btn-facebook-hero:hover,
+.btn-messenger-hero:hover {
+  transform: translateY(-2px);
+}
+
+.hero-photo-wrap {
+  position: relative;
+}
+.hero-photo-card {
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 32px;
+  padding: 12px;
+  background: rgba(255,255,255,0.12);
+  box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+  backdrop-filter: blur(10px);
+}
+.hero-photo-card::before {
+  content: '';
+  position: absolute;
+  inset: 26px -16px -16px 26px;
+  border-radius: 30px;
+  background: rgba(16,185,129,0.22);
+  z-index: -1;
+}
+.hero-photo-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 24px;
+}
+
 .hero-stats {
   display: inline-flex;
   align-items: center;
@@ -531,9 +390,26 @@ document.addEventListener('astro:page-load', initCounters);
 }
 
 @media (max-width: 768px) {
+  .hero-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+  .hero-copy,
+  .hero-desc {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-actions {
+    justify-content: center;
+  }
+  .hero-photo-wrap {
+    width: min(100%, 420px);
+    margin: 0 auto;
+  }
   .hero-stats { gap: 16px; padding: 12px 16px; }
   .hero-stat-num { font-size: 18px; }
-  .hero-content { padding-top: 56px; padding-bottom: 56px; }
 }
 
 @media (max-width: 480px) {

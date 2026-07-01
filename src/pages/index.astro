@@ -199,7 +199,7 @@ const faqSchema = buildFaqSchema(homepageFaq);
 >
   <Header />
 
-  <main>
+  <main class="home-page">
     <!-- ① Hero -->
     <Hero />
 
@@ -673,6 +673,45 @@ const faqSchema = buildFaqSchema(homepageFaq);
 </script>
 
 <style>
+/* ── Homepage center alignment overrides ── */
+:global(.home-page) {
+  text-align: center;
+}
+:global(.home-page :is(h1, h2, h3, h4, p, li, span, summary, a, button)) {
+  text-align: center;
+}
+:global(.home-page :is(.section-header, .section-header-row, .hero-content, .hero-copy, .info-text, .pkg-body, .course-body, .resource-card, .dark-card, .faq-answer, .definition-bn, .definition-en, .testimonial-card, .blog-card, .service-card)) {
+  text-align: center !important;
+}
+:global(.home-page :is(.hero-actions, .section-header-row, .info-bullets, .cta-row, .pkg-variants, .phone-actions, .contact-actions)) {
+  justify-content: center !important;
+}
+:global(.home-page :is(.hero-copy, .hero-desc, .section-header, .section-header-row, .info-text, .definition-text, .faq-answer)) {
+  margin-left: auto;
+  margin-right: auto;
+}
+:global(.home-page .section-header-row) {
+  flex-direction: column;
+  align-items: center !important;
+  gap: 16px;
+}
+:global(.home-page .info-bullets) {
+  align-items: center;
+  padding-left: 0;
+}
+:global(.home-page .info-bullets li) {
+  padding-left: 0;
+}
+:global(.home-page .info-bullets li::before) {
+  position: static;
+  margin-right: 6px;
+}
+:global(.home-page :is(.testimonial-header, .resource-card-icon)) {
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* ── Courses Preview Section ── */
 .courses-preview-section {
   padding: 64px 0;

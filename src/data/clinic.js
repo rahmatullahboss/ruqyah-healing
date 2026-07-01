@@ -12,6 +12,7 @@ export const primaryPhoneContact = getPrimaryCallContact(clinicNumbers);
 
 export const socialLinks = {
   facebook: 'https://www.facebook.com/Ruqyahhealingg',
+  messenger: 'https://m.me/Ruqyahhealingg',
 };
 
 export const clinicSchedule = {
