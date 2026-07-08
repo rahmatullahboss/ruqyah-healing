@@ -1,0 +1,40 @@
+<svg width="1200" height="780" viewBox="0 0 1200 780" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Ruqyah diagnosis process visual</title>
+  <defs>
+    <linearGradient id="bg" x1="76" y1="47" x2="1110" y2="744" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ECFEFF"/>
+      <stop offset="0.56" stop-color="#CFFAFE"/>
+      <stop offset="1" stop-color="#BAE6FD"/>
+    </linearGradient>
+    <filter id="shadow" x="190" y="88" width="826" height="626" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="34" stdDeviation="31" flood-color="#075985" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="780" rx="54" fill="url(#bg)"/>
+  <circle cx="1013" cy="144" r="203" fill="#FFFFFF" fill-opacity="0.42"/>
+  <circle cx="160" cy="620" r="222" fill="#0EA5E9" fill-opacity="0.14"/>
+  <g filter="url(#shadow)">
+    <rect x="306" y="142" width="588" height="500" rx="50" fill="#FFFFFF"/>
+    <rect x="376" y="205" width="448" height="88" rx="28" fill="#E0F7FA"/>
+    <rect x="376" y="346" width="448" height="88" rx="28" fill="#E0F2FE"/>
+    <rect x="376" y="487" width="448" height="88" rx="28" fill="#EEF2FF"/>
+    <g>
+      <circle cx="426" cy="249" r="30" fill="#0891B2"/>
+      <circle cx="426" cy="390" r="30" fill="#0284C7"/>
+      <circle cx="426" cy="531" r="30" fill="#4F46E5"/>
+      <path d="M426 279v81M426 420v81" stroke="#94A3B8" stroke-width="10" stroke-linecap="round" opacity="0.34"/>
+      <path d="M414 249l8 8 17-19M414 390l8 8 17-19M414 531l8 8 17-19" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g fill="#94A3B8" opacity="0.36">
+      <rect x="486" y="229" width="260" height="20" rx="10"/>
+      <rect x="486" y="264" width="194" height="16" rx="8"/>
+      <rect x="486" y="370" width="298" height="20" rx="10"/>
+      <rect x="486" y="405" width="216" height="16" rx="8"/>
+      <rect x="486" y="511" width="248" height="20" rx="10"/>
+      <rect x="486" y="546" width="272" height="16" rx="8"/>
+    </g>
+  </g>
+  <path d="M228 255c38-50 88-85 151-105M887 587c58-23 103-59 134-108" stroke="#0284C7" stroke-width="12" stroke-linecap="round" opacity="0.23"/>
+  <circle cx="949" cy="286" r="18" fill="#FFFFFF" opacity="0.92"/>
+  <circle cx="251" cy="542" r="20" fill="#22D3EE" opacity="0.85"/>
+</svg>

@@ -1,0 +1,77 @@
+<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Ruqyah healing hero visual</title>
+  <defs>
+    <linearGradient id="bg" x1="125" y1="82" x2="1460" y2="1112" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ECFDF5"/>
+      <stop offset="0.48" stop-color="#D1FAE5"/>
+      <stop offset="1" stop-color="#FEF3C7"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(865 470) rotate(91) scale(430 620)">
+      <stop stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#10B981" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="book" x1="480" y1="390" x2="1108" y2="790" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F8FFFC"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="575" y1="746" x2="1030" y2="1010" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#D97706"/>
+    </linearGradient>
+    <filter id="softShadow" x="230" y="155" width="1134" height="900" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="46" stdDeviation="42" flood-color="#064E3B" flood-opacity="0.20"/>
+    </filter>
+    <filter id="smallShadow" x="390" y="245" width="850" height="680" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="28" stdDeviation="24" flood-color="#047857" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="1200" rx="76" fill="url(#bg)"/>
+  <circle cx="1375" cy="155" r="310" fill="#FFFFFF" fill-opacity="0.44"/>
+  <circle cx="215" cy="982" r="330" fill="#10B981" fill-opacity="0.15"/>
+  <circle cx="193" cy="190" r="96" fill="#FBBF24" fill-opacity="0.20"/>
+  <rect x="168" y="150" width="1268" height="900" rx="68" fill="url(#glow)"/>
+
+  <g opacity="0.42" stroke="#059669" stroke-width="18" stroke-linecap="round">
+    <path d="M318 334c70-69 153-107 250-116"/>
+    <path d="M1268 388c-69-72-153-113-252-123"/>
+    <path d="M284 826c52 41 113 66 183 75"/>
+    <path d="M1174 928c78-24 143-66 194-126"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="338" y="245" width="932" height="702" rx="72" fill="#FFFFFF" fill-opacity="0.72"/>
+    <rect x="392" y="300" width="824" height="592" rx="58" fill="#F8FFFC" fill-opacity="0.92"/>
+  </g>
+
+  <g filter="url(#smallShadow)">
+    <path d="M490 458c0-58 47-105 105-105h230c68 0 127 46 143 112l23 96-22 250c-7 66-62 117-128 117H595c-58 0-105-47-105-105V458Z" fill="url(#book)"/>
+    <path d="M820 353h246c58 0 105 47 105 105v365c0 58-47 105-105 105H817c-61 0-113-45-122-105l-34-254 28-107c19-65 72-109 131-109Z" fill="#FFFFFF"/>
+    <path d="M802 382v515" stroke="#10B981" stroke-width="13" stroke-linecap="round"/>
+    <path d="M560 486h188M560 570h158M560 653h198M560 736h142" stroke="#94A3B8" stroke-width="26" stroke-linecap="round" opacity="0.34"/>
+    <path d="M890 486h188M890 570h158M890 653h198M890 736h142" stroke="#94A3B8" stroke-width="26" stroke-linecap="round" opacity="0.34"/>
+    <path d="M638 934h328l82 82H556l82-82Z" fill="url(#gold)"/>
+    <path d="M610 1016h466" stroke="#92400E" stroke-width="36" stroke-linecap="round" opacity="0.82"/>
+  </g>
+
+  <g>
+    <path d="M392 746c-37 32-53 85-37 134 11 33 39 59 71 71l126 45c25 9 52-10 52-36 0-16-10-30-25-36l-85-33 110 7c25 2 47-18 49-43 2-23-15-43-38-47l-103-17 86-16c22-4 37-25 33-47-4-24-28-39-51-32l-100 30 55-55c18-18 18-47 1-65-18-19-49-18-66 2l-78 88Z" fill="#F6C7AA" opacity="0.92"/>
+    <path d="M1208 746c37 32 53 85 37 134-11 33-39 59-71 71l-126 45c-25 9-52-10-52-36 0-16 10-30 25-36l85-33-110 7c-25 2-47-18-49-43-2-23 15-43 38-47l103-17-86-16c-22-4-37-25-33-47 4-24 28-39 51-32l100 30-55-55c-18-18-18-47-1-65 18-19 49-18 66 2l78 88Z" fill="#F6C7AA" opacity="0.92"/>
+  </g>
+
+  <g opacity="0.92">
+    <circle cx="804" cy="214" r="44" fill="#FBBF24"/>
+    <path d="M804 139l20 42 46 7-33 32 8 46-41-22-41 22 8-46-33-32 46-7 20-42Z" fill="#FFFFFF" fill-opacity="0.74"/>
+    <circle cx="1138" cy="304" r="28" fill="#34D399"/>
+    <circle cx="459" cy="252" r="22" fill="#FFFFFF"/>
+    <circle cx="1268" cy="755" r="24" fill="#FFFFFF"/>
+    <circle cx="319" cy="604" r="24" fill="#6EE7B7"/>
+  </g>
+
+  <g opacity="0.72" stroke="#047857" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M1164 512c56-79 147-105 226-76-24 95-111 160-213 160l-13-84Z" fill="#A7F3D0" fill-opacity="0.65"/>
+    <path d="M1179 575c53-43 112-80 184-113"/>
+    <path d="M244 446c74-54 162-57 236-12-50 82-144 122-239 93l3-81Z" fill="#A7F3D0" fill-opacity="0.62"/>
+    <path d="M252 510c62-20 127-41 198-69"/>
+  </g>
+</svg>

@@ -69,7 +69,7 @@ import { socialLinks } from '../data/clinic.js';
 
     <div class="hero-photo-wrap" aria-hidden="true">
       <div class="hero-photo-card">
-        <img src="/images/prayer-corner.webp" alt="" loading="eager" decoding="async" />
+        <img src="/images/hero-ruqyah-healing-wide.svg" alt="" loading="eager" decoding="async" width="1600" height="900" />
       </div>
     </div>
   </div>
@@ -205,7 +205,7 @@ import { socialLinks } from '../data/clinic.js';
 
 .hero-title {
   font-family: 'Lora', 'Hind Siliguri', serif;
-  font-size: clamp(26px, 4.2vw, 42px);
+  font-size: clamp(22px, 3.5vw, 34px);
   font-weight: 700;
   margin-bottom: 14px;
   letter-spacing: -0.5px;
@@ -344,12 +344,15 @@ import { socialLinks } from '../data/clinic.js';
 
 .hero-photo-wrap {
   position: relative;
+  width: 100%;
+  max-width: 520px;
+  justify-self: end;
 }
 .hero-photo-card {
   position: relative;
   border: 1px solid rgba(255,255,255,0.22);
-  border-radius: 32px;
-  padding: 12px;
+  border-radius: 28px;
+  padding: 10px;
   background: rgba(255,255,255,0.12);
   box-shadow: 0 24px 70px rgba(0,0,0,0.28);
   backdrop-filter: blur(10px);
@@ -365,9 +368,11 @@ import { socialLinks } from '../data/clinic.js';
 .hero-photo-card img {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  max-height: 310px;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-radius: 24px;
+  object-position: center;
+  border-radius: 20px;
 }
 
 .hero-stats {
@@ -429,7 +434,7 @@ import { socialLinks } from '../data/clinic.js';
     margin-right: auto;
   }
   .hero-title {
-    font-size: clamp(28px, 8.5vw, 36px);
+    font-size: clamp(22px, 6.2vw, 28px);
   }
   .hero-subtitle {
     font-size: clamp(21px, 6.2vw, 28px);

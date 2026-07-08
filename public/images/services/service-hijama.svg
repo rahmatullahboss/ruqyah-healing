@@ -1,0 +1,42 @@
+<svg width="1200" height="780" viewBox="0 0 1200 780" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Hijama cupping therapy visual</title>
+  <defs>
+    <linearGradient id="bg" x1="80" y1="54" x2="1092" y2="746" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF7ED"/>
+      <stop offset="0.58" stop-color="#FFEDD5"/>
+      <stop offset="1" stop-color="#FED7AA"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="327" y1="274" x2="820" y2="578" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE7D6"/>
+      <stop offset="1" stop-color="#F6C7AA"/>
+    </linearGradient>
+    <filter id="shadow" x="180" y="152" width="850" height="540" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="30" stdDeviation="28" flood-color="#7C2D12" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="780" rx="54" fill="url(#bg)"/>
+  <circle cx="1018" cy="137" r="194" fill="#FFFFFF" fill-opacity="0.45"/>
+  <circle cx="168" cy="620" r="210" fill="#FB923C" fill-opacity="0.17"/>
+  <g filter="url(#shadow)">
+    <path d="M279 493c42-126 178-203 331-189 130 11 243 85 310 196 19 32-4 72-42 72H322c-31 0-53-29-43-79Z" fill="url(#skin)"/>
+    <ellipse cx="602" cy="572" rx="310" ry="38" fill="#9A3412" fill-opacity="0.14"/>
+    <g>
+      <path d="M404 255h147c16 0 27 16 22 31l-31 91c-8 25-32 42-58 42h-14c-26 0-50-17-58-42l-31-91c-5-15 6-31 23-31Z" fill="#FFFFFF" fill-opacity="0.82"/>
+      <path d="M405 255h146" stroke="#F97316" stroke-width="20" stroke-linecap="round"/>
+      <path d="M423 333c23 18 82 18 109 0" stroke="#FB923C" stroke-width="14" stroke-linecap="round" opacity="0.65"/>
+    </g>
+    <g transform="translate(264 54) scale(.88)">
+      <path d="M404 255h147c16 0 27 16 22 31l-31 91c-8 25-32 42-58 42h-14c-26 0-50-17-58-42l-31-91c-5-15 6-31 23-31Z" fill="#FFFFFF" fill-opacity="0.8"/>
+      <path d="M405 255h146" stroke="#F97316" stroke-width="20" stroke-linecap="round"/>
+      <path d="M423 333c23 18 82 18 109 0" stroke="#FB923C" stroke-width="14" stroke-linecap="round" opacity="0.65"/>
+    </g>
+    <g transform="translate(118 38) scale(.76)">
+      <path d="M404 255h147c16 0 27 16 22 31l-31 91c-8 25-32 42-58 42h-14c-26 0-50-17-58-42l-31-91c-5-15 6-31 23-31Z" fill="#FFFFFF" fill-opacity="0.8"/>
+      <path d="M405 255h146" stroke="#F97316" stroke-width="20" stroke-linecap="round"/>
+      <path d="M423 333c23 18 82 18 109 0" stroke="#FB923C" stroke-width="14" stroke-linecap="round" opacity="0.65"/>
+    </g>
+  </g>
+  <path d="M206 277c44-46 94-74 150-83M880 219c60 19 103 51 132 95" stroke="#EA580C" stroke-width="12" stroke-linecap="round" opacity="0.23"/>
+  <circle cx="958" cy="534" r="17" fill="#FDBA74" opacity="0.88"/>
+  <circle cx="250" cy="176" r="13" fill="#FFFFFF" opacity="0.9"/>
+</svg>

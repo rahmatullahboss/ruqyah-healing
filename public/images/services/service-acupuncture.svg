@@ -1,0 +1,43 @@
+<svg width="1200" height="780" viewBox="0 0 1200 780" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Acupuncture therapy visual</title>
+  <defs>
+    <linearGradient id="bg" x1="58" y1="52" x2="1114" y2="744" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F0FDF4"/>
+      <stop offset="0.57" stop-color="#DCFCE7"/>
+      <stop offset="1" stop-color="#BBF7D0"/>
+    </linearGradient>
+    <linearGradient id="card" x1="333" y1="152" x2="854" y2="639" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F7FFFA"/>
+    </linearGradient>
+    <filter id="shadow" x="202" y="104" width="790" height="610" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="34" stdDeviation="30" flood-color="#14532D" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="780" rx="54" fill="url(#bg)"/>
+  <circle cx="1048" cy="143" r="190" fill="#FFFFFF" fill-opacity="0.42"/>
+  <circle cx="138" cy="606" r="225" fill="#22C55E" fill-opacity="0.15"/>
+  <g filter="url(#shadow)">
+    <rect x="310" y="156" width="582" height="456" rx="56" fill="url(#card)"/>
+    <path d="M365 490c89-120 161-176 234-173 88 3 139 88 235 38" stroke="#86EFAC" stroke-width="38" stroke-linecap="round" opacity="0.55"/>
+    <path d="M355 492c91-123 169-186 246-182 87 5 138 89 238 35" stroke="#16A34A" stroke-width="14" stroke-linecap="round"/>
+    <g stroke="#14532D" stroke-width="7" stroke-linecap="round">
+      <path d="M495 213l-40 260"/>
+      <path d="M617 202l-28 270"/>
+      <path d="M737 227l-69 240"/>
+    </g>
+    <g fill="#22C55E">
+      <circle cx="455" cy="473" r="18"/>
+      <circle cx="590" cy="472" r="18"/>
+      <circle cx="668" cy="467" r="18"/>
+    </g>
+    <g stroke="#D1FAE5" stroke-width="12" stroke-linecap="round" opacity="0.8">
+      <path d="M410 247h52"/>
+      <path d="M538 236h48"/>
+      <path d="M686 259h48"/>
+    </g>
+  </g>
+  <path d="M217 212c53-38 110-57 171-57M842 615c62-10 115-34 158-72" stroke="#16A34A" stroke-width="12" stroke-linecap="round" opacity="0.22"/>
+  <circle cx="975" cy="449" r="16" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="239" cy="557" r="21" fill="#4ADE80" opacity="0.8"/>
+</svg>

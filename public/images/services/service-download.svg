@@ -1,0 +1,29 @@
+<svg width="1200" height="780" viewBox="0 0 1200 780" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Ruqyah download resources visual</title>
+  <defs>
+    <linearGradient id="bg" x1="78" y1="51" x2="1110" y2="744" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5F3FF"/>
+      <stop offset="0.56" stop-color="#EDE9FE"/>
+      <stop offset="1" stop-color="#DDD6FE"/>
+    </linearGradient>
+    <filter id="shadow" x="198" y="96" width="806" height="624" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="34" stdDeviation="31" flood-color="#4C1D95" flood-opacity="0.17"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="780" rx="54" fill="url(#bg)"/>
+  <circle cx="1020" cy="128" r="204" fill="#FFFFFF" fill-opacity="0.42"/>
+  <circle cx="154" cy="626" r="228" fill="#8B5CF6" fill-opacity="0.13"/>
+  <g filter="url(#shadow)">
+    <rect x="350" y="138" width="430" height="532" rx="48" fill="#FFFFFF"/>
+    <path d="M677 138l103 103H677V138Z" fill="#EDE9FE"/>
+    <path d="M424 276h232M424 333h278M424 390h218M424 447h258" stroke="#94A3B8" stroke-width="22" stroke-linecap="round" opacity="0.31"/>
+    <circle cx="802" cy="510" r="116" fill="#7C3AED"/>
+    <path d="M802 441v111M753 510l49 49 49-49" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M746 587h112" stroke="#DDD6FE" stroke-width="18" stroke-linecap="round"/>
+    <rect x="426" y="542" width="128" height="42" rx="21" fill="#F5F3FF"/>
+    <path d="M454 563h72" stroke="#8B5CF6" stroke-width="12" stroke-linecap="round" opacity="0.72"/>
+  </g>
+  <path d="M222 258c37-50 86-85 149-107M895 598c58-21 103-56 136-104" stroke="#7C3AED" stroke-width="12" stroke-linecap="round" opacity="0.22"/>
+  <circle cx="942" cy="284" r="18" fill="#FFFFFF" opacity="0.91"/>
+  <circle cx="254" cy="548" r="20" fill="#A78BFA" opacity="0.82"/>
+</svg>

@@ -1,0 +1,37 @@
+<svg width="1200" height="780" viewBox="0 0 1200 780" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Quran based ruqyah healing visual</title>
+  <defs>
+    <linearGradient id="bg" x1="95" y1="72" x2="1072" y2="730" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ECFDF5"/>
+      <stop offset="0.55" stop-color="#D1FAE5"/>
+      <stop offset="1" stop-color="#A7F3D0"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(658 344) rotate(91) scale(305 423)">
+      <stop stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#10B981" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="210" y="140" width="780" height="540" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="34" stdDeviation="28" flood-color="#064E3B" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="780" rx="54" fill="url(#bg)"/>
+  <circle cx="1010" cy="112" r="178" fill="#FFFFFF" fill-opacity="0.35"/>
+  <circle cx="170" cy="668" r="214" fill="#10B981" fill-opacity="0.16"/>
+  <rect x="138" y="104" width="924" height="574" rx="46" fill="url(#glow)"/>
+  <g filter="url(#shadow)">
+    <path d="M354 286c0-36 29-65 65-65h166c46 0 85 32 95 75l12 53-15 167c-4 45-42 80-87 80H419c-36 0-65-29-65-65V286Z" fill="#FFFFFF"/>
+    <path d="M608 221h174c36 0 65 29 65 65v245c0 36-29 65-65 65H604c-41 0-75-30-81-71l-24-166 20-64c12-44 49-74 89-74Z" fill="#F8FFFC"/>
+    <path d="M600 240v330" stroke="#10B981" stroke-width="8" stroke-linecap="round"/>
+    <path d="M400 302h150M400 355h130M400 408h148M400 461h112" stroke="#94A3B8" stroke-width="16" stroke-linecap="round" opacity="0.42"/>
+    <path d="M653 302h150M653 355h130M653 408h148M653 461h112" stroke="#94A3B8" stroke-width="16" stroke-linecap="round" opacity="0.42"/>
+    <path d="M501 596h198l55 52H446l55-52Z" fill="#047857"/>
+    <path d="M463 648h274" stroke="#065F46" stroke-width="24" stroke-linecap="round"/>
+  </g>
+  <path d="M292 222c44-41 99-62 164-62M914 258c-44-42-98-64-163-65" stroke="#059669" stroke-width="12" stroke-linecap="round" opacity="0.25"/>
+  <path d="M208 520c29 22 64 35 103 39M952 540c36-13 68-33 96-61" stroke="#059669" stroke-width="12" stroke-linecap="round" opacity="0.2"/>
+  <g opacity="0.68">
+    <circle cx="781" cy="170" r="21" fill="#FBBF24"/>
+    <circle cx="320" cy="552" r="16" fill="#34D399"/>
+    <circle cx="883" cy="598" r="12" fill="#FFFFFF"/>
+  </g>
+</svg>

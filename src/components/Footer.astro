@@ -1,215 +1,508 @@
 ---
 import { clinicNumbers, clinicSchedule, getWhatsappUrl, socialLinks } from '../data/clinic.js';
 import { contactSupportsCall, contactSupportsWhatsapp } from '../lib/clinic-contacts.js';
+
+const year = new Date().getFullYear();
 ---
 <footer class="site-footer">
-  <div class="container footer-inner">
-    <!-- Brand -->
-    <div class="footer-brand">
-      <a href="/" class="footer-logo">
-        <div class="footer-logo-icon" style="background: transparent;">
-          <img src="/images/ruqyah-logo.png" alt="Ruqyah Healing Logo" style="width: 100%; height: 100%; object-fit: contain;" />
-        </div>
-        <div>
-          <div class="footer-logo-name">Ruqyah Healing</div>
-        </div>
-      </a>
-      <p class="footer-desc">ইসলামী রুকইয়ার মাধ্যমে হালাল হিলিং সার্ভিস। কুরআন ও সুন্নাহ ভিত্তিক আধ্যাত্মিক ও শারীরিক সুস্থতার পথে আপনার বিশ্বস্ত সঙ্গী।</p>
-      <div class="social-links">
-        <a href={socialLinks.facebook} id="footerFacebookLink" class="social-icon" aria-label="Facebook" title="Facebook" target="_blank" rel="noopener noreferrer">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-        </a>
+  <div class="footer-bg-shape footer-bg-shape--left" aria-hidden="true"></div>
+  <div class="footer-bg-shape footer-bg-shape--right" aria-hidden="true"></div>
 
+  <div class="container footer-shell">
+    <section class="footer-card" aria-label="Ruqyah Healing footer">
+      <div class="footer-grid">
+        <nav class="footer-group" aria-label="প্রধান লিংক">
+          <h4 class="footer-heading">Links</h4>
+          <ul class="footer-links">
+            <li><a href="/">হোমপেজ</a></li>
+            <li><a href="/appointment">অ্যাপয়েন্টমেন্ট</a></li>
+            <li><a href="/team">রাকী পরিচয়</a></li>
+            <li><a href="/blog">রুকইয়াহ ব্লগ</a></li>
+            <li><a href="/notices">নোটিশ</a></li>
+          </ul>
+        </nav>
+
+        <nav class="footer-group" aria-label="সেবাসমূহ">
+          <h4 class="footer-heading">Services</h4>
+          <ul class="footer-links">
+            <li><a href="/services/ruqyah">রুকইয়াহ</a></li>
+            <li><a href="/services/hijama">হিজামা</a></li>
+            <li><a href="/symptom-diagnosis">সিমটম ডায়াগনোসিস</a></li>
+            <li><a href="/ruqyah-diagnosis">রুকইয়াহ ডায়াগনোসিস</a></li>
+            <li><a href="/supplements">সাপ্লিমেন্ট</a></li>
+          </ul>
+        </nav>
+
+        <nav class="footer-group" aria-label="রিসোর্স">
+          <h4 class="footer-heading">Resources</h4>
+          <ul class="footer-links">
+            <li><a href="/pdf">পিডিএফ গাইড</a></li>
+            <li><a href="/conditions">সমস্যা ও লক্ষণ</a></li>
+            <li><a href="/glossary">শব্দকোষ</a></li>
+            <li><a href="/for">কার জন্য</a></li>
+            <li><a href="/location">এলাকাসমূহ</a></li>
+          </ul>
+        </nav>
+
+        <div class="footer-hello">
+          <h4 class="footer-heading">Say Hello</h4>
+          <a class="footer-email" href="mailto:info@ruqyahhealing.com">info@ruqyahhealing.com</a>
+
+          <ul class="footer-contact" id="footerContactPhoneList" data-footer-style="polished">
+            {clinicNumbers.slice(0, 3).map((contact) => (
+              <li>
+                <span class="footer-contact-icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </span>
+                <span>
+                  {contact.label}: {contact.display}
+                  {contactSupportsWhatsapp(contact) && !contactSupportsCall(contact) ? ' (WhatsApp)' : ''}
+                  {contactSupportsCall(contact) && !contactSupportsWhatsapp(contact) ? ' (কল)' : ''}
+                </span>
+              </li>
+            ))}
+            <li data-footer-static>
+              <span class="footer-contact-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </span>
+              <span id="footerScheduleCombined">{clinicSchedule.days} | {clinicSchedule.hours}</span>
+            </li>
+            <li data-footer-static>
+              <span class="footer-contact-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </span>
+              <span>ঢাকা, বাংলাদেশ</span>
+            </li>
+          </ul>
+
+          <div class="footer-socials" aria-label="Social links">
+            <a href={socialLinks.facebook} id="footerFacebookLink" class="footer-social" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a id="footerWhatsappLink" href={getWhatsappUrl('আসসালামু আলাইকুম, অ্যাপয়েন্টমেন্ট সম্পর্কে জানতে চাই।')} class="footer-social footer-social--wide" target="_blank" rel="noopener noreferrer">
+              WhatsApp
+            </a>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Quick Links -->
-    <div class="footer-col">
-      <h4 class="footer-heading">দ্রুত লিংক</h4>
-      <ul class="footer-links">
-        <li><a href="/">হোম</a></li>
-        <li><a href="/appointment">অ্যাপয়েন্টমেন্ট</a></li>
-        <li><a href="/symptom-diagnosis">সিমটম ডায়াগনোসিস</a></li>
-        <li><a href="/ruqyah-diagnosis">রুকইয়াহ ডায়াগনোসিস</a></li>
-        <li><a href="/conditions">সমস্যা ও লক্ষণ</a></li>
-        <li><a href="/glossary">রুকইয়াহ শব্দকোষ</a></li>
-        <li><a href="/for">কার জন্য</a></li>
-        <li><a href="/location">আমাদের এলাকাসমূহ</a></li>
-        <li><a href="/blog">রুকইয়াহ ব্লগ</a></li>
-      </ul>
-    </div>
+      <div class="footer-brand-floor">
+        <a href="/" class="footer-wordmark" aria-label="Ruqyah Healing Home">Ruqyah Healing</a>
+        <a href="/" class="footer-mark" aria-label="Ruqyah Healing Home">
+          <img src="/images/ruqyah-logo.png" alt="Ruqyah Healing Logo" loading="lazy" decoding="async" />
+        </a>
+      </div>
 
-    <!-- Services -->
-    <div class="footer-col">
-      <h4 class="footer-heading">আমাদের সেবা</h4>
-      <ul class="footer-links">
-        <li><a href="/supplements">রুকইয়াহ সাপ্লিমেন্ট</a></li>
-        <li><a href="/pdf">পিডিএফ গাইড</a></li>
-        <li><a href="/courses">কোর্স</a></li>
-        <li><a href="/team">রাকী পরিচয়</a></li>
-        <li><a href="/notices">নোটিশ ও চাকরি</a></li>
-      </ul>
-    </div>
-
-    <!-- Contact -->
-    <div class="footer-col">
-      <h4 class="footer-heading">যোগাযোগ</h4>
-      <ul class="footer-contact" id="footerContactPhoneList">
-        {clinicNumbers.map((contact) => (
-          <li>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            <span>
-              {contact.label}: {contact.display}
-              {contactSupportsWhatsapp(contact) && !contactSupportsCall(contact) ? ' (WhatsApp)' : ''}
-              {contactSupportsCall(contact) && !contactSupportsWhatsapp(contact) ? ' (কল)' : ''}
-            </span>
-          </li>
-        ))}
-        <li>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          <span>info@ruqyahhealing.com</span>
-        </li>
-        <li>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span>ঢাকা, বাংলাদেশ</span>
-        </li>
-        <li>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          <span id="footerScheduleCombined">{clinicSchedule.days} | {clinicSchedule.hours}</span>
-        </li>
-        <li>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          <a id="footerWhatsappLink" href={getWhatsappUrl('আসসালামু আলাইকুম, অ্যাপয়েন্টমেন্ট সম্পর্কে জানতে চাই।')} target="_blank" rel="noopener">WhatsApp-এ যোগাযোগ করুন</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="footer-bottom">
-    <div class="container">
-      <p>© <span id="footer-year"></span> Ruqyah Healing Center। সর্বস্বত্ব সংরক্ষিত।</p>
-    </div>
+      <div class="footer-bottom">
+        <p>© <span id="footer-year">{year}</span> Ruqyah Healing Center। সর্বস্বত্ব সংরক্ষিত।</p>
+        <div class="footer-legal">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms & Conditions</a>
+        </div>
+      </div>
+    </section>
   </div>
 </footer>
 
-<script>
-  const el = document.getElementById('footer-year');
-  if (el) el.textContent = String(new Date().getFullYear());
-</script>
-
 <style>
 .site-footer {
-  background: var(--dark-section);
-  color: rgba(255,255,255,0.75);
-  padding-top: 64px;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(58px, 8vw, 96px) 0 34px;
+  color: #052e24;
+  background:
+    radial-gradient(circle at 9% 86%, rgba(16, 185, 129, 0.17), transparent 30%),
+    radial-gradient(circle at 91% 8%, rgba(245, 158, 11, 0.15), transparent 30%),
+    linear-gradient(180deg, #fbfffd 0%, #edf9f3 44%, #dff5ea 100%);
 }
-.footer-inner {
+.footer-bg-shape {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.55;
+  border-radius: 50%;
+  border: 3px solid rgba(4, 120, 87, 0.22);
+  background:
+    radial-gradient(circle at 34% 34%, rgba(255,255,255,0.62), transparent 24%),
+    radial-gradient(circle at 66% 58%, rgba(126, 34, 206, 0.15), transparent 22%),
+    rgba(167, 243, 208, 0.17);
+}
+.footer-bg-shape--left {
+  left: -180px;
+  bottom: -160px;
+  width: 460px;
+  height: 460px;
+  transform: rotate(-22deg);
+}
+.footer-bg-shape--right {
+  right: -170px;
+  top: -160px;
+  width: 530px;
+  height: 530px;
+  transform: rotate(18deg);
+}
+.footer-shell {
+  position: relative;
+  z-index: 1;
+}
+.footer-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: clamp(24px, 2.8vw, 36px);
+  border: 1px solid rgba(4, 120, 87, 0.14);
+  background: rgba(238, 250, 244, 0.94);
+  box-shadow: 0 30px 90px rgba(6, 78, 59, 0.12);
+  backdrop-filter: blur(14px);
+  padding: clamp(30px, 4.6vw, 56px) clamp(24px, 4.8vw, 62px) 0;
+}
+.footer-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.42), transparent 38%),
+    radial-gradient(circle at 82% 83%, rgba(16, 185, 129, 0.12), transparent 36%);
+}
+.footer-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 48px;
-  padding-bottom: 48px;
-  text-align: center;
+  grid-template-columns: minmax(135px, 0.82fr) minmax(160px, 0.9fr) minmax(150px, 0.86fr) minmax(340px, 1.46fr);
+  gap: clamp(28px, 4.6vw, 66px);
+  align-items: start;
 }
-.footer-brand,
-.footer-col {
-  text-align: center;
-}
-.footer-logo,
-.social-links {
-  justify-content: center;
+.footer-heading {
+  margin: 0 0 16px;
+  color: #047857;
+  font-family: 'Raleway', 'Hind Siliguri', sans-serif;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 .footer-links,
 .footer-contact {
-  width: 100%;
-  padding-left: 0;
-  margin-left: 0;
-  text-align: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
-.footer-links li {
-  text-align: center;
+.footer-links {
+  display: grid;
+  gap: 11px;
+  padding-left: 20px;
+  border-left: 1px solid rgba(4, 120, 87, 0.14);
+}
+.footer-links a {
+  display: inline-flex;
+  color: #0b2f26;
+  font-size: clamp(16px, 1.35vw, 22px);
+  font-weight: 550;
+  line-height: 1.25;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.footer-links a:hover {
+  color: var(--primary, #10b981);
+  transform: translateX(4px);
+}
+.footer-hello {
+  min-width: 0;
+}
+.footer-email {
+  display: inline-block;
+  margin-bottom: 18px;
+  color: #052e24;
+  font-family: 'Lora', 'Hind Siliguri', serif;
+  font-size: clamp(20px, 1.62vw, 25px);
+  font-weight: 700;
+  line-height: 1.15;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+
+.footer-email:hover {
+  color: var(--primary-dark, #047857);
+}
+.footer-contact {
+  display: grid;
+  gap: 9px;
+  margin: 0 0 18px;
 }
 .footer-contact li {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  text-align: center;
-}
-.footer-contact svg {
-  margin: 0 auto;
-}
-.footer-contact span,
-.footer-contact a {
-  display: block;
-  width: 100%;
-  text-align: center;
-}
-.footer-logo {
-  display: flex;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
   align-items: center;
   gap: 10px;
-  margin-bottom: 16px;
-  cursor: pointer;
-}
-.footer-logo-icon {
-  width: 38px;
-  height: 38px;
-  background: var(--primary);
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.footer-logo-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: #fff;
-}
-.footer-desc {
+  color: rgba(5, 46, 36, 0.76);
   font-size: 14px;
-  line-height: 1.7;
-  color: rgba(255,255,255,0.6);
-  margin-bottom: 20px;
+  line-height: 1.42;
 }
-.social-links { display: flex; gap: 10px; }
-.social-icon {
-  width: 36px;
-  height: 36px;
-  background: var(--primary);
-  border-radius: 50%;
-  display: flex;
+.footer-contact a {
+  color: inherit;
+  text-decoration: none;
+}
+.footer-contact a:hover {
+  color: #047857;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.footer-contact-icon,
+.footer-lottie-icon {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
-  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.12);
+  flex: 0 0 30px;
 }
-.social-icon:hover { background: var(--primary-dark); transform: translateY(-3px); }
-
-.footer-heading {
-  font-size: 15px;
-  font-weight: 600;
+.footer-contact-icon svg,
+.footer-lottie-icon svg {
+  width: 15px;
+  height: 15px;
+}
+.footer-lottie-animation {
+  display: none;
+}
+.footer-socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.footer-social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 13px;
+  border-radius: 999px;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.13);
+  border: 1px solid rgba(4, 120, 87, 0.16);
+  font-size: 12px;
+  font-weight: 850;
+  text-decoration: none;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.footer-social:hover {
+  transform: translateY(-2px);
   color: #fff;
-  margin-bottom: 16px;
+  background: var(--primary, #10b981);
 }
-.footer-links li { margin-bottom: 10px; }
-.footer-links a { font-size: 14px; color: rgba(255,255,255,0.6); transition: color 0.2s; }
-.footer-links a:hover { color: var(--primary); }
-
-.footer-links a:hover { color: var(--primary); }
-
+.footer-brand-floor {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 24px;
+  margin-top: clamp(36px, 5.2vw, 66px);
+}
+.footer-wordmark {
+  display: block;
+  margin-left: clamp(-30px, -2.6vw, -10px);
+  padding-bottom: clamp(12px, 1.8vw, 26px);
+  color: #05251d;
+  font-family: 'Lora', Georgia, serif;
+  font-size: clamp(56px, 11.6vw, 152px);
+  font-weight: 700;
+  letter-spacing: -0.082em;
+  line-height: 0.98;
+  white-space: nowrap;
+  text-decoration: none;
+  max-width: 100%;
+  overflow: visible;
+}
+.footer-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(72px, 8.2vw, 118px);
+  height: clamp(72px, 8.2vw, 118px);
+  margin-bottom: clamp(10px, 1.3vw, 18px);
+  border-radius: 26px;
+  background: rgba(5, 46, 36, 0.08);
+  text-decoration: none;
+}
+.footer-mark img {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+}
 .footer-bottom {
-  border-top: 1px solid rgba(255,255,255,0.08);
-  padding: 16px 0;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 0 22px;
+  border-top: 1px solid rgba(4, 120, 87, 0.12);
 }
-.footer-bottom p { font-size: 13px; color: rgba(255,255,255,0.4); text-align: center; }
+.footer-bottom p {
+  margin: 0;
+  color: rgba(5, 46, 36, 0.58);
+  font-size: 12px;
+  font-weight: 750;
+}
+.footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+.footer-legal a {
+  color: rgba(5, 46, 36, 0.58);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.footer-legal a:hover {
+  color: var(--primary-dark, #047857);
+}
 
-@media (max-width: 1024px) {
-  .footer-inner { grid-template-columns: 1fr 1fr; }
+@media (max-width: 1180px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .footer-hello {
+    grid-column: span 2;
+    max-width: 720px;
+  }
+  .footer-wordmark {
+    font-size: clamp(52px, 13vw, 132px);
+  }
 }
-@media (max-width: 600px) {
-  .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+
+@media (max-width: 720px) {
+  .site-footer {
+    padding: 28px 0 calc(108px + env(safe-area-inset-bottom));
+  }
+  .footer-bg-shape {
+    opacity: 0.35;
+  }
+  .footer-bg-shape--left {
+    left: -250px;
+    bottom: 160px;
+  }
+  .footer-bg-shape--right {
+    right: -300px;
+    top: -190px;
+  }
+  .footer-card {
+    border-radius: 22px;
+    padding: 26px 18px 0;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+  .footer-hello {
+    grid-column: auto;
+    max-width: none;
+  }
+  .footer-heading {
+    margin-bottom: 12px;
+    font-size: 11px;
+  }
+  .footer-links {
+    gap: 9px;
+    padding-left: 14px;
+  }
+  .footer-links a {
+    font-size: 18px;
+  }
+  .footer-email {
+    font-size: clamp(22px, 7vw, 29px);
+    margin-bottom: 16px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .footer-contact {
+    gap: 9px;
+  }
+  .footer-contact li {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 42px;
+    padding: 8px 10px;
+    border-radius: 15px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(4, 120, 87, 0.09);
+    font-size: 13.5px;
+  }
+  .footer-contact-icon,
+  .footer-lottie-icon {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+  .footer-socials {
+    margin-top: 14px;
+  }
+  .footer-social {
+    min-width: 44px;
+    height: 44px;
+  }
+  .footer-brand-floor {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 34px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(4, 120, 87, 0.1);
+  }
+  .footer-wordmark {
+    margin-left: 0;
+    padding-bottom: 8px;
+    font-size: clamp(30px, 10vw, 44px);
+    letter-spacing: -0.05em;
+    line-height: 1.08;
+    white-space: normal;
+  }
+  .footer-mark {
+    width: 62px;
+    height: 62px;
+    margin-bottom: 0;
+    border-radius: 18px;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px 0 18px;
+  }
+  .footer-legal {
+    gap: 12px;
+  }
+}
+</style>
+
+<style is:global>
+.site-footer .footer-contact li,
+.site-footer .footer-contact li span,
+.site-footer .footer-contact li a {
+  color: rgba(5, 46, 36, 0.78) !important;
+}
+.site-footer .footer-contact .footer-contact-icon,
+.site-footer .footer-contact .footer-lottie-icon {
+  color: #047857 !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+}
+.site-footer .footer-contact .footer-lottie-animation {
+  display: none !important;
+}
+.site-footer .footer-contact li > span:not(.footer-contact-icon):not(.footer-lottie-icon),
+.site-footer .footer-contact li > a {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 </style>

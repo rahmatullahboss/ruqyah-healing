@@ -1,0 +1,40 @@
+<svg width="1200" height="780" viewBox="0 0 1200 780" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Symptom diagnosis checklist visual</title>
+  <defs>
+    <linearGradient id="bg" x1="78" y1="52" x2="1085" y2="739" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ECFDF5"/>
+      <stop offset="0.55" stop-color="#D1FAE5"/>
+      <stop offset="1" stop-color="#CFFAFE"/>
+    </linearGradient>
+    <filter id="shadow" x="215" y="98" width="764" height="620" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="34" stdDeviation="31" flood-color="#064E3B" flood-opacity="0.17"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="780" rx="54" fill="url(#bg)"/>
+  <circle cx="1028" cy="118" r="196" fill="#FFFFFF" fill-opacity="0.42"/>
+  <circle cx="158" cy="645" r="222" fill="#06B6D4" fill-opacity="0.14"/>
+  <g filter="url(#shadow)">
+    <rect x="332" y="142" width="536" height="510" rx="46" fill="#FFFFFF"/>
+    <rect x="380" y="204" width="160" height="30" rx="15" fill="#10B981" opacity="0.2"/>
+    <rect x="380" y="258" width="342" height="24" rx="12" fill="#94A3B8" opacity="0.32"/>
+    <rect x="380" y="314" width="301" height="24" rx="12" fill="#94A3B8" opacity="0.28"/>
+    <rect x="380" y="370" width="354" height="24" rx="12" fill="#94A3B8" opacity="0.28"/>
+    <rect x="380" y="426" width="292" height="24" rx="12" fill="#94A3B8" opacity="0.28"/>
+    <rect x="380" y="482" width="320" height="24" rx="12" fill="#94A3B8" opacity="0.28"/>
+    <g fill="#10B981">
+      <circle cx="790" cy="270" r="26"/>
+      <circle cx="790" cy="382" r="26"/>
+      <circle cx="790" cy="494" r="26"/>
+    </g>
+    <g stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M779 269l8 8 16-18"/>
+      <path d="M779 381l8 8 16-18"/>
+      <path d="M779 493l8 8 16-18"/>
+    </g>
+    <circle cx="476" cy="580" r="36" fill="#ECFDF5"/>
+    <path d="M459 580h34M476 563v34" stroke="#10B981" stroke-width="10" stroke-linecap="round"/>
+  </g>
+  <path d="M256 248c31-45 75-76 132-92M891 587c54-19 97-51 129-95" stroke="#0891B2" stroke-width="12" stroke-linecap="round" opacity="0.22"/>
+  <circle cx="247" cy="530" r="16" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="934" cy="250" r="20" fill="#34D399" opacity="0.8"/>
+</svg>

@@ -1,0 +1,35 @@
+<svg width="1200" height="780" viewBox="0 0 1200 780" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Natural halal supplements visual</title>
+  <defs>
+    <linearGradient id="bg" x1="81" y1="49" x2="1093" y2="741" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF1F2"/>
+      <stop offset="0.52" stop-color="#FFE4E6"/>
+      <stop offset="1" stop-color="#FEF3C7"/>
+    </linearGradient>
+    <filter id="shadow" x="184" y="108" width="848" height="592" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="34" stdDeviation="31" flood-color="#7F1D1D" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="780" rx="54" fill="url(#bg)"/>
+  <circle cx="1015" cy="130" r="198" fill="#FFFFFF" fill-opacity="0.46"/>
+  <circle cx="157" cy="627" r="222" fill="#FB7185" fill-opacity="0.14"/>
+  <g filter="url(#shadow)">
+    <ellipse cx="598" cy="612" rx="316" ry="38" fill="#9F1239" fill-opacity="0.12"/>
+    <path d="M426 283h170v255c0 54-44 98-98 98h-72V283Z" fill="#FFFFFF"/>
+    <path d="M426 283h170v82H426V283Z" fill="#F43F5E" opacity="0.85"/>
+    <path d="M462 235h98c20 0 36 16 36 36v12H426v-12c0-20 16-36 36-36Z" fill="#BE123C"/>
+    <path d="M456 432c23-26 61-26 84 0 23 26 23 67 0 93-23 26-61 26-84 0-23-26-23-67 0-93Z" fill="#FFE4E6"/>
+    <path d="M752 307c52 61 70 149 45 230-24 80-82 122-130 94-48-29-69-118-45-198 25-81 78-132 130-126Z" fill="#F59E0B"/>
+    <path d="M671 397c41 26 83 83 105 150" stroke="#92400E" stroke-width="14" stroke-linecap="round" opacity="0.42"/>
+    <g fill="#78350F">
+      <ellipse cx="706" cy="507" rx="36" ry="24" transform="rotate(-21 706 507)"/>
+      <ellipse cx="769" cy="468" rx="33" ry="22" transform="rotate(17 769 468)"/>
+      <ellipse cx="660" cy="565" rx="34" ry="22" transform="rotate(24 660 565)"/>
+    </g>
+    <path d="M741 275c38-57 105-78 165-56-16 68-76 114-148 115l-17-59Z" fill="#16A34A"/>
+    <path d="M757 315c38-29 81-54 130-76" stroke="#DCFCE7" stroke-width="10" stroke-linecap="round" opacity="0.72"/>
+  </g>
+  <path d="M241 246c42-48 94-79 156-94M878 614c58-16 107-45 147-87" stroke="#E11D48" stroke-width="12" stroke-linecap="round" opacity="0.2"/>
+  <circle cx="946" cy="292" r="17" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="258" cy="548" r="20" fill="#FDA4AF" opacity="0.86"/>
+</svg>

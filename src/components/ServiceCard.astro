@@ -1,11 +1,13 @@
 ---
 interface Props {
-  icon: string;  // SVG path data
+  icon: string; // SVG path data
   title: string;
   description: string;
   link: string;
   bgColor?: string;
   iconColor?: string;
+  image?: string;
+  imageAlt?: string;
 }
 const {
   icon,
@@ -14,33 +16,41 @@ const {
   link,
   bgColor = 'var(--primary-light)',
   iconColor = 'var(--primary)',
+  image,
+  imageAlt,
 } = Astro.props;
 ---
-<a href={link} class="service-card" style={`--card-bg: ${bgColor}; --icon-bg: ${iconColor}`}>
-  <div class="service-card-top">
-    <div class="service-icon">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icon}></svg>
+<a href={link} class={`service-card ${image ? 'has-media' : ''}`} style={`--card-bg: ${bgColor}; --icon-bg: ${iconColor}`}>
+  {image && (
+    <div class="service-card-media">
+      <img src={image} alt={imageAlt || title} loading="lazy" decoding="async" width="1200" height="780" />
     </div>
-    <h3>{title}</h3>
-    <p>{description}</p>
+  )}
+  <div class="service-card-content">
+    <div class="service-card-top">
+      <div class="service-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icon}></svg>
+      </div>
+      <h3>{title}</h3>
+      <p>{description}</p>
+    </div>
+    <span class="service-link">
+      বিস্তারিত দেখুন
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </span>
   </div>
-  <span class="service-link">
-    বিস্তারিত দেখুন
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-      <path d="M5 12h14M12 5l7 7-7 7"/>
-    </svg>
-  </span>
 </a>
 
 <style>
 .service-card {
   background: var(--card-bg, var(--primary-light));
-  border-radius: 18px;
-  padding: 28px 24px 22px;
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;            /* fills grid row — equal height */
+  height: 100%;
   min-height: 220px;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   text-decoration: none;
@@ -51,7 +61,14 @@ const {
   overflow: hidden;
 }
 
-/* subtle shine on hover */
+.service-card:not(.has-media) {
+  padding: 28px 24px 22px;
+}
+
+.service-card.has-media {
+  min-height: 355px;
+}
+
 .service-card::before {
   content: '';
   position: absolute;
@@ -61,6 +78,7 @@ const {
   transition: opacity 0.3s ease;
   border-radius: inherit;
   pointer-events: none;
+  z-index: 1;
 }
 .service-card:hover::before { opacity: 1; }
 
@@ -68,6 +86,36 @@ const {
   transform: translateY(-6px);
   box-shadow: 0 12px 32px rgba(16,185,129,0.18);
   border-color: rgba(16,185,129,0.22);
+}
+
+.service-card-media {
+  height: 150px;
+  background: rgba(255,255,255,0.4);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.service-card-media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.service-card:hover .service-card-media img {
+  transform: scale(1.045);
+}
+
+.service-card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+}
+
+.service-card.has-media .service-card-content {
+  padding: 0 20px 20px;
 }
 
 .service-card-top {
@@ -87,6 +135,15 @@ const {
   justify-content: center;
   flex-shrink: 0;
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  position: relative;
+  z-index: 2;
+}
+
+.service-card.has-media .service-icon {
+  width: 54px;
+  height: 54px;
+  margin-top: -27px;
+  border: 4px solid var(--card-bg, var(--primary-light));
 }
 
 .service-card h3 {
@@ -100,7 +157,6 @@ const {
   font-size: 13.5px;
   color: var(--text-medium);
   line-height: 1.65;
-  /* clamp to 3 lines so all cards stay uniform */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -116,6 +172,13 @@ const {
   color: var(--primary);
   margin-top: 16px;
   transition: gap 0.2s ease;
+  position: relative;
+  z-index: 2;
 }
 .service-card:hover .service-link { gap: 9px; }
+
+@media (max-width: 640px) {
+  .service-card.has-media { min-height: 330px; }
+  .service-card-media { height: 140px; }
+}
 </style>

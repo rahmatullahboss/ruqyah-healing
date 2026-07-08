@@ -3,7 +3,68 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
-const products = [];
+const products = [
+  {
+    name: 'জমজম পানি',
+    desc: 'বিশুদ্ধ জমজম পানি — রুকইয়াহ রুটিনে পান করার জন্য সহায়ক।',
+    price: 500,
+    rating: 5,
+    benefit: 'দৈনন্দিন রুকইয়াহ রুটিনে পানির সাথে দোয়া ও তিলাওয়াতের আমলে সহায়ক।',
+    img: '/supplements/zamzam_water.webp',
+    badge: 'জনপ্রিয়',
+    category: 'পানি',
+  },
+  {
+    name: 'কালোজিরার তেল',
+    desc: 'খাঁটি কালোজিরার তেল — সুন্নাহসম্মত প্রাকৃতিক সাপোর্ট।',
+    price: 350,
+    rating: 4.8,
+    benefit: 'স্বাস্থ্যকর রুটিন ও রুকইয়াহ সাপোর্ট হিসেবে ব্যবহারযোগ্য।',
+    img: '/supplements/black_seed_oil.webp',
+    badge: 'সুন্নাহ',
+    category: 'তেল',
+  },
+  {
+    name: 'খাঁটি মধু',
+    desc: 'প্রাকৃতিক খাঁটি মধু — হালাল ও দৈনন্দিন ব্যবহারের উপযোগী।',
+    price: 600,
+    rating: 4.9,
+    benefit: 'সুস্থতা রুটিনে খাবার ও রুকইয়াহ আমলের সাথে সহায়ক।',
+    img: '/supplements/pure_honey.webp',
+    badge: 'নতুন',
+    category: 'মধু',
+  },
+  {
+    name: 'জাফরান',
+    desc: 'প্রিমিয়াম জাফরান — বিশেষ রুকইয়াহ ও ওয়েলনেস রুটিনের জন্য।',
+    price: 1200,
+    rating: 4.7,
+    benefit: 'রুকইয়াহ রুটিনে পানি বা দোয়ার আমলের সাথে সহায়ক হিসেবে ব্যবহৃত।',
+    img: '/supplements/saffron_spice.webp',
+    badge: 'প্রিমিয়াম',
+    category: 'মসলা',
+  },
+  {
+    name: 'আজওয়া খেজুর',
+    desc: 'মদিনার আজওয়া খেজুর — সুন্নাহসম্মত পুষ্টিকর খাবার।',
+    price: 800,
+    rating: 5,
+    benefit: 'দৈনন্দিন সুন্নাহভিত্তিক খাদ্যাভ্যাসে সহায়ক।',
+    img: '/supplements/ajwa_dates.webp',
+    badge: 'সুন্নাহ',
+    category: 'ফল',
+  },
+  {
+    name: 'অলিভ অয়েল',
+    desc: 'এক্সট্রা ভার্জিন অলিভ অয়েল — প্রাকৃতিক ও হালাল সাপোর্ট।',
+    price: 450,
+    rating: 4.8,
+    benefit: 'মাসাজ, খাদ্যাভ্যাস ও স্বাস্থ্যকর রুটিনে সহায়ক।',
+    img: '/supplements/olive_oil.webp',
+    badge: 'হালাল',
+    category: 'তেল',
+  },
+];
 
 export const prerender = true;
 

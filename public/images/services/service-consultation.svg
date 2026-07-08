@@ -1,0 +1,30 @@
+<svg width="1200" height="780" viewBox="0 0 1200 780" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Consultation and follow-up support visual</title>
+  <defs>
+    <linearGradient id="bg" x1="73" y1="49" x2="1115" y2="742" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFBEB"/>
+      <stop offset="0.55" stop-color="#FEF3C7"/>
+      <stop offset="1" stop-color="#FDE68A"/>
+    </linearGradient>
+    <filter id="shadow" x="192" y="102" width="816" height="614" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="34" stdDeviation="31" flood-color="#78350F" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="780" rx="54" fill="url(#bg)"/>
+  <circle cx="1017" cy="135" r="203" fill="#FFFFFF" fill-opacity="0.45"/>
+  <circle cx="160" cy="628" r="225" fill="#F59E0B" fill-opacity="0.13"/>
+  <g filter="url(#shadow)">
+    <rect x="292" y="180" width="616" height="410" rx="58" fill="#FFFFFF"/>
+    <path d="M417 589l-92 78 29-113" fill="#FFFFFF"/>
+    <circle cx="438" cy="369" r="72" fill="#FEF3C7"/>
+    <path d="M394 505c11-61 72-94 122-65 24 14 37 37 44 65" stroke="#F59E0B" stroke-width="28" stroke-linecap="round"/>
+    <circle cx="730" cy="308" r="62" fill="#ECFDF5"/>
+    <path d="M684 420c10-55 65-86 110-60 22 13 34 34 40 60" stroke="#10B981" stroke-width="25" stroke-linecap="round"/>
+    <path d="M380 258h438M380 534h270" stroke="#FDE68A" stroke-width="18" stroke-linecap="round" opacity="0.76"/>
+    <path d="M610 469h206" stroke="#CBD5E1" stroke-width="16" stroke-linecap="round" opacity="0.58"/>
+    <path d="M626 506h156" stroke="#CBD5E1" stroke-width="14" stroke-linecap="round" opacity="0.45"/>
+  </g>
+  <path d="M228 260c38-51 88-87 151-109M887 600c59-22 106-57 140-106" stroke="#D97706" stroke-width="12" stroke-linecap="round" opacity="0.22"/>
+  <circle cx="942" cy="290" r="18" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="253" cy="548" r="20" fill="#FBBF24" opacity="0.84"/>
+</svg>

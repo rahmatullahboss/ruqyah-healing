@@ -1,0 +1,56 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Compact ruqyah healing hero visual</title>
+  <defs>
+    <linearGradient id="bg" x1="84" y1="60" x2="1450" y2="842" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ECFDF5"/>
+      <stop offset="0.55" stop-color="#D1FAE5"/>
+      <stop offset="1" stop-color="#FEF3C7"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(870 380) rotate(91) scale(290 560)">
+      <stop stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#10B981" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="250" y="95" width="1100" height="720" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="34" stdDeviation="34" flood-color="#064E3B" flood-opacity="0.20"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" rx="64" fill="url(#bg)"/>
+  <circle cx="1365" cy="110" r="260" fill="#FFFFFF" fill-opacity="0.42"/>
+  <circle cx="190" cy="780" r="300" fill="#10B981" fill-opacity="0.14"/>
+  <rect x="150" y="92" width="1300" height="710" rx="58" fill="url(#glow)"/>
+
+  <g opacity="0.38" stroke="#059669" stroke-width="15" stroke-linecap="round">
+    <path d="M278 285c68-63 148-96 240-101"/>
+    <path d="M1290 325c-68-66-151-101-247-108"/>
+    <path d="M1115 720c82-23 150-65 203-126"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="332" y="142" width="936" height="606" rx="58" fill="#FFFFFF" fill-opacity="0.74"/>
+    <rect x="392" y="198" width="816" height="494" rx="48" fill="#F8FFFC"/>
+
+    <path d="M514 328c0-47 38-85 85-85h222c61 0 114 41 129 100l18 70-18 176c-6 55-53 97-108 97H599c-47 0-85-38-85-85V328Z" fill="#FFFFFF"/>
+    <path d="M805 243h239c47 0 85 38 85 85v273c0 47-38 85-85 85H805c-50 0-92-36-99-85l-29-188 24-76c17-56 60-94 104-94Z" fill="#FAFFFD"/>
+    <path d="M800 270v395" stroke="#10B981" stroke-width="11" stroke-linecap="round"/>
+    <path d="M575 365h165M575 430h138M575 495h172M575 560h122" stroke="#94A3B8" stroke-width="22" stroke-linecap="round" opacity="0.35"/>
+    <path d="M878 365h165M878 430h138M878 495h172M878 560h122" stroke="#94A3B8" stroke-width="22" stroke-linecap="round" opacity="0.35"/>
+    <path d="M637 692h326l70 70H567l70-70Z" fill="#D97706"/>
+    <path d="M598 762h404" stroke="#92400E" stroke-width="28" stroke-linecap="round" opacity="0.85"/>
+  </g>
+
+  <g opacity="0.9">
+    <circle cx="800" cy="130" r="36" fill="#FBBF24"/>
+    <path d="M800 77l16 33 36 5-26 25 6 36-32-17-32 17 6-36-26-25 36-5 16-33Z" fill="#FFFFFF" fill-opacity="0.75"/>
+    <circle cx="1185" cy="230" r="23" fill="#34D399"/>
+    <circle cx="420" cy="188" r="18" fill="#FFFFFF"/>
+    <circle cx="1272" cy="566" r="18" fill="#FFFFFF"/>
+    <circle cx="328" cy="510" r="20" fill="#6EE7B7"/>
+  </g>
+
+  <g opacity="0.68" stroke="#047857" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M1168 412c57-70 140-91 214-62-25 84-105 138-198 136l-16-74Z" fill="#A7F3D0" fill-opacity="0.64"/>
+    <path d="M1186 466c50-38 106-69 171-96"/>
+    <path d="M258 384c70-49 150-50 217-8-48 73-134 106-221 78l4-70Z" fill="#A7F3D0" fill-opacity="0.6"/>
+    <path d="M268 438c58-18 116-38 181-62"/>
+  </g>
+</svg>

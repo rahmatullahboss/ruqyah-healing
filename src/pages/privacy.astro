@@ -1,0 +1,265 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+export const prerender = true;
+
+const lastUpdated = '৪ জুলাই, ২০২৬';
+
+const privacySections = [
+  {
+    title: '১. আমরা কোন তথ্য সংগ্রহ করতে পারি',
+    items: [
+      'নাম, মোবাইল নম্বর, ইমেইল, ঠিকানা বা যোগাযোগের তথ্য।',
+      'অ্যাপয়েন্টমেন্ট, কনসাল্টেশন, রুকইয়াহ ডায়াগনোসিস বা সিমটম ডায়াগনোসিসের জন্য আপনার দেওয়া তথ্য।',
+      'আপনি যে সার্ভিস, গাইড, পিডিএফ, কোর্স বা সাপ্লিমেন্ট সম্পর্কে জানতে চান—সেই সম্পর্কিত তথ্য।',
+      'ওয়েবসাইট ব্যবহারের টেকনিক্যাল তথ্য, যেমন ডিভাইস, ব্রাউজার, পেজ ভিজিট এবং সাধারণ অ্যানালিটিক্স ডাটা।',
+    ],
+  },
+  {
+    title: '২. তথ্য ব্যবহারের উদ্দেশ্য',
+    items: [
+      'অ্যাপয়েন্টমেন্ট নিশ্চিত করা, যোগাযোগ করা এবং সেবা সম্পর্কিত আপডেট দেওয়া।',
+      'আপনার সমস্যার ধরন বুঝে উপযুক্ত রুকইয়াহ, হিজামা, কনসাল্টেশন বা সহায়ক সেবা সাজেস্ট করা।',
+      'ওয়েবসাইটের নিরাপত্তা, পারফরম্যান্স এবং ব্যবহারযোগ্যতা উন্নত করা।',
+      'প্রয়োজন হলে সাপোর্ট, ফলো-আপ, রিমাইন্ডার বা গুরুত্বপূর্ণ নোটিশ পাঠানো।',
+    ],
+  },
+  {
+    title: '৩. স্বাস্থ্য ও ব্যক্তিগত তথ্যের গোপনীয়তা',
+    items: [
+      'আপনার ব্যক্তিগত বা সংবেদনশীল তথ্য যথাসম্ভব গোপন ও সীমিত অ্যাক্সেসে রাখা হয়।',
+      'আপনার অনুমতি ছাড়া ব্যক্তিগত কনসাল্টেশন তথ্য প্রকাশ করা হয় না।',
+      'অন্যের তথ্য ব্যবহার করে অ্যাপয়েন্টমেন্ট বা ডায়াগনোসিস করলে, তথ্য দেওয়ার আগে সংশ্লিষ্ট ব্যক্তির সম্মতি নেওয়া আপনার দায়িত্ব।',
+    ],
+  },
+  {
+    title: '৪. তথ্য শেয়ারিং',
+    items: [
+      'সেবা দেওয়ার জন্য প্রয়োজনীয় টিম মেম্বার, রাকী, সাপোর্ট স্টাফ বা সংশ্লিষ্ট সার্ভিস পার্টনারের সাথে সীমিতভাবে তথ্য শেয়ার করা হতে পারে।',
+      'আইনি বাধ্যবাধকতা, নিরাপত্তা বা প্রতারণা প্রতিরোধের প্রয়োজনে প্রয়োজনীয় তথ্য সংরক্ষণ বা শেয়ার করা হতে পারে।',
+      'আমরা আপনার ব্যক্তিগত তথ্য বিক্রি করি না।',
+    ],
+  },
+  {
+    title: '৫. কুকিজ ও অ্যানালিটিক্স',
+    items: [
+      'ওয়েবসাইটের অভিজ্ঞতা উন্নত করা, ট্রাফিক বোঝা এবং নিরাপত্তা পর্যবেক্ষণের জন্য কুকিজ বা অ্যানালিটিক্স টুল ব্যবহার করা হতে পারে।',
+      'আপনি চাইলে ব্রাউজার সেটিংস থেকে কুকিজ নিয়ন্ত্রণ বা বন্ধ করতে পারেন, তবে এতে কিছু ফিচার ঠিকমতো কাজ নাও করতে পারে।',
+    ],
+  },
+  {
+    title: '৬. তথ্য সংরক্ষণ ও নিরাপত্তা',
+    items: [
+      'সেবা, রেকর্ড, অ্যাকাউন্টিং, সাপোর্ট বা আইনি প্রয়োজন অনুযায়ী তথ্য নির্দিষ্ট সময়ের জন্য সংরক্ষণ করা হতে পারে।',
+      'অননুমোদিত অ্যাক্সেস, অপব্যবহার বা তথ্য হারানোর ঝুঁকি কমাতে যুক্তিসঙ্গত নিরাপত্তা ব্যবস্থা গ্রহণ করা হয়।',
+      'ইন্টারনেটভিত্তিক কোনো সিস্টেম শতভাগ ঝুঁকিমুক্ত নয়—তাই সংবেদনশীল তথ্য শেয়ার করার আগে সতর্ক থাকুন।',
+    ],
+  },
+  {
+    title: '৭. আপনার অধিকার',
+    items: [
+      'আপনি আপনার দেওয়া তথ্য সম্পর্কে জানতে, সংশোধন করতে বা মুছে ফেলার অনুরোধ করতে পারেন।',
+      'প্রোমোশনাল বা অপ্রয়োজনীয় যোগাযোগ বন্ধ করার অনুরোধ করতে পারেন।',
+      'তথ্য সংক্রান্ত অনুরোধের জন্য আমাদের অফিসিয়াল যোগাযোগ মাধ্যমে যোগাযোগ করুন।',
+    ],
+  },
+];
+---
+
+<BaseLayout title="প্রাইভেসি পলিসি | Ruqyah Healing Center" description="Ruqyah Healing Center কীভাবে ব্যক্তিগত তথ্য সংগ্রহ, ব্যবহার, সংরক্ষণ এবং সুরক্ষা করে—এই প্রাইভেসি পলিসিতে তা ব্যাখ্যা করা হয়েছে।">
+  <Header />
+
+  <main>
+    <section class="legal-hero">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="/">হোম</a><span>/</span><span>প্রাইভেসি পলিসি</span>
+        </nav>
+        <div class="legal-hero-card">
+          <span class="eyebrow">Privacy Policy</span>
+          <h1>প্রাইভেসি পলিসি</h1>
+          <p>আপনার ব্যক্তিগত তথ্য, স্বাস্থ্য-সম্পর্কিত তথ্য এবং যোগাযোগের তথ্য কীভাবে ব্যবহার ও সুরক্ষিত রাখা হয়—এখানে তা সহজ ভাষায় ব্যাখ্যা করা হয়েছে।</p>
+          <div class="updated-pill">সর্বশেষ আপডেট: {lastUpdated}</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="legal-section">
+      <div class="container legal-layout">
+        <aside class="legal-sidebar">
+          <div class="sidebar-card">
+            <h2>দ্রুত নোট</h2>
+            <p>এই পলিসি Ruqyah Healing Center-এর ওয়েবসাইট, অ্যাপয়েন্টমেন্ট, কনসাল্টেশন ও সংশ্লিষ্ট অনলাইন সার্ভিসের জন্য প্রযোজ্য।</p>
+            <a href="/terms">টার্মস অ্যান্ড কন্ডিশনস দেখুন</a>
+          </div>
+        </aside>
+
+        <article class="legal-content">
+          <div class="notice-box">
+            <strong>গুরুত্বপূর্ণ:</strong> রুকইয়াহ ও হিজামা সম্পর্কিত তথ্য ব্যক্তিগত হতে পারে। তাই ফর্ম, WhatsApp বা কনসাল্টেশনে তথ্য দেওয়ার সময় নিশ্চিত হয়ে দিন এবং নিজের নয় এমন তথ্য দেওয়ার আগে অনুমতি নিন।
+          </div>
+
+          {privacySections.map((section) => (
+            <section class="legal-card">
+              <h2>{section.title}</h2>
+              <ul>
+                {section.items.map((item) => <li>{item}</li>)}
+              </ul>
+            </section>
+          ))}
+
+          <section class="legal-card">
+            <h2>৮. শিশুদের তথ্য</h2>
+            <p>শিশু বা অপ্রাপ্তবয়স্ক ব্যক্তির জন্য অ্যাপয়েন্টমেন্ট বা ডায়াগনোসিস করলে অভিভাবক বা দায়িত্বশীল ব্যক্তির সম্মতি প্রয়োজন।</p>
+          </section>
+
+          <section class="legal-card">
+            <h2>৯. পলিসি পরিবর্তন</h2>
+            <p>প্রয়োজন অনুযায়ী এই প্রাইভেসি পলিসি আপডেট করা হতে পারে। বড় পরিবর্তন হলে ওয়েবসাইটে আপডেট প্রকাশ করা হবে।</p>
+          </section>
+
+          <section class="legal-card contact-card">
+            <h2>১০. যোগাযোগ</h2>
+            <p>প্রাইভেসি সংক্রান্ত প্রশ্ন, তথ্য সংশোধন বা ডিলিট করার অনুরোধের জন্য যোগাযোগ করুন।</p>
+            <div class="contact-actions">
+              <a href="mailto:info@ruqyahhealing.com">info@ruqyahhealing.com</a>
+              <a href="/appointment">অ্যাপয়েন্টমেন্ট নিন</a>
+            </div>
+          </section>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+.legal-hero {
+  padding: 34px 0 42px;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(16,185,129,0.12), transparent 28%),
+    radial-gradient(circle at 88% 4%, rgba(245,158,11,0.12), transparent 30%),
+    linear-gradient(180deg, #fbfffd 0%, #edf9f3 100%);
+  border-bottom: 1px solid rgba(4,120,87,0.12);
+}
+.breadcrumb {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+.breadcrumb a { color: var(--primary); text-decoration: none; font-weight: 700; }
+.legal-hero-card {
+  max-width: 900px;
+  border: 1px solid rgba(4,120,87,0.14);
+  border-radius: 28px;
+  background: rgba(255,255,255,0.72);
+  box-shadow: 0 22px 70px rgba(6,78,59,0.08);
+  padding: clamp(28px, 5vw, 52px);
+}
+.eyebrow {
+  display: inline-flex;
+  margin-bottom: 14px;
+  color: #047857;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.legal-hero h1 {
+  margin: 0 0 14px;
+  color: #052e24;
+  font-size: clamp(34px, 5vw, 62px);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+.legal-hero p {
+  max-width: 760px;
+  margin: 0 0 18px;
+  color: rgba(5,46,36,0.72);
+  font-size: 17px;
+  line-height: 1.8;
+}
+.updated-pill {
+  display: inline-flex;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: rgba(16,185,129,0.1);
+  color: #047857;
+  font-size: 13px;
+  font-weight: 800;
+}
+.legal-section { padding: 52px 0 76px; background: #fbfffd; }
+.legal-layout {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 30px;
+  align-items: start;
+}
+.legal-sidebar { position: sticky; top: 104px; }
+.sidebar-card,
+.legal-card,
+.notice-box {
+  border: 1px solid rgba(4,120,87,0.12);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 14px 38px rgba(6,78,59,0.06);
+}
+.sidebar-card { padding: 22px; }
+.sidebar-card h2 { margin: 0 0 10px; color: #052e24; font-size: 19px; }
+.sidebar-card p { margin: 0 0 16px; color: rgba(5,46,36,0.68); line-height: 1.7; font-size: 14px; }
+.sidebar-card a { color: #047857; font-weight: 800; text-decoration: none; }
+.legal-content { display: grid; gap: 18px; }
+.notice-box {
+  padding: 18px 20px;
+  background: linear-gradient(135deg, rgba(16,185,129,0.09), rgba(245,158,11,0.08));
+  color: rgba(5,46,36,0.8);
+  line-height: 1.75;
+}
+.notice-box strong { color: #047857; }
+.legal-card { padding: clamp(22px, 3vw, 30px); }
+.legal-card h2 {
+  margin: 0 0 14px;
+  color: #052e24;
+  font-size: clamp(20px, 2vw, 26px);
+  letter-spacing: -0.02em;
+}
+.legal-card p,
+.legal-card li {
+  color: rgba(5,46,36,0.74);
+  font-size: 15px;
+  line-height: 1.85;
+}
+.legal-card p { margin: 0; }
+.legal-card ul { margin: 0; padding-left: 22px; display: grid; gap: 8px; }
+.contact-card { background: linear-gradient(135deg, #ecfdf5, #ffffff); }
+.contact-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.contact-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+}
+.contact-actions a:first-child { background: #052e24; }
+@media (max-width: 900px) {
+  .legal-layout { grid-template-columns: 1fr; }
+  .legal-sidebar { position: static; }
+}
+@media (max-width: 600px) {
+  .legal-hero { padding: 24px 0 32px; }
+  .legal-section { padding: 34px 0 56px; }
+  .breadcrumb { font-size: 13px; margin-bottom: 18px; }
+  .legal-hero-card { border-radius: 22px; }
+  .legal-hero p { font-size: 15px; }
+}
+</style>
