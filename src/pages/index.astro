@@ -994,8 +994,62 @@ const faqSchema = buildFaqSchema(homepageFaq);
 }
 
 @media (max-width: 560px) {
-  .product-grid { grid-template-columns: 1fr; }
-  .product-footer { flex-direction: column; align-items: stretch; }
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: start;
+  }
+
+  .product-card {
+    border-radius: 18px;
+    align-self: start;
+  }
+  .product-media { min-height: 92px; }
+  .product-icon { font-size: 36px; }
+  .product-badge {
+    top: 8px;
+    right: 8px;
+    padding: 3px 7px;
+    font-size: 9px;
+  }
+  .product-body {
+    padding: 10px 10px 12px;
+    gap: 5px;
+  }
+  .product-category {
+    font-size: 9px;
+    line-height: 1.2;
+  }
+  .product-body h3 {
+    font-size: 14px;
+    line-height: 1.25;
+    margin: 0;
+  }
+  .product-body p {
+    min-height: 0;
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .product-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .product-footer strong {
+    font-size: 15px;
+    line-height: 1.1;
+  }
+  .product-order-btn {
+    min-height: 31px;
+    padding: 7px 8px;
+    font-size: 11px;
+  }
 }
 
 /* ── Testimonials Section ── */

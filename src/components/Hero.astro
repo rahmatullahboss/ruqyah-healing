@@ -67,11 +67,6 @@ import { socialLinks } from '../data/clinic.js';
       </div>
     </div>
 
-    <div class="hero-photo-wrap" aria-hidden="true">
-      <div class="hero-photo-card">
-        <img src="/images/hero-ruqyah-healing-wide.svg" alt="" loading="eager" decoding="async" width="1600" height="900" />
-      </div>
-    </div>
   </div>
 </section>
 
@@ -148,18 +143,22 @@ import { socialLinks } from '../data/clinic.js';
   min-height: 560px;
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #047857 0%, #065f46 52%, #064e3b 100%);
+  background: url('/images/hero-ruqyah-healing-bg.webp') center / cover no-repeat;
   overflow: hidden;
 }
 
 .hero::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 18% 20%, rgba(255,255,255,0.12), transparent 28%),
-    radial-gradient(circle at 82% 15%, rgba(167,243,208,0.18), transparent 30%),
-    linear-gradient(135deg, rgba(255,255,255,0.06), transparent 42%);
+  inset: 0 auto 0 0;
+  width: min(52%, 700px);
+  background: linear-gradient(
+    90deg,
+    rgba(3, 78, 58, 0.20) 0%,
+    rgba(3, 78, 58, 0.11) 52%,
+    rgba(3, 78, 58, 0.04) 78%,
+    rgba(3, 78, 58, 0) 100%
+  );
   pointer-events: none;
   z-index: 1;
 }
@@ -167,14 +166,12 @@ import { socialLinks } from '../data/clinic.js';
 .hero-content {
   position: relative;
   z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr);
-  align-items: center;
-  gap: clamp(28px, 5vw, 64px);
+  display: block;
   text-align: left;
-  width: 100%;
-  max-width: 100%;
+  width: min(100%, 680px);
+  max-width: 680px;
   min-width: 0;
+  margin-right: auto;
   box-sizing: border-box;
   padding-top: 80px;
   padding-bottom: 80px;
@@ -182,9 +179,30 @@ import { socialLinks } from '../data/clinic.js';
 }
 
 .hero-copy {
+  position: relative;
+  z-index: 2;
   width: 100%;
   max-width: 680px;
   min-width: 0;
+  padding: 28px 30px;
+  border-radius: 26px;
+  background: linear-gradient(135deg, rgba(3, 78, 58, 0.22) 0%, rgba(255, 255, 255, 0.08) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+:global(.home-page .hero .hero-content),
+:global(.home-page .hero .hero-copy),
+:global(.home-page .hero .hero-title),
+:global(.home-page .hero .hero-subtitle),
+:global(.home-page .hero .hero-desc) {
+  text-align: left !important;
+}
+
+:global(.home-page .hero .hero-actions) {
+  justify-content: flex-start !important;
 }
 
 .hero-badge {
@@ -342,39 +360,6 @@ import { socialLinks } from '../data/clinic.js';
   transform: translateY(-2px);
 }
 
-.hero-photo-wrap {
-  position: relative;
-  width: 100%;
-  max-width: 520px;
-  justify-self: end;
-}
-.hero-photo-card {
-  position: relative;
-  border: 1px solid rgba(255,255,255,0.22);
-  border-radius: 28px;
-  padding: 10px;
-  background: rgba(255,255,255,0.12);
-  box-shadow: 0 24px 70px rgba(0,0,0,0.28);
-  backdrop-filter: blur(10px);
-}
-.hero-photo-card::before {
-  content: '';
-  position: absolute;
-  inset: 26px -16px -16px 26px;
-  border-radius: 30px;
-  background: rgba(16,185,129,0.22);
-  z-index: -1;
-}
-.hero-photo-card img {
-  display: block;
-  width: 100%;
-  max-height: 310px;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  object-position: center;
-  border-radius: 20px;
-}
-
 .hero-stats {
   display: inline-flex;
   align-items: center;
@@ -418,6 +403,16 @@ import { socialLinks } from '../data/clinic.js';
     min-height: auto;
     align-items: flex-start;
   }
+  .hero::before {
+    width: 100%;
+    background: linear-gradient(
+      180deg,
+      rgba(3, 78, 58, 0.16) 0%,
+      rgba(3, 78, 58, 0.10) 48%,
+      rgba(3, 78, 58, 0.04) 76%,
+      rgba(3, 78, 58, 0) 100%
+    );
+  }
   .hero-content {
     width: 100%;
     max-width: 100%;
@@ -427,11 +422,28 @@ import { socialLinks } from '../data/clinic.js';
     padding-bottom: 40px;
     overflow: hidden;
   }
-  .hero-copy,
+  .hero-copy {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 20px 16px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(3, 78, 58, 0.18) 0%, rgba(255, 255, 255, 0.07) 100%);
+  }
   .hero-desc {
     max-width: 100%;
     margin-left: auto;
     margin-right: auto;
+  }
+  :global(.home-page .hero .hero-content),
+  :global(.home-page .hero .hero-copy),
+  :global(.home-page .hero .hero-title),
+  :global(.home-page .hero .hero-subtitle),
+  :global(.home-page .hero .hero-desc) {
+    text-align: center !important;
+  }
+  :global(.home-page .hero .hero-actions) {
+    justify-content: center !important;
   }
   .hero-title {
     font-size: clamp(22px, 6.2vw, 28px);
@@ -454,9 +466,6 @@ import { socialLinks } from '../data/clinic.js';
   .hero-actions .btn-messenger-hero {
     width: 100%;
     justify-content: center;
-  }
-  .hero-photo-wrap {
-    display: none;
   }
   .hero-stats {
     display: grid;
