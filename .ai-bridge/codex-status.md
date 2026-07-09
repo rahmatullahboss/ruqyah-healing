@@ -1,24 +1,28 @@
 # Codex Status — Ruqyah Healing
 
-Updated: 2026-07-08T13:24:00+06:00
+Updated: 2026-07-09T10:47:00+06:00
 
 ## Latest change
-Removed the duplicate homepage course section.
+Checked and fixed the homepage hero regression tests by adding real public asset existence coverage.
 
 ## Files changed this turn
-- `src/pages/index.astro`
-  - Removed the older duplicate “রুকইয়াহর কোর্সসমূহ” course block.
-  - Kept the newer “আমাদের কোর্স সমূহ” preview section.
-  - Removed unused old course-card CSS for the deleted section.
+- `tests/homepage-hero.test.mjs`
+  - Added `fs.promises.access` checks so the four hero slide images must actually exist under `public/images/`.
+  - Fixed the test base URL from `../public` to `../public/`; without the trailing slash, URL resolution incorrectly escaped the public directory.
+  - Focused hero test now has 5 assertions groups instead of 4.
+- `src/components/Hero.astro`
+  - Existing local hero readability/slider changes remain part of the working tree.
 - `active-context.md`
 - `.ai-bridge/codex-status.md`
 
 ## Verification
+- Initial focused test run failed on the new asset-existence check because of the test path bug.
+- Fixed the path bug.
+- `node --test tests/homepage-hero.test.mjs` ✅ passed, 5/5 tests.
 - `npm run build` ✅ passed.
-- `courses-preview-section` search shows only the remaining course section and its CSS.
 
 ## Deployment
-Not deployed in this turn. Last deployed version is still `d5a882da-00a2-44db-a6ae-e217f38acb3b` until the next explicit deploy.
+Not deployed in this turn. Deploy only after the user explicitly requests deployment.
 
 ## Current repository status notes
-There were unrelated pre-existing uncommitted changes before this task, including component/layout edits, supplements, privacy/terms pages, images, and `.ai-bridge` files.
+The hero fix and the new regression tests are still local, uncommitted changes on `master`. Full `npm test` was not run because the repository's test script includes the existing smoke test that requires a running local/target server.
