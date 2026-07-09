@@ -1,26 +1,28 @@
 # Active Context — Ruqyah Healing
 
-Updated: 2026-07-09T11:05:00+06:00
+Updated: 2026-07-09T15:50:00+06:00
 Workspace: /Users/rahmatullahzisan/Desktop/Dev/ruqyah-healing
 Branch: master
 
 ## Current task
-Add and strengthen test cases for the header Translate option.
+Move the homepage Raqi profile section below the Blog section and deploy.
 
 ## Files touched this turn
-- `tests/header-translate.test.mjs`
-  - Strengthened the translate dropdown test suite from 5 to 6 test groups.
-  - Added explicit coverage that Bangla and English use internal locale alternates.
-  - Added coverage that the current internal locale can be highlighted with `option.code === pageLocale`.
-  - Added coverage that Urdu and Arabic options expose RTL direction handling through `dir={option.dir}`.
-- `active-context.md`
+- `src/pages/index.astro`
+  - Moved Bengali Raqi profile section after `রুকইয়া ব্লগ`.
+- `src/pages/en/index.astro`
+  - Moved English Raqi profile section after `Ruqyah Blog`.
+- `tests/homepage-courses-section.test.mjs`
+  - Added regression coverage for the Blog → Raqi Profile → Home Service order.
+- `.ai-bridge/codex-status.md`
+- `.ai-bridge/implementation-diff.patch`
 
-## Verification
-- `node --test tests/header-translate.test.mjs` passed: 6/6 tests.
-- `npm run build` passed successfully.
+## Verification before deploy
+- `node --test tests/homepage-courses-section.test.mjs tests/demo-courses.test.mjs tests/header-translate.test.mjs tests/homepage-hero.test.mjs` passed: 25/25.
+- `npm run build` passed.
 
 ## Deployment
-- Not deployed in this turn because the user did not request deployment.
+- Pending after commit and push.
 
 ## Notes
-- The translate feature itself is still local and uncommitted on `master`.
+- Existing uncommitted homepage course/demo/English content changes were preserved and will be included in the commit/deploy.

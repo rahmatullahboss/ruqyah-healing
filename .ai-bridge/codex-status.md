@@ -1,25 +1,24 @@
 # Codex Status — Ruqyah Healing
 
-Updated: 2026-07-09T11:05:00+06:00
+Updated: 2026-07-09T15:50:00+06:00
 
 ## Latest change
-Strengthened the header Translate option regression tests.
+Moved the Raqi profile section below the homepage blog section on both Bengali and English homepages.
 
 ## Files changed this turn
-- `tests/header-translate.test.mjs`
-  - Test suite now has 6 groups.
-  - Added explicit coverage for Bangla/English internal alternates.
-  - Added coverage for active internal locale highlighting.
-  - Added coverage for Urdu/Arabic RTL direction support.
-- `active-context.md`
-- `.ai-bridge/codex-status.md`
+- `src/pages/index.astro`
+  - Raqi profile section now appears after `রুকইয়া ব্লগ` and before `হোম সার্ভিস উপলব্ধ`.
+- `src/pages/en/index.astro`
+  - English Raqi profile section now mirrors the same order after `Ruqyah Blog`.
+- `tests/homepage-courses-section.test.mjs`
+  - Added a regression test for Blog → Raqi Profile → Home Service order on both locales.
 
 ## Verification
-- `node --test tests/header-translate.test.mjs` ✅ passed, 6/6 tests.
+- `node --test tests/homepage-courses-section.test.mjs tests/demo-courses.test.mjs tests/header-translate.test.mjs tests/homepage-hero.test.mjs` ✅ passed, 25/25.
 - `npm run build` ✅ passed.
 
 ## Deployment
-Not deployed in this turn. Deploy only after the user explicitly requests deployment.
+Pending deploy in current turn after commit/push.
 
-## Current repository status notes
-Translate feature and tests remain local and uncommitted on `master`.
+## Notes
+- Existing homepage course/demo/English translation changes were already in the working tree and were preserved.

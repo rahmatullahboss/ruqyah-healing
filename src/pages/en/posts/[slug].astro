@@ -53,8 +53,8 @@ const postUrl = `${siteUrl}/en/posts/${post.slug}`;
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
-  headline: post.title,
-  description: post.excerpt,
+  headline: englishMeta.title,
+  description: englishMeta.excerpt,
   url: postUrl,
   datePublished: post.date,
   dateModified: post.date,
@@ -74,7 +74,7 @@ const jsonLd = {
     },
   },
   keywords: tags.join(', '),
-  articleSection: post.category,
+  articleSection: categoryLabel,
   mainEntityOfPage: {
     '@type': 'WebPage',
     '@id': postUrl,
@@ -104,7 +104,7 @@ const formattedDate = new Date(post.date).toLocaleDateString('en-US', {
   articleDate={post.date}
   articleAuthor="Ruqyah Healing Center"
   articleAuthorUrl="/en/author"
-  articleSection={post.category}
+  articleSection={categoryLabel}
   keywords={tags}
   locale="en"
 >

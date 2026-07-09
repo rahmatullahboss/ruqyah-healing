@@ -74,3 +74,28 @@ Cloudflare Pages  ←  Astro SSR  ←  Cloudflare Functions (legacy)
 - Local editor MCP file: `.vscode/mcp.json` contains only the BrainSync stdio server.
 - There is no root `.mcp.json` for CodexPro stdio client integration.
 - Compared with FitBD: FitBD uses `toolMode=full` and a repo-local `.mcp.json` / desktop config posture with `--bash full`, `--write workspace`, and `--tool-mode full`. Ruqyah currently works but is not aligned with that newer full-mode setup.
+
+## LMS demo course seed map — 2026-07-09
+
+- Demo course source data: `src/data/demo-courses.js`.
+  - Exports `demoCourses` and `getDemoCourseContentRows()`.
+  - Current catalog contains 4 public-ready service-based demo courses.
+- Seed command: `node scripts/seed-courses.mjs` with `DATABASE_URL` set.
+  - Upserts into `courses`, `course_modules`, `course_lessons`, `course_quizzes`, and `course_quiz_questions`.
+  - IDs are deterministic so the seed is safe to rerun.
+- Public course visibility path:
+  - `src/pages/courses.astro` queries published courses.
+  - `filterPublicReadyCourses(groupCourseContentRows(...))` hides incomplete courses.
+  - Readiness requires a real image, at least one module, and at least one valid lesson.
+- Focused regression tests: `tests/demo-courses.test.mjs`.
+
+## Homepage courses preview map — 2026-07-09
+
+- Homepage course preview section: `src/pages/index.astro` around the `courses-preview-section` block.
+- Course data priority:
+  1. Query published courses from DB.
+  2. Filter them with `filterPublicReadyCourses(groupCourseContentRows(...))`.
+  3. Show up to 4 live cards.
+  4. Fill any remaining slots with `demoCourseCatalog` from `src/data/demo-courses.js`.
+- This avoids a blank homepage course section when the database has no public-ready LMS courses.
+- Regression tests: `tests/homepage-courses-section.test.mjs`.

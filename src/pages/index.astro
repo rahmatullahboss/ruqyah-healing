@@ -13,6 +13,7 @@ import { clinicNumbers, clinicSchedule, getWhatsappUrl, primaryPhoneContact } fr
 import { buildFaqSchema } from '../lib/seo.js';
 import { desc, eq, inArray } from 'drizzle-orm';
 import { filterPublicReadyCourses, groupCourseContentRows } from '../lib/lms-admin.js';
+import { demoCourses as demoCourseCatalog } from '../data/demo-courses.js';
 
 export const prerender = false;
 
@@ -32,11 +33,11 @@ const [publishedModules, publishedLessons] = publishedCourseIds.length > 0
       db.select().from(courseLessons).where(inArray(courseLessons.courseId, publishedCourseIds)),
     ])
   : [[], []];
-const coursesList = filterPublicReadyCourses(groupCourseContentRows({
+const liveCoursesList = filterPublicReadyCourses(groupCourseContentRows({
   courses: publishedCourses,
   modules: publishedModules,
   lessons: publishedLessons,
-})).map((row) => row.course).slice(0, 6);
+})).map((row) => row.course).slice(0, 8);
 const formatBnNumber = (value) => new Intl.NumberFormat('bn-BD').format(value);
 const getCoursePreviewPrice = (course) => {
   const basePrice = Number(course.price || 0);
@@ -44,6 +45,17 @@ const getCoursePreviewPrice = (course) => {
   const effectivePrice = salePrice > 0 && salePrice < basePrice ? salePrice : basePrice;
   return effectivePrice > 0 ? `৳${formatBnNumber(effectivePrice)}` : 'ফ্রি';
 };
+
+
+const livePreviewCourses = liveCoursesList.slice(0, 4);
+const livePreviewCourseIds = new Set(livePreviewCourses.map((course) => course.id));
+const homepageDemoCourses = demoCourseCatalog.slice(0, 4)
+  .filter((course) => !livePreviewCourseIds.has(course.id))
+  .map((course) => ({
+    ...course,
+    href: '/courses',
+  }));
+const coursesList = [...livePreviewCourses, ...homepageDemoCourses].slice(0, 4);
 const testimonialList = await db.select().from(testimonials).where(eq(testimonials.published, true)).orderBy(desc(testimonials.orderIndex)).limit(6);
 const blogs = allPosts
   .slice(0, 6)
@@ -368,17 +380,28 @@ const faqSchema = buildFaqSchema(homepageFaq);
         <div class="section-header scroll-reveal">
           <span class="section-kicker">Courses</span>
           <h2>আমাদের কোর্স সমূহ</h2>
-          <p>ইসলামিক জ্ঞান অর্জন করুন আমাদের প্রশিক্ষণ কোর্স থেকে</p>
+          <p>রুকইয়াহ, হিজামা ও ওয়েলনেস সাপোর্ট নিয়ে structured, safe এবং practical learning path</p>
+        </div>
+
+        <div class="courses-preview-lead scroll-reveal">
+          <span>ফ্রি প্রিভিউ</span>
+          <span>বাংলা লেসন</span>
+          <span>কুইজ ও সার্টিফিকেট</span>
+          <span>Safety-first guidance</span>
         </div>
         
         <div class="courses-preview-grid">
           {coursesList.map((course, i) => {
             const courseSummary = course.shortDescription || course.desc || 'রুকইয়াহ ও ইসলামিক হিলিং শেখার জন্য সাজানো কোর্স।';
+            const courseHref = course.href || `/courses/${course.id}`;
             return (
-              <a href={`/courses/${course.id}`} class="course-preview-card scroll-reveal-child" style={`--stagger-delay:${i * 70}ms`}>
+              <a href={courseHref} class="course-preview-card scroll-reveal-child" style={`--stagger-delay:${i * 70}ms`}>
                 <div class="course-preview-img">
                   <img src={course.image} alt={course.title} loading="lazy" decoding="async" />
                   <span class="course-card-badge">{course.level}</span>
+                  <span class:list={["course-price-chip", getCoursePreviewPrice(course) === 'ফ্রি' && 'free']}>
+                    {getCoursePreviewPrice(course)}
+                  </span>
                 </div>
                 <div class="course-preview-body">
                   <div class="course-card-meta">
@@ -387,6 +410,10 @@ const faqSchema = buildFaqSchema(homepageFaq);
                   </div>
                   <h3>{course.title}</h3>
                   <p>{courseSummary}</p>
+                  <div class="course-mini-stats">
+                    <span>{course.hours}</span>
+                    <span>{course.language || 'বাংলা'}</span>
+                  </div>
                   <div class="course-card-footer">
                     <strong>{getCoursePreviewPrice(course)}</strong>
                     <span class="course-view-more">বিস্তারিত দেখুন →</span>
@@ -532,6 +559,33 @@ const faqSchema = buildFaqSchema(homepageFaq);
           ))}
         </div>
         <div class="swipe-hint" aria-hidden="true"><span>← সোয়াইপ করুন →</span></div>
+      </div>
+    </section>
+
+    <!-- Raqi Profile Preview -->
+    <section class="section raqi-intro-section reveal">
+      <div class="container">
+        <div class="raqi-intro-card scroll-reveal">
+          <div class="raqi-intro-photo-wrap">
+            <img src="/images/raqi-omor.webp" alt="ওমর হাসান আজমি" class="raqi-intro-photo" loading="lazy" decoding="async" />
+            <span class="raqi-photo-badge">রাকী</span>
+          </div>
+          <div class="raqi-intro-copy">
+            <span class="section-kicker">রাকী পরিচয়</span>
+            <h2>ওমর হাসান আজমি</h2>
+            <p class="raqi-intro-lead">ইসলামী রুকইয়াহ চিকিৎসক, সুন্নাহভিত্তিক স্বাস্থ্যসেবা অনুশীলনকারী এবং রুকইয়াহ, হিজামা ও সাপোর্টিভ থেরাপি নিয়ে কাজ করেন।</p>
+            <p>আল্লাহর অশেষ রহমতে দীর্ঘদিন ধরে কুরআন-সুন্নাহভিত্তিক শিরকমুক্ত রুকইয়াহ, প্রাথমিক ডায়াগনোসিস, সেলফ-রুকইয়াহ রুটিন এবং follow-up plan নিয়ে রোগীদের সাপোর্ট দিয়ে আসছেন। প্রতিটি সেশনে রোগীর সমস্যা শুনে লক্ষণ, history এবং current condition অনুযায়ী করণীয় সাজানো হয়।</p>
+            <div class="raqi-intro-points">
+              <span>☪️ শিরকমুক্ত রুকইয়াহ</span>
+              <span>🩸 হিজামা সাপোর্ট</span>
+              <span>📋 ডায়াগনোসিস ও ফলোআপ</span>
+            </div>
+            <div class="raqi-intro-actions">
+              <a href="/team" class="btn btn-outline">পূর্ণ পরিচয় দেখুন</a>
+              <a href={getWhatsappUrl('আসসালামু আলাইকুম, আমি রাকীর সাথে যোগাযোগ করতে চাই।')} target="_blank" rel="noopener" class="btn btn-primary">যোগাযোগ করুন</a>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -768,18 +822,159 @@ const faqSchema = buildFaqSchema(homepageFaq);
   margin-right: auto;
 }
 
+
+/* ── Raqi intro preview ── */
+.raqi-intro-section {
+  background: linear-gradient(180deg, #ffffff 0%, #f7fffb 100%);
+}
+.raqi-intro-card {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 28px;
+  align-items: center;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 26px;
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 60px rgba(6, 95, 70, 0.12);
+  text-align: left;
+}
+.raqi-intro-photo-wrap {
+  position: relative;
+  width: 220px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+.raqi-intro-photo {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 24px;
+  border: 6px solid #ecfdf5;
+  box-shadow: 0 18px 34px rgba(6, 95, 70, 0.18);
+}
+.raqi-photo-badge {
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(16, 185, 129, 0.25);
+}
+.raqi-intro-copy {
+  text-align: left !important;
+}
+.raqi-intro-copy h2 {
+  margin: 6px 0 8px;
+  font-size: clamp(24px, 3vw, 34px);
+}
+.raqi-intro-copy p {
+  color: var(--text-muted);
+  line-height: 1.8;
+  text-align: left !important;
+}
+.raqi-intro-lead {
+  color: var(--text-dark) !important;
+  font-weight: 700;
+}
+.raqi-intro-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0;
+}
+.raqi-intro-points span {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #065f46;
+  font-weight: 700;
+  font-size: 13px;
+}
+.raqi-intro-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+@media (max-width: 760px) {
+  .raqi-intro-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 22px;
+  }
+  .raqi-intro-copy,
+  .raqi-intro-copy p {
+    text-align: center !important;
+  }
+  .raqi-intro-photo-wrap {
+    width: 176px;
+  }
+  .raqi-intro-points,
+  .raqi-intro-actions {
+    justify-content: center;
+  }
+}
+
 /* ── Courses Preview Section ── */
 .courses-preview-section {
-  padding: 72px 0;
+  padding: 88px 0;
   background:
-    radial-gradient(circle at top left, rgba(46, 125, 50, 0.1), transparent 32%),
+    radial-gradient(circle at top left, rgba(17, 185, 129, 0.13), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.11), transparent 30%),
     linear-gradient(135deg, #ffffff 0%, #f7fbf4 100%);
+}
+
+.courses-preview-lead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: -6px auto 30px;
+}
+
+.courses-preview-lead span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: 1px solid rgba(46, 125, 50, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.74);
+  color: var(--primary-dark, #155e3b);
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 12px 30px rgba(15, 68, 24, 0.06);
+}
+
+.courses-preview-lead span::before {
+  content: '✓';
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(17, 185, 129, 0.12);
+  color: var(--primary);
+  font-size: 11px;
 }
 
 .courses-preview-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
 }
 
 .course-preview-card {
@@ -788,12 +983,13 @@ const faqSchema = buildFaqSchema(homepageFaq);
   flex-direction: column;
   min-height: 100%;
   overflow: hidden;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.96);
   border: 1px solid rgba(46, 125, 50, 0.14);
-  border-radius: 24px;
+  border-radius: 28px;
   box-shadow: 0 18px 45px rgba(15, 68, 24, 0.08);
   text-decoration: none;
   color: inherit;
+  isolation: isolate;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
@@ -804,7 +1000,7 @@ const faqSchema = buildFaqSchema(homepageFaq);
 }
 
 .course-preview-img {
-  height: 190px;
+  height: 172px;
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, #eef7ef, #f8faf7);
@@ -847,6 +1043,27 @@ const faqSchema = buildFaqSchema(homepageFaq);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
 
+.course-price-chip {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(6, 95, 70, 0.9);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 12px 28px rgba(6, 95, 70, 0.25);
+}
+
+.course-price-chip.free {
+  background: rgba(20, 184, 166, 0.94);
+}
+
 .course-preview-body {
   display: flex;
   flex-direction: column;
@@ -873,23 +1090,42 @@ const faqSchema = buildFaqSchema(homepageFaq);
 }
 
 .course-preview-body h3 {
-  font-size: 18px;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 900;
   margin-bottom: 10px;
-  line-height: 1.35;
+  min-height: 48px;
+  line-height: 1.4;
   color: var(--text-dark);
 }
 
 .course-preview-body p {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 44px;
-  margin: 0 0 18px;
+  min-height: 66px;
+  margin: 0 0 16px;
   color: var(--text-muted);
   font-size: 14px;
   line-height: 1.6;
+}
+
+.course-mini-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.course-mini-stats span {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(46, 125, 50, 0.08);
+  color: var(--primary-dark, #155e3b);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .course-card-footer {
@@ -949,12 +1185,15 @@ const faqSchema = buildFaqSchema(homepageFaq);
   color: #fff;
 }
 
-@media (max-width: 900px) {
-  .courses-preview-grid { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 1180px) {
+  .courses-preview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 560px) {
+  .courses-preview-section { padding: 64px 0; }
+  .courses-preview-lead { justify-content: flex-start; }
   .courses-preview-grid { grid-template-columns: 1fr; }
+  .course-preview-body h3 { min-height: auto; }
 }
 
 

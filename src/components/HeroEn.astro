@@ -1,0 +1,544 @@
+---
+import { socialLinks } from '../data/clinic.js';
+---
+<section class="hero" data-active-slide="0" aria-label="Ruqyah Healing introduction">
+  <div class="hero-bg-slider" aria-hidden="true">
+    <div class="hero-bg-slide" style="--hero-slide-image: url('/images/hero-ruqyah-healing-bg.webp');"></div>
+    <div class="hero-bg-slide" style="--hero-slide-image: url('/images/prayer-landscape.webp');"></div>
+    <div class="hero-bg-slide" style="--hero-slide-image: url('/images/ruqyah-info.webp');"></div>
+    <div class="hero-bg-slide" style="--hero-slide-image: url('/images/hijama-main.webp');"></div>
+  </div>
+  <div class="container hero-content">
+    <div class="hero-copy">
+      <div class="hero-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <span>Solutions for spiritual and physical concerns</span>
+      </div>
+
+      <h1 class="hero-title">Ruqyah Healing — Islamic Ruqyah Treatment</h1>
+      <p class="hero-subtitle" data-typewriter='["Family unrest or conflict?", "Obstacles in marriage or having children?", "Business decline or barriers to blessing?", "Unbearable physical pain?"]'></p>
+      <p class="hero-desc">Support for problems linked to jinn, magic, and evil eye — through a 100% halal method based on the Quran and Sunnah.</p>
+
+      <div class="hero-actions">
+        <a href="/en/appointment" class="btn btn-hero-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          Book Now
+        </a>
+        <a href="https://wa.me/8801336202150?text=Assalamu%20Alaikum,%20I%20would%20like%20to%20book%20a%20ruqyah%20service." target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp-hero">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          WhatsApp
+        </a>
+        <a href="tel:01992575874" class="btn btn-call-hero">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 15z"/>
+          </svg>
+          Call Now
+        </a>
+        <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" class="btn btn-facebook-hero">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+          </svg>
+          Facebook
+        </a>
+        <a href={socialLinks.messenger} target="_blank" rel="noopener noreferrer" class="btn btn-messenger-hero">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2C6.477 2 2 6.145 2 11.26c0 2.915 1.454 5.514 3.727 7.212V22l3.405-1.87c.91.252 1.875.39 2.868.39 5.523 0 10-4.145 10-9.26S17.523 2 12 2Zm.994 12.47-2.547-2.72-4.97 2.72 5.46-5.8 2.61 2.72 4.907-2.72-5.46 5.8Z"/>
+          </svg>
+          Messenger
+        </a>
+      </div>
+
+      <!-- Trust strip -->
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-num" aria-label="Thousands of treated patients">Thousands</span>
+          <span class="hero-stat-label">Trusted by treated patients</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-num" aria-label="Eight years of experience">Eight Years</span>
+          <span class="hero-stat-label">Service guided by experience</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-num" aria-label="Completely halal method">Fully Halal</span>
+          <span class="hero-stat-label">Quran and Sunnah-based method</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Typewriter effect for hero subtitle -->
+<script>
+(function () {
+  'use strict';
+
+  function initTypewriter() {
+    const el = document.querySelector('[data-typewriter]');
+    if (!el || el.dataset.typewriterStarted === 'true') return;
+    el.dataset.typewriterStarted = 'true';
+
+    const hero = el.closest('.hero');
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const typingSpeed = prefersReduced ? 0 : 80;
+    const deletingSpeed = prefersReduced ? 0 : 40;
+    const pauseDuration = prefersReduced ? 0 : 2000;
+
+    let raw = el.dataset.typewriter || '';
+    let texts = [];
+    try {
+      texts = JSON.parse(raw);
+    } catch {
+      texts = [raw];
+    }
+    if (!texts.length) texts = [raw];
+
+    function updateHeroSlide(index) {
+      if (!hero) return;
+      hero.setAttribute('data-active-slide', String(index % texts.length));
+    }
+
+    let textIndex = 0;
+    updateHeroSlide(textIndex);
+
+    if (prefersReduced) {
+      el.textContent = texts[0];
+      return;
+    }
+
+    let isDeleting = false;
+    let isPaused = false;
+
+    function type() {
+      if (isPaused) return;
+
+      const text = texts[textIndex];
+
+      if (!isDeleting) {
+        const currentLength = el.textContent.length;
+        if (currentLength < text.length) {
+          el.textContent = text.slice(0, currentLength + 1);
+          setTimeout(type, typingSpeed);
+        } else {
+          isPaused = true;
+          setTimeout(() => {
+            isPaused = false;
+            isDeleting = true;
+            type();
+          }, pauseDuration);
+        }
+      } else {
+        const currentLength = el.textContent.length;
+        if (currentLength > 0) {
+          el.textContent = text.slice(0, currentLength - 1);
+          setTimeout(type, deletingSpeed);
+        } else {
+          isDeleting = false;
+          textIndex = (textIndex + 1) % texts.length;
+          updateHeroSlide(textIndex);
+          setTimeout(type, 500);
+        }
+      }
+    }
+
+    type();
+  }
+
+  initTypewriter();
+  document.addEventListener('astro:page-load', initTypewriter);
+})();
+</script>
+
+<style>
+.hero {
+  position: relative;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  background: #063d31;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero-bg-slider {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-bg-slide {
+  position: absolute;
+  inset: 0;
+  background-image: var(--hero-slide-image);
+  background-position: center;
+  background-size: cover;
+  opacity: 0;
+  transform: scale(1.045);
+  transition: opacity 700ms ease, transform 1400ms ease;
+}
+
+.hero[data-active-slide="0"] .hero-bg-slide:nth-child(1),
+.hero[data-active-slide="1"] .hero-bg-slide:nth-child(2),
+.hero[data-active-slide="2"] .hero-bg-slide:nth-child(3),
+.hero[data-active-slide="3"] .hero-bg-slide:nth-child(4) {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(2, 34, 27, 0.94) 0%, rgba(3, 62, 48, 0.86) 42%, rgba(4, 63, 49, 0.58) 72%, rgba(3, 42, 34, 0.45) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.34) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  display: block;
+  text-align: left;
+  width: min(100%, 700px);
+  max-width: 700px;
+  min-width: 0;
+  margin-right: auto;
+  box-sizing: border-box;
+  padding-top: 88px;
+  padding-bottom: 88px;
+  color: #fff;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 700px;
+  min-width: 0;
+  padding: 32px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(3, 56, 44, 0.92) 0%, rgba(7, 89, 66, 0.82) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+:global(.home-page .hero .hero-content),
+:global(.home-page .hero .hero-copy),
+:global(.home-page .hero .hero-title),
+:global(.home-page .hero .hero-subtitle),
+:global(.home-page .hero .hero-desc) {
+  text-align: left !important;
+}
+
+:global(.home-page .hero .hero-actions) {
+  justify-content: flex-start !important;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(6, 95, 70, 0.82);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.34);
+  color: #f7fffb;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 16px;
+  border-radius: 20px;
+  margin-bottom: 22px;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+
+.hero-title {
+  font-family: 'Lora', 'Hind Siliguri', serif;
+  font-size: clamp(22px, 3.5vw, 34px);
+  font-weight: 800;
+  margin-bottom: 14px;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  overflow-wrap: break-word;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.48);
+}
+
+.hero-subtitle {
+  font-size: clamp(24px, 4.8vw, 38px);
+  font-weight: 800;
+  margin-bottom: 14px;
+  color: #f6fff9;
+  min-height: 1.5em;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.52);
+}
+
+.hero-desc {
+  font-size: 16px;
+  font-weight: 600;
+  color: #edfdf5;
+  max-width: 600px;
+  margin: 0 0 36px;
+  line-height: 1.75;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.42);
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-bottom: 48px;
+}
+
+.hero-actions .btn {
+  box-sizing: border-box;
+  max-width: 100%;
+  white-space: normal;
+}
+
+.btn-hero-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #fff;
+  color: #059669;
+  border: 2px solid #fff;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  min-height: 44px;
+}
+.btn-hero-primary:hover {
+  background: rgba(255,255,255,0.92);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.btn-whatsapp-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 700;
+  background: #25D366;
+  color: #fff;
+  border: 2px solid #25D366;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  min-height: 44px;
+  text-decoration: none;
+}
+.btn-whatsapp-hero:hover {
+  background: #1ebe5d;
+  border-color: #1ebe5d;
+  transform: translateY(-2px);
+}
+
+.btn-call-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 700;
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.6);
+  transition: all 0.2s ease;
+  font-family: inherit;
+  min-height: 44px;
+  text-decoration: none;
+}
+.btn-call-hero:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: #fff;
+  transform: translateY(-2px);
+}
+
+.btn-facebook-hero,
+.btn-messenger-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 20px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.5);
+  transition: all 0.2s ease;
+  font-family: inherit;
+  min-height: 44px;
+  text-decoration: none;
+}
+.btn-facebook-hero {
+  background: #1877F2;
+  border-color: #1877F2;
+}
+.btn-messenger-hero {
+  background: #0084FF;
+  border-color: #0084FF;
+}
+.btn-facebook-hero:hover,
+.btn-messenger-hero:hover {
+  transform: translateY(-2px);
+}
+
+.hero-stats {
+  display: inline-flex;
+  align-items: center;
+  gap: 32px;
+  max-width: 100%;
+  box-sizing: border-box;
+  background: rgba(2, 44, 34, 0.74);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 16px;
+  padding: 16px 32px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+}
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.hero-stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  min-width: 3ch;
+  display: inline-block;
+}
+.hero-stat-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.88);
+  white-space: nowrap;
+}
+.hero-stat-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255,255,255,0.2);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: auto;
+    align-items: flex-start;
+  }
+  .hero::before {
+    background:
+      linear-gradient(180deg, rgba(2, 34, 27, 0.92) 0%, rgba(3, 60, 47, 0.82) 52%, rgba(2, 34, 27, 0.76) 100%),
+      linear-gradient(90deg, rgba(0,0,0,0.28), rgba(0,0,0,0.18));
+  }
+  .hero-content {
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    text-align: center;
+    padding-top: 48px;
+    padding-bottom: 40px;
+    overflow: hidden;
+  }
+  .hero-copy {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 22px 16px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(2, 50, 39, 0.94) 0%, rgba(5, 82, 61, 0.88) 100%);
+  }
+  .hero-desc {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  :global(.home-page .hero .hero-content),
+  :global(.home-page .hero .hero-copy),
+  :global(.home-page .hero .hero-title),
+  :global(.home-page .hero .hero-subtitle),
+  :global(.home-page .hero .hero-desc) {
+    text-align: center !important;
+  }
+  :global(.home-page .hero .hero-actions) {
+    justify-content: center !important;
+  }
+  .hero-title {
+    font-size: clamp(22px, 6.2vw, 28px);
+  }
+  .hero-subtitle {
+    font-size: clamp(21px, 6.2vw, 28px);
+  }
+  .hero-actions {
+    width: min(100%, 420px);
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 28px;
+  }
+  .hero-actions .btn,
+  .hero-actions .btn-hero-primary,
+  .hero-actions .btn-whatsapp-hero,
+  .hero-actions .btn-call-hero,
+  .hero-actions .btn-facebook-hero,
+  .hero-actions .btn-messenger-hero {
+    width: 100%;
+    justify-content: center;
+  }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: min(100%, 420px);
+    margin-left: auto;
+    margin-right: auto;
+    gap: 10px;
+    padding: 14px;
+  }
+  .hero-stat-num { font-size: 18px; }
+  .hero-stat-label { white-space: normal; }
+  .hero-stat-divider { display: none; }
+}
+
+@media (max-width: 480px) {
+  .hero-content {
+    padding-top: 40px;
+    padding-bottom: 34px;
+  }
+  .hero-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg-slide {
+    transition: none;
+    transform: none;
+  }
+}
+</style>
