@@ -3,6 +3,32 @@ import { getPageLocale, localeAlternates } from '../lib/i18n.js';
 
 const pageLocale = getPageLocale(Astro.url.pathname);
 const alternates = localeAlternates(Astro.url.pathname);
+const publicPageUrl = new URL(
+  `${Astro.url.pathname}${Astro.url.search}`,
+  Astro.site?.origin || 'https://ruqyahhealing.com',
+).href;
+const encodedPublicPageUrl = encodeURIComponent(publicPageUrl);
+
+const translationOptions = [
+  { code: 'bn', shortLabel: 'BN', label: 'বাংলা', href: alternates.bn, external: false },
+  { code: 'en', shortLabel: 'EN', label: 'English', href: alternates.en, external: false },
+  {
+    code: 'ur',
+    shortLabel: 'UR',
+    label: 'اردو',
+    href: `https://translate.google.com/translate?sl=auto&tl=ur&u=${encodedPublicPageUrl}`,
+    external: true,
+    dir: 'rtl',
+  },
+  {
+    code: 'ar',
+    shortLabel: 'AR',
+    label: 'العربية',
+    href: `https://translate.google.com/translate?sl=auto&tl=ar&u=${encodedPublicPageUrl}`,
+    external: true,
+    dir: 'rtl',
+  },
+];
 
 // Grouped navigation structure
 const navGroups = pageLocale === 'en'
@@ -133,11 +159,32 @@ const navGroups = pageLocale === 'en'
       ))}
     </nav>
 
-    <!-- Language switcher — hidden but kept for SEO hreflang in head -->
-    <div class="locale-switcher" aria-label="Language switcher" style="display:none;">
-      <a href={alternates.bn} class:list={['locale-link', pageLocale === 'bn' && 'active']}>বাংলা</a>
-      <a href={alternates.en} class:list={['locale-link', pageLocale === 'en' && 'active']}>EN</a>
-    </div>
+    <details class="translate-switcher" data-translate-switcher>
+      <summary class="translate-toggle" aria-label="Translate this page">
+        <span aria-hidden="true">🌐</span>
+        <span class="translate-toggle-text">Translate</span>
+        <svg class="translate-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="translate-menu" role="menu" aria-label="Choose language">
+        {translationOptions.map(option => (
+          <a
+            href={option.href}
+            class:list={[
+              'translate-option',
+              option.code === pageLocale && 'active',
+            ]}
+            role="menuitem"
+            dir={option.dir}
+            target={option.external ? '_blank' : undefined}
+            rel={option.external ? 'noopener noreferrer' : undefined}
+            data-translate-option={option.code}
+          >
+            <span class="translate-code">{option.shortLabel}</span>
+            <span class="translate-label">{option.label}</span>
+          </a>
+        ))}
+      </div>
+    </details>
 
     <button
       class="menu-toggle"
@@ -331,9 +378,103 @@ const navGroups = pageLocale === 'en'
   font-weight: 600;
 }
 
-/* Locale switcher (hidden) */
-.locale-switcher {
+/* Translate switcher */
+.translate-switcher {
+  position: relative;
+  flex-shrink: 0;
+}
+.translate-switcher[open] .translate-chevron {
+  transform: rotate(180deg);
+}
+.translate-toggle {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #f8fafc;
+  color: var(--text-dark);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.translate-toggle::-webkit-details-marker {
   display: none;
+}
+.translate-toggle:hover,
+.translate-switcher[open] .translate-toggle {
+  background: var(--primary-light);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: var(--primary-dark);
+}
+.translate-chevron {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.translate-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 190px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 16px 38px rgba(15, 23, 42, 0.16);
+  z-index: 102;
+}
+.translate-menu::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 22px;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  transform: rotate(45deg);
+}
+.translate-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  color: var(--text-medium);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.translate-option:hover,
+.translate-option.active {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+.translate-code {
+  min-width: 34px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: var(--text-dark);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+.translate-option.active .translate-code,
+.translate-option:hover .translate-code {
+  background: #d1fae5;
+  color: var(--primary-dark);
+}
+.translate-label {
+  flex: 1;
 }
 
 /* Hamburger button */
@@ -388,6 +529,25 @@ const navGroups = pageLocale === 'en'
 /* ── Mobile ── */
 @media (max-width: 768px) {
   .menu-toggle { display: flex; }
+
+  .header-inner {
+    gap: 10px;
+  }
+  .translate-toggle {
+    min-height: 38px;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .translate-toggle-text {
+    display: none;
+  }
+  .translate-menu {
+    right: -48px;
+    min-width: 178px;
+  }
+  .translate-menu::before {
+    right: 70px;
+  }
 
   .main-nav {
     display: none;
@@ -474,6 +634,7 @@ const navGroups = pageLocale === 'en'
 const toggle  = document.getElementById('menu-toggle') as HTMLButtonElement | null;
 const nav     = document.getElementById('main-nav');
 const overlay = document.getElementById('nav-overlay');
+const translateSwitcher = document.querySelector('[data-translate-switcher]') as HTMLDetailsElement | null;
 
 function updateHeaderActive() {
   const path = window.location.pathname;
@@ -506,13 +667,31 @@ function closeMenu() {
   document.querySelectorAll('[data-dropdown]').forEach(d => d.classList.remove('is-open'));
 }
 
+function closeTranslateSwitcher() {
+  if (translateSwitcher) translateSwitcher.open = false;
+}
+
 toggle?.addEventListener('click', () => {
   const isOpen = nav?.classList.contains('open');
+  closeTranslateSwitcher();
   isOpen ? closeMenu() : openMenu();
 });
 
+translateSwitcher?.addEventListener('click', (event) => {
+  event.stopPropagation();
+});
+
+document.addEventListener('click', closeTranslateSwitcher);
+
+document.querySelectorAll('[data-translate-option]').forEach(link => {
+  link.addEventListener('click', closeTranslateSwitcher);
+});
+
 // Close on overlay click
-overlay?.addEventListener('click', closeMenu);
+overlay?.addEventListener('click', () => {
+  closeTranslateSwitcher();
+  closeMenu();
+});
 
 // Close on nav link click (mobile)
 nav?.querySelectorAll('.nav-link:not(.nav-dropdown-toggle), .dropdown-link').forEach(link => {
@@ -521,7 +700,9 @@ nav?.querySelectorAll('.nav-link:not(.nav-dropdown-toggle), .dropdown-link').for
 
 // Close on Escape key
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && nav?.classList.contains('open')) closeMenu();
+  if (e.key !== 'Escape') return;
+  closeTranslateSwitcher();
+  if (nav?.classList.contains('open')) closeMenu();
 });
 
 // Mobile dropdown toggle
