@@ -3,22 +3,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { env as workerEnv } from 'cloudflare:workers';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { Edit, User, Mail, Phone, MapPin, Calendar, Heart, ArrowRight, Activity } from '@lucide/astro';
+import { Edit, User, Mail, Phone } from '@lucide/astro';
 import { createDb } from '../db/client.js';
 import { appointments as appointmentsSchema, testResults, courseEnrollments, courses } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
+import { isEnrollmentActive } from '../lib/lms-access.js';
 
 export const prerender = false;
 
-const user = (Astro.locals as App.Locals).user || {
-  fullName: 'Loading...',
-  email: '',
-  phone: '',
-  address: '',
-  dob: '',
-  gender: ''
-};
-
+const user = (Astro.locals as App.Locals).user;
+if (!user) {
+  return Astro.redirect('/login');
+}
 
 // Fetch dynamic appointments based on user's phone number
 let userAppointments: any[] = [];
@@ -28,10 +24,12 @@ if (user && user.id) {
   try {
     const env = (workerEnv || process.env) as any;
     const db = createDb(env.DATABASE_URL);
-    userAppointments = await db.select()
-      .from(appointmentsSchema)
-      .where(eq(appointmentsSchema.phone, user.phone))
-      .orderBy(desc(appointmentsSchema.createdAt));
+    if (user.phone) {
+      userAppointments = await db.select()
+        .from(appointmentsSchema)
+        .where(eq(appointmentsSchema.phone, user.phone))
+        .orderBy(desc(appointmentsSchema.createdAt));
+    }
     userTestResults = await db.select()
       .from(testResults)
       .where(eq(testResults.userId, user.id))
@@ -41,6 +39,7 @@ if (user && user.id) {
       courseId: courseEnrollments.courseId,
       status: courseEnrollments.status,
       completedAt: courseEnrollments.completedAt,
+      accessExpiresAt: courseEnrollments.accessExpiresAt,
       enrolledAt: courseEnrollments.createdAt,
       courseTitle: courses.title,
       courseImage: courses.image,
@@ -129,27 +128,6 @@ const stats = [
                     {user.phone}
                   </div>
                 </div>
-                <div class="info-field">
-                  <label>ঠিকানা</label>
-                  <div class="info-value">
-                    <MapPin size={16} />
-                    {user.address || 'দেওয়া হয়নি'}
-                  </div>
-                </div>
-                <div class="info-field">
-                  <label>জন্ম তারিখ</label>
-                  <div class="info-value">
-                    <Calendar size={16} />
-                    {user.dob || 'দেওয়া হয়নি'}
-                  </div>
-                </div>
-                <div class="info-field">
-                  <label>লিঙ্গ</label>
-                  <div class="info-value">
-                    <Heart size={16} />
-                    {user.gender}
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -223,8 +201,11 @@ const stats = [
                       {ec.completedAt && (
                         <span class="appt-status done">সম্পন্ন</span>
                       )}
-                      {ec.status === 'approved' && !ec.completedAt && (
+                      {isEnrollmentActive(ec) && !ec.completedAt && (
                         <a href={`/courses/${ec.courseId}/learn`} class="edit-btn" style="font-size:0.8rem; padding:4px 12px;">শিখুন</a>
+                      )}
+                      {ec.status === 'approved' && !isEnrollmentActive(ec) && (
+                        <span class="appt-status pending">মেয়াদ শেষ</span>
                       )}
                       {ec.status === 'pending' && (
                         <span class="appt-status pending">পেন্ডিং</span>
@@ -250,8 +231,7 @@ const stats = [
                 </div>
               </div>
               <h3>{user.fullName}</h3>
-              <p>{user.email}</p>
-              <button class="upload-btn">ছবি আপলোড করুন</button>
+              <p>{user.email || user.phone}</p>
             </div>
 
             <div class="stats-card">

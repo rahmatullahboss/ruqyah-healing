@@ -23,16 +23,25 @@ function textResponse(message: string, status: number) {
 }
 
 function parseRange(rangeHeader: string | null, size: number) {
-  if (!rangeHeader) return null;
+  if (!rangeHeader || !Number.isFinite(size) || size <= 0) return null;
   const match = rangeHeader.match(/^bytes=(\d*)-(\d*)$/);
-  if (!match) return null;
+  if (!match || (!match[1] && !match[2])) return null;
 
-  let start = match[1] ? Number(match[1]) : 0;
-  let end = match[2] ? Number(match[2]) : size - 1;
+  let start: number;
+  let end: number;
 
-  if (!Number.isFinite(start) || !Number.isFinite(end)) return null;
-  if (start < 0 || end < 0 || start > end || start >= size) return null;
-  end = Math.min(end, size - 1);
+  if (!match[1]) {
+    const suffixLength = Number(match[2]);
+    if (!Number.isInteger(suffixLength) || suffixLength <= 0) return null;
+    start = Math.max(size - suffixLength, 0);
+    end = size - 1;
+  } else {
+    start = Number(match[1]);
+    end = match[2] ? Number(match[2]) : size - 1;
+    if (!Number.isInteger(start) || !Number.isInteger(end)) return null;
+    if (start < 0 || end < 0 || start > end || start >= size) return null;
+    end = Math.min(end, size - 1);
+  }
 
   return {
     offset: start,

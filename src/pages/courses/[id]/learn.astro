@@ -6,7 +6,7 @@ import { courses, courseModules, courseLessons, courseQuizzes, courseEnrollments
 import { eq, and, asc } from 'drizzle-orm';
 import { env as workerEnv } from 'cloudflare:workers';
 import { PlayCircle, FileText, ListChecks, CheckCircle, Lock, ChevronLeft, ChevronRight, Menu, X, Maximize2 } from '@lucide/astro';
-import { buildLessonLockState, getOrderedLessons, safeJsonArray } from '../../../lib/lms-access.js';
+import { buildLessonLockState, getOrderedLessons, isEnrollmentActive, safeJsonArray } from '../../../lib/lms-access.js';
 import { sanitizeHtml } from '../../../lib/markdown.js';
 
 export const prerender = false;
@@ -27,7 +27,7 @@ if (!course) return Astro.redirect('/courses');
 // Verify enrollment
 const enrollment = await db.select().from(courseEnrollments)
   .where(and(eq(courseEnrollments.userId, user.id), eq(courseEnrollments.courseId, courseId)));
-if (enrollment.length === 0 || enrollment[0].status !== 'approved') {
+if (enrollment.length === 0 || !isEnrollmentActive(enrollment[0])) {
   return Astro.redirect(`/courses/${courseId}`);
 }
 

@@ -1,13 +1,20 @@
 import { createDb } from '../../../db/client.js';
 import { users } from '../../../db/schema.js';
 import { eq, or } from 'drizzle-orm';
+import { z } from 'zod';
 import { verifyPassword, createSession, hashPassword, needsPasswordRehash } from '../../../lib/auth.js';
+import { normalizeBangladeshPhone } from '../../../lib/appointments.js';
 
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
 
 import { env as workerEnv } from 'cloudflare:workers';
+
+const loginSchema = z.object({
+  identifier: z.string().trim().min(3).max(254),
+  password: z.string().min(1).max(128),
+});
 
 function getAdminEmails(env: Record<string, string | undefined>) {
   return new Set(
@@ -18,40 +25,42 @@ function getAdminEmails(env: Record<string, string | undefined>) {
   );
 }
 
-export const POST: APIRoute = async ({ request, locals, cookies }) => {
+function json(payload: unknown, status = 200) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { 'Cache-Control': 'no-store', 'Content-Type': 'application/json' },
+  });
+}
+
+export const POST: APIRoute = async ({ request, cookies }) => {
   const env = workerEnv || process.env;
   const adminEmails = getAdminEmails(env);
 
   try {
-    const formData = (await request.json()) as Record<string, string>;
-    const { identifier, password } = formData; // identifier can be email or phone
-
-    if (!identifier || !password) {
-      return new Response(JSON.stringify({ error: 'Missing credentials' }), { status: 400 });
+    const parsed = loginSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return json({ error: 'Missing or invalid credentials' }, 400);
     }
 
+    const { password } = parsed.data;
+    const rawIdentifier = parsed.data.identifier;
+    const emailIdentifier = rawIdentifier.toLowerCase();
+    const phoneIdentifier = normalizeBangladeshPhone(rawIdentifier);
     const db = createDb(env.DATABASE_URL);
 
-    // Find user by email or phone
     const [user] = await db
       .select()
       .from(users)
-      .where(or(eq(users.email, identifier), eq(users.phone, identifier)))
+      .where(or(eq(users.email, emailIdentifier), eq(users.phone, phoneIdentifier)))
       .limit(1);
 
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
-    }
-
-    // Google-only user trying password login — use generic message to prevent account enumeration
-    if (!user.passwordHash) {
-      return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
+    if (!user || !user.passwordHash) {
+      return json({ error: 'Invalid credentials' }, 401);
     }
 
     const isValid = await verifyPassword(password, user.passwordHash);
-
     if (!isValid) {
-      return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
+      return json({ error: 'Invalid credentials' }, 401);
     }
 
     if (needsPasswordRehash(user.passwordHash)) {
@@ -63,22 +72,20 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
     }
 
     const token = await createSession(user.id, env);
-
     cookies.set('auth_token', token, {
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24 * 7 // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     const shouldUseAdminRedirect = user.role === 'admin'
       || (!!user.email && adminEmails.has(user.email.toLowerCase()));
 
-    return new Response(JSON.stringify({ success: true, redirect: shouldUseAdminRedirect ? '/admin' : '/profile' }), { status: 200 });
-
+    return json({ success: true, redirect: shouldUseAdminRedirect ? '/admin' : '/profile' });
   } catch (error) {
     console.error('Login error:', error);
-    return new Response(JSON.stringify({ error: 'Server error' }), { status: 500 });
+    return json({ error: 'Server error' }, 500);
   }
 };

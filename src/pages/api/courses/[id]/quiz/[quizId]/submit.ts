@@ -4,9 +4,18 @@ import { createDb } from '../../../../../../db/client.js';
 import { courseQuizQuestions, courseQuizAttempts } from '../../../../../../db/schema.js';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import crypto from 'node:crypto';
+import { z } from 'zod';
 import { getQuizAccess } from '../../../../../../lib/lms-access.js';
 
 export const prerender = false;
+
+const quizSubmitSchema = z.object({
+  answers: z.array(z.object({
+    questionId: z.string().trim().min(1).max(100),
+    selectedOption: z.number().int().min(-1).max(1000),
+  })).max(500),
+  startedAt: z.string().datetime({ offset: true }).optional(),
+});
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
   const env = workerEnv || process.env;
@@ -18,12 +27,18 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 
   try {
     const { id: courseId, quizId } = params;
-    const body = await request.json() as Record<string, any>;
-    const { answers, startedAt } = body; // [{questionId, selectedOption}]
-
-    if (!courseId || !quizId || !answers || !Array.isArray(answers)) {
-      return new Response(JSON.stringify({ error: 'Course ID, Quiz ID and answers required' }), { status: 400 });
+    if (!courseId || !quizId) {
+      return new Response(JSON.stringify({ error: 'Course ID and Quiz ID required' }), { status: 400 });
     }
+
+    const parsed = quizSubmitSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return new Response(JSON.stringify({ error: 'Invalid quiz submission', details: parsed.error.issues }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    const { answers, startedAt } = parsed.data;
 
     const db = createDb((env as any).DATABASE_URL);
 
@@ -42,7 +57,10 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 
     const quiz = quizAccess.quiz;
 
-    if (quiz.timeLimit && startedAt) {
+    if (quiz.timeLimit) {
+      if (!startedAt) {
+        return new Response(JSON.stringify({ error: 'কুইজ শুরুর সময় পাওয়া যায়নি।', reason: 'missing_started_at' }), { status: 400 });
+      }
       const startedMs = new Date(startedAt).getTime();
       const nowMs = Date.now();
       const allowedMs = Number(quiz.timeLimit) * 60 * 1000;
@@ -61,7 +79,10 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 
     // Grade the quiz — deduplicate by questionId (last answer wins)
     const questionMap = new Map(questions.map(q => [q.id, q]));
-    const dedupedAnswers = [...new Map(answers.map((a: any) => [a.questionId, a])).values()];
+    const dedupedAnswers = [...new Map(answers.map((a) => [a.questionId, a])).values()];
+    if (dedupedAnswers.length > questions.length || dedupedAnswers.some((answer) => !questionMap.has(answer.questionId))) {
+      return new Response(JSON.stringify({ error: 'Quiz answers contain unknown questions' }), { status: 400 });
+    }
     let correctCount = 0;
 
     const gradedAnswers = dedupedAnswers.map((a: any) => {

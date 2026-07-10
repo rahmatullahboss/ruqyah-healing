@@ -59,6 +59,8 @@ worker-configuration.d.ts
 check.log
 diff.txt
 *.log
+/drive-download-*/
+/drive-download-*.zip
 
 # Ad-hoc screenshots (root level)
 /Screenshot*

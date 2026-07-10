@@ -4,88 +4,89 @@ import { createDb } from '../../../../db/client.js';
 import { courseReviews, courseEnrollments } from '../../../../db/schema.js';
 import { eq, and, desc } from 'drizzle-orm';
 import crypto from 'node:crypto';
+import { z } from 'zod';
 import { updateCourseRating } from '../../../../lib/lms.js';
+import { isEnrollmentActive } from '../../../../lib/lms-access.js';
 
 export const prerender = false;
 
-// GET: Get reviews for a course
-export const GET: APIRoute = async ({ params, url }) => {
+const reviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().trim().max(2000).optional().default(''),
+});
+
+function json(payload: unknown, status = 200) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { 'Cache-Control': 'no-store', 'Content-Type': 'application/json' },
+  });
+}
+
+export const GET: APIRoute = async ({ params }) => {
   const env = workerEnv || process.env;
 
   try {
     const { id: courseId } = params;
-    if (!courseId) {
-      return new Response(JSON.stringify({ error: 'Course ID required' }), { status: 400 });
-    }
+    if (!courseId) return json({ error: 'Course ID required' }, 400);
 
     const db = createDb((env as any).DATABASE_URL);
-
     const reviews = await db.select()
       .from(courseReviews)
       .where(and(eq(courseReviews.courseId, courseId), eq(courseReviews.published, true)))
       .orderBy(desc(courseReviews.createdAt));
 
-    return new Response(JSON.stringify({ success: true, reviews }), { status: 200 });
+    return json({ success: true, reviews });
   } catch (error) {
     console.error('Reviews GET error:', error);
-    return new Response(JSON.stringify({ error: 'Server error' }), { status: 500 });
+    return json({ error: 'Server error' }, 500);
   }
 };
 
-// POST: Submit a review
 export const POST: APIRoute = async ({ params, request, locals }) => {
   const env = workerEnv || process.env;
   const user = (locals as any).user;
-
-  if (!user) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-  }
+  if (!user) return json({ error: 'Unauthorized' }, 401);
 
   try {
     const { id: courseId } = params;
-    const body = await request.json() as Record<string, any>;
-    const { rating, comment } = body;
+    if (!courseId) return json({ error: 'Course ID required' }, 400);
 
-    if (!courseId || !rating || rating < 1 || rating > 5) {
-      return new Response(JSON.stringify({ error: 'Course ID and valid rating (1-5) required' }), { status: 400 });
+    const parsed = reviewSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return json({ error: parsed.error.issues[0]?.message || 'Valid rating required', details: parsed.error.issues }, 400);
     }
 
     const db = createDb((env as any).DATABASE_URL);
-
-    // Verify enrollment
-    const enrollment = await db.select().from(courseEnrollments)
-      .where(and(eq(courseEnrollments.userId, user.id), eq(courseEnrollments.courseId, courseId)));
-    if (enrollment.length === 0 || enrollment[0].status !== 'approved') {
-      return new Response(JSON.stringify({ error: 'Must be enrolled to review' }), { status: 403 });
+    const [enrollment] = await db.select().from(courseEnrollments)
+      .where(and(eq(courseEnrollments.userId, user.id), eq(courseEnrollments.courseId, courseId)))
+      .limit(1);
+    if (!enrollment || !isEnrollmentActive(enrollment)) {
+      return json({ error: 'Active course enrollment is required to review' }, 403);
     }
 
-    // Check if already reviewed
-    const existing = await db.select().from(courseReviews)
-      .where(and(eq(courseReviews.userId, user.id), eq(courseReviews.courseId, courseId)));
+    const [existing] = await db.select().from(courseReviews)
+      .where(and(eq(courseReviews.userId, user.id), eq(courseReviews.courseId, courseId)))
+      .limit(1);
 
-    if (existing.length > 0) {
-      // Update existing review
+    if (existing) {
       await db.update(courseReviews)
-        .set({ rating, comment: comment || '' })
-        .where(eq(courseReviews.id, existing[0].id));
+        .set({ rating: parsed.data.rating, comment: parsed.data.comment, published: false })
+        .where(eq(courseReviews.id, existing.id));
     } else {
-      // Create new review (pending moderation)
       await db.insert(courseReviews).values({
         id: crypto.randomUUID(),
         userId: user.id,
         courseId,
-        rating,
-        comment: comment || '',
+        rating: parsed.data.rating,
+        comment: parsed.data.comment,
         published: false,
       });
     }
 
-    // Update course rating
     await updateCourseRating(db, courseId);
-
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
+    return json({ success: true, message: 'Review submitted for moderation' });
   } catch (error) {
     console.error('Review POST error:', error);
-    return new Response(JSON.stringify({ error: 'Server error' }), { status: 500 });
+    return json({ error: 'Server error' }, 500);
   }
 };

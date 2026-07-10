@@ -5,7 +5,7 @@ import { env as workerEnv } from 'cloudflare:workers';
 import crypto from 'node:crypto';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { getEffectiveCoursePrice, ENROLLMENT_STATUS, isCoursePubliclyVisible } from '../../../lib/lms-access.js';
+import { getEffectiveCoursePrice, ENROLLMENT_STATUS, isCoursePubliclyVisible, isEnrollmentActive } from '../../../lib/lms-access.js';
 import { json } from '../../../lib/api-helpers.js';
 import { buildCourseReadiness } from '../../../lib/lms-admin.js';
 
@@ -55,14 +55,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
       ));
 
     if (existingEnrollment.length > 0) {
-      const status = existingEnrollment[0].status;
+      const existing = existingEnrollment[0];
+      const status = existing.status;
       if (status === ENROLLMENT_STATUS.REVOKED) {
         return json({ error: 'Course access was removed. Please contact admin.' }, 403);
+      }
+      if (status === ENROLLMENT_STATUS.APPROVED && !isEnrollmentActive(existing)) {
+        return json({
+          error: 'Course access expired. Please contact admin to renew access.',
+          status: 'expired',
+          enrollmentId: existing.id,
+        }, 403);
       }
       return json({
         success: true,
         status,
-        enrollmentId: existingEnrollment[0].id,
+        enrollmentId: existing.id,
         message: status === ENROLLMENT_STATUS.APPROVED ? 'Already enrolled' : 'Enrollment is pending review',
       });
     }

@@ -1,80 +1,78 @@
 import { createDb } from '../../../../db/client.js';
 import { users } from '../../../../db/schema.js';
-import { eq, and, ne } from 'drizzle-orm';
+import { eq, and, ne, or } from 'drizzle-orm';
+import { z } from 'zod';
 import { logAuditEvent } from '../../../../lib/audit.js';
+import { normalizeBangladeshPhone } from '../../../../lib/appointments.js';
 
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-
 import { env as workerEnv } from 'cloudflare:workers';
+
+const updateUserSchema = z.object({
+  userId: z.string().trim().min(1),
+  fullName: z.string().trim().min(2, 'নাম কমপক্ষে ২ অক্ষর হতে হবে।').max(100),
+  email: z.union([
+    z.literal(''),
+    z.string().trim().email('সঠিক ইমেইল দিন।').max(254).transform((value) => value.toLowerCase()),
+  ]).optional().default(''),
+  phone: z.union([
+    z.literal(''),
+    z.string().trim().transform(normalizeBangladeshPhone).refine(
+      (value) => /^01[3-9]\d{8}$/.test(value),
+      'সঠিক ফোন নম্বর দিন।',
+    ),
+  ]).optional().default(''),
+}).refine((data) => data.email || data.phone, {
+  message: 'ইমেইল অথবা ফোন নম্বর অবশ্যই দিতে হবে।',
+});
+
+function json(payload: unknown, status = 200) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { 'Cache-Control': 'no-store', 'Content-Type': 'application/json' },
+  });
+}
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = workerEnv || process.env;
 
   try {
     const adminUser = locals.user;
+    if (!adminUser || adminUser.role !== 'admin') return json({ error: 'Unauthorized' }, 403);
 
-    if (!adminUser || adminUser.role !== 'admin') {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+    const parsed = updateUserSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return json({ error: parsed.error.issues[0]?.message || 'Invalid user data', details: parsed.error.issues }, 400);
     }
-
-    const { userId, fullName, email, phone } = (await request.json()) as {
-      userId: string;
-      fullName: string;
-      email: string;
-      phone: string;
-    };
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'User ID required' }), { status: 400 });
-    }
-
-    if (!fullName || fullName.trim().length < 2) {
-      return new Response(
-        JSON.stringify({ error: 'নাম কমপক্ষে ২ অক্ষর হতে হবে।' }),
-        { status: 400 }
-      );
-    }
-
+    const { userId, fullName, email, phone } = parsed.data;
     const db = createDb(env.DATABASE_URL);
 
-    // Check email uniqueness (exclude current user)
-    if (email && email.trim()) {
-      const emailExists = await db
-        .select({ id: users.id })
+    const [target] = await db.select({ id: users.id }).from(users).where(eq(users.id, userId)).limit(1);
+    if (!target) return json({ error: 'User not found' }, 404);
+
+    const conditions = [];
+    if (email) conditions.push(eq(users.email, email));
+    if (phone) conditions.push(eq(users.phone, phone));
+    if (conditions.length > 0) {
+      const [conflict] = await db.select({ id: users.id })
         .from(users)
-        .where(and(eq(users.email, email.trim()), ne(users.id, userId)));
-      if (emailExists.length > 0) {
-        return new Response(
-          JSON.stringify({ error: 'এই ইমেইল অন্য ইউজারের আছে।' }),
-          { status: 400 }
-        );
-      }
+        .where(and(ne(users.id, userId), or(...conditions)))
+        .limit(1);
+      if (conflict) return json({ error: 'এই ইমেইল বা ফোন নম্বর অন্য ইউজারের আছে।' }, 409);
     }
 
-    // Check phone uniqueness (exclude current user)
-    if (phone && phone.trim()) {
-      const phoneExists = await db
-        .select({ id: users.id })
-        .from(users)
-        .where(and(eq(users.phone, phone.trim()), ne(users.id, userId)));
-      if (phoneExists.length > 0) {
-        return new Response(
-          JSON.stringify({ error: 'এই ফোন নম্বর অন্য ইউজারের আছে।' }),
-          { status: 400 }
-        );
+    try {
+      await db.update(users)
+        .set({ fullName, email: email || null, phone: phone || null })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      if ((error as any)?.code === '23505' || String((error as any)?.message || '').includes('duplicate key')) {
+        return json({ error: 'এই ইমেইল বা ফোন নম্বর অন্য ইউজারের আছে।' }, 409);
       }
+      throw error;
     }
-
-    await db
-      .update(users)
-      .set({
-        fullName: fullName.trim(),
-        email: email?.trim() || null,
-        phone: phone?.trim() || null,
-      })
-      .where(eq(users.id, userId));
 
     await logAuditEvent(db, {
       adminId: adminUser.id,
@@ -82,12 +80,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
       action: 'update_user_profile',
       entityType: 'user',
       entityId: userId,
-      details: { fullName: fullName.trim(), email: email?.trim(), phone: phone?.trim() },
+      details: { fullName, email, phone },
     });
 
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
+    return json({ success: true });
   } catch (error) {
     console.error('User update error:', error);
-    return new Response(JSON.stringify({ error: 'Server error' }), { status: 500 });
+    return json({ error: 'Server error' }, 500);
   }
 };

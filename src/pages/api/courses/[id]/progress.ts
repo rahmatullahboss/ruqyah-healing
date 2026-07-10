@@ -5,7 +5,7 @@ import { courseProgress, courseEnrollments } from '../../../../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 import crypto from 'node:crypto';
 import { getUserCourseProgress, isCourseCompleted } from '../../../../lib/lms.js';
-import { getLessonAccess } from '../../../../lib/lms-access.js';
+import { getLessonAccess, isEnrollmentActive } from '../../../../lib/lms-access.js';
 
 export const prerender = false;
 
@@ -29,8 +29,8 @@ export const GET: APIRoute = async ({ params, locals }) => {
     // Verify enrollment
     const enrollment = await db.select().from(courseEnrollments)
       .where(and(eq(courseEnrollments.userId, user.id), eq(courseEnrollments.courseId, courseId)));
-    if (enrollment.length === 0 || enrollment[0].status !== 'approved') {
-      return new Response(JSON.stringify({ error: 'Not enrolled' }), { status: 403 });
+    if (enrollment.length === 0 || !isEnrollmentActive(enrollment[0])) {
+      return new Response(JSON.stringify({ error: 'Enrollment inactive or expired' }), { status: 403 });
     }
 
     const progress = await getUserCourseProgress(db, user.id, courseId);
@@ -78,8 +78,8 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     // Verify enrollment
     const enrollment = await db.select().from(courseEnrollments)
       .where(and(eq(courseEnrollments.userId, user.id), eq(courseEnrollments.courseId, courseId)));
-    if (enrollment.length === 0 || enrollment[0].status !== 'approved') {
-      return new Response(JSON.stringify({ error: 'Not enrolled' }), { status: 403 });
+    if (enrollment.length === 0 || !isEnrollmentActive(enrollment[0])) {
+      return new Response(JSON.stringify({ error: 'Enrollment inactive or expired' }), { status: 403 });
     }
 
     const completedRows = await db.select({ lessonId: courseProgress.lessonId })

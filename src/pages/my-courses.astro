@@ -7,6 +7,7 @@ import { courses, courseEnrollments, courseProgress, courseLessons } from '../db
 import { eq, and, sql } from 'drizzle-orm';
 import { env as workerEnv } from 'cloudflare:workers';
 import { BookOpen, PlayCircle, Award, Clock } from '@lucide/astro';
+import { isEnrollmentActive } from '../lib/lms-access.js';
 
 export const prerender = false;
 
@@ -22,6 +23,7 @@ const enrolledCourses = await db.select({
   courseId: courseEnrollments.courseId,
   status: courseEnrollments.status,
   completedAt: courseEnrollments.completedAt,
+  accessExpiresAt: courseEnrollments.accessExpiresAt,
   certificateUrl: courseEnrollments.certificateUrl,
   enrolledAt: courseEnrollments.createdAt,
   courseTitle: courses.title,
@@ -40,7 +42,7 @@ const enrolledCourses = await db.select({
 // Get progress for each enrolled course
 const courseProgressMap = new Map();
 for (const ec of enrolledCourses) {
-  if (ec.status !== 'approved') continue;
+  if (!isEnrollmentActive(ec)) continue;
   const total = ec.totalLessons || 0;
   const completed = await db.select({ count: sql`count(*)` })
     .from(courseProgress)
@@ -54,9 +56,10 @@ for (const ec of enrolledCourses) {
   courseProgressMap.set(ec.courseId, { total, completed: completedCount, percentage });
 }
 
-const approvedCourses = enrolledCourses.filter(ec => ec.status === 'approved');
-const pendingCourses = enrolledCourses.filter(ec => ec.status === 'pending');
-const revokedCourses = enrolledCourses.filter(ec => ec.status === 'revoked');
+const approvedCourses = enrolledCourses.filter((ec) => isEnrollmentActive(ec));
+const expiredCourses = enrolledCourses.filter((ec) => ec.status === 'approved' && !isEnrollmentActive(ec));
+const pendingCourses = enrolledCourses.filter((ec) => ec.status === 'pending');
+const revokedCourses = enrolledCourses.filter((ec) => ec.status === 'revoked');
 ---
 
 <BaseLayout title="আমার কোর্স | Ruqyah Healing Center">
@@ -66,7 +69,7 @@ const revokedCourses = enrolledCourses.filter(ec => ec.status === 'revoked');
     <div class="container">
       <h1 class="page-title">আমার কোর্সসমূহ</h1>
 
-      {approvedCourses.length === 0 && pendingCourses.length === 0 && revokedCourses.length === 0 ? (
+      {approvedCourses.length === 0 && expiredCourses.length === 0 && pendingCourses.length === 0 && revokedCourses.length === 0 ? (
         <div class="empty-state">
           <BookOpen size={64} />
           <h2>আপনি এখনো কোনো কোর্সে এনরোল করেননি</h2>
@@ -147,6 +150,36 @@ const revokedCourses = enrolledCourses.filter(ec => ec.status === 'revoked');
                       <h3 class="card-title">{ec.courseTitle}</h3>
                       <p class="card-instructor">{ec.courseInstructor}</p>
                       <p class="pending-note">পেমেন্ট যাচাই করা হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন।</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {expiredCourses.length > 0 && (
+            <section class="courses-section">
+              <h2 class="section-title">মেয়াদ শেষ হয়েছে</h2>
+              <div class="courses-grid">
+                {expiredCourses.map(ec => (
+                  <div class="course-card pending">
+                    <div class="card-image">
+                      <img src={ec.courseImage} alt={ec.courseTitle} loading="lazy" />
+                      <div class="pending-overlay">
+                        <Clock size={32} />
+                        <span>মেয়াদ শেষ</span>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <h3 class="card-title">{ec.courseTitle}</h3>
+                      <p class="card-instructor">{ec.courseInstructor}</p>
+                      <p class="pending-note">কোর্সের অ্যাক্সেস নবায়নের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।</p>
+                      {ec.completedAt && ec.certificateEnabled !== false && (
+                        <a href={`/courses/${ec.courseId}/certificate`} class="cert-btn">
+                          <Award size={16} />
+                          সার্টিফিকেট
+                        </a>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { createDb } from '../../../db/client.js';
 import { appointments } from '../../../db/schema.js';
 import { preferredTimeSlots } from '../../../data/clinic.js';
-import { buildAppointmentSlotStates } from '../../../lib/appointments.js';
+import { buildAppointmentSlotStates, validateAppointmentDate } from '../../../lib/appointments.js';
 
 export const prerender = false;
 
@@ -38,6 +38,11 @@ export const GET: APIRoute = async ({ request }) => {
       timezone: 'Asia/Dhaka',
       slots: buildAppointmentSlotStates(preferredTimeSlots, [], ''),
     });
+  }
+
+  const dateError = validateAppointmentDate(date);
+  if (dateError) {
+    return json({ error: 'invalid_date', message: dateError }, 400);
   }
 
   const env = await getRuntimeEnv();

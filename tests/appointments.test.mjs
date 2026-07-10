@@ -5,7 +5,10 @@ import {
   appointmentSubmissionSchema,
   buildAppointmentSlotStates,
   mapAppointmentToInsert,
+  normalizeBangladeshPhone,
   serializeAppointmentPayload,
+  validateAppointmentDate,
+  validateAppointmentSchedule,
 } from '../src/lib/appointments.js';
 
 test('serializeAppointmentPayload builds a normalized booking payload from raw form values', () => {
@@ -150,4 +153,53 @@ test('buildAppointmentSlotStates keeps all slots available until a date is selec
   assert.deepEqual(slots, [
     { value: 'সকাল ৯:০০', label: 'সকাল ৯:০০', available: true, reason: '' },
   ]);
+});
+
+test('normalizeBangladeshPhone accepts local and country-code formats', () => {
+  assert.equal(normalizeBangladeshPhone('+880 1992-575874'), '01992575874');
+  assert.equal(normalizeBangladeshPhone('8801992575874'), '01992575874');
+  assert.equal(normalizeBangladeshPhone('01992575874'), '01992575874');
+});
+
+test('appointment date validation rejects past and far-future dates in Dhaka time', () => {
+  const now = new Date('2026-07-10T06:00:00.000Z');
+  assert.equal(validateAppointmentDate('2026-07-09', now), 'অতীতের তারিখে বুকিং করা যাবে না।');
+  assert.equal(validateAppointmentDate('2027-07-11', now), 'সর্বোচ্চ ১ বছরের মধ্যে বুকিং করুন।');
+  assert.equal(validateAppointmentDate('2026-07-10', now), '');
+});
+
+test('appointment schedule validation rejects unknown time slots', () => {
+  const now = new Date('2026-07-10T06:00:00.000Z');
+  assert.equal(validateAppointmentSchedule('2026-07-11', 'রাত ৩:০০', now), 'নির্বাচিত সময় সঠিক নয়।');
+});
+
+test('appointment schema rejects a mismatched treatment label', () => {
+  const result = appointmentSubmissionSchema.safeParse({
+    fullName: 'টেস্ট রোগী',
+    nid: '',
+    age: '৩০',
+    weight: '',
+    gender: 'পুরুষ',
+    religion: 'মুসলিম',
+    duration: '১ বছর',
+    previousTreatment: 'না',
+    previousTreatmentDetails: '',
+    serviceMode: 'চেম্বার সেবা',
+    sessionFormat: 'ডায়াগনোসিস',
+    treatmentTypeKey: 'ruqyah',
+    treatmentTypeLabel: 'হিজামা',
+    subServices: [],
+    preferredDate: '2026-07-15',
+    preferredTime: 'বিকেল ৪:০০',
+    address: 'ঢাকা, বাংলাদেশ',
+    phone: '+8801992575874',
+    whatsapp: '',
+    problem: 'ঘুমের সমস্যা',
+    paymentMethod: 'বিকাশ',
+    transactionId: 'TEST123',
+    paymentTimestamp: '2026-07-10T10:30',
+  });
+
+  assert.equal(result.success, false);
+  assert.ok(result.error.issues.some((issue) => issue.path[0] === 'treatmentTypeLabel'));
 });
