@@ -9,7 +9,7 @@ Move the homepage Raqi profile section below the Blog section and deploy.
 
 ## Files touched this turn
 - `src/pages/index.astro`
-  - Moved Bengali Raqi profile section after `রুকইয়া ব্লগ`.
+  - Moved Bengali Raqi profile section after `রুকইয়াহ ব্লগ`.
 - `src/pages/en/index.astro`
   - Moved English Raqi profile section after `Ruqyah Blog`.
 - `tests/homepage-courses-section.test.mjs`

@@ -37,15 +37,24 @@ test('Homepage fallback catalog has enough professional courses for the section'
   }
 });
 
-test('Homepage places the Raqi profile after the blog section', () => {
-  const blogIndex = source.indexOf('<!-- রুকইয়া ব্লগ -->');
+test('Homepage places the Raqi profile after the course section', () => {
+  const blogIndex = source.indexOf('<!-- ⑤ রুকইয়াহ ব্লগ -->');
+  const packageIndex = source.indexOf('<!-- ⑥ আমাদের প্যাকেজ -->');
+  const productIndex = source.indexOf('<!-- ⑦ আমাদের প্রোডাক্টসমূহ -->');
+  const coursesIndex = source.indexOf('<!-- ⑧ আমাদের কোর্সসমূহ -->');
   const raqiIndex = source.indexOf('<!-- Raqi Profile Preview -->');
   const homeServiceIndex = source.indexOf('<!-- হোম সার্ভিস উপলব্ধ -->');
 
   assert.ok(blogIndex > -1, 'Bangla homepage should include blog section marker');
+  assert.ok(packageIndex > -1, 'Bangla homepage should include package section marker');
+  assert.ok(productIndex > -1, 'Bangla homepage should include product section marker');
+  assert.ok(coursesIndex > -1, 'Bangla homepage should include courses section marker');
   assert.ok(raqiIndex > -1, 'Bangla homepage should include Raqi profile marker');
   assert.ok(homeServiceIndex > -1, 'Bangla homepage should include home service marker');
-  assert.ok(blogIndex < raqiIndex, 'Bangla Raqi profile should appear after the blog section');
+  assert.ok(blogIndex < packageIndex, 'Bangla blog section should come before packages');
+  assert.ok(packageIndex < productIndex, 'Bangla packages should come before products');
+  assert.ok(productIndex < coursesIndex, 'Bangla products should come before courses');
+  assert.ok(coursesIndex < raqiIndex, 'Bangla Raqi profile should appear after the course section');
   assert.ok(raqiIndex < homeServiceIndex, 'Bangla Raqi profile should stay before home service');
 
   const blogIndexEn = sourceEn.indexOf('<!-- Ruqyah blog -->');
@@ -62,7 +71,7 @@ test('Homepage places the Raqi profile after the blog section', () => {
 test('Homepage courses section renders professional card structure', () => {
   has(/<section class="section courses-preview-section reveal">/);
   has(/<span class="section-kicker">Courses<\/span>/);
-  has(/<h2>আমাদের কোর্স সমূহ<\/h2>/);
+  has(/<h2>আমাদের কোর্সসমূহ<\/h2>/);
   has(/structured, safe এবং practical learning path/);
   has(/class="courses-preview-grid"/);
   has(/class="course-preview-card scroll-reveal-child"/);

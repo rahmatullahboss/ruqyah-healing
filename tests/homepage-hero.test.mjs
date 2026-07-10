@@ -11,13 +11,23 @@ const expectedSlideImages = [
   '/images/prayer-landscape.webp',
   '/images/ruqyah-info.webp',
   '/images/hijama-main.webp',
+  '/images/hijama-secondary.webp',
+  '/images/gallery-session.webp',
+  '/images/prayer-corner.webp',
+  '/images/pkg-ruqyah.webp',
+  '/images/course-ruqyah-online.webp',
 ];
 
 const expectedTypewriterPoints = [
   'পরিবারে অশান্তি বা কলহ?',
   'বিয়েতে বাধা বা সন্তান না হওয়া?',
-  'ব্যবসায়ে মন্দা বা সৌভাগ্যে বাধা?',
+  'ব্যবসায়ে মন্দা বা রিজিকে বাধা?',
   'অসহ্য শারীরিক যন্ত্রণা?',
+  'জিন-জাদু বা বদনজরের সন্দেহ?',
+  'মানসিক অস্থিরতা বা ভয়?',
+  'ঘুমের সমস্যা বা অস্বাভাবিক স্বপ্ন?',
+  'সেলফ রুকইয়াহ শিখতে চান?',
+  'হিজামা ও প্রাকৃতিক থেরাপি দরকার?',
 ];
 
 test('Homepage hero keeps the background slider structure in place', () => {

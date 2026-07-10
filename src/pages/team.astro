@@ -12,6 +12,29 @@ import {
 import { contactSupportsCall, contactSupportsWhatsapp } from '../lib/clinic-contacts.js';
 
 export const prerender = true;
+
+const raqiDetails = [
+  {
+    icon: '☪️',
+    title: 'রুকইয়াহ শারীয়াহ',
+    text: 'কুরআন, সহিহ দোয়া ও সুন্নাহসম্মত পদ্ধতিতে শিরকমুক্ত রুকইয়াহ সেশন পরিচালনা।',
+  },
+  {
+    icon: '📋',
+    title: 'ডায়াগনোসিস ও কেস স্টাডি',
+    text: 'রোগীর লক্ষণ, history ও বর্তমান অবস্থা শুনে ধাপে ধাপে করণীয় সাজানো।',
+  },
+  {
+    icon: '🩸',
+    title: 'হিজামা ও থেরাপি সাপোর্ট',
+    text: 'প্রয়োজন অনুযায়ী হিজামা, আকুপাংচার ও supportive therapy সম্পর্কে দিকনির্দেশনা।',
+  },
+  {
+    icon: '🤝',
+    title: 'Follow-up Guidance',
+    text: 'সেশন শেষে সেলফ রুকইয়াহ রুটিন, সতর্কতা ও follow-up plan বুঝিয়ে দেওয়া।',
+  },
+];
 ---
 
 <BaseLayout title="রাকী পরিচয় ও যোগাযোগ | Ruqyah Healing Center" description="রাকী টিমের সাথে যোগাযোগ, সময়সূচী ও বুকিং নির্দেশনা।">
@@ -51,6 +74,22 @@ export const prerender = true;
           <div class="profile-intro">
             <p>আল্লাহর অশেষ রহমতে একজন নিবেদিতপ্রাণ রাকী, ইসলামী চিকিৎসা শাস্ত্রের অনুশীলনকারী এবং সুন্নাহভিত্তিক স্বাস্থ্যসেবা প্রচারে প্রতিশ্রুতিবদ্ধ।</p>
             <p>মিশরের খ্যাতনামা আলেকজান্দ্রিয়া ইউনিভার্সিটির শাখা আন-নুখবা একাডেমি থেকে ইসলামী শরীয়াহ, রুকইয়াহ এবং প্রাকৃতিক চিকিৎসা পদ্ধতিতে গভীর জ্ঞান অর্জন করি।</p>
+          </div>
+
+          <div class="raqi-details-panel">
+            <div class="raqi-details-heading">
+              <span>Details</span>
+              <h3>রাকীর বিস্তারিত পরিচিতি</h3>
+            </div>
+            <div class="raqi-details-grid">
+              {raqiDetails.map((item) => (
+                <article class="raqi-detail-card">
+                  <span class="raqi-detail-icon" aria-hidden="true">{item.icon}</span>
+                  <h4>{item.title}</h4>
+                  <p>{item.text}</p>
+                </article>
+              ))}
+            </div>
           </div>
 
           <div class="specializations">
@@ -422,6 +461,71 @@ export const prerender = true;
   margin-bottom: 16px;
 }
 
+.raqi-details-panel {
+  margin-bottom: 32px;
+  padding: 24px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(240, 253, 244, 0.95));
+  border: 1px solid rgba(16, 185, 129, 0.14);
+}
+
+.raqi-details-heading {
+  margin-bottom: 18px;
+}
+
+.raqi-details-heading span {
+  display: inline-flex;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.raqi-details-heading h3 {
+  font-size: 22px;
+  color: var(--text-dark);
+}
+
+.raqi-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.raqi-detail-card {
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(16, 185, 129, 0.13);
+  box-shadow: 0 10px 24px rgba(15, 118, 110, 0.06);
+}
+
+.raqi-detail-icon {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  border-radius: 14px;
+  background: var(--primary-light);
+  font-size: 20px;
+}
+
+.raqi-detail-card h4 {
+  margin-bottom: 7px;
+  font-size: 16px;
+  color: var(--text-dark);
+}
+
+.raqi-detail-card p {
+  color: var(--text-medium);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
 .specializations {
   margin-bottom: 32px;
 }
@@ -571,6 +675,14 @@ export const prerender = true;
 
   .profile-name {
     font-size: 24px;
+  }
+
+  .raqi-details-panel {
+    padding: 18px;
+  }
+
+  .raqi-details-grid {
+    grid-template-columns: 1fr;
   }
 
   .spec-item {
