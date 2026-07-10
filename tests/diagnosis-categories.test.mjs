@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 const BASE_URL = process.env.TEST_URL || 'http://localhost:4321';
 
 test('Ruqyah Diagnosis Categories', async (t) => {
-  const categories = ['evil-eye', 'magic', 'jinn', 'waswas', 'kids'];
+  const categories = ['evil-eye', 'magic', 'jinn', 'waswasa', 'kids'];
   
   for (const cat of categories) {
     await t.test(`Category ${cat} loads correctly`, async () => {
